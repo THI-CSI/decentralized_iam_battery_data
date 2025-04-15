@@ -16,3 +16,6 @@ All implementations and changes should be documented as issues, tracked in the K
 - Detailed information on pull requests can be found in the pull request template: https://github.com/THI-CSI/project_bms_sose25/blob/main/.github/PULL_REQUEST_TEMPLATE.md
 - Detailed information on branches and contribution in general can be found in the contributions documentation: https://github.com/THI-CSI/project_bms_sose25/blob/feat/contribution-guidelines/CONTRIBUTING.md
 
+## Notes
+Documentation is done here in Github, but quick notes can be found in our HedgeDoc. The main HedgeDoc can be found here and should include links to all other Docs created by us: https://md.s0ck.de/Project2025
+
