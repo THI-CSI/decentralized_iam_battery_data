@@ -1,8 +1,8 @@
-name: General
+name: Bug Report
 title: <title>
 description: Description
 labels:
-  - general
+  - bug
 project: THI-CSI/2
 body:
   - type: textarea
@@ -13,8 +13,8 @@ body:
   - type: textarea
     id: textarea-1
     attributes:
-      label: Desired Situation
-      description: "A description of the desired situation. "
+      label: Expected Behavior
+      description: "A description of the expected Behavior. "
       required: true
   - type: textarea
     id: textarea-2
@@ -41,4 +41,3 @@ body:
         ---
 
         Please assign this issue to the relevant people, add relevant labels and assign to current sprint.
-
