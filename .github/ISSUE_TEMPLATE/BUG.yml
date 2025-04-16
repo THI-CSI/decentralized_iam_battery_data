@@ -1,0 +1,39 @@
+name: Bug Report
+title: "Bug "
+description: Bug Reports
+labels: ["bug"]
+projects: ["THI-CSI/2"]
+body:
+  - type: textarea
+    id: textarea-0
+    attributes:
+      label: Description
+      description: A short description of the issue.
+  - type: textarea
+    id: textarea-1
+    attributes:
+      label: Expected Behavior
+      description: "A description of the expected Behavior. "
+  - type: textarea
+    id: textarea-2
+    attributes:
+      label: Acceptance Criteria
+      value: >
+        Description of the outcomes required for this issue, written as
+        imperative bulletpoints:
+
+        - Clearly state the primary goals.
+
+        - Include any necessary sub-tasks or conditions. 
+          - Ensure all dependencies or related conditions are documented.
+  - type: textarea
+    id: textarea-3
+    attributes:
+      label: "Dev. Notes:"
+      value: Development notes, guidance notes
+  - type: markdown
+    attributes:
+      value: >-
+        ---
+
+        Please assign this issue to the relevant people, add relevant labels and assign to current sprint.

@@ -1,0 +1,39 @@
+name: General 
+title: "Issue"
+description: General Issues
+labels: ["gerneral"]
+projects: ["THI-CSI/2"]
+body:
+  - type: textarea
+    id: textarea-0
+    attributes:
+      label: Description
+      description: A short description of the issue.
+  - type: textarea
+    id: textarea-1
+    attributes:
+      label: Desired Situation
+      description: "A description of the desired situation. "
+  - type: textarea
+    id: textarea-2
+    attributes:
+      label: Acceptance Criteria
+      value: >
+        Description of the outcomes required for this issue, written as
+        imperative bulletpoints:
+
+        - Clearly state the primary goals.
+
+        - Include any necessary sub-tasks or conditions. 
+          - Ensure all dependencies or related conditions are documented.
+  - type: textarea
+    id: textarea-3
+    attributes:
+      label: "Dev. Notes:"
+      value: Development notes, guidance notes
+  - type: markdown
+    attributes:
+      value: >-
+        ---
+
+        Please assign this issue to the relevant people, set the correct issue type, add relevant labels and assign to current sprint.
