@@ -1,0 +1,45 @@
+name: General
+title: <title>
+description: Description
+labels:
+  - general
+project: THI-CSI/2
+body:
+  - type: textarea
+    id: textarea-0
+    attributes:
+      description: A short description of the issue.
+      required: true
+  - type: textarea
+    id: textarea-1
+    attributes:
+      label: Desired Situation
+      description: "A description of the desired situation. "
+      required: true
+  - type: textarea
+    id: textarea-2
+    attributes:
+      label: Acceptance Criteria
+      required: true
+      value: >
+        Description of the outcomes required for this issue, written as
+        imparative bulletpoints:
+
+        - Clearly state the primary goals.
+
+        - Include any necessary sub-tasks or conditions. 
+          - Ensure all dependencies or related conditions are documented.
+  - type: textarea
+    id: textarea-3
+    attributes:
+      label: "Dev. Notes:"
+      required: false
+      value: Development notes, guidance notes
+  - type: markdown
+    attributes:
+      value: >-
+        ---
+
+        Please assign this issue to the relevant teams and the appropriate
+        milestone.
+
