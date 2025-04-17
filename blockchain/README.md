@@ -26,3 +26,20 @@ It is also planned to provide a simple CLI (`/internal/api/cli`) to interact wit
 The storage module (`/internal/storage/`) will provide an interface to load and store data from different sources. 
 Since this project is only a proof of concept, we will only store the blockchain in a file for now.
 
+## Usage
+To start the blockchain locally, you can use the `go run` command:
+```shell
+go run cmd/main.go
+``` 
+
+To compile and build the Go project, you can use the `go build` command:
+```shell
+go build -o bin/blockchain cmd/main.go
+```
+
+After the changes have been implemented, test the functionality for errors and unexpected behavior.
+Before committing, run `gofmt` to format the code according to the Golang standard:
+```shell
+gofmt -l -s -w .
+```
+
