@@ -8,9 +8,9 @@ import (
 func main() {
 	var chain []core.Block
 
-	// Generate one Genisis block and five blocks without transactions
-	chain = append(chain, core.GenerateGenisisBlock())
-	for i := 0; i <= 5; i++ {
+	// Generate one Genesis block and three blocks without transactions
+	chain = append(chain, core.GenerateGenesisBlock())
+	for i := 0; i <= 3; i++ {
 		chain = append(chain, core.GenerateBlock(chain[len(chain)-1], nil))
 	}
 
@@ -18,4 +18,7 @@ func main() {
 	for i := range chain {
 		fmt.Println(chain[i])
 	}
+
+	// Outputs whether the blockchain is valid
+	fmt.Printf("Is the blockchain valid: %v\n", core.ValidateBlockchain(chain))
 }
