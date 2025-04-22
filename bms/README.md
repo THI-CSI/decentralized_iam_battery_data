@@ -16,6 +16,9 @@ Make sure the following tools are installed:
 - **Visual Studio Code** – for editing and developing the project  
   [Download VS Code](https://code.visualstudio.com/)
 
+- **Dependencies for Zephyr** – RTOS for embedded devices
+[Install dependencies for Zephyr](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies)
+
 ---
 
 ## Setup
@@ -24,6 +27,7 @@ Make sure the following tools are installed:
 
    ```bash
    git clone https://github.com/THI-CSI/decentralized_iam_battery_data.git
+   git checkout feat/bms-http-client
    cd bms
    ```
 
