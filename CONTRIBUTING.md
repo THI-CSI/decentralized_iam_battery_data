@@ -97,8 +97,14 @@ Issues should follow the template provided in [`.github/ISSUE_TEMPLATE.md`](http
 
 #### Branching
 
-The branch name must contain the GitHub Issue number and should briefly summarize the purpose or scope of the issue.  
+The branch name must contain the type and should briefly summarize the purpose or scope of the issue.  
 Use only lowercase letters and dashes (`-`) to separate words.
+
+Examples:
+```
+docs/contribution-guidelines
+feat/blockchain-block-generation
+```
 
 #### Pull Requests
 
@@ -122,6 +128,21 @@ They should separate different tasks that belong to the same problem.
 If there are too many commits, consider squashing them before creating your Pull Request.
 
 Commits must include a commit message, which should be written in the imperative form.
+
+Example:
+```
+<type>: <Short summary>
+| |-> Summary in present tense. Capitalized. No dot at the end.
+|
+|-> Commit Type: docs|feat|fix|refactor|test. Not Capitalized
+```
+
+Types:
+- docs: Documentation only changes
+- feat: A new feature
+- fix: A bugfix
+- refactor: A code change that neither fixes a bug nor adds a feature
+- test: Adding missing tests or correcting existing tests
 
 ---
 
