@@ -57,7 +57,7 @@ gofmt -l -s -w .
 
 ### Web Api
 
-To generate Swagger documentation, you first need to install the swag package, which is used to generate the documentation for your API:
+Before starting the server, you need to generate the Swagger documentation. To do this, you must first install the swag package, which is responsible for generating the API documentation:
 
 **Install the swag package**:
 

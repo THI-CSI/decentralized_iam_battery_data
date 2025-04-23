@@ -5,9 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -42,21 +40,22 @@ func gracefulShutdown(app *fiber.App, done chan bool) {
 // CreateServer initializes the Fiber server, starts it, and ensures graceful shutdown handling.
 // The server runs in a goroutine to allow for concurrent shutdown handling via `gracefulShutdown`.
 func CreateServer() {
-	server := server.New()
+	app := server.New()
+
+	config := server.NewConfiguration()
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 
 	go func() {
-		port, _ := strconv.Atoi(os.Getenv("PORT"))
-		err := server.Listen(fmt.Sprintf(":%d", port))
+		err := app.Listen(fmt.Sprintf(":%s", config.Port))
 		if err != nil {
 			panic(fmt.Sprintf("http server error: %s", err))
 		}
 	}()
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	go gracefulShutdown(app, done)
 
 	// Wait for the graceful shutdown to complete
 	<-done
