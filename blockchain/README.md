@@ -48,6 +48,11 @@ make install
 make build
 ```
 
+**Format the go sourcecode:**
+```shell
+make format
+```
+
 **Run the blockchain**:
 
 Uncomment line 26 in `./cmd/main.go` (`web.CreateServer()`) in case you want to start the mockup webserver as well.
