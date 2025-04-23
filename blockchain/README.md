@@ -20,6 +20,12 @@ It includes the data structures that define the blocks and transactions, as well
 ### API
 The api module (`/internal/api/`) contains the external interfaces for the blockchain. 
 It is planned to provide a web interface (`/internal/api/web/`) that can be used to make HTTP requests to create new transactions or retrieve information from the blockchain.
+
+To generate new swagger documentation use the command:
+```shell
+swag init -g internal/api/web/server/handlers/did.go -o internal/api/web/
+```
+
 It is also planned to provide a simple CLI (`/internal/api/cli`) to interact with the blockchain for testing and development purposes.
 
 ### Storage

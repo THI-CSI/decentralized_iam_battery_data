@@ -1,0 +1,103 @@
+definitions:
+  domain.AccessRight:
+    type: object
+  domain.AccessRightsResponse:
+    properties:
+      accessRights:
+        items:
+          $ref: '#/definitions/domain.AccessRight'
+        type: array
+    type: object
+  domain.CreateDid:
+    properties:
+      publicKey:
+        type: string
+    required:
+    - publicKey
+    type: object
+  domain.Did:
+    type: object
+  domain.ErrorResponseHTTP:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/did:
+    post:
+      consumes:
+      - application/json
+      description: Create a did with a public key
+      parameters:
+      - description: Did
+        in: body
+        name: did
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateDid'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Did'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponseHTTP'
+      summary: Create a did
+      tags:
+      - Did
+  /api/v1/grant:
+    put:
+      consumes:
+      - application/json
+      description: Grant access rights to another did
+      parameters:
+      - description: Did
+        in: body
+        name: did
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateDid'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponseHTTP'
+      summary: Grant access rights
+      tags:
+      - Did
+  /api/v1/grants/{did}:
+    get:
+      consumes:
+      - application/json
+      description: Get all access rights for a did
+      parameters:
+      - description: Did
+        in: path
+        name: did
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.AccessRightsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponseHTTP'
+      summary: Get access rights for did
+      tags:
+      - Did
+swagger: "2.0"
