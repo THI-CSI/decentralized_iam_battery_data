@@ -1,7 +1,7 @@
 name: General 
 title: "Issue"
 description: General Issues
-labels: ["gerneral"]
+labels: ["general"]
 projects: ["THI-CSI/2"]
 body:
   - type: textarea
