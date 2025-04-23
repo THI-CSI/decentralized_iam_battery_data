@@ -21,4 +21,7 @@ func main() {
 
 	// Outputs whether the blockchain is valid
 	fmt.Printf("Is the blockchain valid: %v\n", core.ValidateBlockchain(chain))
+
+	// Uncomment the following line to start the web server
+	// web.CreateServer()
 }
