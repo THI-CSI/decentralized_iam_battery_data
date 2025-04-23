@@ -1,0 +1,29 @@
+name: Requirement 
+title: "Requirement"
+description: For new Requirements
+labels: ["requirements"]
+type: "Requirement"
+projects: ["THI-CSI/2"]
+body:
+  - type: textarea
+    id: textarea-0
+    attributes:
+      label: Description
+      description: A short description of the issue.
+      value: >
+        Describe the requirement as precise as possible. Use "can, "must" or "should". If possible copy the exact wording from the source document.
+  - type: textarea
+    id: textarea-2
+    attributes:
+      label: Source for requirement
+      value: >
+        Specify exactly the source for this requirement and how to find it.
+  - type: markdown
+    attributes:
+      value: >-
+        ---
+
+        All requirements need to be labeled as requirements (and with "can, "must" or "should") and assigned to at least one of the main project requirements (PRJ_CSI_REQ_0XX).  Please follow the naming convention for requirements: PRJ_CSI_REQ_0XX.XX  
+        Multiple levels of requirements are possible. Please make these additional levels visible by adding a separating ".", e.g. PRJ_CSI_REQ_0XX.XX.XX
+
+        Please assign this issue to the relevant people, set the correct issue type, add relevant labels and assign to current sprint.
