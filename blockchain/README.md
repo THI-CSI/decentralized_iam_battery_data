@@ -36,40 +36,35 @@ Since this project is only a proof of concept, we will only store the blockchain
 
 ## Usage
 
-To start the blockchain locally, you can use the `go run` command:
+Make sure you are in the `decentralized_iam_battery_data/blockchain` directory.
 
+**Install dependencies:**
 ```shell
-go run cmd/main.go
+make install
 ```
 
-To compile and build the Go project, you can use the `go build` command:
-
+**Build the go library**:
 ```shell
-go build -o bin/blockchain cmd/main.go
+make build
 ```
 
-After the changes have been implemented, test the functionality for errors and unexpected behavior.
-Before committing, run `gofmt` to format the code according to the Golang standard:
+**Run the blockchain**:
 
+Uncomment line 26 in `./cmd/main.go` (`web.CreateServer()`) in case you want to start the mockup webserver as well.
 ```shell
-gofmt -l -s -w .
+make run
 ```
 
-### Web Api
-
-Before starting the server, you need to generate the Swagger documentation. To do this, you must first install the swag package, which is responsible for generating the API documentation:
-
-**Install the swag package**:
-
+**Generate Documentation**:
 ```shell
-go install github.com/swaggo/swag/cmd/swag@latest
+make docs         # Generate full docs
+make docs-go      # Generate go docs
+make docs-swagger # Generate swagger docs
 ```
 
-**Generate the Swagger documentation**:
-Run the following command to generate the Swagger docs. This will scan your code (starting from cmd/main.go) and output the documentation to the specified directory:
+**Cleanup**:
 
+Removes any documentation and the binary folder.
 ```shell
-swag init -g cmd/main.go -o internal/api/web/docs
+make clean
 ```
-
-> Note: Every time you add or update API handlers, you will need to re-run this command to regenerate the Swagger documentation.
