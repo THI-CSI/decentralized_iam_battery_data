@@ -1,27 +1,8 @@
 package main
 
-import (
-	"blockchain/internal/core"
-	"fmt"
-)
+import "blockchain/internal/api/cli"
 
 func main() {
-	var chain []core.Block
-
-	// Generate one Genesis block and three blocks without transactions
-	chain = append(chain, core.GenerateGenesisBlock())
-	for i := 0; i <= 3; i++ {
-		chain = append(chain, core.GenerateBlock(chain[len(chain)-1], nil))
-	}
-
-	// Print the blockchain example to the console
-	for i := range chain {
-		fmt.Println(chain[i])
-	}
-
-	// Outputs whether the blockchain is valid
-	fmt.Printf("Is the blockchain valid: %v\n", core.ValidateBlockchain(chain))
-
-	// Uncomment the following line to start the web server
-	// web.CreateServer()
+	cli := cli.InitCli()
+	cli.Parse()
 }
