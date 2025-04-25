@@ -2,7 +2,7 @@
                   Linker File for Renesas FSP
 */
 
-INCLUDE script/memory_regions.ld
+INCLUDE ld/memory_regions.ld
 
 /* Uncomment and set XIP_SECONDARY_SLOT_IMAGE to 1 below for the secondary XIP application image.*/
 /*
