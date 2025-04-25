@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String
-from database import Base
+from sqlalchemy import Column, String
+from cloud.utils.database import Base
 
 class Item(Base):
     __tablename__ = "items"
