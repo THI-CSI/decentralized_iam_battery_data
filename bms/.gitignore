@@ -1,0 +1,8 @@
+.vscode
+.cache
+.settings
+build/
+*.o
+*.d
+*.elf
+*.srec
