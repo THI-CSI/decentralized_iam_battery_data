@@ -72,8 +72,9 @@ To compile the project, run the following command in the project root:
 make clean 
 make 
 ``` 
- ### Flash
-1. Install the `rfp-cli` tool if you haven't already. 2. Flash the compiled image using: 
+### Flash
+1. Install the [Renesas Flash Programmer](https://www.renesas.com/en/software-tool/renesas-flash-programmer-programming-gui#overview) tool if you haven't already. 
+2. Flash the compiled image using: 
 ```bash 
 rfp-cli -device ra -tool jlink -file build/bms.srec -a -s 1M -vo 3.3 -if swd 
 ```
