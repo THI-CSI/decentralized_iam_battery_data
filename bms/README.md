@@ -2,75 +2,79 @@
 
 A firmware project for managing and monitoring battery systems.
 
----
+## Project Setup Instructions
 
-## Installation
-
-### Requirements
-
-Make sure the following tools are installed:
-
-- **J-Link** – for flashing/debugging firmware  
-  [Download J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/)
-  
-- **Visual Studio Code** – for editing and developing the project  
-  [Download VS Code](https://code.visualstudio.com/)
-
-- **Dependencies for Zephyr** – RTOS for embedded devices
-[Install dependencies for Zephyr](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies)
+Follow these steps to set up your development environment for this project:
 
 ---
 
-## Setup
+### 1. Install Visual Studio Code
 
-1. Clone this repository:
+Download and install Visual Studio Code from the official website:
 
+[https://code.visualstudio.com/](https://code.visualstudio.com/)
+
+---
+
+### 2. Install ARM Cross Compiler Toolchain
+
+Install the ARM GCC cross compiler toolchain. You can do this by installing the appropriate package for your platform:
+
+- **Windows (recommended):** [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
+- **Linux (Ubuntu):**  
+```bash
+sudo apt install gcc-arm-none-eabi
+```
+### 3. Install SEGGER J-Link
+
+Download and install the SEGGER J-Link software and drivers:
+
+https://www.segger.com/downloads/jlink
+### 4. Clone the GitHub Repository
+
+Open a terminal or command prompt and run:
    ```bash
    git clone https://github.com/THI-CSI/decentralized_iam_battery_data.git
-   git checkout feat/bms-http-client
    cd bms
    ```
 
-2. Open the project in **VS Code**:
+Additionally, update the `CC` and `OBJCOPY` variables in the `Makefile` to point to your installed ARM toolchain executable.
 
-   ```bash
-   code .
-   ```
+### 5. Open the Repository in VS Code
 
-3. Install the recommended Extensions
+Launch Visual Studio Code, then:
 
-4. Set up **Zephyr IDE:**
+Select `File` > `Open Folder`
 
-   1. Open the **Zephyr IDE** tab in VS Code.
-   2. In the **Zephyr Extension Setup** section, click **Workspace**.
-   3. Click **Initialize Workspace** → choose **Select west.yml in Workspace**.
-   4. Navigate to the `west-manifest/west.yml` file inside your project folder and select it.
-   5. When prompted, choose the **`arm` Toolchain**.
+Browse to the cloned repository and open it
 
-5. In the **Zephyr IDE** tab:
+### 6. Install RA Device Support Files
 
-   - Navigate to the **Project** section.
-   - Click **Add Build** for the `bms` project.
-   - When prompted:
-     - Select **Zephyr Directory Only**.
-     - Choose the board: **ek_ra6m5**.
-     - Accept all default values for the remaining prompts.
-   - After the build is added, click **Add Runner**.
-   - Select **jlink** as the runner and use the default values for all prompts.
+In your system's command prompt or start menu search bar:
+Search for `Renesas Support Files Manager`
 
+Launch it
 
-## Building and Flashing the Image
+Under **Device Family**, select **RA**
 
-### To Build:
+Install all support files for the RA family
 
-1. Open the **Zephyr IDE** tab.
-2. Under the **BMS: Build / EK_RA6M5** section, click the **Build** button.
+### 7. Additional Extensions
 
-### To Flash:
+When you open the project in VS Code for the first time, you'll be prompted to install recommended extensions — go ahead and install all of them.
 
-1. Connect a **Micro USB cable** from your host device (e.g., laptop) to the **Micro USB port** on your target hardware (**USB DEBUG**).
+If you missed the prompt, you can still install them manually by opening the Extensions view and searching: `@recommended`
 
-
-
-2. In the **Zephyr IDE** tab, under the **BMS: Build / EK_RA6M5** section, click the **Flash** button.
+## Building and Flashing the Image 
+### Build
+To compile the project, run the following command in the project root:
+```bash
+make clean 
+make 
+``` 
+ ### Flash
+1. Install the `rfp-cli` tool if you haven't already. 2. Flash the compiled image using: 
+```bash 
+rfp-cli -device ra -tool jlink -file build/bms.srec -a -s 1M -vo 3.3 -if swd 
+```
 
