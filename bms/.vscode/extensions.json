@@ -1,5 +1,7 @@
 {
     "recommendations": [
-        "mylonics.zephyr-ide-extension-pack"
+        "ms-vscode.cpptools-extension-pack",
+        "RenesasElectronicsCorporation.renesas-debug",
+        "marus25.cortex-debug"
     ]
 }
