@@ -62,17 +62,17 @@ go run cmd/main.go -web
 
 Create a demo blockchain and saves it to a file:
 ```shell
-go run cmd/main.go -demo -save blockchain.json
+go run cmd/main.go -demo -save
 ```
 
 Load the blockchain from a file and prints it to the console:
 ```shell
-go run cmd/main.go -load blockchain.json -print-chain
+go run cmd/main.go -load -print-chain
 ```
 
 Validate the blockchain:
 ```shell
-go run cmd/main.go -load blockchain.json -validate
+go run cmd/main.go -load -validate
 ```
 
 **Generate Documentation**:

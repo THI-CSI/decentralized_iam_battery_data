@@ -12,8 +12,9 @@ type Cli struct {
 	printChain *bool
 	validate   *bool
 	web        *bool
-	save       *string
-	load       *string
+	save       *bool
+	load       *bool
+	file       *string
 	demo       *bool
 }
 
@@ -23,8 +24,9 @@ func InitCli() *Cli {
 		printChain: flag.Bool("print-chain", false, "Print the entire blockchain"),
 		validate:   flag.Bool("validate", false, "Validate the blockchain"),
 		web:        flag.Bool("web", false, "Start the web server"),
-		save:       flag.String("save", "", "Save the blockchain to disk"),
-		load:       flag.String("load", "", "Load the blockchain from disk"),
+		save:       flag.Bool("save", false, "Save the blockchain to a file"),
+		load:       flag.Bool("load", false, "Load the blockchain from a file"),
+		file:       flag.String("file", "", "Specify the file"),
 		demo:       flag.Bool("demo", false, "Generate a demo blockchain and validate it"),
 	}
 	return cli
@@ -32,10 +34,14 @@ func InitCli() *Cli {
 
 // Parse parses the CLI arguments and runs the corresponding command
 func (cli *Cli) Parse(chain *[]core.Block) {
+	filename := "blockchain.json"
 	flag.Parse()
 
-	if len(*cli.load) > 0 {
-		filename := *cli.load
+	if len(*cli.file) > 0 {
+		filename = *cli.file
+	}
+
+	if *cli.load {
 		err := storage.Load(filename, chain)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
@@ -68,7 +74,7 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 		isValid := core.ValidateBlockchain(*chain)
 		if isValid {
 			fmt.Printf("The blockchain is valid!\n")
-		}else {
+		} else {
 			fmt.Printf("The blockchain is not valid!\n")
 		}
 	}
@@ -78,9 +84,7 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 		web.CreateServer()
 	}
 
-
-	if len(*cli.save) > 0 {
-		filename := *cli.save
+	if *cli.save {
 		err := storage.Save(filename, *chain)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
