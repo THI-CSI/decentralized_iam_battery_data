@@ -3,76 +3,94 @@ package cli
 import (
 	"blockchain/internal/api/web"
 	"blockchain/internal/core"
+	"blockchain/internal/storage"
 	"flag"
 	"fmt"
 )
 
 type Cli struct {
 	printChain *bool
-	printBlock *bool
 	validate   *bool
 	web        *bool
 	save       *bool
 	load       *bool
-	test       *bool
+	file       *string
+	demo       *bool
 }
 
 // InitCli initializes CLI flags and returns a Cli instance
 func InitCli() *Cli {
 	cli := &Cli{
 		printChain: flag.Bool("print-chain", false, "Print the entire blockchain"),
-		printBlock: flag.Bool("print-block", false, "Print a specific block"),
 		validate:   flag.Bool("validate", false, "Validate the blockchain"),
 		web:        flag.Bool("web", false, "Start the web server"),
-		save:       flag.Bool("save", false, "Save the blockchain to disk"),
-		load:       flag.Bool("load", false, "Load the blockchain from disk"),
-		test:       flag.Bool("test", false, "Generate a test blockchain and validate it"),
+		save:       flag.Bool("save", false, "Save the blockchain to a file"),
+		load:       flag.Bool("load", false, "Load the blockchain from a file"),
+		file:       flag.String("file", "", "Specify the file"),
+		demo:       flag.Bool("demo", false, "Generate a demo blockchain and validate it"),
 	}
 	return cli
 }
 
 // Parse parses the CLI arguments and runs the corresponding command
-func (cli *Cli) Parse() {
+func (cli *Cli) Parse(chain *[]core.Block) {
+	filename := "blockchain.json"
 	flag.Parse()
 
-	switch {
-	case *cli.printChain:
-		fmt.Println("Printing the entire blockchain...")
+	if len(*cli.file) > 0 {
+		filename = *cli.file
+	}
 
-	case *cli.printBlock:
-		fmt.Println("Printing a specific block...")
+	if *cli.load {
+		err := storage.Load(filename, chain)
+		if err != nil {
+			fmt.Printf("error: %v\n", err)
+			return
+		}
+		fmt.Printf("Loaded blockchain from '%v'\n", filename)
+	}
 
-	case *cli.validate:
-		fmt.Println("Validating the blockchain...")
-
-	case *cli.web:
-		web.CreateServer()
-
-	case *cli.save:
-		fmt.Println("Saving the blockchain...")
-
-	case *cli.load:
-		fmt.Println("Loading the blockchain...")
-
-	case *cli.test:
-		fmt.Println("Running blockchain test...")
-		var chain []core.Block
+	if *cli.demo {
+		fmt.Println("Creates a demo blockchain...")
 
 		// Generate genesis block and 3 additional blocks with no transactions
-		chain = append(chain, core.GenerateGenesisBlock())
+		*chain = append(*chain, core.GenerateGenesisBlock())
 		for i := 0; i < 3; i++ {
-			chain = append(chain, core.GenerateBlock(chain[len(chain)-1], nil))
+			*chain = append(*chain, core.GenerateBlock((*chain)[len(*chain)-1], nil))
 		}
+	}
 
-		// Print all blocks
-		for i, block := range chain {
+	if *cli.printChain {
+		fmt.Println("Printing the entire blockchain...")
+
+		for i, block := range *chain {
 			fmt.Printf("Block %d: %+v\n", i, block)
 		}
-
-		// Validate and print result
-		fmt.Printf("Is the blockchain valid? %v\n", core.ValidateBlockchain(chain))
-
-	default:
-		fmt.Println("No valid flag provided. Use -h for help.")
 	}
+
+	if *cli.validate {
+		fmt.Println("Validating the blockchain...")
+
+		isValid := core.ValidateBlockchain(*chain)
+		if isValid {
+			fmt.Printf("The blockchain is valid!\n")
+		} else {
+			fmt.Printf("The blockchain is not valid!\n")
+		}
+	}
+
+	if *cli.web {
+		fmt.Println("Starting the Web API...")
+		web.CreateServer()
+	}
+
+	if *cli.save {
+		err := storage.Save(filename, *chain)
+		if err != nil {
+			fmt.Printf("error: %v\n", err)
+			return
+		}
+		fmt.Printf("Saved the blockchain to '%v'\n", filename)
+	}
+
 }

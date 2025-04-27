@@ -53,11 +53,26 @@ make build
 make format
 ```
 
-**Run the blockchain**:
+**Use the blockchain CLI**:
 
-Uncomment line 26 in `./cmd/main.go` (`web.CreateServer()`) in case you want to start the mockup webserver as well.
+Start the Web API use the `-web` flag:
 ```shell
-make run
+go run cmd/main.go -web
+```
+
+Create a demo blockchain and saves it to a file:
+```shell
+go run cmd/main.go -demo -save
+```
+
+Load the blockchain from a file and prints it to the console:
+```shell
+go run cmd/main.go -load -print-chain
+```
+
+Validate the blockchain:
+```shell
+go run cmd/main.go -load -validate
 ```
 
 **Generate Documentation**:
