@@ -4,6 +4,7 @@ import (
 	"crypto/sha3"
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 )
@@ -14,7 +15,7 @@ type Block struct {
 	// Index is the position of the block in the chain.
 	Index int
 	// Timestamp is when the block was created.
-	Timestamp time.Time
+	Timestamp string
 	// Hash is the cryptographic hash of this block.
 	Hash string
 	// PreviousBlockHash is the hash of the prior block.
@@ -42,7 +43,7 @@ func (b Block) String() string {
 func CalculateBlockHash(block Block) string {
 	sha256 := sha3.New256()
 	// TODO: We have to calculate a Merkle Tree Hash and add it to the record
-	record := string(block.Index) + block.Timestamp.String() + block.PreviousBlockHash
+	record := string(block.Index) + block.Timestamp + block.PreviousBlockHash
 	sha256.Write([]byte(record))
 	hash := sha256.Sum(nil)
 	return hex.EncodeToString(hash)
@@ -52,8 +53,10 @@ func CalculateBlockHash(block Block) string {
 func GenerateGenesisBlock() Block {
 	var block Block
 
+	t := time.Now()
+
 	block.Index = 0
-	block.Timestamp = time.Now()
+	block.Timestamp = t.Format("2006-01-02 15:04:05")
 	// Since this is the first block in the chain, the PreviousBlockHash is hardcoded
 	block.PreviousBlockHash = "0000000000000000000000000000000000000000000000000000000000000000"
 	block.Transactions = nil
@@ -66,8 +69,10 @@ func GenerateGenesisBlock() Block {
 func GenerateBlock(currentBlock Block, transactions []Transaction) Block {
 	var block Block
 
+	t := time.Now()
+
 	block.Index = currentBlock.Index + 1
-	block.Timestamp = time.Now()
+	block.Timestamp = t.Format("2006-01-02 15:04:05")
 	block.PreviousBlockHash = currentBlock.Hash
 	block.Transactions = transactions
 	block.Hash = CalculateBlockHash(block)
@@ -82,6 +87,7 @@ func ValidateBlockchain(chain []Block) bool {
 
 		// Check if the block hash is valid
 		if CalculateBlockHash(currentBlock) != currentBlock.Hash {
+			slog.Error(fmt.Sprintf("The hash of block %v is not valid!", index))
 			return false
 		}
 
