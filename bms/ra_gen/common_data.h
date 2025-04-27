@@ -12,15 +12,15 @@
 #include "bsp_pin_cfg.h"
 FSP_HEADER
 #ifndef ETHER_PHY_LSI_TYPE_KIT_COMPONENT
-#define ETHER_PHY_LSI_TYPE_KIT_COMPONENT ETHER_PHY_LSI_TYPE_DEFAULT
+  #define ETHER_PHY_LSI_TYPE_KIT_COMPONENT ETHER_PHY_LSI_TYPE_DEFAULT
 #endif
 
 #ifndef NULL
-void NULL(ether_phy_instance_ctrl_t *p_instance_ctrl);
+void NULL(ether_phy_instance_ctrl_t * p_instance_ctrl);
 #endif
 
 #ifndef NULL
-bool NULL(ether_phy_instance_ctrl_t *p_instance_ctrl, uint32_t line_speed_duplex);
+bool NULL(ether_phy_instance_ctrl_t * p_instance_ctrl, uint32_t line_speed_duplex);
 #endif
 
 /** ether_phy on ether_phy Instance. */
@@ -44,9 +44,9 @@ extern ether_instance_ctrl_t g_ether0_ctrl;
 extern const ether_cfg_t g_ether0_cfg;
 
 #ifndef vEtherISRCallback
-void vEtherISRCallback(ether_callback_args_t *p_args);
+void vEtherISRCallback(ether_callback_args_t * p_args);
 #endif
-extern ether_instance_t const *gp_freertos_ether;
+extern ether_instance_t const * gp_freertos_ether;
 #define IOPORT_CFG_NAME g_bsp_pin_cfg
 #define IOPORT_CFG_OPEN R_IOPORT_Open
 #define IOPORT_CFG_CTRL g_ioport_ctrl

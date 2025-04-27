@@ -26,12 +26,13 @@
  * https://www.FreeRTOS.org
  */
 
+
 /*****************************************************************************
- *
- * See the following URL for configuration information.
- * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html
- *
- *****************************************************************************/
+*
+* See the following URL for configuration information.
+* http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html
+*
+*****************************************************************************/
 #ifndef FREERTOS_IP_CONFIG_H
 #define FREERTOS_IP_CONFIG_H
 
@@ -312,7 +313,9 @@ extern "C" {
   #define portINLINE          inline
 #endif
 
-void vApplicationMQTTGetKeys(const char **ppcRootCA, const char **ppcClientCert, const char **ppcClientPrivateKey);
+void vApplicationMQTTGetKeys( const char ** ppcRootCA,
+                              const char ** ppcClientCert,
+                              const char ** ppcClientPrivateKey );
 
 #ifdef __cplusplus
 }
