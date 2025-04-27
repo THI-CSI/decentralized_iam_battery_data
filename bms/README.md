@@ -79,3 +79,19 @@ make
 rfp-cli -device ra -tool jlink -file build/bms.srec -a -s 1M -vo 3.3 -if swd 
 ```
 
+## Usage
+
+To communicate with the device over Ethernet, you must first configure your network interface. Since only IPv4 is supported and DHCP is not available, you need to manually assign IP addresses.
+
+To set your IP address:
+```bash
+sudo ip addr add 192.168.0.3/24 dev <your_interface_name>
+```
+To assign the server IP address:
+```bash
+sudo ip addr add 192.168.1.100/24 dev <your_interface_name>
+```
+Then, to start a server listener (e.g., using Netcat):
+```bash
+nc -l -p 12345 -s 192.168.1.100
+```
