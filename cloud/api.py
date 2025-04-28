@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from util.models import  ItemCreatePlain #ItemCreate,
+from util.models import ItemCreatePlain  # ItemCreate,
 from util.middleware import decrypt_request_data
 from util import models
 from util.database import SessionLocal, engine
@@ -35,15 +35,15 @@ def read_items(
     return db.query(models.Item).all()
 
 @app.put("/batterypass/")
-#@decrypt_request_data
+# @decrypt_request_data
 async def create_item(
-    item: ItemCreatePlain, #ItemCreate,
+    item: ItemCreatePlain,
     db: Session = Depends(get_db),
     credentials: HTTPAuthorizationCredentials = Security(authorize_user)
 ):
     if not hasattr(item, "name") or not hasattr(item, "description"):
         raise HTTPException(status_code=400, detail="Decrypted fields missing.")
-
+    
     new_item = models.Item(name=item.name, description=item.description)
     db.add(new_item)
     try:
@@ -55,10 +55,10 @@ async def create_item(
     return new_item
 
 @app.post("/batterypass/{did}")
-#@decrypt_request_data
+# @decrypt_request_data
 async def update_item(
     did: int,
-    item: ItemCreatePlain, #ItemCreate,
+    item: ItemCreatePlain,
     db: Session = Depends(get_db),
     credentials: HTTPAuthorizationCredentials = Security(authorize_user)
 ):
@@ -67,7 +67,7 @@ async def update_item(
         raise HTTPException(status_code=404, detail="Item not found.")
     if not hasattr(item, "name") or not hasattr(item, "description"):
         raise HTTPException(status_code=400, detail="Decrypted fields missing.")
-
+    
     db_item.name = item.name
     db_item.description = item.description
     try:
@@ -77,7 +77,6 @@ async def update_item(
         db.rollback()
         raise HTTPException(status_code=400, detail="Item already exists.")
     return db_item
-
 
 @app.delete("/batterypass/")
 def delete_item(
