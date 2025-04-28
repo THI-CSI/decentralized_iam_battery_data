@@ -99,6 +99,9 @@ Issues should follow the template provided in [`.github/ISSUE_TEMPLATE.md`](http
 
 The branch name must contain the type and should briefly summarize the purpose or scope of the issue.  
 Use only lowercase letters and dashes (`-`) to separate words.
+Every new feature gets its own branch.
+No ticket numbers should be given in branch names.
+
 
 Examples:
 ```
