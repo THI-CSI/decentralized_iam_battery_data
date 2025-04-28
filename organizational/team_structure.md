@@ -1,0 +1,28 @@
+# Team structure and team assignments
+Note: Names in brackets are only partial assignments.
+- Requirements:
+    - Paulina
+    - Fatma
+    - Timo 
+- Infrastructure:
+    - Berkan
+    - Pascal
+    - (Matthias)
+    - (Jonas)
+    - (Timo)
+- IAM-Blockchain:
+    - Jonas
+    - Till
+    - Felix (Data transfer)
+    - (Berkan)
+- BMS:
+    - Matthias
+    - Florian
+    - Patrick (Data transfer))
+    - Felix (Data transfer)
+- Client/Cloud:
+    - Deniz
+    - Valentin
+    - Ensar (Data transfer)
+    - (Pascal)
+    - (Patrick)
