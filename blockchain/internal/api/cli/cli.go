@@ -56,7 +56,11 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 		// Generate genesis block and 3 additional blocks with no transactions
 		*chain = append(*chain, core.GenerateGenesisBlock())
 		for i := 0; i < 3; i++ {
-			*chain = append(*chain, core.GenerateBlock((*chain)[len(*chain)-1], nil))
+			for t := 0; t <= i; t++ {
+				core.CreateTransaction(core.Create, fmt.Sprintf("Block[%v] - Transaction[%v]", i, t))
+			}
+			*chain = append(*chain, core.GenerateBlock((*chain)[len(*chain)-1], core.PendingTransactions))
+			core.PendingTransactions = nil
 		}
 	}
 
