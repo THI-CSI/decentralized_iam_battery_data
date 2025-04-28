@@ -34,17 +34,19 @@ type Transaction struct {
 	Data string
 }
 
-var pendingTransactions []Transaction // Adequate as long as the blockchain stays in RAM
+var PendingTransactions []Transaction // Adequate as long as the blockchain stays in RAM
 
 // CreateTransaction creates a new transaction and adds it to the pending list
 func CreateTransaction(txType TransactionType, data string) Transaction {
+	t := time.Now()
+
 	tx := Transaction{
-		Index:     len(pendingTransactions), // Adequate as long as the blockchain stays in RAM
-		Timestamp: time.Now().String(),
+		Index:     len(PendingTransactions), // Adequate as long as the blockchain stays in RAM
+		Timestamp: t.Format("2006-01-02 15:04:05"),
 		Type:      txType,
 		Data:      data,
 	}
-	pendingTransactions = append(pendingTransactions, tx)
+	PendingTransactions = append(PendingTransactions, tx)
 	return tx
 }
 

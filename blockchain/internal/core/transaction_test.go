@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -34,7 +35,7 @@ func TestCreateTransaction(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Clear pending transactions before the test to reset index
-			pendingTransactions = []Transaction{}
+			PendingTransactions = []Transaction{}
 
 			got := CreateTransaction(tt.args.txType, tt.args.data)
 
@@ -56,7 +57,7 @@ func TestCreateTransaction(t *testing.T) {
 
 // setFixedTimestamp Helper function to set a fixed timestamp for transactions
 func setFixedTimestamp(txs []Transaction) {
-	fixedTimestamp := time.Date(2025, 4, 28, 12, 0, 0, 0, time.UTC).String()
+	fixedTimestamp := "2025-04-28 12:00:00"
 	for i := range txs {
 		txs[i].Timestamp = fixedTimestamp
 	}
@@ -64,7 +65,7 @@ func setFixedTimestamp(txs []Transaction) {
 
 func TestHashTransaction(t *testing.T) {
 	type args struct {
-		tx Transaction
+		tx []Transaction
 	}
 	tests := []struct {
 		name string
@@ -74,19 +75,21 @@ func TestHashTransaction(t *testing.T) {
 		{
 			name: "Hash a transaction with fixed timestamp",
 			args: args{
-				tx: CreateTransaction(Create, "Test data for hashing"),
+				tx: []Transaction{CreateTransaction(Create, "Test data for hashing")},
 			},
-			want: "042c966f91d2f829dbd579e3448fbe6219ae242eb77f8c786e63787838f1c997",
+			want: "0051b28cdd362ad864b5f323f55301bc0587fe4623b221b3005b4278fe13584f",
 		},
 		// Add more test cases as needed
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Set a fixed timestamp to avoid variations in the hash
-			setFixedTimestamp([]Transaction{tt.args.tx})
-
-			if got := CalculateTransactionHash(tt.args.tx); got != tt.want {
-				t.Errorf("CalculateTransactionHash() = %v, want %v", got, tt.want)
+			setFixedTimestamp(tt.args.tx)
+			fmt.Println(tt.args.tx)
+			for i := range tt.args.tx {
+				if got := CalculateTransactionHash(tt.args.tx[i]); got != tt.want {
+					t.Errorf("CalculateTransactionHash() = %v, want %v", got, tt.want)
+				}
 			}
 		})
 	}
@@ -111,7 +114,7 @@ func TestBuildMerkleRoot(t *testing.T) {
 					CreateTransaction(Revoke, "Transaction 4"),
 				},
 			},
-			want: "0fb4f5b88adcf61c467d451e90660e40ec847efd30902e078e910075c0e6837c",
+			want: "848132405a40d74bc5f06427c40840aa732037b8d4d088b24e356a8d7fb62f42",
 		},
 		{
 			name: "Build Merkle root with no transactions",
