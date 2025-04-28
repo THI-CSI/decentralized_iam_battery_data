@@ -135,7 +135,7 @@ Commits must include a commit message, which should be written in the imperative
 Example:
 ```
 <type>: <Short summary>
-| |-> Summary in present tense. Capitalized. No dot at the end.
+|-> Summary in present tense. Capitalized. No dot at the end.
 |
 |-> Commit Type: docs|feat|fix|refactor|test. Not Capitalized
 ```
