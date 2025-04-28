@@ -1,0 +1,65 @@
+# Task assignments
+- Requirements:
+  - Extract requirements from documents  
+    - Battery Passport  
+    - DID  
+    - VCs  
+    - Brief overview of W3Cs  
+  - Set/mark prioritization accordingly  
+  - Derive role concept from documents (legal definitions, etc.; technical aspects differ or emerge from the architecture)  
+  - Documentation: what exactly should be documented? (including for evaluation, since there isn’t a large volume of code)  
+  - Create issues based on the defined requirements  
+  - Keep the big picture in mind with sub-issues (developers create sub-issues; we create the main issues)  
+  - Final report: we develop and explain the requirements → developers then detail the concrete implementation  
+  - Determine what to include in the issues; must be clarified by next week  
+  - Coordinate with the organizing team (Berkan, Pascal)  
+
+- Infrastructure:
+  - Import & adapt ADP (guidelines)  
+  - GitHub configurations (repos, teams, branches, wiki, Kanban board, etc.)  
+  - Coordination  
+  - Technical infrastructure (containers)  
+  - MIT license  
+
+- IAM-Blockchain:
+  - Blockchain Core  
+    - Storage  
+    - Block structure  
+    - Transaction structure  
+    - Consensus algorithm (placeholder + approach in the docs)  
+    - Peer-to-peer (placeholder + approach in the docs)  
+  - Web API:  
+    - GET /blocks  
+    - GET /block/"b-id"  
+    - POST /did  
+    - PUT /did  
+    - PUT /grant  
+    - PUT /revoke  
+    - GET /transaction/"t-id"  
+    - GET /grants/"did"  
+  - Block Explorer (frontend to view blocks and relationships)  
+    - Read block  
+    - DID relationships  
+    - Blockchain list  
+
+- BMS: (https://md.s0ck.de/BMS)  
+  - BMS-blockchain communication  
+  - Collect battery data  
+  - Encrypt battery data and send to the cloud  
+  - Security (e.g., handling of the secret key)  
+  - Hardware simulator  
+  - (Infotainment system?)  
+  - See https://md.s0ck.de/BMS  
+
+- Client / Cloud:
+  - API for battery data from the BMS  
+  - Decrypt data with own private key  
+  - Design database for the battery passport (tables and choice of database)  
+  - Create own DID  
+  - Create and update the battery passport  
+  - Interface for the battery passport  
+  - //Interface section:  
+    - Document the interface between BMS and cloud  
+    - Describe API endpoints with request/response examples  
+    - Illustrate data flow between BMS, cloud, and battery passport  
+    - Define requirements for data formats, authentication, and error handling  
