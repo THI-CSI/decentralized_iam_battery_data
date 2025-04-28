@@ -1,7 +1,7 @@
 package core
 
 import (
-	"crypto/sha3"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
@@ -22,6 +22,8 @@ type Block struct {
 	PreviousBlockHash string
 	// Transactions holds all transactions in this block.
 	Transactions []Transaction
+	// MerkleRoot holds the fingerprint of the whole merkle tree
+	MerkleRoot string
 }
 
 // Returns a more readable string representation of the block structure
@@ -39,11 +41,10 @@ func (b Block) String() string {
 	return block
 }
 
-// Calculates the SHA-256 hash of a block
+// CalculateBlockHash computes the SHA-256 hash of a block
 func CalculateBlockHash(block Block) string {
-	sha256 := sha3.New256()
-	// TODO: We have to calculate a Merkle Tree Hash and add it to the record
-	record := string(block.Index) + block.Timestamp + block.PreviousBlockHash
+	sha256 := sha256.New()
+	record := fmt.Sprintf("%d%s%s%s", block.Index, block.Timestamp, block.PreviousBlockHash, block.MerkleRoot)
 	sha256.Write([]byte(record))
 	hash := sha256.Sum(nil)
 	return hex.EncodeToString(hash)
@@ -75,6 +76,7 @@ func GenerateBlock(currentBlock Block, transactions []Transaction) Block {
 	block.Timestamp = t.Format("2006-01-02 15:04:05")
 	block.PreviousBlockHash = currentBlock.Hash
 	block.Transactions = transactions
+	block.MerkleRoot = BuildMerkleRoot(transactions)
 	block.Hash = CalculateBlockHash(block)
 
 	return block

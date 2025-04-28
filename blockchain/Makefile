@@ -38,6 +38,9 @@ clean:
 	rm -f DOCS.md
 	rm -rf internal/cmd/api/web/docs
 
+test:
+	go test -v ./internal/core
+
 # Do everything: build + docs + test
 all: clean test build docs
 
