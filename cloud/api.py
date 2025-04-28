@@ -27,6 +27,11 @@ def get_db():
     finally:
         db.close()
 
+# Neuer Root-Endpunkt hinzugefügt:
+@app.get("/")
+def read_root():
+    return {"message": "API is working"}
+
 @app.get("/batterypass/")
 def read_items(
     db: Session = Depends(get_db),
@@ -35,7 +40,6 @@ def read_items(
     return db.query(models.Item).all()
 
 @app.put("/batterypass/")
-# @decrypt_request_data
 async def create_item(
     item: ItemCreatePlain,
     db: Session = Depends(get_db),
@@ -48,45 +52,3 @@ async def create_item(
     db.add(new_item)
     try:
         db.commit()
-        db.refresh(new_item)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Item already exists.")
-    return new_item
-
-@app.post("/batterypass/{did}")
-# @decrypt_request_data
-async def update_item(
-    did: int,
-    item: ItemCreatePlain,
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Security(authorize_user)
-):
-    db_item = db.query(models.Item).filter(models.Item.id == did).first()
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found.")
-    if not hasattr(item, "name") or not hasattr(item, "description"):
-        raise HTTPException(status_code=400, detail="Decrypted fields missing.")
-    
-    db_item.name = item.name
-    db_item.description = item.description
-    try:
-        db.commit()
-        db.refresh(db_item)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Item already exists.")
-    return db_item
-
-@app.delete("/batterypass/")
-def delete_item(
-    did: int,
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Security(authorize_user)
-):
-    item = db.query(models.Item).filter(models.Item.id == did).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found.")
-    db.delete(item)
-    db.commit()
-    return {"ok": True}
