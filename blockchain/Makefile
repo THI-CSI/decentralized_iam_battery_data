@@ -41,6 +41,6 @@ clean:
 test:
 	go test -v ./internal/core
 
-# Do everything: build + docs + test
+# Do everything: clean + build + docs + test
 all: clean test build docs
 

@@ -22,13 +22,10 @@ func TestCreateTransaction(t *testing.T) {
 				data:   "Test transaction data",
 			},
 			want: Transaction{
-				Header: TransactionHeader{
-					Index:     0,
-					Timestamp: time.Now(), // We can't compare exact time, so we can ignore this.
-					Type:      Create,
-					Data:      "Test transaction data",
-				},
-				Body: "Test transaction data",
+				Index:     0,
+				Timestamp: time.Now().String(), // We can't compare exact time, so we can ignore this.
+				Type:      Create,
+				Data:      "Test transaction data",
 			},
 		},
 		// Add more cases here if necessary
@@ -42,20 +39,16 @@ func TestCreateTransaction(t *testing.T) {
 			got := CreateTransaction(tt.args.txType, tt.args.data)
 
 			// Check if the index is as expected
-			if got.Header.Index != tt.want.Header.Index {
-				t.Errorf("CreateTransaction() Index = %v, want %v", got.Header.Index, tt.want.Header.Index)
+			if got.Index != tt.want.Index {
+				t.Errorf("CreateTransaction() Index = %v, want %v", got.Index, tt.want.Index)
 			}
 			// Check if the type is as expected
-			if got.Header.Type != tt.want.Header.Type {
-				t.Errorf("CreateTransaction() Type = %v, want %v", got.Header.Type, tt.want.Header.Type)
+			if got.Type != tt.want.Type {
+				t.Errorf("CreateTransaction() Type = %v, want %v", got.Type, tt.want.Type)
 			}
 			// Check if the data is as expected
-			if got.Header.Data != tt.want.Header.Data {
-				t.Errorf("CreateTransaction() Data = %v, want %v", got.Header.Data, tt.want.Header.Data)
-			}
-			// Check if the body is as expected
-			if got.Body != tt.want.Body {
-				t.Errorf("CreateTransaction() Body = %v, want %v", got.Body, tt.want.Body)
+			if got.Data != tt.want.Data {
+				t.Errorf("CreateTransaction() Data = %v, want %v", got.Data, tt.want.Data)
 			}
 		})
 	}
@@ -63,9 +56,9 @@ func TestCreateTransaction(t *testing.T) {
 
 // setFixedTimestamp Helper function to set a fixed timestamp for transactions
 func setFixedTimestamp(txs []Transaction) {
-	fixedTimestamp := time.Date(2025, 4, 28, 12, 0, 0, 0, time.UTC)
+	fixedTimestamp := time.Date(2025, 4, 28, 12, 0, 0, 0, time.UTC).String()
 	for i := range txs {
-		txs[i].Header.Timestamp = fixedTimestamp
+		txs[i].Timestamp = fixedTimestamp
 	}
 }
 
@@ -83,7 +76,7 @@ func TestHashTransaction(t *testing.T) {
 			args: args{
 				tx: CreateTransaction(Create, "Test data for hashing"),
 			},
-			want: "406a766fca9b09a7f011b16e4b92b2a5cba6d9da7bec2add542594d9d137d8fc",
+			want: "042c966f91d2f829dbd579e3448fbe6219ae242eb77f8c786e63787838f1c997",
 		},
 		// Add more test cases as needed
 	}
@@ -118,7 +111,7 @@ func TestBuildMerkleRoot(t *testing.T) {
 					CreateTransaction(Revoke, "Transaction 4"),
 				},
 			},
-			want: "a058b3aa1b083461561e7e1836a46512e9f83c25bd0080dbdd4a71e8b8c0ee13",
+			want: "0fb4f5b88adcf61c467d451e90660e40ec847efd30902e078e910075c0e6837c",
 		},
 		{
 			name: "Build Merkle root with no transactions",

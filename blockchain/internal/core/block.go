@@ -1,7 +1,7 @@
 package core
 
 import (
-	"crypto/sha256"
+	"crypto/sha3"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
@@ -43,10 +43,10 @@ func (b Block) String() string {
 
 // CalculateBlockHash computes the SHA-256 hash of a block
 func CalculateBlockHash(block Block) string {
-	sha256 := sha256.New()
+	hasher := sha3.New256()
 	record := fmt.Sprintf("%d%s%s%s", block.Index, block.Timestamp, block.PreviousBlockHash, block.MerkleRoot)
-	sha256.Write([]byte(record))
-	hash := sha256.Sum(nil)
+	hasher.Write([]byte(record))
+	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
 }
 

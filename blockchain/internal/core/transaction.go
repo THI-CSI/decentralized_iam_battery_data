@@ -1,13 +1,13 @@
 package core
 
 import (
-	"crypto/sha256"
+	"crypto/sha3"
 	"encoding/hex"
 	"fmt"
 	"time"
 )
 
-// TransactionType defines the type of a transaction in the system.
+// TransactionType defines the type of transaction in the system.
 // It is a string-based type for better readability and type safety.
 type TransactionType string
 
@@ -22,38 +22,27 @@ const (
 	Revoke TransactionType = "Revoke"
 )
 
-// Transaction represents a single action recorded in the blockchain,
-// such as creating, modifying, granting, or revoking something.
+// Transaction represents the header of a single action recorded in the blockchain
 type Transaction struct {
-	Header TransactionHeader
-	Body   string
-}
-
-// TransactionHeader represents the header of a single action recorded in the blockchain
-type TransactionHeader struct {
 	// Index is the sequential number of the transaction.
 	Index int
 	// Timestamp records the exact time the transaction occurred.
-	Timestamp time.Time
+	Timestamp string
 	// Type indicates the kind of transaction, such as Create or Modify.
 	Type TransactionType
 	// Data holds additional information related to the transaction.
 	Data string
 }
 
-// Pending transactions (in memory)
-var pendingTransactions []Transaction
+var pendingTransactions []Transaction // Adequate as long as the blockchain stays in RAM
 
 // CreateTransaction creates a new transaction and adds it to the pending list
 func CreateTransaction(txType TransactionType, data string) Transaction {
 	tx := Transaction{
-		Header: TransactionHeader{
-			Index:     len(pendingTransactions), // Adequate as long as the blockchain stays in RAM
-			Timestamp: time.Now(),
-			Type:      txType,
-			Data:      data,
-		},
-		Body: data,
+		Index:     len(pendingTransactions), // Adequate as long as the blockchain stays in RAM
+		Timestamp: time.Now().String(),
+		Type:      txType,
+		Data:      data,
 	}
 	pendingTransactions = append(pendingTransactions, tx)
 	return tx
@@ -61,8 +50,8 @@ func CreateTransaction(txType TransactionType, data string) Transaction {
 
 // CalculateTransactionHash computes the SHA-256 hash of a transaction
 func CalculateTransactionHash(tx Transaction) string {
-	record := fmt.Sprintf("%d%s%s%s", tx.Header.Index, tx.Header.Timestamp.String(), string(tx.Header.Type), tx.Header.Data)
-	hash := sha256.Sum256([]byte(record))
+	record := fmt.Sprintf("%d%s%s", tx.Index, tx.Timestamp, string(tx.Type))
+	hash := sha3.Sum256([]byte(record))
 	return hex.EncodeToString(hash[:])
 }
 
@@ -94,7 +83,7 @@ func BuildMerkleRoot(txs []Transaction) string {
 			}
 			// Concatenate and hash the pair
 			combined := fmt.Sprintf("%s%s", left, right)
-			hash := sha256.Sum256([]byte(combined))
+			hash := sha3.Sum256([]byte(combined))
 			newLevel = append(newLevel, hex.EncodeToString(hash[:]))
 		}
 

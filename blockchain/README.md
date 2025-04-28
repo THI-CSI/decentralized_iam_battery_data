@@ -88,3 +88,17 @@ Removes any documentation and the binary folder.
 ```shell
 make clean
 ```
+
+**Test**:
+
+Run all unit tests
+```shell
+make test
+```
+
+**All**:
+
+Do everything: clean + build + docs + test
+```shell
+make all
+```
