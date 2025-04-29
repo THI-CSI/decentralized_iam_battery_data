@@ -38,6 +38,8 @@ Since this project is only a proof of concept, we will only store the blockchain
 
 Make sure you are in the `decentralized_iam_battery_data/blockchain` directory.
 
+*Note:* `quicktype example.json -l schema -o ./jsonschema/schemaname.json` can be used to generate json-schemas from json examples
+
 **Install dependencies:**
 ```shell
 make install
@@ -79,12 +81,20 @@ go run cmd/main.go -load -validate
 ```shell
 make docs         # Generate full docs
 make docs-go      # Generate go docs
+make docs-did-vc  # Generate did & vc docs
 make docs-swagger # Generate swagger docs
+```
+
+**Generate DID & VC structs**:
+
+The generated code is safed in `./internal/core/data.go`. Please manually correct the package name to `core` this seems to be a bug with the `--package` flag of quicktype.
+```shell
+make generate
 ```
 
 **Cleanup**:
 
-Removes any documentation and the binary folder.
+Removes any documentation, venv or node modules and the binary folder.
 ```shell
 make clean
 ```
@@ -98,7 +108,7 @@ make test
 
 **All**:
 
-Do everything: clean + build + docs + test
+Do everything: clean + generate + build + (format) run + docs + test
 ```shell
 make all
 ```

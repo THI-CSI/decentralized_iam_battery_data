@@ -2,7 +2,7 @@
 
 set -e
 
-DOC_FILE="DOCS.md"
+DOC_FILE="./docs/go.md"
 echo "# Blockchain Go Documentation" > $DOC_FILE
 echo "" >> $DOC_FILE
 echo -e "\n---\n" >> $DOC_FILE

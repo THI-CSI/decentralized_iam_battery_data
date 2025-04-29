@@ -1,5 +1,7 @@
 bin/
-internal/api/web/docs/
-DOCS.md
 blockchain.json
-
+package.json
+package-lock.json
+node_modules/
+.venv/
+docs/
