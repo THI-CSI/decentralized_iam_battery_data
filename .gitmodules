@@ -1,0 +1,3 @@
+[submodule "bms/ra-lib"]
+	path = bms/ra-lib
+	url = https://github.com/THI-CSI/ra-lib
