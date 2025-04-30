@@ -35,7 +35,7 @@ type Transaction struct {
 }
 
 var PendingTransactions []Transaction // Adequate as long as the blockchain stays in RAM
-
+// TODO: RevokeTransaction &
 // CreateTransaction creates a new transaction and adds it to the pending list
 func CreateTransaction(txType TransactionType, data string) Transaction {
 	t := time.Now()
