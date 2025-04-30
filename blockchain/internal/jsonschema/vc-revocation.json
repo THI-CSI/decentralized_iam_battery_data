@@ -1,0 +1,33 @@
+{
+  "$id": "revoke-vc",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Revoke VC",
+  "description": "Revokes an arbitrary VC based on its ID.",
+  "type": "object",
+  "required": ["@context", "type", "issuer", "issuanceDate", "credentialSubject", "proof"],
+  "properties": {
+    "@context": { "type": "array", "items": { "type": "string" } },
+    "type": { "type": "array", "items": { "type": "string" } },
+    "issuer": { "type": "string" },
+    "issuanceDate": { "type": "string", "format": "date-time" },
+    "credentialSubject": {
+      "type": "object",
+      "required": ["id", "revokedCredentialID"],
+      "properties": {
+        "id": { "type": "string" },
+        "revokedCredentialID": { "type": "string" }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "required": ["type", "created", "proofPurpose", "verificationMethod", "jws"],
+      "properties": {
+        "type": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "proofPurpose": { "type": "string" },
+        "verificationMethod": { "type": "string" },
+        "jws": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$id": "grant-service-vc",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Grant Service VC",
+  "type": "object",
+  "required": ["@context", "type", "issuer", "issuanceDate", "credentialSubject"],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["https://www.w3.org/2018/credentials/v1"]
+    },
+    "type": {
+      "type": "array",
+      "items": { "type": "string" },
+      "contains": { "const": "VerifiableCredential" }
+    },
+    "issuer": { "type": "string" },
+    "issuanceDate": { "type": "string", "format": "date-time" },
+    "credentialSubject": {
+      "type": "object",
+      "required": ["id", "access", "bmsId", "validWithQRCode"],
+      "properties": {
+        "id": { "type": "string" },
+        "access": { "type": "string", "enum": ["read"] },
+        "bmsId": { "type": "string" },
+        "validWithQRCode": { "type": "boolean", "const": true }
+      }
+    }
+  }
+}

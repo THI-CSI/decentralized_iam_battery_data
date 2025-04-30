@@ -1,0 +1,30 @@
+{
+  "$id": "bms-did",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BMS DID",
+  "type": "object",
+  "required": ["@context", "id", "verificationMethod", "authentication", "batteryId"],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["https://www.w3.org/ns/did/v1"]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^did:battery:bms:[a-zA-Z0-9\-]+$"
+    },
+    "verificationMethod": {
+      "$ref": "./common-schemas.json#/definitions/verificationMethod"
+    },
+    "assertionMethod": {
+      "$ref": "./common-schemas.json#/definitions/assertionMethod"
+    },
+    "authentication": {
+      "$ref": "./common-schemas.json#/definitions/authentication"
+    },
+    "batteryId": {
+      "type": "string"
+    }
+  }
+}

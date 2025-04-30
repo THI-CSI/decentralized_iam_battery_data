@@ -9,6 +9,7 @@ PIP := $(VENV)/bin/pip
 SCHEMA_DIR="./internal/jsonschema"
 OUTPUT_FILE="./internal/core/data.go"
 QUICKTYPE="./node_modules/.bin/quicktype"
+SCHEMA_RESOLVER='./node_modules/.bin/json-schema-resolver'
 DOCS="./docs"
 
 # Activate venv
@@ -23,6 +24,7 @@ install: $(VENV)/bin/activate
 	go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
 	# NPM installs
 	npm install --save-dev quicktype	# flag makes sure its in the projects devDependencies not dependencies
+	npm install --save-dev json-schema-resolver
 	# PIP installs
 	$(PIP) install json-schema-for-humans
 
@@ -52,16 +54,20 @@ docs-go:
 docs-swagger:
 	echo "Generating swagger docs ..."
 	mkdir -p $(DOCS)/swagger/
-	swag init -g ./core/main.go -o $(DOCS)/swagger/
+	swag init -g ./cmd/main.go -o $(DOCS)/swagger/
 
 # Generate DID and VC documentation
 docs-did-vc:
-	echo "Generating DID and VC docs ..."
-	mkdir -p $(DOCS)
-	$(VENV)/bin/generate-schema-doc $(SCHEMA_DIR)/vc_schema_example.json --config template_name=md
-	mv schema_doc.md $(DOCS)/vc.md
-	$(VENV)/bin/generate-schema-doc $(SCHEMA_DIR)/did_schema_example.json --config template_name=md
-	mv schema_doc.md $(DOCS)/did.md
+	@echo "Generating DID and VC docs ..."
+	@mkdir -p $(DOCS)
+	@for file in $(SCHEMA_DIR)/*.json; do \
+  		echo "Generating docs for: $$file"; \
+        $(SCHEMA_RESOLVER) $$file > resolved.json; \
+		$(VENV)/bin/generate-schema-doc resolved.json --config template_name=md; \
+		rm resolved.json; \
+		mv schema_doc.md $(DOCS)/$$(basename $$file .json).md; \
+	done
+	@ rm $$resolved_file
 
 # Clean build artifacts and generated docs
 clean:
