@@ -63,7 +63,7 @@ ping_data_t ping_data   = {RESET_VALUE, RESET_VALUE, RESET_VALUE};
 static uint32_t usr_print_ability = RESET_VALUE;
 
 /*******************************************************************************************************************//**
- * @brief      Sends dummy data
+ * @brief      Sends dummy data ("Hello World!")
  * @param[in]  Buffer to send, Length
  * @retval     Status
  **********************************************************************************************************************/
@@ -285,7 +285,6 @@ void net_thread_entry(void *pvParameters)
         {
             if(!(PRINT_UP_MSG_DISABLE & usr_print_ability))
             {
-                print_ipconfig();
                 APP_PRINT("\r\nNetwork is Up");
                 usr_print_ability |= PRINT_UP_MSG_DISABLE;
             }
@@ -297,10 +296,12 @@ void net_thread_entry(void *pvParameters)
     #endif
                 /* Updated IP credentials on to the RTT console */
                 print_ipconfig();
-                print_ipconfig();
                 APP_PRINT("Sending Hello World...");
-                vTCPSend("Hello World!\n", 13);
-                APP_PRINT("Sent");
+                if (!vTCPSend("Hello World!\n", 13)) {
+                    APP_PRINT("Sent Hello World!");
+                } else {
+                    APP_PRINT("Couldn't send Hello World!");
+                }
             }
             vTaskDelay(100);
             return;
