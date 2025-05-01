@@ -46,6 +46,7 @@ make install
 ```
 
 **Build the go library**:
+This command also formats the sourcecode and generates the documentation (needed for to launch swagger).
 ```shell
 make build
 ```
@@ -87,7 +88,7 @@ make docs-swagger # Generate swagger docs
 
 **Generate DID & VC structs**:
 
-The generated code is safed in `./internal/core/data.go`. Please manually correct the package name to `core` this seems to be a bug with the `--package` flag of quicktype.
+The generated code is safed in `./internal/core/types.go`.
 ```shell
 make generate
 ```
@@ -106,9 +107,16 @@ Run all unit tests
 make test
 ```
 
+**Run**:
+
+Formats the sourcecode, runs the docs command for swagger and starts the Web API with the -web flag
+```shell
+make run
+```
+
 **All**:
 
-Do everything: clean + generate + build + (format) run + docs + test
+Do everything: clean + install + generate + build + (format, docs) run + test
 ```shell
 make all
 ```
