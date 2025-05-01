@@ -279,78 +279,35 @@ void net_thread_entry(void *pvParameters)
 
     APP_PRINT(ETH_POSTINIT);
     
-    while(true)
+    while (1) 
     {
-        /* Check if Both the Ethernet Link and IP link are UP */
-        if(SUCCESS == isNetworkUp())
+        if (SUCCESS == isNetworkUp()) 
         {
-            /* usr_print_ability is added to avoid multiple UP messages or Down Messages repeating*/
             if(!(PRINT_UP_MSG_DISABLE & usr_print_ability))
             {
+                print_ipconfig();
                 APP_PRINT("\r\nNetwork is Up");
                 usr_print_ability |= PRINT_UP_MSG_DISABLE;
             }
-
             if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
             {
-#if( ipconfigUSE_DHCP != 0 )
+    #if( ipconfigUSE_DHCP != 0 )
                 /* Display the New IP credentials obtained from the DHCP server */
                 updateDhcpResponseToUsr();
-#endif
+    #endif
                 /* Updated IP credentials on to the RTT console */
                 print_ipconfig();
-                /*DNS lookup for the Domain name requested. This is Synchronous Activity */
-                dnsQuerryFunc((char *)gp_domain_name);
-            }
-
-            if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
-            {
-                APP_PRINT("\r\nPinging %s:\r\n\r\n",(char *)gp_remote_ip_address);
-            }
-
-            while (usrPingCount < USR_PING_COUNT)
-            {
-                /* Send a ICMP Ping request to the requested IP address
-                 * USR_PING_COUNT (100) is used in this Example Project
-                 * For Continuous testing the count can be increased to bigger number
-                 */
+                print_ipconfig();
+                APP_PRINT("Sending Hello World...");
                 vTCPSend("Hello World!\n", 13);
-                status =  vSendPing((char *)gp_remote_ip_address);
-                if(status != pdFALSE)
-                {
-                    ping_data.sent++;
-                    APP_PRINT("!");
-                }
-                else
-                {
-                    ping_data.lost++;
-                    APP_PRINT(".");
-                }
-                usrPingCount++;
-                /* Add some delay between Pings */
-                vTaskDelay(10);
+                APP_PRINT("Sent");
             }
-
-            if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
-            {
-                print_pingResult();
-                usr_print_ability |= PRINT_NWK_USR_MSG_DISABLE;
-            }
+            vTaskDelay(100);
+            return;
         }
-        else
-        {
-            if(!(PRINT_DOWN_MSG_DISABLE & usr_print_ability))
-            {
-                 APP_PRINT("\r\nNetwork is Down");
-                 usr_print_ability |= PRINT_DOWN_MSG_DISABLE;
-            }
-            else
-            {
-                 APP_PRINT(".");
-            }
-        }
-        vTaskDelay(100);
     }
+
+    
 }
 
 /*******************************************************************************************************************//**

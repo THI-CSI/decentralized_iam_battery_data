@@ -1,6 +1,6 @@
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
-CFLAGS=-g -M -mfloat-abi=hard -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -Wunused -Wuninitialized -Wall -Wextra -Wmissing-declarations -Wconversion -Wpointer-arith -Wshadow -Wlogical-op -Waggregate-return -Wfloat-equal -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -mthumb -std=c99 -MMD -MP
+CFLAGS=-g -mfloat-abi=hard -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -Wunused -Wuninitialized -Wall -Wextra -Wmissing-declarations -Wconversion -Wpointer-arith -Wshadow -Wlogical-op -Waggregate-return -Wfloat-equal -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -mthumb -std=c99 -MMD -MP
 LDFLAGS=-T./ld/fsp.ld -T./ld/memory_regions.ld
 PROJECT_NAME=bms
 SRC_DIRS = ra-lib ra_gen src
