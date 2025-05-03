@@ -30,7 +30,7 @@ install: $(VENV)/bin/activate
 
 
 # Build your Go binary
-build:
+build: format docs
 	go build -o bin/blockchain ./cmd/main.go
 
 # Format sourcecode
@@ -38,7 +38,7 @@ format:
 	gofmt -l -s -w .
 
 # Run the app (example)
-run: format docs
+run: build
 	go run cmd/main.go --web
 
 # Generate ALL docs
@@ -87,6 +87,6 @@ generate:
 		--src $(SCHEMA_DIR) \
 		--out $(TYPES)
 
-# Do everything: clean + install + generate + test + build + (format, docs) run
-all: clean install generate test build run
+# Do everything: clean + install + generate + test + ((format, docs) build) +  run
+all: clean install generate test run
 

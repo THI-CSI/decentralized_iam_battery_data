@@ -1,0 +1,25 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "id": "urn:uuid:fa34d4be-7710-46d0-8cbe-13b1d50b3cff",
+  "type": [
+    "VerifiableCredential",
+    "BatteryPassRelationship"
+  ],
+  "issuer": "did:batterypass:oem:VW",
+  "holder": "did:batterypass:bms:sn-987654321",
+  "issuanceDate": "2025-06-10T12:05:00Z",
+  "credentialSubject": {
+    "id": "did:batterypass:bms:sn-987654321",
+    "type": "BatteryPassRelationship",
+    "batteryPassId": "BP-eu-2025-06-10-00001"
+  },
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-06-10T12:05:05Z",
+    "verificationMethod": "did:batterypass:oem:VW#key-1",
+    "proofPurpose": "assertionMethod",
+    "jws": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
+  }
+}

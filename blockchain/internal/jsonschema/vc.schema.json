@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vc",
+  "title": "Battery-Ecosystem Verifiable Credential",
+  "description": "Generic VC envelope with three supported claim types.",
+  "type": "object",
+  "required": [
+    "@context",
+    "id",
+    "type",
+    "issuer",
+    "issuanceDate",
+    "credentialSubject",
+    "proof"
+  ],
+  "properties": {
+    "@context": {
+      "oneOf": [
+        { "type": "string", "format": "uri" },
+        {
+          "type": "array",
+          "items": { "type": ["string", "object"] }
+        }
+      ]
+    },
+    "id": { "type": "string", "format": "uri" },
+    "type": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "contains": { "const": "VerifiableCredential" }
+    },
+    "issuer": { "type": ["string", "object"] },
+    "holder": { "type": "string", "format": "uri" },
+    "issuanceDate": { "type": "string", "format": "date-time" },
+    "expirationDate": { "type": "string", "format": "date-time" },
+    "credentialSubject": {
+      "oneOf": [
+        { "$ref": "#/$defs/BatteryPassRelationship" },
+        { "$ref": "#/$defs/BMSProduction" },
+        { "$ref": "#/$defs/ServiceAccess" }
+      ]
+    },
+    "proof": { "type": "object" }
+  },
+
+  "$defs": {
+    "BatteryPassRelationship": {
+      "title": "BatteryPassRelationship",
+      "type": "object",
+      "required": ["id", "type", "batteryPassId"],
+      "properties": {
+        "id": { "type": "string", "format": "uri" },
+        "type": { "const": "BatteryPassRelationship" },
+        "batteryPassId": { "type": "string" }
+      }
+    },
+
+    "BMSProduction": {
+      "title": "BMSProduction",
+      "type": "object",
+      "required": ["id", "type", "bmsDid", "producedOn"],
+      "properties": {
+        "id": { "type": "string", "format": "uri" },
+        "type": { "const": "BMSProduction" },
+        "bmsDid": {
+          "type": "string",
+          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$"
+        },
+        "producedOn": { "type": "string", "format": "date" },
+        "lotNumber": { "type": "string" }
+      }
+    },
+
+    "ServiceAccess": {
+      "title": "ServiceAccess",
+      "type": "object",
+      "required": ["id", "type", "bmsDid", "accessLevel"],
+      "properties": {
+        "id": { "type": "string", "format": "uri" },
+        "type": { "const": "ServiceAccess" },
+        "bmsDid": {
+          "type": "string",
+          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$"
+        },
+        "accessLevel": { "type": "string", "enum": ["read", "write"] },
+        "validFrom": { "type": "string", "format": "date-time" },
+        "validUntil": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "credentialSubject": { "required": ["batteryPassId"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "type": { "contains": { "const": "BatteryPassRelationship" } }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "credentialSubject": { "required": ["producedOn"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "type": { "contains": { "const": "BMSProduction" } }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "credentialSubject": { "required": ["accessLevel"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "type": { "contains": { "const": "ServiceAccess" } }
+        }
+      }
+    }
+  ]
+}

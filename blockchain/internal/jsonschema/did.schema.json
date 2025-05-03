@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/did-entity.schema.json",
+  "title": "Battery-Ecosystem DID Document",
+  "description": "Minimal on-chain DID record with role and owner tags plus revocation.",
+  "type": "object",
+  "required": ["id", "role", "owner", "publicKey", "revoked"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$"
+    },
+    "role": {
+      "type": "string",
+      "enum": ["EU", "OEM", "BMS", "Service", "Cloud"]
+    },
+    "owner": {
+      "type": "string",
+      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$"
+    },
+    "publicKey": { "$ref": "#/$defs/VerificationMethod" },
+    "service": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ServiceEndpoint" }
+    },
+    "created": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" },
+    "revoked": { "type": "boolean" }
+  },
+  "$defs": {
+    "VerificationMethod": {
+      "type": "object",
+      "required": ["id", "type", "controller", "publicKeyMultibase"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "controller": { "type": "string" },
+        "publicKeyMultibase": {
+          "type": "string",
+          "description": "Multibase-encoded public key"
+        }
+      }
+    },
+    "ServiceEndpoint": {
+      "type": "object",
+      "required": ["id", "type", "serviceEndpoint"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "serviceEndpoint": { "type": ["string", "object"] }
+      }
+    }
+  }
+}

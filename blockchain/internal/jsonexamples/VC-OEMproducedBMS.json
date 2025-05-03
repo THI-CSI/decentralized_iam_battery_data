@@ -1,0 +1,28 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://batterypass.com/contexts/bms-production/v1"
+  ],
+  "id": "urn:uuid:982c43ee-3d16-419a-a2f4-5c61710f428b",
+  "type": [
+    "VerifiableCredential",
+    "BMSProduction"
+  ],
+  "issuer": "did:batterypass:bms:sn-987654321",
+  "holder": "did:batterypass:oem:VW",
+  "issuanceDate": "2025-06-10T12:01:00Z",
+  "credentialSubject": {
+    "id": "did:batterypass:oem:VW",
+    "type": "BMSProduction",
+    "bmsDid": "did:batterypass:bms:sn-987654321",
+    "producedOn": "2025-06-10",
+    "lotNumber": "LOT-775533"
+  },
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-06-10T12:01:03Z",
+    "verificationMethod": "did:batterypass:bms:sn-987654321#device-key",
+    "proofPurpose": "assertionMethod",
+    "jws": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
+  }
+}
