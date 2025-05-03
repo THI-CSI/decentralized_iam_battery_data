@@ -4,6 +4,9 @@
 //    didSchema, err := UnmarshalDidSchema(bytes)
 //    bytes, err = didSchema.Marshal()
 //
+//    vcRecordSchema, err := UnmarshalVcRecordSchema(bytes)
+//    bytes, err = vcRecordSchema.Marshal()
+//
 //    vcSchema, err := UnmarshalVcSchema(bytes)
 //    bytes, err = vcSchema.Marshal()
 
@@ -18,6 +21,16 @@ func UnmarshalDidSchema(data []byte) (DidSchema, error) {
 }
 
 func (r *DidSchema) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalVcRecordSchema(data []byte) (VcRecordSchema, error) {
+	var r VcRecordSchema
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *VcRecordSchema) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }
 
@@ -48,9 +61,10 @@ type DidSchemaDefs struct {
 }
 
 type ServiceEndpoint struct {
-	Type       TypeElement               `json:"type"`
-	Required   []string                  `json:"required"`
-	Properties ServiceEndpointProperties `json:"properties"`
+	Type        TypeElement               `json:"type"`
+	Required    []string                  `json:"required"`
+	Description string                    `json:"description"`
+	Properties  ServiceEndpointProperties `json:"properties"`
 }
 
 type ServiceEndpointProperties struct {
@@ -60,29 +74,27 @@ type ServiceEndpointProperties struct {
 }
 
 type Revoked struct {
-	Type TypeElement `json:"type"`
+	Type        TypeElement `json:"type"`
+	Description string      `json:"description"`
 }
 
 type Issuer struct {
-	Type []TypeElement `json:"type"`
+	Type        []TypeElement `json:"type"`
+	Description string        `json:"description"`
 }
 
 type VerificationMethod struct {
-	Type       TypeElement                  `json:"type"`
-	Required   []string                     `json:"required"`
-	Properties VerificationMethodProperties `json:"properties"`
+	Type        TypeElement                  `json:"type"`
+	Required    []string                     `json:"required"`
+	Description string                       `json:"description"`
+	Properties  VerificationMethodProperties `json:"properties"`
 }
 
 type VerificationMethodProperties struct {
-	ID                 Revoked            `json:"id"`
-	Type               Revoked            `json:"type"`
-	Controller         Revoked            `json:"controller"`
-	PublicKeyMultibase PublicKeyMultibase `json:"publicKeyMultibase"`
-}
-
-type PublicKeyMultibase struct {
-	Type        TypeElement `json:"type"`
-	Description string      `json:"description"`
+	ID                 Revoked `json:"id"`
+	Type               Revoked `json:"type"`
+	Controller         Revoked `json:"controller"`
+	PublicKeyMultibase Revoked `json:"publicKeyMultibase"`
 }
 
 type DidSchemaProperties struct {
@@ -97,27 +109,53 @@ type DidSchemaProperties struct {
 }
 
 type Created struct {
-	Type   TypeElement `json:"type"`
-	Format Format      `json:"format"`
+	Type        TypeElement `json:"type"`
+	Format      Format      `json:"format"`
+	Description string      `json:"description"`
 }
 
 type ID struct {
-	Type    TypeElement `json:"type"`
-	Pattern string      `json:"pattern"`
+	Type        TypeElement `json:"type"`
+	Pattern     string      `json:"pattern"`
+	Description string      `json:"description"`
 }
 
 type PublicKey struct {
-	Ref string `json:"$ref"`
+	Ref         string `json:"$ref"`
+	Description string `json:"description"`
 }
 
 type Role struct {
-	Type TypeElement `json:"type"`
-	Enum []string    `json:"enum"`
+	Type        TypeElement `json:"type"`
+	Enum        []string    `json:"enum"`
+	Description string      `json:"description"`
 }
 
 type Service struct {
-	Type  string    `json:"type"`
-	Items PublicKey `json:"items"`
+	Type        string       `json:"type"`
+	Items       ItemsElement `json:"items"`
+	Description string       `json:"description"`
+}
+
+type ItemsElement struct {
+	Ref string `json:"$ref"`
+}
+
+type VcRecordSchema struct {
+	Schema      string                   `json:"$schema"`
+	ID          string                   `json:"$id"`
+	Title       string                   `json:"title"`
+	Description string                   `json:"description"`
+	Type        TypeElement              `json:"type"`
+	Required    []string                 `json:"required"`
+	Properties  VcRecordSchemaProperties `json:"properties"`
+}
+
+type VcRecordSchemaProperties struct {
+	ID        Created `json:"id"`
+	VcHash    ID      `json:"vcHash"`
+	Timestamp Created `json:"timestamp"`
+	Revoked   Revoked `json:"revoked"`
 }
 
 type VcSchema struct {
@@ -154,10 +192,10 @@ type Then struct {
 }
 
 type ThenProperties struct {
-	Type PurpleType `json:"type"`
+	Type FluffyType `json:"type"`
 }
 
-type PurpleType struct {
+type FluffyType struct {
 	Contains Contains `json:"contains"`
 }
 
@@ -179,11 +217,16 @@ type BMSProduction struct {
 }
 
 type BMSProductionProperties struct {
-	ID         Created  `json:"id"`
-	Type       Contains `json:"type"`
-	BmsDid     ID       `json:"bmsDid"`
-	ProducedOn Created  `json:"producedOn"`
-	LotNumber  Revoked  `json:"lotNumber"`
+	ID         Created    `json:"id"`
+	Type       PurpleType `json:"type"`
+	BmsDid     ID         `json:"bmsDid"`
+	ProducedOn Created    `json:"producedOn"`
+	LotNumber  Revoked    `json:"lotNumber"`
+}
+
+type PurpleType struct {
+	Const       string `json:"const"`
+	Description string `json:"description"`
 }
 
 type BatteryPassRelationship struct {
@@ -194,9 +237,9 @@ type BatteryPassRelationship struct {
 }
 
 type BatteryPassRelationshipProperties struct {
-	ID            Created  `json:"id"`
-	Type          Contains `json:"type"`
-	BatteryPassID Revoked  `json:"batteryPassId"`
+	ID            Created    `json:"id"`
+	Type          PurpleType `json:"type"`
+	BatteryPassID Revoked    `json:"batteryPassId"`
 }
 
 type ServiceAccess struct {
@@ -207,18 +250,18 @@ type ServiceAccess struct {
 }
 
 type ServiceAccessProperties struct {
-	ID          Created  `json:"id"`
-	Type        Contains `json:"type"`
-	BmsDid      ID       `json:"bmsDid"`
-	AccessLevel Role     `json:"accessLevel"`
-	ValidFrom   Created  `json:"validFrom"`
-	ValidUntil  Created  `json:"validUntil"`
+	ID          Created    `json:"id"`
+	Type        PurpleType `json:"type"`
+	BmsDid      ID         `json:"bmsDid"`
+	AccessLevel Role       `json:"accessLevel"`
+	ValidFrom   Created    `json:"validFrom"`
+	ValidUntil  Created    `json:"validUntil"`
 }
 
 type VcSchemaProperties struct {
 	Context           Context                 `json:"@context"`
 	ID                Created                 `json:"id"`
-	Type              FluffyType              `json:"type"`
+	Type              TentacledType           `json:"type"`
 	Issuer            Issuer                  `json:"issuer"`
 	Holder            Created                 `json:"holder"`
 	IssuanceDate      Created                 `json:"issuanceDate"`
@@ -228,24 +271,35 @@ type VcSchemaProperties struct {
 }
 
 type Context struct {
-	OneOf []OneOf `json:"oneOf"`
+	OneOf       []OneOf `json:"oneOf"`
+	Description string  `json:"description"`
 }
 
 type OneOf struct {
-	Type   string  `json:"type"`
-	Format *Format `json:"format,omitempty"`
-	Items  *Issuer `json:"items,omitempty"`
+	Type   string      `json:"type"`
+	Format *Format     `json:"format,omitempty"`
+	Items  *OneOfItems `json:"items,omitempty"`
+}
+
+type OneOfItems struct {
+	Type []TypeElement `json:"type"`
 }
 
 type FluffyCredentialSubject struct {
-	OneOf []PublicKey `json:"oneOf"`
+	OneOf       []ItemsElement `json:"oneOf"`
+	Description string         `json:"description"`
 }
 
-type FluffyType struct {
-	Type     string   `json:"type"`
-	MinItems int64    `json:"minItems"`
-	Items    Revoked  `json:"items"`
-	Contains Contains `json:"contains"`
+type TentacledType struct {
+	Type        string    `json:"type"`
+	MinItems    int64     `json:"minItems"`
+	Items       TypeItems `json:"items"`
+	Contains    Contains  `json:"contains"`
+	Description string    `json:"description"`
+}
+
+type TypeItems struct {
+	Type TypeElement `json:"type"`
 }
 
 type TypeElement string

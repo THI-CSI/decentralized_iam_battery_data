@@ -21,27 +21,52 @@
           "type": "array",
           "items": { "type": ["string", "object"] }
         }
-      ]
+      ],
+      "description": "Defines the JSON-LD context, providing meaning to terms used in the credential."
     },
-    "id": { "type": "string", "format": "uri" },
+    "id": {
+      "type": "string",
+      "format": "uri",
+      "description": "Unique identifier for the Verifiable Credential."
+    },
     "type": {
       "type": "array",
       "minItems": 1,
       "items": { "type": "string" },
-      "contains": { "const": "VerifiableCredential" }
+      "contains": { "const": "VerifiableCredential" },
+      "description": "Specifies the type(s) of the credential, must include 'VerifiableCredential'."
     },
-    "issuer": { "type": ["string", "object"] },
-    "holder": { "type": "string", "format": "uri" },
-    "issuanceDate": { "type": "string", "format": "date-time" },
-    "expirationDate": { "type": "string", "format": "date-time" },
+    "issuer": {
+      "type": ["string", "object"],
+      "description": "Identifier or object representing the entity that issued the credential."
+    },
+    "holder": {
+      "type": "string",
+      "format": "uri",
+      "description": "Identifier of the entity that holds the credential."
+    },
+    "issuanceDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The date and time the credential was issued."
+    },
+    "expirationDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The date and time after which the credential is no longer valid."
+    },
     "credentialSubject": {
       "oneOf": [
         { "$ref": "#/$defs/BatteryPassRelationship" },
         { "$ref": "#/$defs/BMSProduction" },
         { "$ref": "#/$defs/ServiceAccess" }
-      ]
+      ],
+      "description": "The subject of the credential, which must match one of the predefined claim types."
     },
-    "proof": { "type": "object" }
+    "proof": {
+      "type": "object",
+      "description": "Cryptographic proof that makes the credential verifiable."
+    }
   },
 
   "$defs": {
@@ -50,9 +75,19 @@
       "type": "object",
       "required": ["id", "type", "batteryPassId"],
       "properties": {
-        "id": { "type": "string", "format": "uri" },
-        "type": { "const": "BatteryPassRelationship" },
-        "batteryPassId": { "type": "string" }
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Identifier for the battery pass relationship credential."
+        },
+        "type": {
+          "const": "BatteryPassRelationship",
+          "description": "Type indicator for the battery pass relationship."
+        },
+        "batteryPassId": {
+          "type": "string",
+          "description": "Identifier linking to the battery pass document."
+        }
       }
     },
 
@@ -61,14 +96,29 @@
       "type": "object",
       "required": ["id", "type", "bmsDid", "producedOn"],
       "properties": {
-        "id": { "type": "string", "format": "uri" },
-        "type": { "const": "BMSProduction" },
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Unique identifier for the BMS production credential."
+        },
+        "type": {
+          "const": "BMSProduction",
+          "description": "Type indicator for a BMS production event."
+        },
         "bmsDid": {
           "type": "string",
-          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$"
+          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
+          "description": "DID of the Battery Management System."
         },
-        "producedOn": { "type": "string", "format": "date" },
-        "lotNumber": { "type": "string" }
+        "producedOn": {
+          "type": "string",
+          "format": "date",
+          "description": "Date when the BMS was produced."
+        },
+        "lotNumber": {
+          "type": "string",
+          "description": "Optional lot number for the BMS production."
+        }
       }
     },
 
@@ -77,15 +127,35 @@
       "type": "object",
       "required": ["id", "type", "bmsDid", "accessLevel"],
       "properties": {
-        "id": { "type": "string", "format": "uri" },
-        "type": { "const": "ServiceAccess" },
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Unique identifier for the service access credential."
+        },
+        "type": {
+          "const": "ServiceAccess",
+          "description": "Type indicator for a service access permission."
+        },
         "bmsDid": {
           "type": "string",
-          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$"
+          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
+          "description": "DID of the BMS to which access is granted."
         },
-        "accessLevel": { "type": "string", "enum": ["read", "write"] },
-        "validFrom": { "type": "string", "format": "date-time" },
-        "validUntil": { "type": "string", "format": "date-time" }
+        "accessLevel": {
+          "type": "string",
+          "enum": ["read", "write"],
+          "description": "Level of access granted (read or write)."
+        },
+        "validFrom": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start of the validity period for service access."
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time",
+          "description": "End of the validity period for service access."
+        }
       }
     }
   },

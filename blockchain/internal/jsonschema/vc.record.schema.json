@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vc r",
+  "title": "VC Record Schema",
+  "description": "Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and revocation status.",
+  "type": "object",
+  "required": ["id", "vcHash", "timestamp", "revoked"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uri",
+      "description": "The identifier of the Verifiable Credential."
+    },
+    "vcHash": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "A SHA-256 hash of the complete VC in hexadecimal format."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the record was created or updated."
+    },
+    "revoked": {
+      "type": "boolean",
+      "description": "Boolean indicating if the VC has been revoked."
+    }
+  }
+}
