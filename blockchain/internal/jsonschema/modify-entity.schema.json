@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "modification",
+  "title": "Entity Modification VC",
+  "type": "object",
+  "required": ["@context", "type", "issuer", "issuanceDate", "credentialSubject", "proof"],
+  "properties": {
+    "@context": {"type": ["string", "array"]},
+    "type": {"type": "array", "items": {"enum": ["VerifiableCredential", "EntityModificationVC"]}},
+    "issuer": {"type": "string", "format": "uri"},
+    "issuanceDate": {"type": "string", "format": "date-time"},
+    "credentialSubject": {
+      "type": "object",
+      "required": ["target", "modifications"],
+      "properties": {
+        "target": {"type": "string", "format": "uri"},
+        "modifications": {"type": "object"}
+      }
+    },
+    "proof": {"type": "object"}
+  }
+}

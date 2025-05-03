@@ -38,12 +38,15 @@ Since this project is only a proof of concept, we will only store the blockchain
 
 Make sure you are in the `decentralized_iam_battery_data/blockchain` directory.
 
+*Note:* `quicktype example.json -l schema -o ./jsonschema/schemaname.json` can be used to generate json-schemas from json examples
+
 **Install dependencies:**
 ```shell
 make install
 ```
 
 **Build the go library**:
+This command also formats the sourcecode and generates the documentation (needed for to launch swagger).
 ```shell
 make build
 ```
@@ -79,12 +82,20 @@ go run cmd/main.go -load -validate
 ```shell
 make docs         # Generate full docs
 make docs-go      # Generate go docs
+make docs-did-vc  # Generate did & vc docs
 make docs-swagger # Generate swagger docs
+```
+
+**Generate DID & VC structs**:
+
+The generated code is safed in `./internal/core/types.go`.
+```shell
+make generate
 ```
 
 **Cleanup**:
 
-Removes any documentation and the binary folder.
+Removes any documentation, venv or node modules and the binary folder.
 ```shell
 make clean
 ```
@@ -96,9 +107,16 @@ Run all unit tests
 make test
 ```
 
+**Run**:
+
+Formats the sourcecode, runs the docs command for swagger and starts the Web API with the -web flag
+```shell
+make run
+```
+
 **All**:
 
-Do everything: clean + build + docs + test
+Do everything: clean + install + generate + build + (format, docs) run + test
 ```shell
 make all
 ```

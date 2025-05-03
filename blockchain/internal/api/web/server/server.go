@@ -5,7 +5,7 @@ import (
 	"blockchain/internal/api/web/server/handlers"
 	"blockchain/internal/api/web/server/services"
 
-	_ "blockchain/internal/api/web/docs" // Required for Swagger documentation
+	_ "blockchain/docs/swagger" // Required for Swagger documentation
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
