@@ -26,13 +26,16 @@ INCLUDES = -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include
 
 
-all: $(PROJECT_NAME).elf obj_copy
+all: move $(PROJECT_NAME).elf obj_copy
 
 
 # ---- YOU NEED TO HAVE E2STUDIO/RASC INSTALLED IN ORDER TO EXECUTE THE TARGETS -----
 # Move generated files to subfolder
 move:
-	@if [ -d ld ]; then mv ld ra-lib; fi
+	@if [ -d ld ]; then mv ld ra-lib; fi 
+	@if [ -d ra_gen ]; then mv ra_gen ra-lib; fi
+	@if [ -d ra_cfg ]; then mv ra_cfg ra-lib; fi
+	@if [ -d ra ]; then mv ra ra-lib; fi
 	sed -i -e 's/INCLUDE ld/INCLUDE ra-lib\/ld/' ra-lib/ld/fsp.ld
 
 config:
