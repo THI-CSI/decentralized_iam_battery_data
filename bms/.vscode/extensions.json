@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "ms-vscode.cpptools-extension-pack",
+        "RenesasElectronicsCorporation.renesas-debug",
+        "marus25.cortex-debug"
+    ]
+}

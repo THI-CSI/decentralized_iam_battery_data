@@ -1,0 +1,19 @@
+.cache
+.settings
+build/
+*.o
+*.d
+*.elf
+*.srec
+
+# IDE and RASC generated Files
+.vscode
+cmake
+flash.sh
+buildinfo.json
+.api_xml
+.secure_azone
+.secure_rzone
+.secure_xml
+compile_commands.json
+CMakeLists.txt
