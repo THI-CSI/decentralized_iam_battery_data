@@ -1,6 +1,6 @@
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
-CFLAGS=-g -mfloat-abi=hard -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -Wunused -Wuninitialized -Wall -Wextra -Wmissing-declarations -Wconversion -Wpointer-arith -Wshadow -Wlogical-op -Waggregate-return -Wfloat-equal -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -mthumb -std=c99 -MMD -MP
+CFLAGS=-g -mfloat-abi=hard -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -Wunused -Wuninitialized -Wall -Wextra -Wmissing-declarations -Wconversion -Wpointer-arith -Wshadow -Wlogical-op -Waggregate-return -Wfloat-equal -fmessage-length=0 -fsigned-char -Xlinker --gc-sections -ffunction-sections -fdata-sections -mthumb -std=c99 -MMD -MP
 LDFLAGS=-T./ra-lib/ld/fsp.ld -T./ra-lib/ld/memory_regions.ld
 PROJECT_NAME=bms
 SRC_DIRS = ra-lib ra_gen src
@@ -21,7 +21,7 @@ INCLUDES = -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
     -I./ra-lib/ra_cfg/aws	\
     -I./ra-lib/ra_cfg/fsp_cfg	\
     -I./ra-lib/ra_cfg/fsp_cfg/bsp	\
-    -I./ra_gen	\
+    -I./ra-lib/ra_gen	\
     -I./src	\
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include
 
