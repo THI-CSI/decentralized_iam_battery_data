@@ -6,7 +6,8 @@ A firmware project for managing and monitoring battery systems.
 
 Follow these steps to set up your development environment for this project:
 
-> [!Note] If you're using Windows, we recommend utilizing WSL.
+> [!Note] 
+> If you're using Windows, we recommend utilizing WSL.
 
 ---
 
@@ -36,8 +37,7 @@ https://www.segger.com/downloads/jlink
 
 Open a terminal or command prompt and run:
    ```bash
-   git clone https://github.com/THI-CSI/decentralized_iam_battery_data.git
-   git checkout feat/bms-http-client
+   git clone --recurse-submodules https://github.com/THI-CSI/decentralized_iam_battery_data.git
    cd bms
    ```
 
@@ -55,12 +55,13 @@ Additionally, update the `CC` and `OBJCOPY` variables in the `Makefile` to point
 
 When you open the project in VS Code for the first time, you'll be prompted to install recommended extensions — go ahead and install all of them.
 
+> [!NOTE]
 > If you missed the prompt, you can still install them manually by opening the Extensions view and searching: `@recommended`
 
 ### 7. Install RA Device Support Files
 
 - In your system's command prompt or start menu search bar:
-Search for `Renesas Support Files Manager`
+Search for `> Renesas Support Files Manager`
 
 - Launch it
 
@@ -75,6 +76,7 @@ To compile the project, run the following command in the project root:
 make clean 
 make 
 ``` 
+
 ### Flash
 1. Install the [Renesas Flash Programmer](https://www.renesas.com/en/software-tool/renesas-flash-programmer-programming-gui#overview) tool if you haven't already. 
 2. Flash the compiled image using: 
@@ -103,7 +105,8 @@ nc -l -p 12345 -s 192.168.1.100
 
 ### Windows
 
-> [!Note] These steps should be performed outside of WSL.
+> [!Note] 
+> These steps should be performed outside of WSL.
 
 To set your IP address:
 ```powershell
