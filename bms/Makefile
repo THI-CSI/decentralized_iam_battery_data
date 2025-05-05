@@ -3,11 +3,11 @@ OBJCOPY=arm-none-eabi-objcopy
 CFLAGS=-g -mfloat-abi=hard -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -Wunused -Wuninitialized -Wall -Wextra -Wmissing-declarations -Wconversion -Wpointer-arith -Wshadow -Wlogical-op -Waggregate-return -Wfloat-equal -fmessage-length=0 -fsigned-char -Xlinker --gc-sections -ffunction-sections -fdata-sections -mthumb -std=c99 -MMD -MP
 LDFLAGS=-T./ra-lib/ld/fsp.ld -T./ra-lib/ld/memory_regions.ld
 PROJECT_NAME=bms
-SRC_DIRS = ra-lib ra_gen src
+SRC_DIRS = ra-lib src
 SRC = $(shell find $(SRC_DIRS) -name '*.c')
 OBJ=$(SRC:.c=.o)
 # If you want to add modules you need to install the Renesas Smart Configurator, which is included in e2studio
-RASC_EXE_PATH=/home/m4tse/renesas/ra/sc_v2025-01_fsp_v5.8.0/eclipse/rasc
+RASC_EXE_PATH=
 
 D_FILES=$(SRC:.c=.d)
 INCLUDES = -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
@@ -30,6 +30,15 @@ all: move $(PROJECT_NAME).elf obj_copy
 
 
 # ---- YOU NEED TO HAVE E2STUDIO/RASC INSTALLED IN ORDER TO EXECUTE THE TARGETS -----
+rasc_check:
+ifndef RASC_EXE_PATH
+	$(error RASC_EXE_PATH is not set)
+endif
+
+config: rasc_check
+	$(RASC_EXE_PATH) configuration.xml
+
+# ----------------------------------------------------------------------------------
 # Move generated files to subfolder
 move:
 	@if [ -d ld ]; then mv ld ra-lib; fi 
@@ -37,11 +46,6 @@ move:
 	@if [ -d ra_cfg ]; then mv ra_cfg ra-lib; fi
 	@if [ -d ra ]; then mv ra ra-lib; fi
 	sed -i -e 's/INCLUDE ld/INCLUDE ra-lib\/ld/' ra-lib/ld/fsp.ld
-
-config:
-	$(RASC_EXE_PATH) configuration.xml
-
-# ----------------------------------------------------------------------------------
 
 # Build final Firmware ELF
 $(PROJECT_NAME).elf: $(OBJ)
@@ -58,4 +62,4 @@ clean:
 	rm -f $(OBJ) build/$(PROJECT_NAME).elf build/$(PROJECT_NAME).srec $(D_FILES)
 
 
-.PHONY: all clean obj_copy move
+.PHONY: all clean obj_copy move rasc_check
