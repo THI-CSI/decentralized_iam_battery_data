@@ -99,8 +99,6 @@ type VerificationMethodProperties struct {
 
 type DidSchemaProperties struct {
 	ID        ID        `json:"id"`
-	Role      Role      `json:"role"`
-	Owner     ID        `json:"owner"`
 	PublicKey PublicKey `json:"publicKey"`
 	Service   Service   `json:"service"`
 	Created   Created   `json:"created"`
@@ -123,12 +121,6 @@ type ID struct {
 type PublicKey struct {
 	Ref         string `json:"$ref"`
 	Description string `json:"description"`
-}
-
-type Role struct {
-	Type        TypeElement `json:"type"`
-	Enum        []string    `json:"enum"`
-	Description string      `json:"description"`
 }
 
 type Service struct {
@@ -250,12 +242,18 @@ type ServiceAccess struct {
 }
 
 type ServiceAccessProperties struct {
-	ID          Created    `json:"id"`
-	Type        PurpleType `json:"type"`
-	BmsDid      ID         `json:"bmsDid"`
-	AccessLevel Role       `json:"accessLevel"`
-	ValidFrom   Created    `json:"validFrom"`
-	ValidUntil  Created    `json:"validUntil"`
+	ID          Created     `json:"id"`
+	Type        PurpleType  `json:"type"`
+	BmsDid      ID          `json:"bmsDid"`
+	AccessLevel AccessLevel `json:"accessLevel"`
+	ValidFrom   Created     `json:"validFrom"`
+	ValidUntil  Created     `json:"validUntil"`
+}
+
+type AccessLevel struct {
+	Type        TypeElement `json:"type"`
+	Enum        []string    `json:"enum"`
+	Description string      `json:"description"`
 }
 
 type VcSchemaProperties struct {

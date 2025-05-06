@@ -1,7 +1,5 @@
 {
   "id": "did:batterypass:eu",
-  "role": "EU",
-  "owner": "did:batterypass:eu",
   "publicKey": {
     "id": "did:batterypass:eu#root-key",
     "type": "JsonWebKey2020",

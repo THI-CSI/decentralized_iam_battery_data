@@ -1,11 +1,9 @@
 {
   "id": "did:batterypass:cloud:vw-node-eu-central",
-  "role": "Cloud",
-  "owner": "did:batterypass:oem:VW",
   "publicKey": {
     "id": "did:batterypass:cloud:vw-node-eu-central#key-1",
     "type": "JsonWebKey2020",
-    "controller": "did:batterypass:cloud:vw-node-eu-central",
+    "controller": "did:batterypass:oem:VW",
     "publicKeyMultibase": "z6MkqZgLvANEVv5ubbo8t7MX8fYVhXVDpfjE4a2PkLMnB1sU"
   },
   "service": [

@@ -2,24 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "did",
   "title": "Battery-Ecosystem DID Document",
-  "description": "Minimal on-chain DID record with role and owner tags plus revocation.",
+  "description": "Minimal on-chain DID record with a revocation tag.",
   "type": "object",
-  "required": ["id", "role", "owner", "publicKey", "revoked"],
+  "required": ["id", "publicKey", "revoked"],
   "properties": {
     "id": {
       "type": "string",
       "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
       "description": "Decentralized Identifier (DID) for the entity, following the DID syntax."
-    },
-    "role": {
-      "type": "string",
-      "enum": ["EU", "OEM", "BMS", "Service", "Cloud"],
-      "description": "Role of the entity in the battery ecosystem, such as EU (End User), OEM (Original Equipment Manufacturer), BMS (Battery Management System), Service provider, or Cloud provider."
-    },
-    "owner": {
-      "type": "string",
-      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
-      "description": "DID of the entity that owns or controls this DID document."
     },
     "publicKey": {
       "$ref": "#/$defs/VerificationMethod",
@@ -61,7 +51,7 @@
         },
         "controller": {
           "type": "string",
-          "description": "DID that controls this verification method."
+          "description": "DID that has the ability to make changes to this DID-Document."
         },
         "publicKeyMultibase": {
           "type": "string",

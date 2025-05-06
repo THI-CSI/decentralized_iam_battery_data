@@ -1,11 +1,9 @@
 {
   "id": "did:batterypass:service:tuv-sued-42",
-  "role": "Service",
-  "owner": "did:batterypass:eu",
   "publicKey": {
     "id": "did:batterypass:service:tuv-sued-42#key-1",
     "type": "JsonWebKey2020",
-    "controller": "did:batterypass:service:tuv-sued-42",
+    "controller": "did:batterypass:eu",
     "publicKeyMultibase": "z6MkqhF8pbUxQmyFzZzd2Mo7nBfEY4PjwJa1bv9vJf1WZ58G"
   },
   "created": "2025-07-04T07:30:00Z",
