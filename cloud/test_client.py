@@ -29,7 +29,7 @@ def send_dummy_data_with_retry(data, max_retries=3):
                 print(response.json())
                 return response.json()
 
-            eli 400 <= response.status_code < 500:
+            elif 400 <= response.status_code < 500:
                 print(f"❌ Client Error {response.status_code}:")
                 print(response.text)
                 return None  # Kein Retry bei Client-Fehlern
