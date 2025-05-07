@@ -1,96 +1,87 @@
-from fastapi import FastAPI, Depends, HTTPException, Security
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+import json
+import os
+import logging
 
-from util.models import ItemCreatePlain  # ItemCreate,
-from util.middleware import decrypt_request_data
-from util import models
-from util.database import SessionLocal, engine
-
-models.Base.metadata.create_all(bind=engine)
+from Crypto.PublicKey import ECC
+from functools import lru_cache
+from fastapi import FastAPI, Depends, HTTPException, Path
+from tinydb import TinyDB, where
+from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign
+from dotenv import load_dotenv
+from util.models import EncryptedPayload
+from util.middleware import verify_request
 
 app = FastAPI()
+load_dotenv()
+generate_keys(os.getenv("PASSPHRASE", "secret"))
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
-security = HTTPBearer()
-API_TOKEN = "secret"
-
-def authorize_user(credentials: HTTPAuthorizationCredentials = Security(security)):
-    if credentials.credentials != API_TOKEN:
-        raise HTTPException(status_code=401, detail="Invalid or missing token")
-    return credentials.credentials
 
 def get_db():
-    db = SessionLocal()
+    db = TinyDB("db.json")
     try:
         yield db
     finally:
         db.close()
 
-# Neuer Root-Endpunkt hinzugefügt:
-@app.get("/")  # Hier ist der Root-Endpunkt
+
+@lru_cache()
+def get_private_key():
+    return load_private_key(os.getenv("PASSPHRASE", "secret"))
+
+
+def set_nested_value(doc, path_keys, new_value):
+    current_level = doc
+    for key in path_keys[:-1]:
+        current_level = current_level.setdefault(key, {})
+    current_level[path_keys[-1]] = new_value
+
+
+@app.get("/")
 def read_root():
     return {"message": "API is working"}
 
-@app.get("/batterypass/")
-def read_items(
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Security(authorize_user)
-):
-    return db.query(models.Item).all()
 
-@app.put("/batterypass/")
-async def create_item(
-    item: ItemCreatePlain,
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Security(authorize_user)
+@app.get("/batterypass/{did}", summary="Get a battery pass entry by DID")
+async def read_item(
+        did: str = Path(description="Must be a properly formed DID"),
+        db: TinyDB = Depends(get_db),
 ):
-    if not hasattr(item, "name") or not hasattr(item, "description"):
-        raise HTTPException(status_code=400, detail="Decrypted fields missing.")
-    
-    new_item = models.Item(name=item.name, description=item.description)
-    db.add(new_item)
-    try:
-        db.commit()
-        db.refresh(new_item)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Item already exists.")
-    return new_item
+    return db.search(where("did") == did)
+
+
+@app.put("/batterypass/{did}", summary="Create a new battery pass entry for a DID")
+async def create_item(
+        item: EncryptedPayload,
+        did: str,
+        db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
+):
+    verify_request(item, private_key)
+    if db.search(where("did") == did):
+        raise HTTPException(status_code=400, detail="Entry already exists.")
+    else:
+        db.insert({"did": did, "encrypted_data": item.model_dump()})
+        return {"ok": f"Entry for {did} added successfully."}
+
 
 @app.post("/batterypass/{did}")
 async def update_item(
-    did: int,
-    item: ItemCreatePlain,
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Security(authorize_user)
+        item: EncryptedPayload,
+        did: int,
+        db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
 ):
-    db_item = db.query(models.Item).filter(models.Item.id == did).first()
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found.")
-    if not hasattr(item, "name") or not hasattr(item, "description"):
-        raise HTTPException(status_code=400, detail="Decrypted fields missing.")
-
-    db_item.name = item.name
-    db_item.description = item.description
-    try:
-        db.commit()
-        db.refresh(db_item)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Item already exists.")
-    return db_item
-
-
-@app.delete("/batterypass/")
-def delete_item(
-    did: int,
-    db: Session = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Security(authorize_user)
-):
-    item = db.query(models.Item).filter(models.Item.id == did).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found.")
-    db.delete(item)
-    db.commit()
-    return {"ok": True}
+    decrypted_item = verify_request(item, private_key)
+    document = db.search(where("did") == did)
+    if not document:
+        raise HTTPException(status_code=404, detail="Entry doesn't exist.")
+    decrypted_document = decrypt_and_verify(private_key, document[0]["encrypted_data"])
+    for key, value in decrypted_item.items():
+        set_nested_value(decrypted_document, key.split("."), value)
+    encrypt_and_sign(private_key.public_key(), json.dumps(decrypted_document).encode("utf-8"))
+    db.update(document[0], where("did") == did)
+    return {"ok": f"Entry for {did} updated successfully."}
