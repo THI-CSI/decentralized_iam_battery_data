@@ -12,8 +12,8 @@
 
 ## Contributions
 All implementations and changes should be documented as issues, tracked in the Kanban board and assigned to sprint. The actual work must be done in an own branch and once an issue has been resolved, a pull request to the main branch for approval needs to be submitted. 
-- Detailed information on issues can be found in the issue template: https://github.com/THI-CSI/project_bms_sose25/blob/main/.github/ISSUE_TEMPLATE.md
-- Detailed information on pull requests can be found in the pull request template: https://github.com/THI-CSI/project_bms_sose25/blob/main/.github/PULL_REQUEST_TEMPLATE.md
+- Detailed information on issues can be found in the issue template: https://github.com/THI-CSI/decentralized_iam_battery_data/blob/main/.github/ISSUE_TEMPLATE/0_GENERAL.yml
+- Detailed information on pull requests can be found in the pull request template: https://github.com/THI-CSI/decentralized_iam_battery_data/blob/main/.github/PULL_REQUEST_TEMPLATE.md
 - Detailed information on branches and contribution in general can be found in the contributions documentation: https://github.com/THI-CSI/project_bms_sose25/blob/feat/contribution-guidelines/CONTRIBUTING.md
 
 ## Notes
