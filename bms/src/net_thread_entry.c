@@ -13,6 +13,7 @@
 #include "FreeRTOS_Sockets.h"
 #include "common_utils.h"
 #include "usr_app.h"
+#include <stdint.h>
 #include <string.h>
 
 /* Domain for the DNS Host lookup is used in this Example Project.
@@ -49,7 +50,7 @@ Socket_t xSocket;
     static  uint8_t ucIPAddress[ 4 ]        = {192, 168, 0, 52};
     static  uint8_t ucNetMask[ 4 ]          = {255, 255, 255, 0};
     static  uint8_t ucGatewayAddress[ 4 ]   = {192, 168, 0, 3};
-    static  uint8_t ucDNSServerAddress[ 4 ] = {10, 60, 1, 2};
+    static  uint8_t ucDNSServerAddress[ 4 ] = {192., 168, 0, 2};
 #endif
 
 
@@ -288,6 +289,7 @@ void net_thread_entry(void *pvParameters)
                 APP_PRINT("\r\nNetwork is Up");
                 usr_print_ability |= PRINT_UP_MSG_DISABLE;
             }
+			dnsQuerryFunc("gateway.lan");
             if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
             {
     #if( ipconfigUSE_DHCP != 0 )
@@ -422,9 +424,9 @@ void print_ipconfig(void)
  * @brief      DNS Query for the requested Domain name.  Uses the FreeRTOS Client API  FreeRTOS_gethostbyname
  *             to get the IP address for the domain name
  * @param[in]  Domain name
- * @retval     None
+ * @retval     address
  **********************************************************************************************************************/
-void dnsQuerryFunc(char *domain)
+uint32_t dnsQuerryFunc(char *domain)
 {
     uint32_t ulIPAddress = RESET_VALUE;
     int8_t cBuffer[ 16 ] = {RESET_VALUE};
@@ -438,11 +440,11 @@ void dnsQuerryFunc(char *domain)
         FreeRTOS_inet_ntoa( ulIPAddress, ( char * ) cBuffer);
 
         /* Print out the IP address obtained from the DNS lookup. */
-        APP_PRINT ("\r\nDNS Lookup for \"www.freertos.org\" is      : %s  \r\n", cBuffer);
+        APP_PRINT ("\r\nDNS Lookup for \"gateway.lan\" is      : %s  \r\n", cBuffer);
     }
     else
     {
-        APP_PRINT ("\r\nDNS Lookup failed for \"www.freertos.org\" \r\n");
+        APP_PRINT ("\r\nDNS Lookup failed for \"gateway.lan\" \r\n");
     }
 }
 
