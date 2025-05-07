@@ -107,7 +107,7 @@
         },
         "bmsDid": {
           "type": "string",
-          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
+          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
           "description": "DID of the Battery Management System."
         },
         "producedOn": {
@@ -138,13 +138,19 @@
         },
         "bmsDid": {
           "type": "string",
-          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
+          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
           "description": "DID of the BMS to which access is granted."
         },
         "accessLevel": {
-          "type": "string",
-          "enum": ["read", "write"],
-          "description": "Level of access granted (read or write)."
+          "description": "Level of access granted (read or write).",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "read",
+              "write"
+            ]
+          }
         },
         "validFrom": {
           "type": "string",

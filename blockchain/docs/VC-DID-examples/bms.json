@@ -1,14 +1,14 @@
 {
-  "id": "did:batterypass:bms:identifier",
+  "id": "did:batterypass:bms.identifier",
   "publicKey": {
-    "id": "did:batterypass:bms:identifier#key-1",
+    "id": "did:batterypass:bms.identifier#key-1",
     "type": "JsonWebKey2020",
-    "controller": "did:batterypass:oem:VW",
+    "controller": "did:batterypass:oem.VW",
     "publicKeyMultibase": "z6Mkpz2xw9M3JMfqk3m7JRXetPL4Wwutb6X6bojq2nMid8Kd"
   },
   "service": [
     {
-      "id": "did:batterypass:oem:VW",
+      "id": "did:batterypass:oem.VW",
       "type": "IssueVC",
       "serviceEndpoint": "https://<client-endpoint>"
     }

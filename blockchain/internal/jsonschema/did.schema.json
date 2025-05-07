@@ -8,7 +8,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9.:-]+$",
+      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
       "description": "Decentralized Identifier (DID) for the entity, following the DID syntax."
     },
     "publicKey": {

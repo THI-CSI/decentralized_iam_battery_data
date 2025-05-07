@@ -1,14 +1,14 @@
 {
-  "id": "did:batterypass:cloud:vw-node-eu-central",
+  "id": "did:batterypass:cloud.vw-node-eu-central",
   "publicKey": {
-    "id": "did:batterypass:cloud:vw-node-eu-central#key-1",
+    "id": "did:batterypass:cloud.vw-node-eu-central#key-1",
     "type": "JsonWebKey2020",
-    "controller": "did:batterypass:oem:VW",
+    "controller": "did:batterypass:oem.VW",
     "publicKeyMultibase": "z6MkqZgLvANEVv5ubbo8t7MX8fYVhXVDpfjE4a2PkLMnB1sU"
   },
   "service": [
     {
-      "id": "did:batterypass:cloud:vw-node-eu-central",
+      "id": "did:batterypass:cloud.vw-node-eu-central",
       "type": "BatteryPassAPI",
       "serviceEndpoint": "https://<cloud-endpoint>"
     }

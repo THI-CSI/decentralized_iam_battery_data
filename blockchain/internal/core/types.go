@@ -251,9 +251,14 @@ type ServiceAccessProperties struct {
 }
 
 type AccessLevel struct {
-	Type        TypeElement `json:"type"`
-	Enum        []string    `json:"enum"`
-	Description string      `json:"description"`
+	Description string           `json:"description"`
+	Type        string           `json:"type"`
+	Items       AccessLevelItems `json:"items"`
+}
+
+type AccessLevelItems struct {
+	Type TypeElement `json:"type"`
+	Enum []string    `json:"enum"`
 }
 
 type VcSchemaProperties struct {
