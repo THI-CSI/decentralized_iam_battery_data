@@ -5,12 +5,11 @@ from Crypto.Protocol import HPKE
 from Crypto.PublicKey import ECC
 
 
-def decrypt_and_verify(receiver_key: ECC.EccKey, sender_key: ECC.EccKey, message_bundle: dict) -> bytes:
+def decrypt_and_verify(receiver_key: ECC.EccKey, message_bundle: dict) -> bytes:
     enc = base64.b64decode(message_bundle["enc"])
     ciphertext = base64.b64decode(message_bundle["ciphertext"])
     decapsulator = HPKE.new(
         receiver_key=receiver_key,
-        sender_key=sender_key.public_key(),
         aead_id=HPKE.AEAD.AES256_GCM,
         enc=enc
     )
@@ -18,6 +17,19 @@ def decrypt_and_verify(receiver_key: ECC.EccKey, sender_key: ECC.EccKey, message
         return decapsulator.unseal(ciphertext)
     except ValueError:
         raise ValueError("Invalid signature")
+
+
+def encrypt_and_sign(receiver_key: ECC.EccKey, message: bytes) -> dict:
+    encapsulator = HPKE.new(
+        receiver_key=receiver_key,
+        aead_id=HPKE.AEAD.AES256_GCM,
+    )
+    ciphertext = encapsulator.seal(message)
+    enc = encapsulator.enc
+    return {
+        "enc": base64.b64encode(enc).decode(),
+        "ciphertext": base64.b64encode(ciphertext).decode()
+    }
 
 
 def verify_credentials(request):
