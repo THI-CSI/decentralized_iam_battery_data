@@ -1,0 +1,19 @@
+{
+  "id": "did:batterypass:oem.VW",
+  "publicKey": {
+    "id": "did:batterypass:oem.VW#key-1",
+    "type": "JsonWebKey2020",
+    "controller": "did:batterypass.eu",
+    "publicKeyMultibase": "z6MkoVJEW2E5kha4C6uH7X23W9ksJ9Fuq4j7dX1Jk1qkuq8H"
+  },
+  "service": [
+    {
+      "id": "did:batterypass:oem.vw-node-eu-central",
+      "type": "IssueVC",
+      "serviceEndpoint": "https://<client-endpoint>"
+    }
+  ],
+  "created": "2025-06-01T08:00:00Z",
+  "updated": "2025-06-01T08:00:00Z",
+  "revoked": false
+}

@@ -1,0 +1,12 @@
+{
+  "id": "did:batterypass.eu",
+  "publicKey": {
+    "id": "did:batterypass.eu#root-key",
+    "type": "JsonWebKey2020",
+    "controller": "did:batterypass.eu",
+    "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
+  },
+  "created": "2025-05-03T09:15:00Z",
+  "updated": "2025-05-03T09:15:00Z",
+  "revoked": false
+}

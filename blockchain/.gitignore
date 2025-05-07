@@ -4,4 +4,8 @@ package.json
 package-lock.json
 node_modules/
 .venv/
-docs/
+docs/swagger
+docs/did.schema.md
+docs/go.md
+docs/vc.schema.md
+docs/vc.record.schema.md

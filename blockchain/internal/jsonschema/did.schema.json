@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "did",
+  "title": "Battery-Ecosystem DID Document",
+  "description": "Minimal on-chain DID record with a revocation tag.",
+  "type": "object",
+  "required": ["id", "publicKey", "revoked"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
+      "description": "Decentralized Identifier (DID) for the entity, following the DID syntax."
+    },
+    "publicKey": {
+      "$ref": "#/$defs/VerificationMethod",
+      "description": "Public key information used for verifying signatures and authentication."
+    },
+    "service": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ServiceEndpoint" },
+      "description": "Optional array of service endpoints related to the DID subject, such as APIs or metadata services."
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp indicating when the DID document was created."
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp indicating the last update of the DID document."
+    },
+    "revoked": {
+      "type": "boolean",
+      "description": "Boolean flag indicating whether this DID has been revoked."
+    }
+  },
+  "$defs": {
+    "VerificationMethod": {
+      "type": "object",
+      "required": ["id", "type", "controller", "publicKeyMultibase"],
+      "description": "A method by which a DID subject can be authenticated, typically using cryptographic keys.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identifier for the verification method, typically a DID fragment."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the verification method, e.g., 'Ed25519VerificationKey2020'."
+        },
+        "controller": {
+          "type": "string",
+          "description": "DID that has the ability to make changes to this DID-Document."
+        },
+        "publicKeyMultibase": {
+          "type": "string",
+          "description": "The public key encoded in multibase format."
+        }
+      }
+    },
+    "ServiceEndpoint": {
+      "type": "object",
+      "required": ["id", "type", "serviceEndpoint"],
+      "description": "Represents a service associated with the DID subject, such as a metadata or data access point.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identifier for the service endpoint, typically a DID fragment."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type or category of the service, e.g., 'BatteryDataService'."
+        },
+        "serviceEndpoint": {
+          "type": ["string", "object"],
+          "description": "The actual service endpoint, which can be a URL or a complex object with more detail."
+        }
+      }
+    }
+  }
+}

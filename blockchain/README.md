@@ -58,7 +58,7 @@ make format
 
 **Use the blockchain CLI**:
 
-Start the Web API use the `-web` flag:
+Start the Web API use the `-web` flag. This command also runs the build command.
 ```shell
 go run cmd/main.go -web
 ```
@@ -116,7 +116,7 @@ make run
 
 **All**:
 
-Do everything: clean + install + generate + build + (format, docs) run + test
+Do everything: clean + install + generate + test + ((format, docs) build) +  run
 ```shell
 make all
 ```
