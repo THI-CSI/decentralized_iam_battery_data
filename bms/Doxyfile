@@ -1,0 +1,14 @@
+# Doxyfile the BMS project
+
+PROJECT_NAME           = "Battery Management System (BMS)"
+INPUT                  = src
+FILE_PATTERNS          = *.c *.h
+OUTPUT_DIRECTORY       = docs
+EXTRACT_ALL            = YES
+GENERATE_LATEX         = NO
+GENERATE_HTML          = YES
+OPTIMIZE_OUTPUT_FOR_C = YES
+EXTRACT_STATIC        = YES
+EXTRACT_PRIVATE       = YES
+EXTRACT_LOCAL_CLASSES = NO
+EXTRACT_LOCAL_METHODS = NO

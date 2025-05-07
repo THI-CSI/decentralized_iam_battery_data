@@ -17,3 +17,4 @@ buildinfo.json
 .secure_xml
 compile_commands.json
 CMakeLists.txt
+docs

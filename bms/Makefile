@@ -47,6 +47,10 @@ move:
 	@if [ -d ra ]; then mv ra ra-lib; fi
 	sed -i -e 's/INCLUDE ld/INCLUDE ra-lib\/ld/' ra-lib/ld/fsp.ld
 
+# Build docs
+docs:
+	doxygen
+
 # Build final Firmware ELF
 $(PROJECT_NAME).elf: $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -specs=nosys.specs $(INCLUDES) -o build/$@ $^
@@ -59,7 +63,7 @@ obj_copy: $(PROJECT_NAME).elf
 	$(OBJCOPY) -O srec build/$< build/$(PROJECT_NAME).srec
 
 clean:
-	rm -f $(OBJ) build/$(PROJECT_NAME).elf build/$(PROJECT_NAME).srec $(D_FILES)
+	rm -rf $(OBJ) build/$(PROJECT_NAME).elf build/$(PROJECT_NAME).srec $(D_FILES) docs
 
 
 .PHONY: all clean obj_copy move rasc_check
