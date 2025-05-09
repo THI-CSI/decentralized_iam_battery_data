@@ -38,85 +38,84 @@ Since this project is only a proof of concept, we will only store the blockchain
 
 Make sure you are in the `decentralized_iam_battery_data/blockchain` directory.
 
-*Note:* `quicktype example.json -l schema -o ./jsonschema/schemaname.json` can be used to generate json-schemas from json examples
+Run commands using:
 
-**Install dependencies:**
 ```shell
-make install
+python3 tools.py [cmd] [options]
 ```
 
-**Build the go library**:
-This command also formats the sourcecode and generates the documentation (needed for to launch swagger).
+To see all available commands:
+
 ```shell
-make build
+python3 tools.py -h
 ```
 
-**Format the go sourcecode:**
-```shell
-make format
+### Run Docker Setup
+
+The Docker setup launches both the blockchain API and the frontend. Once the setup is running, the application will be accessible at [localhost:8443](http://localhost:8443).
+
+- Swagger Documentation: Access the API documentation at [localhost:8443/swagger](localhost:8443/swagger).
+
+**Starting the Docker Setup**
+
+To build and start the Docker containers in detached mode:
+
+```python
+python3 tools.py dev up -d --build
 ```
 
-**Use the blockchain CLI**:
+**Stopping the Docker Setup**
 
-Start the Web API use the `-web` flag. This command also runs the build command.
-```shell
-go run cmd/main.go -web
+To stop and remove the running Docker containers:
+
+```python
+python3 tools.py dev down
 ```
 
-Create a demo blockchain and saves it to a file:
+### Available Commands
+
+| Command    | Description                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `install`  | Installs all required dependencies for the project Blockchain. This includes node.js packages, python packages and go packages. |
+| `run`      | Starts the blockchain application using the main Go entry point.                                                                |
+| `build`    | Compiles the blockchain application and outputs the binary to `./bin/blockchain`.                                               |
+| `format`   | Formats all Go source files in the project using `gofmt`.                                                                       |
+| `test`     | Runs the unit tests defined in the `internal/core/` module with verbose output.                                                 |
+| `generate` | Generates Go types from JSON Schema definitions located in `internal/jsonschema/`. Requires node.js and the `quicktype` tool.   |
+| `docs`     | Generates project documentation. You can specify the type using `--type`.                                                       |
+| `dev`      | Executes all docker commands and uses `docker-compose-dev.yml`.                                                                 |
+
+_Note:_ `quicktype example.json -l schema -o ./jsonschema/schemaname.json` can be used to generate json-schemas from json examples
+
+### Documentation types
+
+| Type            | Description                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `all` (default) | Generate Swagger (OpenAPI) documentation, Go-specific technical documentation and documentation for DIDs and verifiable credentials. |
+| `swagger`       | Generates Swagger (OpenApi) documentation from Go comments using `swag`.                                                             |
+| `go`            | Creates Go-specific technical documentation using a custom shell script (`./scripts/generates-docs.sh`).                             |
+| `did-vc`        | Generates documentation for DIDs and verifiable credentials (`./scripts/generate-did-vc-docs`).                                      |
+
+### Blockchain Commands
+
+**Help Command:**
+
 ```shell
-go run cmd/main.go -demo -save
+python3 tools.py run help
 ```
 
-Load the blockchain from a file and prints it to the console:
+| Type              | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `-demo` (default) | Generate a demo blockchain and validate it. |
+| `-file`           | Specify the file.                           |
+| `-load`           | Load the blockchain from a file.            |
+| `-print-chain`    | Print the entire blockchain.                |
+| `-save`           | Save the blockchain to a file.              |
+| `-validate`       | Validate the blockchain.                    |
+| `-web`            | Starts the blockchain api.                  |
+
+**Example Command:**
+
 ```shell
-go run cmd/main.go -load -print-chain
-```
-
-Validate the blockchain:
-```shell
-go run cmd/main.go -load -validate
-```
-
-**Generate Documentation**:
-```shell
-make docs         # Generate full docs
-make docs-go      # Generate go docs
-make docs-did-vc  # Generate did & vc docs
-make docs-swagger # Generate swagger docs
-```
-
-**Generate DID & VC structs**:
-
-The generated code is safed in `./internal/core/types.go`.
-```shell
-make generate
-```
-
-**Cleanup**:
-
-Removes any documentation, venv or node modules and the binary folder.
-```shell
-make clean
-```
-
-**Test**:
-
-Run all unit tests
-```shell
-make test
-```
-
-**Run**:
-
-Formats the sourcecode, runs the docs command for swagger and starts the Web API with the -web flag
-```shell
-make run
-```
-
-**All**:
-
-Do everything: clean + install + generate + test + ((format, docs) build) +  run
-```shell
-make all
+python3 tools.py run -demo -save -load -print-chain
 ```
