@@ -67,7 +67,8 @@ def main():
 
     # commands for docker
     docker_parser = subparser.add_parser(
-        "docker", help='Docker related commands, for more info "docker -h" '
+        "dev",
+        help='Docker related commands, executes docker-compose-dev.yml, for more info "docker -h" ',
     )
     docker_subparser = docker_parser.add_subparsers(dest="docker_command")
     docker_subparser.required = True
@@ -169,7 +170,7 @@ def main():
                 'Install dependencies, before generating types: "python3 tools.py install"'
             )
 
-    elif args.command == "docker":
+    elif args.command == "dev":
         docker_compose_dev(args.docker_command, unknown_args)
 
     else:

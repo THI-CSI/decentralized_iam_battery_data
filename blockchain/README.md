@@ -61,7 +61,7 @@ The Docker setup launches both the blockchain API and the frontend. Once the set
 To build and start the Docker containers in detached mode:
 
 ```python
-python3 tools.py docker up -d --build
+python3 tools.py dev up -d --build
 ```
 
 **Stopping the Docker Setup**
@@ -69,7 +69,7 @@ python3 tools.py docker up -d --build
 To stop and remove the running Docker containers:
 
 ```python
-python3 tools.py docker down
+python3 tools.py dev down
 ```
 
 ### Available Commands
@@ -83,6 +83,7 @@ python3 tools.py docker down
 | `test`     | Runs the unit tests defined in the `internal/core/` module with verbose output.                                                 |
 | `generate` | Generates Go types from JSON Schema definitions located in `internal/jsonschema/`. Requires node.js and the `quicktype` tool.   |
 | `docs`     | Generates project documentation. You can specify the type using `--type`.                                                       |
+| `dev`      | Executes all docker commands and uses `docker-compose-dev.yml`.                                                                 |
 
 _Note:_ `quicktype example.json -l schema -o ./jsonschema/schemaname.json` can be used to generate json-schemas from json examples
 
