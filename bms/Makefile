@@ -28,7 +28,7 @@ INCLUDES = \
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include
 
 
-all: move $(PROJECT_NAME).elf obj_copy
+all: move $(PROJECT_NAME).elf obj_copy dns
 
 
 # ---- YOU NEED TO HAVE E2STUDIO/RASC INSTALLED IN ORDER TO EXECUTE THE TARGETS -----
@@ -52,6 +52,9 @@ move:
 # Build docs
 docs:
 	doxygen
+
+dns:
+	dnsmasq -C dns-server.conf
 
 # Build final Firmware ELF
 $(PROJECT_NAME).elf: $(OBJ)
