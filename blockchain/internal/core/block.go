@@ -3,8 +3,8 @@ package core
 import (
 	"crypto/sha3"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
-	"log/slog"
 	"strings"
 	"time"
 )
@@ -20,8 +20,8 @@ type Block struct {
 	Hash string
 	// PreviousBlockHash is the hash of the prior block.
 	PreviousBlockHash string
-	// Transactions holds all transactions in this block.
-	Transactions []Transaction
+	// Transactions hold all transactions in this block.
+	Transactions []json.RawMessage
 	// MerkleRoot holds the fingerprint of the whole merkle tree
 	MerkleRoot string
 }
@@ -50,68 +50,36 @@ func CalculateBlockHash(block Block) string {
 	return hex.EncodeToString(hash)
 }
 
-// Generate a Genesis Block
+// GenerateGenesisBlock Generate a Genesis Block
 func GenerateGenesisBlock() Block {
 	var block Block
 
-	t := time.Now()
+	CreateTrustAnchor()
 
 	block.Index = 0
-	block.Timestamp = t.Format("2006-01-02 15:04:05")
+	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 	// Since this is the first block in the chain, the PreviousBlockHash is hardcoded
 	block.PreviousBlockHash = "0000000000000000000000000000000000000000000000000000000000000000"
-	block.Transactions = nil
+	block.Transactions = PendingTransactions
 	block.Hash = CalculateBlockHash(block)
+
+	PendingTransactions = PendingTransactions[:0]
 
 	return block
 }
 
-// Generate a Block with the data of the previous block and a list of transactions
-func GenerateBlock(currentBlock Block, transactions []Transaction) Block {
+// GenerateBlock Generate a Block with the data of the previous block and a list of transactions
+func GenerateBlock(currentBlock Block) Block {
 	var block Block
 
-	t := time.Now()
-
 	block.Index = currentBlock.Index + 1
-	block.Timestamp = t.Format("2006-01-02 15:04:05")
+	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 	block.PreviousBlockHash = currentBlock.Hash
-	block.Transactions = transactions
-	block.MerkleRoot = BuildMerkleRoot(transactions)
+	block.Transactions = PendingTransactions
+	block.MerkleRoot = BuildMerkleRoot(PendingTransactions)
 	block.Hash = CalculateBlockHash(block)
 
+	PendingTransactions = PendingTransactions[:0]
+
 	return block
-}
-
-// Validate a chain of blocks
-func ValidateBlockchain(chain []Block) bool {
-	for index := range chain {
-		currentBlock := chain[index]
-
-		// Check if the block hash is valid
-		if CalculateBlockHash(currentBlock) != currentBlock.Hash {
-			slog.Error(fmt.Sprintf("The hash of block %v is not valid!", index))
-			return false
-		}
-
-		// Skip the other checks if it is the Genesis block
-		if index == 0 {
-			continue
-		}
-
-		previousBlock := chain[index-1]
-
-		// Check if the index is incrementing
-		if previousBlock.Index+1 != currentBlock.Index {
-			return false
-		}
-
-		// Checks if the PreviousBlockHash is the hash of the previous block
-		if previousBlock.Hash != currentBlock.PreviousBlockHash {
-			return false
-		}
-
-		// TODO: Add check to validate the Transactions
-	}
-
-	return true
 }

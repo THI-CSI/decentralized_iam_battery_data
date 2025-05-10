@@ -3,62 +3,58 @@ package core
 import (
 	"crypto/sha3"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"time"
 )
 
-// TransactionType defines the type of transaction in the system.
-// It is a string-based type for better readability and type safety.
-type TransactionType string
+var PendingTransactions []json.RawMessage
 
-const (
-	// Create represents a transaction that creates a new entity or record.
-	Create TransactionType = "Create"
-	// Modify represents a transaction that modifies an existing entity or record.
-	Modify TransactionType = "Modify"
-	// Grant represents a transaction that grants permissions or access.
-	Grant TransactionType = "Grant"
-	// Revoke represents a transaction that revokes permissions or access.
-	Revoke TransactionType = "Revoke"
-)
+// CreateTrustAnchor Creates the EU DID transaction as trust anchor
+// At the moment this is a Hardcoded DID Document for development
+func CreateTrustAnchor() {
+	PendingTransactions = PendingTransactions[:0]
+	now := time.Now().UTC().Format(time.RFC3339)
 
-// Transaction represents the header of a single action recorded in the blockchain
-type Transaction struct {
-	// Index is the sequential number of the transaction.
-	Index int
-	// Timestamp records the exact time the transaction occurred.
-	Timestamp string
-	// Type indicates the kind of transaction, such as Create or Modify.
-	Type TransactionType
-	// Data holds additional information related to the transaction.
-	Data string
+	rawJSON := fmt.Sprintf(`{
+  "id": "did:batterypass.eu",
+  "publicKey": {
+    "id": "did:batterypass.eu#root-key",
+    "type": "JsonWebKey2020",
+    "controller": "did:batterypass.eu",
+    "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
+  },
+  "created": "%s",
+  "updated": "%s",
+  "revoked": false
+}`, now, now)
+	PendingTransactions = append(PendingTransactions, json.RawMessage(rawJSON))
 }
 
-var PendingTransactions []Transaction // Adequate as long as the blockchain stays in RAM
-// TODO: RevokeTransaction &
-// CreateTransaction creates a new transaction and adds it to the pending list
-func CreateTransaction(txType TransactionType, data string) Transaction {
-	t := time.Now()
-
-	tx := Transaction{
-		Index:     len(PendingTransactions), // Adequate as long as the blockchain stays in RAM
-		Timestamp: t.Format("2006-01-02 15:04:05"),
-		Type:      txType,
-		Data:      data,
+// AppendTransaction appends a DID or VC record as a transaction to the blockchain
+func AppendTransaction(jsonData json.RawMessage) {
+	if did, err := UnmarshalDidSchema(jsonData); err == nil {
+		// Handle DidSchema
+		fmt.Println("Handled as DidSchema:", did)
+	} else if vc, err := UnmarshalVcRecordSchema(jsonData); err == nil {
+		// Handle VcRecordSchema
+		fmt.Println("Handled as VcRecordSchema:", vc)
+	} else {
+		// Handle error
+		fmt.Println("Error: JSON does not match either schema")
 	}
-	PendingTransactions = append(PendingTransactions, tx)
-	return tx
+
 }
 
 // CalculateTransactionHash computes the SHA-256 hash of a transaction
-func CalculateTransactionHash(tx Transaction) string {
-	record := fmt.Sprintf("%d%s%s", tx.Index, tx.Timestamp, string(tx.Type))
+func CalculateTransactionHash(tx json.RawMessage) string {
+	record := fmt.Sprintf("%d%s%s", tx)
 	hash := sha3.Sum256([]byte(record))
 	return hex.EncodeToString(hash[:])
 }
 
 // BuildMerkleRoot computes the Merkle Root from a list of transactions
-func BuildMerkleRoot(txs []Transaction) string {
+func BuildMerkleRoot(txs []json.RawMessage) string {
 	if len(txs) == 0 {
 		return "0"
 	}

@@ -4,8 +4,10 @@ import (
 	"blockchain/internal/api/web"
 	"blockchain/internal/core"
 	"blockchain/internal/storage"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 )
 
 type Cli struct {
@@ -52,30 +54,44 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 
 	if *cli.demo {
 		fmt.Println("Creates a demo blockchain...")
+		data, err := os.ReadFile("../../docs/VC-DID-examples/bms.json")
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		var rawbms json.RawMessage = data
+		data, err = os.ReadFile("../../docs/VC-DID-examples/oem.json")
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		var rawoem json.RawMessage = data
+		data, err = os.ReadFile("../../docs/VC-DID-examples/cloud.json")
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		var rawcloud json.RawMessage = data
 
-		// Generate genesis block and 3 additional blocks with no transactions
-		*chain = append(*chain, core.GenerateGenesisBlock())
+		// Generate the genesis block and 3 additional blocks with above DIDs as Transactions
+		*chain = core.CreateChain()
 		for i := 0; i < 3; i++ {
-			for t := 0; t <= i; t++ {
-				core.CreateTransaction(core.Create, fmt.Sprintf("Block[%v] - Transaction[%v]", i, t))
-			}
-			*chain = append(*chain, core.GenerateBlock((*chain)[len(*chain)-1], core.PendingTransactions))
-			core.PendingTransactions = nil
+			core.AppendTransaction(rawbms)
+			core.AppendTransaction(rawoem)
+			core.AppendTransaction(rawcloud)
+			core.AppendBlock(chain, core.GenerateBlock(core.GetLastBlock(chain)))
 		}
 	}
 
 	if *cli.printChain {
 		fmt.Println("Printing the entire blockchain...")
-
-		for i, block := range *chain {
-			fmt.Printf("Block %d: %+v\n", i, block)
-		}
+		core.PrintChain(chain)
 	}
 
 	if *cli.validate {
 		fmt.Println("Validating the blockchain...")
 
-		isValid := core.ValidateBlockchain(*chain)
+		isValid := core.ValidateBlockchain(chain)
 		if isValid {
 			fmt.Printf("The blockchain is valid!\n")
 		} else {
