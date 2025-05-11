@@ -107,12 +107,13 @@ def main():
         if args.blockchain_parser == "h" or args.blockchain_parser == "help":
             blockchain_cmd(["-h"])
         else:
-            if "-web" in unknown_args and os.path.exists(f"{DOCS}/swagger"):
-                blockchain_cmd(unknown_args)
+            if "-web" in unknown_args:
+                if os.path.exists(f"{DOCS}/swagger"):
+                    blockchain_cmd(unknown_args)
+                else:
+                    print("You need to generate the swagger documentation before you can start the webserver")
             else:
-                print(
-                    "You need to generate the swagger documentation before you can start the webserver"
-                )
+                blockchain_cmd(unknown_args)
 
     elif args.command == "install":
         run_command(["bash", "./scripts/install-dependencies.sh"])
