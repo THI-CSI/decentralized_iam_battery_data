@@ -1,6 +1,7 @@
 package core
 
 import (
+	core "blockchain/internal/core/types"
 	"crypto/sha3"
 	"encoding/hex"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	"time"
 )
 
+// PendingTransactions is a slice of transactions that make up the next block
 var PendingTransactions []json.RawMessage
 
 // CreateTrustAnchor Creates the EU DID transaction as trust anchor
@@ -33,17 +35,16 @@ func CreateTrustAnchor() {
 
 // AppendTransaction appends a DID or VC record as a transaction to the blockchain
 func AppendTransaction(jsonData json.RawMessage) {
-	if did, err := UnmarshalDidSchema(jsonData); err == nil {
-		// Handle DidSchema
-		fmt.Println("Handled as DidSchema:", did)
-	} else if vc, err := UnmarshalVcRecordSchema(jsonData); err == nil {
+	if diddoc, err := core.UnmarshalDid(jsonData); err == nil {
+
+		fmt.Println("Handled as DidSchema:", diddoc)
+	} else if vcrec, err := core.UnmarshalVCRecord(jsonData); err == nil {
 		// Handle VcRecordSchema
-		fmt.Println("Handled as VcRecordSchema:", vc)
+		fmt.Println("Handled as VcRecordSchema:", vcrec)
 	} else {
 		// Handle error
 		fmt.Println("Error: JSON does not match either schema")
 	}
-
 }
 
 // CalculateTransactionHash computes the SHA-256 hash of a transaction

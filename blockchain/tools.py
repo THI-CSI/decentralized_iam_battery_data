@@ -34,7 +34,7 @@ SCHEMA_DIR = "./internal/jsonschema"
 QUICKTYPE = "./node_modules/.bin/quicktype"
 SCHEMA_RESOLVER = "./node_modules/.bin/json-schema-resolver"
 DOCS = "./docs"
-TYPES = "./internal/core/types.go"
+TYPES = "./internal/core/types"
 
 
 def check_return_code(code):
@@ -154,16 +154,43 @@ def main():
             run_command(
                 [
                     QUICKTYPE,
-                    "--lang",
-                    "go",
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/did.schema.json",
                     "--top-level",
                     "DID",
                     "--package",
                     "core",
-                    "--src",
-                    SCHEMA_DIR,
-                    "--out",
-                    TYPES,
+                    "-o",
+                    TYPES + "/did.types.go",
+                ]
+            )
+            run_command(
+                [
+                    QUICKTYPE,
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/vc.schema.json",
+                    "--top-level",
+                    "VC",
+                    "--package",
+                    "core",
+                    "-o",
+                    TYPES + "/vc.types.go",
+                ]
+            )
+            run_command(
+                [
+                    QUICKTYPE,
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/vc.record.schema.json",
+                    "--top-level",
+                    "VCRecord",
+                    "--package",
+                    "core",
+                    "-o",
+                    TYPES + "/vc.record.types.go",
                 ]
             )
         else:

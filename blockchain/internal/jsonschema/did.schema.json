@@ -5,6 +5,7 @@
   "description": "Minimal on-chain DID record with a revocation tag.",
   "type": "object",
   "required": ["id", "publicKey", "revoked"],
+  "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
@@ -39,6 +40,7 @@
     "VerificationMethod": {
       "type": "object",
       "required": ["id", "type", "controller", "publicKeyMultibase"],
+      "additionalProperties": false,
       "description": "A method by which a DID subject can be authenticated, typically using cryptographic keys.",
       "properties": {
         "id": {
@@ -62,6 +64,7 @@
     "ServiceEndpoint": {
       "type": "object",
       "required": ["id", "type", "serviceEndpoint"],
+      "additionalProperties": false,
       "description": "Represents a service associated with the DID subject, such as a metadata or data access point.",
       "properties": {
         "id": {
@@ -73,8 +76,8 @@
           "description": "Type or category of the service, e.g., 'BatteryDataService'."
         },
         "serviceEndpoint": {
-          "type": ["string", "object"],
-          "description": "The actual service endpoint, which can be a URL or a complex object with more detail."
+          "type": ["string"],
+          "description": "The actual service endpoint, which can be a URL."
         }
       }
     }

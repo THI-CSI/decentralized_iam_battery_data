@@ -5,6 +5,7 @@
   "description": "Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and revocation status.",
   "type": "object",
   "required": ["id", "vcHash", "timestamp"],
+  "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
