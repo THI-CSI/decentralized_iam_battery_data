@@ -85,7 +85,7 @@ python3 tools.py dev down
 | `docs`     | Generates project documentation. You can specify the type using `--type`.                                                       |
 | `dev`      | Executes all docker commands and uses `docker-compose-dev.yml`.                                                                 |
 
-_Note:_ `quicktype example.json -l schema -o ./jsonschema/schemaname.json` can be used to generate json-schemas from json examples
+_Note:_ `quicktype example.json -l schema -o ./internal/jsonschema/schemaname.json` can be used to generate json-schemas from json examples
 
 ### Documentation types
 
