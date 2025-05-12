@@ -90,9 +90,13 @@ To communicate with the device over Ethernet, you must first configure your netw
 
 ### Linux
 
-To set your IP address:
+To set your Gateway IP address:
 ```bash
    sudo ip addr add 192.168.0.3/24 dev <your_interface_name>
+```
+To assign your DNS server (no root needed)
+```bash
+	make docs
 ```
 To assign the server IP address:
 ```bash
@@ -113,7 +117,7 @@ To set your IP address:
 netsh interface ip add address <your_interface_name> static 192.168.0.3 255.255.255.0
 ```
 
-To assign te server IP address:
+To assign the server IP address:
 ```powershell 
 netsh interface ip add address <your_interface_name> static 192.168.1.100 255.255.255.0
 ```
