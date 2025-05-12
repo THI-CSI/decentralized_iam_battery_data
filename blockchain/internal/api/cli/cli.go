@@ -35,7 +35,7 @@ func InitCli() *Cli {
 }
 
 // Parse parses the CLI arguments and runs the corresponding command
-func (cli *Cli) Parse(chain *[]core.Block) {
+func (cli *Cli) Parse(chain *core.Blockchain) {
 	filename := "blockchain.json"
 	flag.Parse()
 
@@ -74,11 +74,11 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 		var rawcloud json.RawMessage = data
 
 		// Generate the genesis block and 3 additional blocks with above DIDs as Transactions
-		*chain = core.CreateChain()
+		chain = core.CreateChain()
 		for i := 0; i < 3; i++ {
-			chain.AppendTransaction(rawbms)
-			core.AppendTransaction(rawoem)
-			core.AppendTransaction(rawcloud)
+			(*chain).AppendTransaction(rawbms)
+			(*chain).AppendTransaction(rawoem)
+			(*chain).AppendTransaction(rawcloud)
 			core.AppendBlock(chain, core.GenerateBlock(core.GetLastBlock(chain)))
 		}
 	}

@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func Load(path string, v *[]core.Block) error {
+func Load(path string, v *core.Blockchain) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func Load(path string, v *[]core.Block) error {
 	return json.Unmarshal(r, v)
 }
 
-func Save(path string, v []core.Block) error {
+func Save(path string, v core.Blockchain) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err

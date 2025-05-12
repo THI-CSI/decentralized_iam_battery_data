@@ -53,7 +53,7 @@ func CalculateBlockHash(block Block) string {
 	return hex.EncodeToString(hash)
 }
 
-// GenerateGenesisBlock Generate a Genesis Block
+// GenerateGenesisBlock Generate the Genesis Block
 func GenerateGenesisBlock() Block {
 	var block Block
 

@@ -65,10 +65,10 @@ func PrintChain(chain *Blockchain) {
 }
 
 // CreateChain Creates a new Chain with the GenerateGenesisBlock method
-func CreateChain() []Block {
+func CreateChain() *Blockchain {
 	var chain *Blockchain
 	*chain = append(*chain, GenerateGenesisBlock())
-	return *chain
+	return chain
 }
 
 // AppendBlock Appends a Block to a Chain
