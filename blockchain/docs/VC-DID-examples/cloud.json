@@ -13,7 +13,6 @@
       "serviceEndpoint": "https://<cloud-endpoint>"
     }
   ],
-  "created": "2025-06-02T09:00:00Z",
-  "updated": "2025-06-02T09:00:00Z",
+  "timestamp": "2025-04-02T09:00:00Z",
   "revoked": false
 }

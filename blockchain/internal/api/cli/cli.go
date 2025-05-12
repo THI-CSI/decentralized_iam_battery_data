@@ -54,33 +54,52 @@ func (cli *Cli) Parse(chain *core.Blockchain) {
 
 	if *cli.demo {
 		fmt.Println("Creates a demo blockchain...")
-		data, err := os.ReadFile("../../docs/VC-DID-examples/bms.json")
+
+		data, err := os.ReadFile("./docs/VC-DID-examples/bms.json")
 		if err != nil {
-			fmt.Println("Error reading file:", err)
+			fmt.Println("Error: Could not read file:", err)
 			return
 		}
 		var rawbms json.RawMessage = data
-		data, err = os.ReadFile("../../docs/VC-DID-examples/oem.json")
+
+		data, err = os.ReadFile("./docs/VC-DID-examples/oem.json")
 		if err != nil {
-			fmt.Println("Error reading file:", err)
+			fmt.Println("Error: Could not read file:", err)
 			return
 		}
 		var rawoem json.RawMessage = data
-		data, err = os.ReadFile("../../docs/VC-DID-examples/cloud.json")
+
+		data, err = os.ReadFile("./docs/VC-DID-examples/cloud.json")
 		if err != nil {
-			fmt.Println("Error reading file:", err)
+			fmt.Println("Error: Could not read file:", err)
 			return
 		}
 		var rawcloud json.RawMessage = data
 
-		// Generate the genesis block and 3 additional blocks with above DIDs as Transactions
-		chain = core.CreateChain()
-		for i := 0; i < 3; i++ {
-			(*chain).AppendTransaction(rawbms)
-			(*chain).AppendTransaction(rawoem)
-			(*chain).AppendTransaction(rawcloud)
-			core.AppendBlock(chain, core.GenerateBlock(core.GetLastBlock(chain)))
+		data, err = os.ReadFile("./docs/VC-DID-examples/vcRecord.json")
+		if err != nil {
+			fmt.Println("Error: Could not read file:", err)
+			return
 		}
+		var vcRecord json.RawMessage = data
+
+		//Generate the genesis block and 3 additional blocks with above DIDs as Transactions
+		chain = core.CreateChain()
+		(*chain).AppendTransaction(rawoem)
+		(*chain).AppendTransaction(rawbms)
+		(*chain).AppendTransaction(rawcloud)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(rawcloud)
+		(*chain).AppendTransaction(rawoem)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(vcRecord)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(vcRecord)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(rawcloud)
+		(*chain).AppendTransaction(rawbms)
+		(*chain).AppendTransaction(rawoem)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
 	}
 
 	if *cli.printChain {
@@ -91,7 +110,7 @@ func (cli *Cli) Parse(chain *core.Blockchain) {
 	if *cli.validate {
 		fmt.Println("Validating the blockchain...")
 
-		isValid := core.ValidateBlockchain(chain)
+		isValid := (*chain).ValidateBlockchain()
 		if isValid {
 			fmt.Printf("The blockchain is valid!\n")
 		} else {

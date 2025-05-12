@@ -4,13 +4,14 @@ import (
 	core "blockchain/internal/core/types"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 )
 
 type Blockchain []Block
 
 // ValidateBlockchain Validate a chain of blocks
-func ValidateBlockchain(chain *Blockchain) bool {
+func (chain *Blockchain) ValidateBlockchain() bool {
 	for index := range *chain {
 		currentBlock := (*chain)[index]
 
@@ -43,7 +44,7 @@ func ValidateBlockchain(chain *Blockchain) bool {
 }
 
 // GetBlock Returns a block based on its id from the Blockchain
-func GetBlock(chain *Blockchain, id int) Block {
+func (chain *Blockchain) GetBlock(id int) Block {
 	for _, block := range *chain {
 		if block.Index == id {
 			return block
@@ -53,7 +54,7 @@ func GetBlock(chain *Blockchain, id int) Block {
 }
 
 // GetLastBlock Returns the last/newest block from the Blockchain
-func GetLastBlock(chain *Blockchain) Block {
+func (chain *Blockchain) GetLastBlock() Block {
 	return (*chain)[len(*chain)-1]
 }
 
@@ -66,27 +67,31 @@ func PrintChain(chain *Blockchain) {
 
 // CreateChain Creates a new Chain with the GenerateGenesisBlock method
 func CreateChain() *Blockchain {
-	var chain *Blockchain
-	*chain = append(*chain, GenerateGenesisBlock())
-	return chain
+	var chain Blockchain
+	chain = append(chain, GenerateGenesisBlock())
+	return &chain
 }
 
 // AppendBlock Appends a Block to a Chain
-func AppendBlock(chain *Blockchain, block Block) {
-	*chain = append(*chain, block)
+func (chain *Blockchain) AppendBlock(block Block) {
+	if block.Transactions != nil {
+		*chain = append(*chain, block)
+	}
 }
 
 // VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
 func (chain *Blockchain) VerifyDID(did string) string {
 	var block Block
 	for i := len(*chain) - 1; i >= 0; i-- {
-		block = GetBlock(chain, i)
+		block = chain.GetBlock(i)
 		for _, tx := range block.Transactions {
-			if diddoc, err := core.UnmarshalDid(tx); err == nil {
-				if diddoc.ID == did && !diddoc.Revoked {
-					return "revoked"
-				} else {
-					return "valid"
+			if diddoc, _ := core.UnmarshalDid(tx); strings.HasPrefix(diddoc.ID, "did:") {
+				if diddoc.ID == did {
+					if diddoc.Revoked {
+						return "revoked"
+					} else {
+						return "valid"
+					}
 				}
 			}
 		}
@@ -95,21 +100,19 @@ func (chain *Blockchain) VerifyDID(did string) string {
 }
 
 // VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
-func (chain *Blockchain) VerifyVCRecord(vcRecord core.VCRecord) string {
-	if vcRecord.ExpirationDate != nil && vcRecord.Timestamp.Before(*vcRecord.ExpirationDate) {
-		var block Block
-		for i := len(*chain) - 1; i >= 0; i-- {
-			block = GetBlock(chain, i)
-			for _, tx := range block.Transactions {
-				if onChainRecord, err := core.UnmarshalVCRecord(tx); err == nil {
-					if onChainRecord.ID == vcRecord.ID {
-						if onChainRecord.VcHash != vcRecord.VcHash {
-							return "tampered"
-						} else if onChainRecord.ExpirationDate.Before(time.Now()) {
-							return "expired"
-						} else {
-							return "valid"
-						}
+func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) string {
+	var block Block
+	for i := len(*chain) - 1; i >= 0; i-- {
+		block = chain.GetBlock(i)
+		for _, tx := range block.Transactions {
+			if onChainRecord, _ := core.UnmarshalVCRecord(tx); strings.HasPrefix(onChainRecord.ID, "urn:") {
+				if onChainRecord.ID == uri || onChainRecord.VcHash == vcHash {
+					if onChainRecord.VcHash != vcHash || onChainRecord.ID != uri {
+						return "tampered"
+					} else if onChainRecord.ExpirationDate.Before(time.Now()) {
+						return "expired"
+					} else {
+						return "valid"
 					}
 				}
 			}

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -15,7 +16,7 @@ var PendingTransactions []json.RawMessage
 // CreateTrustAnchor Creates the EU DID transaction as trust anchor
 // At the moment this is a Hardcoded DID Document for development
 func CreateTrustAnchor() {
-	PendingTransactions = PendingTransactions[:0]
+	PendingTransactions = nil
 	now := time.Now().UTC().Format(time.RFC3339)
 
 	rawJSON := fmt.Sprintf(`{
@@ -26,46 +27,49 @@ func CreateTrustAnchor() {
     "controller": "did:batterypass.eu",
     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
   },
-  "created": "%s",
-  "updated": "%s",
+  "timestamp": "%s",
   "revoked": false
-}`, now, now)
+}`, now)
 	PendingTransactions = append(PendingTransactions, json.RawMessage(rawJSON))
 }
 
 // AppendTransaction appends a DID or VC record as a transaction to the blockchain
 func (chain *Blockchain) AppendTransaction(jsonData json.RawMessage) bool {
 	now := time.Now()
-	if diddoc, err := core.UnmarshalDid(jsonData); err == nil {
+	// Handle DIDs
+	if diddoc, _ := core.UnmarshalDid(jsonData); strings.HasPrefix(diddoc.ID, "did:") {
 		if chain.VerifyDID(diddoc.ID) != "revoked" {
 			diddoc.Timestamp = &now
 			pdiddoc := &diddoc
 			data, err := pdiddoc.Marshal()
 			if err != nil {
-				fmt.Println("Error: Could not marshal DID document")
+				fmt.Println("Error: Could not marshal DID document:", diddoc.ID)
+				fmt.Println("with Error:", err)
 				return false
 			} else {
 				PendingTransactions = append(PendingTransactions, data)
 				return true
 			}
 		} else {
-			fmt.Println("Error: DID is revoked")
+			fmt.Println("Error: DID is revoked:", diddoc.ID)
 			return false
 		}
-	} else if vcrec, err := core.UnmarshalVCRecord(jsonData); err == nil {
-		if chain.VerifyVCRecord(vcrec) == "absent" {
+		// Handle VCRecords
+	} else if vcrec, _ := core.UnmarshalVCRecord(jsonData); strings.HasPrefix(vcrec.ID, "urn:") {
+		if chain.VerifyVCRecord(vcrec.ID, vcrec.VcHash) == "absent" {
 			vcrec.Timestamp = now
 			pvcrec := &vcrec
 			data, err := pvcrec.Marshal()
 			if err != nil {
-				fmt.Println("Error: Could not marshal VC Record")
+				fmt.Println("Error: Could not marshal VC Record:", vcrec.ID)
+				fmt.Println("with Error:", err)
 				return false
 			} else {
 				PendingTransactions = append(PendingTransactions, data)
 				return true
 			}
 		} else {
-			fmt.Println("Error: VC Record is already present")
+			fmt.Println("Error: VC Record is already present:", vcrec.ID)
 			return false
 		}
 	} else {
@@ -76,7 +80,7 @@ func (chain *Blockchain) AppendTransaction(jsonData json.RawMessage) bool {
 
 // CalculateTransactionHash computes the SHA-256 hash of a transaction
 func CalculateTransactionHash(tx json.RawMessage) string {
-	record := fmt.Sprintf("%d%s%s", tx)
+	record := fmt.Sprintf("%d", tx)
 	hash := sha3.Sum256([]byte(record))
 	return hex.EncodeToString(hash[:])
 }

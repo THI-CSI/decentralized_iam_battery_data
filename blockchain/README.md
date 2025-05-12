@@ -117,5 +117,7 @@ python3 tools.py run help
 **Example Command:**
 
 ```shell
-python3 tools.py run -demo -save -load -print-chain
+python3 tools.py run -demo -save
+jq '.' blockchain.json # To check the contents of the blockchain in detail
+python3 tools.py run -load -print-chain
 ```

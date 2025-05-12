@@ -48,7 +48,11 @@ func (b Block) String() string {
 func CalculateBlockHash(block Block) string {
 	hasher := sha3.New256()
 	record := fmt.Sprintf("%d%s%s%s", block.Index, block.Timestamp, block.PreviousBlockHash, block.MerkleRoot)
-	hasher.Write([]byte(record))
+	_, err := hasher.Write([]byte(record))
+	if err != nil {
+		print("Error: Could not write to hasher: %v\n", err)
+		return "" // TODO: Check if this might lead to issues down the line
+	}
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
 }
@@ -66,7 +70,7 @@ func GenerateGenesisBlock() Block {
 	block.Transactions = PendingTransactions
 	block.Hash = CalculateBlockHash(block)
 
-	PendingTransactions = PendingTransactions[:0]
+	PendingTransactions = nil
 
 	return block
 }
@@ -82,7 +86,7 @@ func GenerateBlock(currentBlock Block) Block {
 	block.MerkleRoot = BuildMerkleRoot(PendingTransactions)
 	block.Hash = CalculateBlockHash(block)
 
-	PendingTransactions = PendingTransactions[:0]
+	PendingTransactions = nil
 
 	return block
 }

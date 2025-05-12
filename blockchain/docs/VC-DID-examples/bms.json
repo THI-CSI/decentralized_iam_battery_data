@@ -13,7 +13,6 @@
       "serviceEndpoint": "https://<client-endpoint>"
     }
   ],
-  "created": "2025-06-10T12:00:00Z",
-  "updated": "2025-06-10T12:00:00Z",
-  "revoked": false
+  "timestamp": "2025-04-10T12:00:00Z",
+  "revoked": true
 }
