@@ -21,15 +21,10 @@
       "items": { "$ref": "#/$defs/ServiceEndpoint" },
       "description": "Optional array of service endpoints related to the DID subject, such as APIs or metadata services."
     },
-    "created": {
+    "timestamp": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp indicating when the DID document was created."
-    },
-    "updated": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp indicating the last update of the DID document."
+      "description": "Timestamp indicating when the DID document was created/modified."
     },
     "revoked": {
       "type": "boolean",

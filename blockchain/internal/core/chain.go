@@ -4,6 +4,7 @@ import (
 	core "blockchain/internal/core/types"
 	"fmt"
 	"log/slog"
+	"time"
 )
 
 type Blockchain []Block
@@ -76,35 +77,43 @@ func AppendBlock(chain *Blockchain, block Block) {
 }
 
 // VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
-func (chain *Blockchain) VerifyDID(did string) bool {
+func (chain *Blockchain) VerifyDID(did string) string {
 	var block Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = GetBlock(chain, i)
 		for _, tx := range block.Transactions {
 			if diddoc, err := core.UnmarshalDid(tx); err == nil {
 				if diddoc.ID == did && !diddoc.Revoked {
-					return true
+					return "revoked"
+				} else {
+					return "valid"
 				}
 			}
 		}
 	}
-	return false
+	return "absent"
 }
 
 // VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
-func (chain *Blockchain) VerifyVCRecord(vcRecord core.VCRecord) bool {
+func (chain *Blockchain) VerifyVCRecord(vcRecord core.VCRecord) string {
 	if vcRecord.ExpirationDate != nil && vcRecord.Timestamp.Before(*vcRecord.ExpirationDate) {
 		var block Block
 		for i := len(*chain) - 1; i >= 0; i-- {
 			block = GetBlock(chain, i)
 			for _, tx := range block.Transactions {
 				if onChainRecord, err := core.UnmarshalVCRecord(tx); err == nil {
-					if onChainRecord.ID == vcRecord.ID && onChainRecord.VcHash == vcRecord.VcHash {
-						return true
+					if onChainRecord.ID == vcRecord.ID {
+						if onChainRecord.VcHash != vcRecord.VcHash {
+							return "tampered"
+						} else if onChainRecord.ExpirationDate.Before(time.Now()) {
+							return "expired"
+						} else {
+							return "valid"
+						}
 					}
 				}
 			}
 		}
 	}
-	return false
+	return "absent"
 }

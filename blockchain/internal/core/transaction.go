@@ -34,16 +34,43 @@ func CreateTrustAnchor() {
 }
 
 // AppendTransaction appends a DID or VC record as a transaction to the blockchain
-func AppendTransaction(jsonData json.RawMessage) {
+func (chain *Blockchain) AppendTransaction(jsonData json.RawMessage) bool {
+	now := time.Now()
 	if diddoc, err := core.UnmarshalDid(jsonData); err == nil {
-
-		fmt.Println("Handled as DidSchema:", diddoc)
+		if chain.VerifyDID(diddoc.ID) != "revoked" {
+			diddoc.Timestamp = &now
+			pdiddoc := &diddoc
+			data, err := pdiddoc.Marshal()
+			if err != nil {
+				fmt.Println("Error: Could not marshal DID document")
+				return false
+			} else {
+				PendingTransactions = append(PendingTransactions, data)
+				return true
+			}
+		} else {
+			fmt.Println("Error: DID is revoked")
+			return false
+		}
 	} else if vcrec, err := core.UnmarshalVCRecord(jsonData); err == nil {
-		// Handle VcRecordSchema
-		fmt.Println("Handled as VcRecordSchema:", vcrec)
+		if chain.VerifyVCRecord(vcrec) == "absent" {
+			vcrec.Timestamp = now
+			pvcrec := &vcrec
+			data, err := pvcrec.Marshal()
+			if err != nil {
+				fmt.Println("Error: Could not marshal VC Record")
+				return false
+			} else {
+				PendingTransactions = append(PendingTransactions, data)
+				return true
+			}
+		} else {
+			fmt.Println("Error: VC Record is already present")
+			return false
+		}
 	} else {
-		// Handle error
 		fmt.Println("Error: JSON does not match either schema")
+		return false
 	}
 }
 

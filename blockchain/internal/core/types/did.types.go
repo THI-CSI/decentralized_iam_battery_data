@@ -22,8 +22,6 @@ func (r *Did) Marshal() ([]byte, error) {
 
 // Minimal on-chain DID record with a revocation tag.
 type Did struct {
-	// Timestamp indicating when the DID document was created.                                             
-	Created                                                                                    *time.Time  `json:"created,omitempty"`
 	// Decentralized Identifier (DID) for the entity, following the DID syntax.                            
 	ID                                                                                         string      `json:"id"`
 	// Public key information used for verifying signatures and authentication.                            
@@ -33,8 +31,8 @@ type Did struct {
 	// Optional array of service endpoints related to the DID subject, such as APIs or metadata            
 	// services.                                                                                           
 	Service                                                                                    []DidSchema `json:"service,omitempty"`
-	// Timestamp indicating the last update of the DID document.                                           
-	Updated                                                                                    *time.Time  `json:"updated,omitempty"`
+	// Timestamp indicating when the DID document was created/modified.                                    
+	Timestamp                                                                                  *time.Time  `json:"timestamp,omitempty"`
 }
 
 // Public key information used for verifying signatures and authentication.

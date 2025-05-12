@@ -76,7 +76,7 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 		// Generate the genesis block and 3 additional blocks with above DIDs as Transactions
 		*chain = core.CreateChain()
 		for i := 0; i < 3; i++ {
-			core.AppendTransaction(rawbms)
+			chain.AppendTransaction(rawbms)
 			core.AppendTransaction(rawoem)
 			core.AppendTransaction(rawcloud)
 			core.AppendBlock(chain, core.GenerateBlock(core.GetLastBlock(chain)))
