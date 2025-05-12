@@ -2,6 +2,7 @@ package utils
 
 import (
 	"blockchain/internal/api/web/server/domain"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -33,7 +34,8 @@ func ParseAndValidateStruct[T any](c *fiber.Ctx) (*T, error) {
 
 	// Validate the parsed struct against any `validate:"..."` tags
 	if err := Validate.Struct(payload); err != nil {
-		validationErr := err.(validator.ValidationErrors)
+		var validationErr validator.ValidationErrors
+		errors.As(err, &validationErr)
 		return nil, domain.ValidationError(validationErr)
 	}
 

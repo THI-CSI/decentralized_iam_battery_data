@@ -7,6 +7,6 @@ import (
 
 func main() {
 	var chain core.Blockchain
-	cli := cli.InitCli()
-	cli.Parse(&chain)
+	mycli := cli.InitCli()
+	mycli.Parse(&chain)
 }
