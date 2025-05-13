@@ -2,8 +2,10 @@ package core
 
 import (
 	core "blockchain/internal/core/types"
+	"blockchain/internal/storage"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 	"time"
 )
@@ -122,4 +124,21 @@ func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) string {
 		}
 	}
 	return "absent"
+}
+
+func (chain *Blockchain) Automate(filename string) {
+	for {
+		// Checks every second if the TransactionThreshold has been reached
+		time.Sleep(time.Second)
+		if len(PendingTransactions) >= TransactionThreshold {
+			chain.AppendBlock(GenerateBlock(chain.GetLastBlock()))
+			fmt.Printf("Generated new block!\n%v\n", chain.GetLastBlock())
+			if err := storage.Save(filename, *chain); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Saved the new block to the '%v' file!\n", filename)
+		}
+		fmt.Printf("[!] Pending Transactions: %v\n", len(PendingTransactions))
+	}
 }

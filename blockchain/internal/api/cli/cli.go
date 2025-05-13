@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 type Cli struct {
@@ -121,6 +122,18 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 	}
 
 	if *cli.web {
+		fmt.Println("Starting the Blockchain...")
+		go chain.Automate(filename)
+		go func() {
+			data, _ := os.ReadFile("./docs/VC-DID-examples/oem.json")
+			var rawoem json.RawMessage = data
+
+			for {
+				time.Sleep(2 * time.Second)
+				chain.AppendTransaction(rawoem)
+				fmt.Println("[+] Added Transaction")
+			}
+		}()
 		fmt.Println("Starting the Web API...")
 		web.CreateServer()
 	}
