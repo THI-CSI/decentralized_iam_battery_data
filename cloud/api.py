@@ -94,12 +94,20 @@ async def update_item(
 
 # Note: This function could be moved to crypto.py for consistency
 def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+    """
+    Extract URI, issuer, and holder from a VC object.
 
+    :param vc: The Verifiable Credential (VC) as a dictionary.
+    :return: A tuple containing (URI, Issuer ID, Holder ID).
+    """
+
+    # Get all necessary data from the verifiable credential
     uri = vc.get("id")
     issuer = vc.get("issuer")
     subject = vc.get("credentialSubject")
 
-
+    # Checking credentialSubjects form (If we have a uniform form, this is not necessary,
+    # but will be left in for now)
     if isinstance(subject, dict):
         holder = subject.get("id")
     elif isinstance(subject, list) and len(subject) > 0:
@@ -113,14 +121,27 @@ def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
     return uri, issuer, holder
 
 
+# Note: This function could be moved to crypto.py for consistency
 def verify_vc(vc_json_object: json) -> bool:
+    """
+    This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
+    creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
+    """
 
+    # Extract the uri, issuer and holder
     uri, issuer, holder = extract_vc_info(vc_json_object)
 
+    # To generate the Hash, we must first serialize the Object
     serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
 
+    # Create the SHA3-256bit Hash
     vc_hash = SHA3_256.new(serialized_vc)
 
+    # devbod: TODO: Should we use hexdigest()?
+    # vc_digest = vc_hash.hexdigest()
+
+    # Now we need to send the Data to the Blockchain
+    # First we create the Datastructures we send
     data = {
         "uri": uri,
         "issuer": issuer,
