@@ -12,10 +12,8 @@ import (
 
 type Cli struct {
 	printChain *bool
-	validate   *bool
 	web        *bool
-	save       *bool
-	load       *bool
+	genesis       *bool
 	file       *string
 	demo       *bool
 }
@@ -24,10 +22,8 @@ type Cli struct {
 func InitCli() *Cli {
 	cli := &Cli{
 		printChain: flag.Bool("print-chain", false, "Print the entire blockchain"),
-		validate:   flag.Bool("validate", false, "Validate the blockchain"),
 		web:        flag.Bool("web", false, "Start the web server"),
-		save:       flag.Bool("save", false, "Save the blockchain to a file"),
-		load:       flag.Bool("load", false, "Load the blockchain from a file"),
+		genesis:    flag.Bool("genesis", false, "Creates a new blockchain and saves it to a file"),
 		file:       flag.String("file", "", "Specify the file"),
 		demo:       flag.Bool("demo", false, "Generate a demo blockchain and validate it"),
 	}
@@ -35,55 +31,36 @@ func InitCli() *Cli {
 }
 
 // Parse parses the CLI arguments and runs the corresponding command
-func (cli *Cli) Parse(chain *core.Blockchain) {
+func (cli *Cli) Parse(chain *core.Blockchain) error {
 	filename := "blockchain.json"
+	var err error
 	flag.Parse()
 
-	if len(*cli.file) > 0 {
-		filename = *cli.file
-	}
-
-	if *cli.load {
-		err := storage.Load(filename, chain)
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-			return
-		}
-		if !chain.ValidateBlockchain() {
-			fmt.Println("error: The loaded blockchain is not valid.")
-			os.Exit(1)
-		}
-		fmt.Printf("Loaded blockchain from '%v'\n", filename)
-	}
-
 	if *cli.demo {
+		filename = "blockchain-demo.json"
 		fmt.Println("Creates a demo blockchain...")
 
 		data, err := os.ReadFile("./docs/VC-DID-examples/bms.json")
 		if err != nil {
-			fmt.Println("Error: Could not read file:", err)
-			return
+			return fmt.Errorf("Could not read file:", err)
 		}
 		var rawbms json.RawMessage = data
 
 		data, err = os.ReadFile("./docs/VC-DID-examples/oem.json")
 		if err != nil {
-			fmt.Println("Error: Could not read file:", err)
-			return
+			return fmt.Errorf("Could not read file:", err)
 		}
 		var rawoem json.RawMessage = data
 
 		data, err = os.ReadFile("./docs/VC-DID-examples/cloud.json")
 		if err != nil {
-			fmt.Println("Error: Could not read file:", err)
-			return
+			return fmt.Errorf("Could not read file:", err)
 		}
 		var rawcloud json.RawMessage = data
 
 		data, err = os.ReadFile("./docs/VC-DID-examples/vcRecord.json")
 		if err != nil {
-			fmt.Println("Error: Could not read file:", err)
-			return
+			return fmt.Errorf("Could not read file:", err)
 		}
 		var vcRecord json.RawMessage = data
 
@@ -98,28 +75,46 @@ func (cli *Cli) Parse(chain *core.Blockchain) {
 		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
 		(*chain).AppendTransaction(vcRecord)
 		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
-		(*chain).AppendTransaction(vcRecord)
-		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
 		(*chain).AppendTransaction(rawcloud)
-		(*chain).AppendTransaction(rawbms)
 		(*chain).AppendTransaction(rawoem)
 		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+
+		core.PrintChain(chain)
+
+		err = storage.Save(filename, *chain)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Generated demo blockchain and saved it to '%v'!\n", filename)
+		
+		return nil
+	}
+	
+	if len(*cli.file) > 0 {
+		filename = *cli.file
+	}
+
+	if *cli.genesis {
+		chain = core.CreateChain()
+		err = storage.Save(filename, *chain)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Generated genesis block and saved the blockchain to '%v'!\n", filename)
+		return nil
+	}
+	
+	err = storage.Load(filename, chain)
+	if err != nil {
+		return fmt.Errorf("%v\nYou can use the argument '-genesis' to create a new blockchain.", err)
+	}
+	
+	if !chain.ValidateBlockchain() {
+		return fmt.Errorf("The loaded blockchain is not valid")
 	}
 
 	if *cli.printChain {
-		fmt.Println("Printing the entire blockchain...")
 		core.PrintChain(chain)
-	}
-
-	if *cli.validate {
-		fmt.Println("Validating the blockchain...")
-
-		isValid := (*chain).ValidateBlockchain()
-		if isValid {
-			fmt.Printf("The blockchain is valid!\n")
-		} else {
-			fmt.Printf("The blockchain is not valid!\n")
-		}
 	}
 
 	if *cli.web {
@@ -127,13 +122,10 @@ func (cli *Cli) Parse(chain *core.Blockchain) {
 		web.CreateServer()
 	}
 
-	if *cli.save {
-		err := storage.Save(filename, *chain)
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-			return
-		}
-		fmt.Printf("Saved the blockchain to '%v'\n", filename)
+	err = storage.Save(filename, *chain)
+	if err != nil {
+		return err
 	}
 
+	return nil
 }

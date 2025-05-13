@@ -104,20 +104,26 @@ _Note:_ `quicktype example.json -l schema -o ./internal/jsonschema/schemaname.js
 python3 tools.py run help
 ```
 
-| Type              | Description                                 |
-| ----------------- | ------------------------------------------- |
-| `-demo` (default) | Generate a demo blockchain and validate it. |
-| `-file`           | Specify the file.                           |
-| `-load`           | Load the blockchain from a file.            |
-| `-print-chain`    | Print the entire blockchain.                |
-| `-save`           | Save the blockchain to a file.              |
-| `-validate`       | Validate the blockchain.                    |
-| `-web`            | Starts the blockchain api.                  |
+| Type              | Description                                      |
+| ----------------- | ------------------------------------------------ |
+| `-demo`           | Generate a demo blockchain and validate it.      |
+| `-genesis`        | Creates a new blockchain and saves it to a file. |
+| `-print-chain`    | Print the entire blockchain.                     |
+| `-file`           | Specify a different filename.                    |
+| `-web`            | Starts the blockchain api.                       |
+| `-help`           | Print the help page.                             |
 
 **Example Command:**
-
+Generate a new empty blockchain with a genesis block:
 ```shell
-python3 tools.py run -demo -save
-jq '.' blockchain.json # To check the contents of the blockchain in detail
-python3 tools.py run -load -print-chain
+python3 tools.py run -genesis
+python3 tools.py run -print-chain
 ```
+
+Generate a demo blockchain with some example DIDs and VCs:
+```shell
+python3 tools.py run -demo
+cat blockchain-demo.json | jq # To check the contents of the blockchain demo in detail
+python3 tools.py run -file=blockchain-demo.json -print-chain
+```
+
