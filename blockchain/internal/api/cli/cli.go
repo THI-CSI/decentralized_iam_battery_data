@@ -49,6 +49,10 @@ func (cli *Cli) Parse(chain *core.Blockchain) {
 			fmt.Printf("error: %v\n", err)
 			return
 		}
+		if !chain.ValidateBlockchain() {
+			fmt.Println("error: The loaded blockchain is not valid.")
+			os.Exit(1)
+		}
 		fmt.Printf("Loaded blockchain from '%v'\n", filename)
 	}
 
