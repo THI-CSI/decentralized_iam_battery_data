@@ -58,8 +58,8 @@ func (chain *Blockchain) GetLastBlock() *Block {
 	return &(*chain)[len(*chain)-1]
 }
 
-// PrintChain Prints the complete Blockchain
-func PrintChain(chain *Blockchain) {
+// Print Prints the complete Blockchain
+func (chain *Blockchain) Print() {
 	for i, block := range *chain {
 		fmt.Printf("Block %d: %+v\n", i, block)
 	}

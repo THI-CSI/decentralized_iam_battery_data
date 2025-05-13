@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var chain core.Blockchain
-	
+
 	mycli := cli.InitCli()
 	if err := mycli.Parse(&chain); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
