@@ -13,13 +13,14 @@
     "credentialSubject",
     "proof"
   ],
+  "additionalProperties": false,
   "properties": {
     "@context": {
       "oneOf": [
         { "type": "string", "format": "uri" },
         {
           "type": "array",
-          "items": { "type": ["string", "object"] }
+          "items": { "type": ["string"] }
         }
       ],
       "description": "Defines the JSON-LD context, providing meaning to terms used in the credential."
@@ -37,8 +38,8 @@
       "description": "Specifies the type(s) of the credential, must include 'VerifiableCredential'."
     },
     "issuer": {
-      "type": ["string", "object"],
-      "description": "Identifier or object representing the entity that issued the credential."
+      "type": ["string"],
+      "description": "Identifier representing the entity that issued the credential."
     },
     "holder": {
       "type": "string",
@@ -57,43 +58,22 @@
     },
     "credentialSubject": {
       "oneOf": [
-        { "$ref": "#/$defs/BatteryPassRelationship" },
         { "$ref": "#/$defs/BMSProduction" },
         { "$ref": "#/$defs/ServiceAccess" }
       ],
       "description": "The subject of the credential, which must match one of the predefined claim types."
     },
     "proof": {
-      "type": "object",
+      "type": "string",
       "description": "Cryptographic proof that makes the credential verifiable."
     }
   },
 
   "$defs": {
-    "BatteryPassRelationship": {
-      "title": "BatteryPassRelationship",
-      "type": "object",
-      "required": ["id", "type", "batteryPassId"],
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uri",
-          "description": "Identifier for the battery pass relationship credential."
-        },
-        "type": {
-          "const": "BatteryPassRelationship",
-          "description": "Type indicator for the battery pass relationship."
-        },
-        "batteryPassId": {
-          "type": "string",
-          "description": "Identifier linking to the battery pass document."
-        }
-      }
-    },
-
     "BMSProduction": {
       "title": "BMSProduction",
       "type": "object",
+      "additionalProperties": false,
       "required": ["id", "type", "bmsDid", "producedOn"],
       "properties": {
         "id": {
@@ -126,6 +106,7 @@
       "title": "ServiceAccess",
       "type": "object",
       "required": ["id", "type", "bmsDid", "accessLevel"],
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",

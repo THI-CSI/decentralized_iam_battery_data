@@ -4,8 +4,10 @@ import (
 	"blockchain/internal/api/web"
 	"blockchain/internal/core"
 	"blockchain/internal/storage"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 )
 
 type Cli struct {
@@ -33,7 +35,7 @@ func InitCli() *Cli {
 }
 
 // Parse parses the CLI arguments and runs the corresponding command
-func (cli *Cli) Parse(chain *[]core.Block) {
+func (cli *Cli) Parse(chain *core.Blockchain) {
 	filename := "blockchain.json"
 	flag.Parse()
 
@@ -53,29 +55,62 @@ func (cli *Cli) Parse(chain *[]core.Block) {
 	if *cli.demo {
 		fmt.Println("Creates a demo blockchain...")
 
-		// Generate genesis block and 3 additional blocks with no transactions
-		*chain = append(*chain, core.GenerateGenesisBlock())
-		for i := 0; i < 3; i++ {
-			for t := 0; t <= i; t++ {
-				core.CreateTransaction(core.Create, fmt.Sprintf("Block[%v] - Transaction[%v]", i, t))
-			}
-			*chain = append(*chain, core.GenerateBlock((*chain)[len(*chain)-1], core.PendingTransactions))
-			core.PendingTransactions = nil
+		data, err := os.ReadFile("./docs/VC-DID-examples/bms.json")
+		if err != nil {
+			fmt.Println("Error: Could not read file:", err)
+			return
 		}
+		var rawbms json.RawMessage = data
+
+		data, err = os.ReadFile("./docs/VC-DID-examples/oem.json")
+		if err != nil {
+			fmt.Println("Error: Could not read file:", err)
+			return
+		}
+		var rawoem json.RawMessage = data
+
+		data, err = os.ReadFile("./docs/VC-DID-examples/cloud.json")
+		if err != nil {
+			fmt.Println("Error: Could not read file:", err)
+			return
+		}
+		var rawcloud json.RawMessage = data
+
+		data, err = os.ReadFile("./docs/VC-DID-examples/vcRecord.json")
+		if err != nil {
+			fmt.Println("Error: Could not read file:", err)
+			return
+		}
+		var vcRecord json.RawMessage = data
+
+		//Generate the genesis block and 3 additional blocks with above DIDs as Transactions
+		chain = core.CreateChain()
+		(*chain).AppendTransaction(rawoem)
+		(*chain).AppendTransaction(rawbms)
+		(*chain).AppendTransaction(rawcloud)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(rawcloud)
+		(*chain).AppendTransaction(rawoem)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(vcRecord)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(vcRecord)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		(*chain).AppendTransaction(rawcloud)
+		(*chain).AppendTransaction(rawbms)
+		(*chain).AppendTransaction(rawoem)
+		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
 	}
 
 	if *cli.printChain {
 		fmt.Println("Printing the entire blockchain...")
-
-		for i, block := range *chain {
-			fmt.Printf("Block %d: %+v\n", i, block)
-		}
+		core.PrintChain(chain)
 	}
 
 	if *cli.validate {
 		fmt.Println("Validating the blockchain...")
 
-		isValid := core.ValidateBlockchain(*chain)
+		isValid := (*chain).ValidateBlockchain()
 		if isValid {
 			fmt.Printf("The blockchain is valid!\n")
 		} else {

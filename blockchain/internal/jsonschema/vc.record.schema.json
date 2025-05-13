@@ -4,7 +4,8 @@
   "title": "VC Record Schema",
   "description": "Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and revocation status.",
   "type": "object",
-  "required": ["id", "vcHash", "timestamp", "revoked"],
+  "required": ["id", "vcHash", "timestamp"],
+  "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
@@ -21,9 +22,10 @@
       "format": "date-time",
       "description": "Timestamp when the record was created or updated."
     },
-    "revoked": {
-      "type": "boolean",
-      "description": "Boolean indicating if the VC has been revoked."
+    "expirationDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration Date of the related Verifiable Credential"
     }
   }
 }

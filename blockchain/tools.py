@@ -34,7 +34,7 @@ SCHEMA_DIR = "./internal/jsonschema"
 QUICKTYPE = "./node_modules/.bin/quicktype"
 SCHEMA_RESOLVER = "./node_modules/.bin/json-schema-resolver"
 DOCS = "./docs"
-TYPES = "./internal/core/types.go"
+TYPES = "./internal/core/types"
 
 
 def check_return_code(code):
@@ -107,12 +107,13 @@ def main():
         if args.blockchain_parser == "h" or args.blockchain_parser == "help":
             blockchain_cmd(["-h"])
         else:
-            if "-web" in unknown_args and os.path.exists(f"{DOCS}/swagger"):
-                blockchain_cmd(unknown_args)
+            if "-web" in unknown_args:
+                if os.path.exists(f"{DOCS}/swagger"):
+                    blockchain_cmd(unknown_args)
+                else:
+                    print("You need to generate the swagger documentation before you can start the webserver")
             else:
-                print(
-                    "You need to generate the swagger documentation before you can start the webserver"
-                )
+                blockchain_cmd(unknown_args)
 
     elif args.command == "install":
         run_command(["bash", "./scripts/install-dependencies.sh"])
@@ -153,16 +154,43 @@ def main():
             run_command(
                 [
                     QUICKTYPE,
-                    "--lang",
-                    "go",
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/did.schema.json",
                     "--top-level",
                     "DID",
                     "--package",
                     "core",
-                    "--src",
-                    SCHEMA_DIR,
-                    "--out",
-                    TYPES,
+                    "-o",
+                    TYPES + "/did.types.go",
+                ]
+            )
+            run_command(
+                [
+                    QUICKTYPE,
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/vc.schema.json",
+                    "--top-level",
+                    "VC",
+                    "--package",
+                    "core",
+                    "-o",
+                    TYPES + "/vc.types.go",
+                ]
+            )
+            run_command(
+                [
+                    QUICKTYPE,
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/vc.record.schema.json",
+                    "--top-level",
+                    "VCRecord",
+                    "--package",
+                    "core",
+                    "-o",
+                    TYPES + "/vc.record.types.go",
                 ]
             )
         else:
