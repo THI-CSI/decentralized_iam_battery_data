@@ -76,7 +76,7 @@ func GenerateGenesisBlock() Block {
 }
 
 // GenerateBlock Generate a Block with the data of the previous block and a list of transactions
-func GenerateBlock(currentBlock Block) Block {
+func GenerateBlock(currentBlock *Block) Block {
 	var block Block
 
 	block.Index = currentBlock.Index + 1

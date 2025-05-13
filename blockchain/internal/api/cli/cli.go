@@ -13,7 +13,7 @@ import (
 type Cli struct {
 	printChain *bool
 	web        *bool
-	genesis       *bool
+	genesis    *bool
 	file       *string
 	demo       *bool
 }
@@ -42,42 +42,42 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 
 		data, err := os.ReadFile("./docs/VC-DID-examples/bms.json")
 		if err != nil {
-			return fmt.Errorf("Could not read file:", err)
+			return fmt.Errorf("could not read file: %v", err)
 		}
 		var rawbms json.RawMessage = data
 
 		data, err = os.ReadFile("./docs/VC-DID-examples/oem.json")
 		if err != nil {
-			return fmt.Errorf("Could not read file:", err)
+			return fmt.Errorf("could not read file: %v", err)
 		}
 		var rawoem json.RawMessage = data
 
 		data, err = os.ReadFile("./docs/VC-DID-examples/cloud.json")
 		if err != nil {
-			return fmt.Errorf("Could not read file:", err)
+			return fmt.Errorf("could not read file: %v", err)
 		}
 		var rawcloud json.RawMessage = data
 
 		data, err = os.ReadFile("./docs/VC-DID-examples/vcRecord.json")
 		if err != nil {
-			return fmt.Errorf("Could not read file:", err)
+			return fmt.Errorf("could not read file: %v", err)
 		}
 		var vcRecord json.RawMessage = data
 
 		//Generate the genesis block and 3 additional blocks with above DIDs as Transactions
 		chain = core.CreateChain()
-		(*chain).AppendTransaction(rawoem)
-		(*chain).AppendTransaction(rawbms)
-		(*chain).AppendTransaction(rawcloud)
-		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
-		(*chain).AppendTransaction(rawcloud)
-		(*chain).AppendTransaction(rawoem)
-		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
-		(*chain).AppendTransaction(vcRecord)
-		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
-		(*chain).AppendTransaction(rawcloud)
-		(*chain).AppendTransaction(rawoem)
-		(*chain).AppendBlock(core.GenerateBlock((*chain).GetLastBlock()))
+		chain.AppendTransaction(rawoem)
+		chain.AppendTransaction(rawbms)
+		chain.AppendTransaction(rawcloud)
+		chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
+		chain.AppendTransaction(rawcloud)
+		chain.AppendTransaction(rawoem)
+		chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
+		chain.AppendTransaction(vcRecord)
+		chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
+		chain.AppendTransaction(rawcloud)
+		chain.AppendTransaction(rawoem)
+		chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
 
 		core.PrintChain(chain)
 
@@ -86,10 +86,10 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 			return err
 		}
 		fmt.Printf("Generated demo blockchain and saved it to '%v'!\n", filename)
-		
+
 		return nil
 	}
-	
+
 	if len(*cli.file) > 0 {
 		filename = *cli.file
 	}
@@ -103,14 +103,14 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 		fmt.Printf("Generated genesis block and saved the blockchain to '%v'!\n", filename)
 		return nil
 	}
-	
+
 	err = storage.Load(filename, chain)
 	if err != nil {
 		return fmt.Errorf("%v\nYou can use the argument '-genesis' to create a new blockchain.", err)
 	}
-	
+
 	if !chain.ValidateBlockchain() {
-		return fmt.Errorf("The loaded blockchain is not valid")
+		return fmt.Errorf("the loaded blockchain is not valid")
 	}
 
 	if *cli.printChain {

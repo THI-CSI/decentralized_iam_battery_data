@@ -44,18 +44,18 @@ func (chain *Blockchain) ValidateBlockchain() bool {
 }
 
 // GetBlock Returns a block based on its id from the Blockchain
-func (chain *Blockchain) GetBlock(id int) Block {
+func (chain *Blockchain) GetBlock(id int) *Block {
 	for _, block := range *chain {
 		if block.Index == id {
-			return block
+			return &block
 		}
 	}
-	return Block{}
+	return nil
 }
 
 // GetLastBlock Returns the last/newest block from the Blockchain
-func (chain *Blockchain) GetLastBlock() Block {
-	return (*chain)[len(*chain)-1]
+func (chain *Blockchain) GetLastBlock() *Block {
+	return &(*chain)[len(*chain)-1]
 }
 
 // PrintChain Prints the complete Blockchain
@@ -81,9 +81,12 @@ func (chain *Blockchain) AppendBlock(block Block) {
 
 // VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
 func (chain *Blockchain) VerifyDID(did string) string {
-	var block Block
+	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
+		if block == nil {
+
+		}
 		for _, tx := range block.Transactions {
 			if diddoc, _ := core.UnmarshalDid(tx); strings.HasPrefix(diddoc.ID, "did:") {
 				if diddoc.ID == did {
@@ -101,7 +104,7 @@ func (chain *Blockchain) VerifyDID(did string) string {
 
 // VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
 func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) string {
-	var block Block
+	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
 		for _, tx := range block.Transactions {
