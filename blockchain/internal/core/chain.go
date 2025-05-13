@@ -126,19 +126,25 @@ func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) string {
 	return "absent"
 }
 
+// Consensus Basic consensus mechanism, which checks, if enough transactions are pending
+func (chain *Blockchain) Consensus() bool {
+	return len(PendingTransactions) >= TransactionThreshold
+}
+
+// Automate Automates the block generation and will check every second if the consensus is given
 func (chain *Blockchain) Automate(filename string) {
 	for {
 		// Checks every second if the TransactionThreshold has been reached
 		time.Sleep(time.Second)
-		if len(PendingTransactions) >= TransactionThreshold {
+		if chain.Consensus() {
 			chain.AppendBlock(GenerateBlock(chain.GetLastBlock()))
-			fmt.Printf("Generated new block!\n%v\n", chain.GetLastBlock())
+			fmt.Printf("[+] Generated new block!\n%v\n", chain.GetLastBlock())
 			if err := storage.Save(filename, *chain); err != nil {
 				fmt.Fprintf(os.Stderr, "error: %v\n", err)
 				os.Exit(1)
 			}
-			fmt.Printf("Saved the new block to the '%v' file!\n", filename)
+			fmt.Printf("[i] Saved the new block to the '%v' file!\n", filename)
 		}
-		fmt.Printf("[!] Pending Transactions: %v\n", len(PendingTransactions))
+		fmt.Printf("[i] Pending Transactions: %v\n", len(PendingTransactions))
 	}
 }

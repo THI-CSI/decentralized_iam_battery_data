@@ -127,3 +127,12 @@ cat blockchain-demo.json | jq # To check the contents of the blockchain demo in 
 python3 tools.py run -file=blockchain-demo.json -print-chain
 ```
 
+Starts the blockchain and the web api:
+```shell
+python3 tools.py run -web
+```
+
+Starts the blockchain, the web api and automatically creates a demo transactions every three seconds:
+```shell
+python3 tools.py run -web -demo
+```

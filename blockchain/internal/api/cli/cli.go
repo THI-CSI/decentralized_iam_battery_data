@@ -31,6 +31,48 @@ func InitCli() *Cli {
 	return cli
 }
 
+// Parse parses the CLI arguments and runs the corresponding command
+func (cli *Cli) Parse(chain *core.Blockchain) error {
+	filename := "blockchain.json"
+	var err error
+	flag.Parse()
+
+	if *cli.demo && !*cli.web {
+		return generateDemoBlockchain(chain, filename)
+	}
+
+	if len(*cli.file) > 0 {
+		filename = *cli.file
+	}
+
+	if *cli.genesis {
+		return generateGenesisBlockchain(chain, filename)
+	}
+
+	if err = storage.Load(filename, chain); err != nil {
+		return fmt.Errorf("%v\nYou can use the argument '-genesis' to create a new blockchain.", err)
+	}
+
+	if !chain.ValidateBlockchain() {
+		return fmt.Errorf("the loaded blockchain is not valid")
+	}
+
+	if *cli.web {
+		startWebApi(chain, filename, *cli.demo)
+	}
+
+	if *cli.printChain {
+		chain.Print()
+	}
+
+	if err = storage.Save(filename, *chain); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// generateDemoBlockchain Extracts the demo blockchain generation from the CLI
 func generateDemoBlockchain(chain *core.Blockchain, filename string) error {
 	filename = "blockchain-demo.json"
 	fmt.Println("Creates a demo blockchain...")
@@ -85,6 +127,7 @@ func generateDemoBlockchain(chain *core.Blockchain, filename string) error {
 	return nil
 }
 
+// generateGenesisBlockchain Extracts the initial creation of the blockchain with the genesis from the CLI
 func generateGenesisBlockchain(chain *core.Blockchain, filename string) error {
 	chain = core.CreateChain()
 	err := storage.Save(filename, *chain)
@@ -95,56 +138,24 @@ func generateGenesisBlockchain(chain *core.Blockchain, filename string) error {
 	return nil
 }
 
-// Parse parses the CLI arguments and runs the corresponding command
-func (cli *Cli) Parse(chain *core.Blockchain) error {
-	filename := "blockchain.json"
-	var err error
-	flag.Parse()
+// startWebApi Extracts the web api and blockchain automation from the CLI
+func startWebApi(chain *core.Blockchain, filename string, createDemoTransactions bool) {
+	fmt.Println("Starting the Blockchain...")
+	go chain.Automate(filename)
 
-	if *cli.demo {
-		return generateDemoBlockchain(chain, filename)
-	}
-
-	if len(*cli.file) > 0 {
-		filename = *cli.file
-	}
-
-	if *cli.genesis {
-		return generateGenesisBlockchain(chain, filename)
-	}
-
-	if err = storage.Load(filename, chain); err != nil {
-		return fmt.Errorf("%v\nYou can use the argument '-genesis' to create a new blockchain.", err)
-	}
-
-	if !chain.ValidateBlockchain() {
-		return fmt.Errorf("the loaded blockchain is not valid")
-	}
-
-	if *cli.web {
-		fmt.Println("Starting the Blockchain...")
-		go chain.Automate(filename)
+	if createDemoTransactions {
 		go func() {
 			data, _ := os.ReadFile("./docs/VC-DID-examples/oem.json")
 			var rawoem json.RawMessage = data
 
 			for {
-				time.Sleep(2 * time.Second)
+				time.Sleep(3 * time.Second)
 				chain.AppendTransaction(rawoem)
 				fmt.Println("[+] Added Transaction")
 			}
 		}()
-		fmt.Println("Starting the Web API...")
-		web.CreateServer()
 	}
 
-	if *cli.printChain {
-		chain.Print()
-	}
-
-	if err = storage.Save(filename, *chain); err != nil {
-		return err
-	}
-
-	return nil
+	fmt.Println("Starting the Web API...")
+	web.CreateServer()
 }
