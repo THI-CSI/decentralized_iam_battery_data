@@ -1,7 +1,9 @@
 import json
 import os
 import logging
+import requests
 
+from Crypto.Hash import SHA3_256
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
@@ -10,6 +12,10 @@ from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, e
 from dotenv import load_dotenv
 from util.models import EncryptedPayload
 from util.middleware import verify_request
+from typing import Dict, Any
+
+# devbod: TODO: Change this when having more info
+BLOCKCHAIN_URL = "http://localhost:8000/FILLER/FOR/NOW"
 
 app = FastAPI()
 load_dotenv()
@@ -85,3 +91,46 @@ async def update_item(
     encrypt_and_sign(private_key.public_key(), json.dumps(decrypted_document).encode("utf-8"))
     db.update(document[0], where("did") == did)
     return {"ok": f"Entry for {did} updated successfully."}
+
+# Note: This function could be moved to crypto.py for consistency
+def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+
+    uri = vc.get("id")
+    issuer = vc.get("issuer")
+    subject = vc.get("credentialSubject")
+
+
+    if isinstance(subject, dict):
+        holder = subject.get("id")
+    elif isinstance(subject, list) and len(subject) > 0:
+        holder = subject[0].get("id")
+    else:
+        holder = None
+
+    if uri is None or issuer is None or holder is None:
+        raise ValueError("Invalid Verifiable Credential")
+
+    return uri, issuer, holder
+
+
+def verify_vc(vc_json_object: json) -> bool:
+
+    uri, issuer, holder = extract_vc_info(vc_json_object)
+
+    serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
+
+    vc_hash = SHA3_256.new(serialized_vc)
+
+    data = {
+        "uri": uri,
+        "issuer": issuer,
+        "holder": holder,
+        "hash": vc_hash
+    }
+
+    response = requests.post(BLOCKCHAIN_URL, json=data)
+
+    if response.status_code == 200:
+        return True
+    else:
+        return False
