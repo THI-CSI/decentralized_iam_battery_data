@@ -86,7 +86,7 @@ rfp-cli -device ra -tool jlink -file build/bms.srec -a -s 1M -vo 3.3 -if swd
 
 ## Usage
 
-To communicate with the device over Ethernet, you must first configure your network interface. Since only IPv4 is supported and DHCP is not available, you need to manually assign IP addresses.
+To communicate with the device over Ethernet, you must first configure your network interface. Since only IPv4 is supported and DHCP is not available, you need to manually assign IP addresses. Additionally hostnames can be assigned in the `dns-server.conf` file.
 
 ### Linux
 
