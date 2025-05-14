@@ -1,9 +1,8 @@
 import json
 import os
 import logging
-import requests
 
-from Crypto.Hash import SHA3_256
+
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
@@ -12,10 +11,7 @@ from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, e
 from dotenv import load_dotenv
 from util.models import EncryptedPayload
 from util.middleware import verify_request
-from typing import Dict, Any
 
-# devbod: TODO: Change this when having more info
-BLOCKCHAIN_URL = "http://localhost:8000/FILLER/FOR/NOW"
 
 app = FastAPI()
 load_dotenv()
@@ -92,66 +88,28 @@ async def update_item(
     db.update(document[0], where("did") == did)
     return {"ok": f"Entry for {did} updated successfully."}
 
-# Note: This function could be moved to crypto.py for consistency
-def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+
+@app.delete("/batterypass/{did}")
+async def delete_item(
+        did: int,
+        db: TinyDB = Depends(get_db),
+):
     """
-    Extract URI, issuer, and holder from a VC object.
-
-    :param vc: The Verifiable Credential (VC) as a dictionary.
-    :return: A tuple containing (URI, Issuer ID, Holder ID).
-    """
-
-    # Get all necessary data from the verifiable credential
-    uri = vc.get("id")
-    issuer = vc.get("issuer")
-    subject = vc.get("credentialSubject")
-
-    # Checking credentialSubjects form (If we have a uniform form, this is not necessary,
-    # but will be left in for now)
-    if isinstance(subject, dict):
-        holder = subject.get("id")
-    elif isinstance(subject, list) and len(subject) > 0:
-        holder = subject[0].get("id")
-    else:
-        holder = None
-
-    if uri is None or issuer is None or holder is None:
-        raise ValueError("Invalid Verifiable Credential")
-
-    return uri, issuer, holder
-
-
-# Note: This function could be moved to crypto.py for consistency
-def verify_vc(vc_json_object: json) -> bool:
-    """
-    This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
-    creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
+    For a given DID, delete the entry from the database.
+    :param did: The DID of the entry to delete.
+    :param db: Dependency for the database.
+    :return: None
     """
 
-    # Extract the uri, issuer and holder
-    uri, issuer, holder = extract_vc_info(vc_json_object)
+    # Search for database entry with the given DID
+    document = db.search(where("did") == did)
 
-    # To generate the Hash, we must first serialize the Object
-    serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
+    # If no entry is found, raise an HTTP exception
+    if not document:
+        raise HTTPException(status_code=404, detail="Entry doesn't exist.")
 
-    # Create the SHA3-256bit Hash
-    vc_hash = SHA3_256.new(serialized_vc)
+    # Delete the entry from the database
+    db.remove(where("did") == did)
 
-    # devbod: TODO: Should we use hexdigest()?
-    # vc_digest = vc_hash.hexdigest()
-
-    # Now we need to send the Data to the Blockchain
-    # First we create the Datastructures we send
-    data = {
-        "uri": uri,
-        "issuer": issuer,
-        "holder": holder,
-        "hash": vc_hash
-    }
-
-    response = requests.post(BLOCKCHAIN_URL, json=data)
-
-    if response.status_code == 200:
-        return True
-    else:
-        return False
+    # Return a success message indicating the deletion was successful
+    return {"ok": f"Entry for {did} deleted successfully."}
