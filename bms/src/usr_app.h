@@ -58,7 +58,7 @@ uint32_t isNetworkUp(void);
 BaseType_t vSendPing( const char *pcIPAddress);
 void print_ipconfig(void);
 void print_pingResult(void);
-uint32_t dnsQuerryFunc(char *domain_name);
+int dnsQuerryFunc(char *domain_name, char *ip_address);
 
 typedef struct st_ping_data
 {
