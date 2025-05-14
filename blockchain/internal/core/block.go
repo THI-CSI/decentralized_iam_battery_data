@@ -10,7 +10,7 @@ import (
 )
 
 // TransactionThreshold is the number of PendingTransactions required to create a new block.
-const TransactionThreshold = 10
+const TransactionThreshold = 3
 
 // Block represents a unit in the blockchain containing a set of Transactions.
 // Each block is cryptographically linked to the previous one.
@@ -76,7 +76,7 @@ func GenerateGenesisBlock() Block {
 }
 
 // GenerateBlock Generate a Block with the data of the previous block and a list of transactions
-func GenerateBlock(currentBlock Block) Block {
+func GenerateBlock(currentBlock *Block) Block {
 	var block Block
 
 	block.Index = currentBlock.Index + 1
