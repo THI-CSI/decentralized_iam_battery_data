@@ -87,7 +87,7 @@ func (chain *Blockchain) VerifyDID(did string) string {
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
 		if block == nil {
-
+			return "absent"
 		}
 		for _, tx := range block.Transactions {
 			if diddoc, _ := core.UnmarshalDid(tx); strings.HasPrefix(diddoc.ID, "did:") {
@@ -109,6 +109,9 @@ func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) string {
 	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
+		if block == nil {
+			return "absent"
+		}
 		for _, tx := range block.Transactions {
 			if onChainRecord, _ := core.UnmarshalVCRecord(tx); strings.HasPrefix(onChainRecord.ID, "urn:") {
 				if onChainRecord.ID == uri || onChainRecord.VcHash == vcHash {
