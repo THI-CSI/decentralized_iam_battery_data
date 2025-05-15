@@ -148,6 +148,6 @@ func (chain *Blockchain) Automate(filename string) {
 			}
 			fmt.Printf("[i] Saved the new block to the '%v' file!\n", filename)
 		}
-		fmt.Printf("[i] Pending Transactions: %v\n", len(PendingTransactions))
+		//fmt.Printf("[i] Pending Transactions: %v\n", len(PendingTransactions))
 	}
 }

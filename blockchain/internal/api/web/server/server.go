@@ -46,6 +46,7 @@ func New(chain *core.Blockchain) *fiber.App {
 	blockService := services.NewBlockService()
 
 	apiRoutes.Get("/blocks", handlers.GetBlocks(blockService, chain))
+	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService, chain))
 
 	return app
 }
