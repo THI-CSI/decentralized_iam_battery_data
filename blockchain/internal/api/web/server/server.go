@@ -4,6 +4,7 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/handlers"
 	"blockchain/internal/api/web/server/services"
+	"blockchain/internal/core"
 
 	_ "blockchain/docs/swagger" // Required for Swagger documentation
 
@@ -13,7 +14,7 @@ import (
 )
 
 // NewServer initializes and returns a configured Fiber application.
-func New() *fiber.App {
+func New(chain *core.Blockchain) *fiber.App {
 	app := fiber.New(fiber.Config{
 		ServerHeader: "blockchain",
 		AppName:      "blockchain",
@@ -29,19 +30,22 @@ func New() *fiber.App {
 	// Swagger documentation route
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	apiRoutes := app.Group("/api")
+	apiRoutes := app.Group("/api/v1/")
 
 	apiRoutes.Get("/status", func(c *fiber.Ctx) error {
 		return c.SendString("ok")
 	})
 
 	// Instantiate the DID service
-	didService := services.NewDidService()
-
 	// Register all handlers related to did
-	apiRoutes.Post("/v1/did", handlers.CreateDid(didService))
-	apiRoutes.Put("/v1/grant", handlers.GrantAccessRight(didService))
-	apiRoutes.Get("/v1/grants/:did", handlers.GetAccessRightsForDid(didService))
+	//didService := services.NewDidService()
+	//apiRoutes.Post("/v1/did", handlers.CreateDid(didService))
+	//apiRoutes.Put("/v1/grant", handlers.GrantAccessRight(didService))
+	//apiRoutes.Get("/v1/grants/:did", handlers.GetAccessRightsForDid(didService))
+
+	blockService := services.NewBlockService()
+
+	apiRoutes.Get("/blocks", handlers.GetBlocks(blockService, chain))
 
 	return app
 }

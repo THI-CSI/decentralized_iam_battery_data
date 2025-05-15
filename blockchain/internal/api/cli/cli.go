@@ -170,5 +170,5 @@ func startWebApi(chain *core.Blockchain, filename string, createDemoTransactions
 	}
 
 	fmt.Println("Starting the Web API...")
-	web.CreateServer()
+	web.CreateServer(chain)
 }
