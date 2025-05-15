@@ -28,7 +28,7 @@ func GetBlocks(service services.BlockService, chain *core.Blockchain) fiber.Hand
 
 		result, err := service.GetBlocks(c.UserContext(), chain)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)
@@ -56,7 +56,7 @@ func GetBlock(service services.BlockService, chain *core.Blockchain) fiber.Handl
 
 		result, err := service.GetBlock(c.UserContext(), chain, blockId)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)

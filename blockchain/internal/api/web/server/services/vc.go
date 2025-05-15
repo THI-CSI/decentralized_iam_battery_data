@@ -1,13 +1,13 @@
 package services
 
 import (
-	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/core"
 	coreTypes "blockchain/internal/core/types"
 	"context"
 	"crypto/sha3"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -27,21 +27,7 @@ func NewVCService() VCService {
 
 // GetVCRecord retrieves a VC record by urn
 func (v *vcService) GetVCRecord(ctx context.Context, chain *core.Blockchain, vcId string) (*coreTypes.VCRecord, error) {
-	var vcResponse coreTypes.VCRecord
-	for _, block := range *chain {
-		for _, transaction := range block.Transactions {
-			err := json.Unmarshal(transaction, &vcResponse)
-			if err != nil {
-				// TODO
-				// check in the future if there is a better way
-				continue
-			}
-			if vcResponse.ID == vcId {
-				return &vcResponse, nil
-			}
-		}
-	}
-	return nil, domain.NotFoundError("VC record not found")
+	return chain.FindVCRecord(vcId)
 }
 
 // CreateVCRecord creates a new VC record on the blockchain based on the provided VC
@@ -53,7 +39,12 @@ func (v *vcService) CreateVCRecord(userContext context.Context, chain *core.Bloc
 		return nil, err
 	}
 	hash := hasher.Sum(nil)
-	// TODO Check if VC Record hash already exists
+
+	vcExists, _ := chain.FindVCRecord(vcSchema.ID)
+	if vcExists != nil {
+		return nil, errors.New("VC is already recorded on the blockchain")
+	}
+
 	vcRecord := coreTypes.VCRecord{
 		ExpirationDate: vcSchema.ExpirationDate,
 		ID:             vcSchema.ID,

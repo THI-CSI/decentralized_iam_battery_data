@@ -32,7 +32,7 @@ func GetTransactions(service services.TransactionService, chain *core.Blockchain
 
 		result, err := service.GetTransactions(c.UserContext(), chain, blockId)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)

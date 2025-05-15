@@ -63,7 +63,7 @@ func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler 
 		slog.Info("CreateVC was called", vc)
 		result, err := service.CreateVCRecord(c.UserContext(), chain, vc)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusCreated, result)

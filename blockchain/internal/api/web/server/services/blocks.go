@@ -34,7 +34,7 @@ func (s *blockService) GetBlocks(ctx context.Context, chain *core.Blockchain) (*
 func (s *blockService) GetBlock(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.BlockResponse, error) {
 	block := chain.GetBlock(blockId)
 	if block == nil {
-		return nil, fmt.Errorf("block %d not found", blockId)
+		return nil, fmt.Errorf("block with id '%d' not found", blockId)
 	}
 	blockResponse := domain.ConvertBlockToResponse(*block)
 	return &blockResponse, nil

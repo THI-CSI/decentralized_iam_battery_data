@@ -137,7 +137,7 @@ func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &didResponse)
 			if err != nil {
-				// TODO check if this works
+				// TODO Check if the way of unmarshal only DIDs works as expected
 				continue
 			}
 			if didResponse.ID == did {
@@ -145,10 +145,24 @@ func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 			}
 		}
 	}
-	// TODO
-	// Check for an alternative way to send this error because this error would
-	// always be an internal server error for the API.
 	return nil, errors.New("did not found")
+}
+
+func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
+	var vcRecordResponse core.VCRecord
+	for _, block := range *chain {
+		for _, transaction := range block.Transactions {
+			err := json.Unmarshal(transaction, &vcRecordResponse)
+			if err != nil {
+				// TODO Check if the way of unmarshal only VCs works as expected
+				continue
+			}
+			if vcRecordResponse.ID == urn {
+				return &vcRecordResponse, nil
+			}
+		}
+	}
+	return nil, errors.New("VC record not found")
 }
 
 // Consensus Basic consensus mechanism, which checks, if enough transactions are pending
