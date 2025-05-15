@@ -38,17 +38,19 @@ func New(chain *core.Blockchain) *fiber.App {
 
 	// Instantiate the DID service
 	// Register all handlers related to did
-	//didService := services.NewDidService()
+
 	//apiRoutes.Post("/v1/did", handlers.CreateDid(didService))
 	//apiRoutes.Put("/v1/grant", handlers.GrantAccessRight(didService))
 	//apiRoutes.Get("/v1/grants/:did", handlers.GetAccessRightsForDid(didService))
 
+	didService := services.NewDidService()
 	blockService := services.NewBlockService()
 	transactionService := services.NewTransactionService()
 
 	apiRoutes.Get("/blocks", handlers.GetBlocks(blockService, chain))
 	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService, chain))
 	apiRoutes.Get("/blocks/:blockId/transactions", handlers.GetTransactions(transactionService, chain))
+	apiRoutes.Get("/dids", handlers.GetDIDs(didService, chain))
 
 	return app
 }

@@ -14,7 +14,7 @@ import (
 //
 // @Summary Get all transactions of a block
 // @Description Get all transactions of a block
-// @Tags Transactions
+// @Tags Blocks
 // @Accept json
 // @Produce json
 // @Success 200 {object} domain.BlockResponse
