@@ -7,7 +7,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"os/signal"
 	"time"
 )
 
@@ -36,6 +38,9 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 	filename := "blockchain.json"
 	var err error
 	flag.Parse()
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
 
 	if *cli.demo && !*cli.web {
 		return generateDemoBlockchain(chain, filename)
@@ -67,6 +72,14 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 
 	if err = storage.Save(filename, *chain); err != nil {
 		return err
+	}
+
+	select {
+	case <-interrupt:
+		log.Println("Interrupt received! Stopping blockchain...")
+		if err = storage.Save(filename, *chain); err != nil {
+			return err
+		}
 	}
 
 	return nil

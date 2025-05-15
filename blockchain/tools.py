@@ -44,8 +44,12 @@ def check_return_code(code):
 
 
 def blockchain_cmd(unknown_args):
-    process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
-    check_return_code(process.returncode)
+    try:
+        process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
+        check_return_code(process.returncode)
+    except KeyboardInterrupt:
+        print(f"[{sys.argv[0]}]", "Interrupt received. Stopping application!")
+        sys.exit(0)
 
 
 def docker_compose_dev(command: str, unknown_args):
