@@ -1,0 +1,13 @@
+{
+  "publicKey": {
+    "type": "JsonWebKey2020",
+    "controller": "did:batterypass:oem.VW",
+    "publicKeyMultibase": "z6Mkpz2xw9M3JMfqk3m7JRXetPL4Wwutb6X6bojq2nMid8Kd"
+  },
+  "service": [
+    {
+      "type": "IssueVC",
+      "serviceEndpoint": "https://<client-endpoint>"
+    }
+  ]
+}

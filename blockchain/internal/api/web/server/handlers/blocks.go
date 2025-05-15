@@ -24,7 +24,7 @@ import (
 // @Router /api/v1/blocks [get]
 func GetBlocks(service services.BlockService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		slog.Info("GetBlocks was called", "info")
+		slog.Info("GetBlocks was called")
 
 		result, err := service.GetBlocks(c.UserContext(), chain)
 		if err != nil {
@@ -52,7 +52,7 @@ func GetBlock(service services.BlockService, chain *core.Blockchain) fiber.Handl
 		if err != nil {
 			return domain.BadRequestError("BlockId must be a number")
 		}
-		slog.Info("GetBlock was called", "info", blockId)
+		slog.Info("GetBlock was called", blockId)
 
 		result, err := service.GetBlock(c.UserContext(), chain, blockId)
 		if err != nil {

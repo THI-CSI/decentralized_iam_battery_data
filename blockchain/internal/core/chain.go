@@ -3,6 +3,8 @@ package core
 import (
 	core "blockchain/internal/core/types"
 	"blockchain/internal/storage"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -82,51 +84,67 @@ func (chain *Blockchain) AppendBlock(block Block) {
 }
 
 // VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
-func (chain *Blockchain) VerifyDID(did string) string {
+func (chain *Blockchain) VerifyDID(did string) DidState {
 	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
 		if block == nil {
-			return "absent"
+			return DidAbsent
 		}
 		for _, tx := range block.Transactions {
 			if diddoc, _ := core.UnmarshalDid(tx); strings.HasPrefix(diddoc.ID, "did:") {
 				if diddoc.ID == did {
 					if diddoc.Revoked {
-						return "revoked"
+						return DidRevoked
 					} else {
-						return "valid"
+						return DidValid
 					}
 				}
 			}
 		}
 	}
-	return "absent"
+	return DidAbsent
 }
 
 // VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
-func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) string {
+func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
 	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
 		if block == nil {
-			return "absent"
+			return VCAbsent
 		}
 		for _, tx := range block.Transactions {
 			if onChainRecord, _ := core.UnmarshalVCRecord(tx); strings.HasPrefix(onChainRecord.ID, "urn:") {
 				if onChainRecord.ID == uri || onChainRecord.VcHash == vcHash {
 					if onChainRecord.VcHash != vcHash || onChainRecord.ID != uri {
-						return "tampered"
+						return VCTampered
 					} else if onChainRecord.ExpirationDate.Before(time.Now()) {
-						return "expired"
+						return VCExpired
 					} else {
-						return "valid"
+						return VCValid
 					}
 				}
 			}
 		}
 	}
-	return "absent"
+	return VCAbsent
+}
+
+func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
+	var didResponse core.Did
+	for _, block := range *chain {
+		for _, transaction := range block.Transactions {
+			err := json.Unmarshal(transaction, &didResponse)
+			if err != nil {
+				return nil, err
+			}
+			if didResponse.ID == did {
+				return &didResponse, nil
+			}
+		}
+	}
+	return nil, errors.New("did not found")
 }
 
 // Consensus Basic consensus mechanism, which checks, if enough transactions are pending

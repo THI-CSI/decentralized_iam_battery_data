@@ -1,20 +1,22 @@
 package services
 
 import (
+	"blockchain/internal/api/web/server/domain"
 	_ "blockchain/internal/api/web/server/domain"
 	"blockchain/internal/core"
-	core_type "blockchain/internal/core/types"
+	coreTypes "blockchain/internal/core/types"
 	"context"
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
 	"strings"
 )
 
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
 // and their associated access rights.
 type DidService interface {
-	GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]core_type.Did, error)
-	GetDID(userContext context.Context, chain *core.Blockchain, did string) (*core_type.Did, error)
+	GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]coreTypes.Did, error)
+	GetDID(userContext context.Context, chain *core.Blockchain, did string) (*coreTypes.Did, error)
+	CreateDID(userContext context.Context, chain *core.Blockchain, create *domain.CreateDid) (*coreTypes.Did, error)
+	RevokeDid(userContext context.Context, chain *core.Blockchain, did string) error
 }
 
 // didService is a concrete implementation of the DidService interface.
@@ -26,9 +28,9 @@ func NewDidService() DidService {
 }
 
 // GetDIDs returns all DIDs in the blockchain
-func (s *didService) GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]core_type.Did, error) {
-	var dids []core_type.Did
-	var did core_type.Did
+func (s *didService) GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]coreTypes.Did, error) {
+	var dids []coreTypes.Did
+	var did coreTypes.Did
 	var err error
 	for _, block := range *chain {
 		for _, transaction := range block.Transactions {
@@ -44,18 +46,32 @@ func (s *didService) GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]co
 	return &dids, nil
 }
 
-func (s *didService) GetDID(userContext context.Context, chain *core.Blockchain, did string) (*core_type.Did, error) {
-	var didResponse core_type.Did
-	for _, block := range *chain {
-		for _, transaction := range block.Transactions {
-			err := json.Unmarshal(transaction, &didResponse)
-			if err != nil {
-				return nil, err
-			}
-			if didResponse.ID == did {
-				return &didResponse, nil
-			}
-		}
+// GetDID returns
+func (s *didService) GetDID(userContext context.Context, chain *core.Blockchain, did string) (*coreTypes.Did, error) {
+	return chain.FindDID(did)
+}
+
+func (s *didService) CreateDID(userContext context.Context, chain *core.Blockchain, createDid *domain.CreateDid) (*coreTypes.Did, error) {
+	did := domain.ConvertRequestToDid(createDid)
+
+	// Create Transaction
+	if err := chain.AppendDid(&did); err != nil {
+		return nil, err
 	}
-	return nil, fiber.NewError(fiber.StatusNotFound, "did not found")
+
+	return &did, nil
+}
+
+func (s *didService) RevokeDid(userContext context.Context, chain *core.Blockchain, didId string) error {
+	did, err := chain.FindDID(didId)
+	if err != nil {
+		return err
+	}
+
+	did.Revoked = true
+	if err := chain.AppendDid(did); err != nil {
+		return err
+	}
+
+	return nil
 }

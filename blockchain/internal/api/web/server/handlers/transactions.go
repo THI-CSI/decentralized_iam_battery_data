@@ -28,7 +28,7 @@ func GetTransactions(service services.TransactionService, chain *core.Blockchain
 		if err != nil {
 			return domain.BadRequestError("BlockId must a number")
 		}
-		slog.Info("GetTransactions was called", "info", blockId)
+		slog.Info("GetTransactions was called", blockId)
 
 		result, err := service.GetTransactions(c.UserContext(), chain, blockId)
 		if err != nil {
