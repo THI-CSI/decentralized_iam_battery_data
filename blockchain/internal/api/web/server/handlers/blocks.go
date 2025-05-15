@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
@@ -23,7 +24,6 @@ import (
 // @Router /api/v1/blocks [get]
 func GetBlocks(service services.BlockService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-
 		slog.Info("GetBlocks was called", "info")
 
 		result, err := service.GetBlocks(c.UserContext(), chain)
@@ -50,13 +50,13 @@ func GetBlock(service services.BlockService, chain *core.Blockchain) fiber.Handl
 	return func(c *fiber.Ctx) error {
 		blockId, err := strconv.Atoi(c.Params("blockId"))
 		if err != nil {
-			return utils.WriteResponse(c, fiber.StatusBadRequest, "BlockId must be a number")
+			return domain.BadRequestError("BlockId must be a number")
 		}
 		slog.Info("GetBlock was called", "info", blockId)
 
 		result, err := service.GetBlock(c.UserContext(), chain, blockId)
 		if err != nil {
-			return utils.WriteResponse(c, fiber.StatusBadRequest, err.Error())
+			return err
 		}
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)

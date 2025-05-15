@@ -51,6 +51,7 @@ func New(chain *core.Blockchain) *fiber.App {
 	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService, chain))
 	apiRoutes.Get("/blocks/:blockId/transactions", handlers.GetTransactions(transactionService, chain))
 	apiRoutes.Get("/dids", handlers.GetDIDs(didService, chain))
+	apiRoutes.Get("/dids/:did", handlers.GetDID(didService, chain))
 
 	return app
 }

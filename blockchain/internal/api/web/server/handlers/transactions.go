@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
@@ -25,13 +26,13 @@ func GetTransactions(service services.TransactionService, chain *core.Blockchain
 	return func(c *fiber.Ctx) error {
 		blockId, err := strconv.Atoi(c.Params("blockId"))
 		if err != nil {
-			return utils.WriteResponse(c, fiber.StatusBadRequest, "BlockId must be a number")
+			return domain.BadRequestError("BlockId must a number")
 		}
 		slog.Info("GetTransactions was called", "info", blockId)
 
 		result, err := service.GetTransactions(c.UserContext(), chain, blockId)
 		if err != nil {
-			return utils.WriteResponse(c, fiber.StatusBadRequest, err.Error())
+			return err
 		}
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)

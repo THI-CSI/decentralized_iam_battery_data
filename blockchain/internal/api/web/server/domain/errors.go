@@ -30,6 +30,10 @@ func ValidationError(error validator.ValidationErrors) *fiber.Error {
 	return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("invalid payload: %v", error.Error()))
 }
 
+func BadRequestError(err string) *fiber.Error {
+	return fiber.NewError(fiber.StatusBadRequest, err)
+}
+
 // CustomErrorHandler is a centralized error handler for Fiber.
 // It handles both Fiber-specific errors and generic application errors,
 // and returns structured JSON responses accordingly.

@@ -3,6 +3,8 @@ package utils
 import (
 	"blockchain/internal/api/web/server/domain"
 	"errors"
+	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -40,4 +42,12 @@ func ParseAndValidateStruct[T any](c *fiber.Ctx) (*T, error) {
 	}
 
 	return &payload, nil
+}
+
+func IsDidValid(did string) bool {
+	if !strings.HasPrefix(did, "did:batterypass:") {
+		return false
+	}
+	matched, _ := regexp.MatchString(`^did:[a-z0-9]+:[A-Za-z0-9._-]+$`, did)
+	return matched
 }
