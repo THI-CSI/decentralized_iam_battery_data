@@ -133,7 +133,8 @@ func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
 
 func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 	var didResponse core.Did
-	for _, block := range *chain {
+	for i := len(*chain) - 1; i >= 0; i-- {
+		block := chain.GetBlock(i)
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &didResponse)
 			if err != nil {
@@ -150,7 +151,8 @@ func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 
 func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
 	var vcRecordResponse core.VCRecord
-	for _, block := range *chain {
+	for i := len(*chain) - 1; i >= 0; i-- {
+		block := chain.GetBlock(i)
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &vcRecordResponse)
 			if err != nil {

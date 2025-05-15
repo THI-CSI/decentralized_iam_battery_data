@@ -13,7 +13,7 @@ import (
 //
 // @Summary Get all DIDs
 // @Description Get all DIDs from the blockchain
-// @Tags Did
+// @Tags DIDs
 // @Accept json
 // @Produce json
 // @Success 200 {object} []core.Did
@@ -36,7 +36,7 @@ func GetDIDs(service services.DidService, chain *core.Blockchain) fiber.Handler 
 //
 // @Summary Get a single DID
 // @Description Get a DID from the blockchain
-// @Tags Did
+// @Tags DIDs
 // @Accept json
 // @Produce json
 // @Success 200 {object} core.Did
@@ -65,7 +65,7 @@ func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 //
 // @Summary Create a new DID
 // @Description Create a new DID on the blockchain
-// @Tags Did
+// @Tags DIDs
 // @Accept json
 // @Produce json
 // @Success 201 {object} core.Did
@@ -94,7 +94,7 @@ func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handle
 //
 // @Summary Revokes a DID
 // @Description Revokes a DID on the blockchain and creates a new transaction
-// @Tags Did
+// @Tags DIDs
 // @Accept json
 // @Produce json
 // @Success 200

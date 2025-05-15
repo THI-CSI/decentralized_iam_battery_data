@@ -13,8 +13,8 @@ import (
 // GetVC retrieves a VC from the blockchain
 //
 // @Summary Get a single DID
-// @Description Get a DID from the blockchain
-// @Tags VC
+// @Description Get a VC from the blockchain
+// @Tags VCs
 // @Accept json
 // @Produce json
 // @Success 200 {object} core.VCRecord
@@ -43,7 +43,7 @@ func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 //
 // @Summary Create a new VC
 // @Description Create a new VC on the blockchain
-// @Tags VC
+// @Tags VCs
 // @Accept json
 // @Produce json
 // @Success 201 {object} core.VCRecord
