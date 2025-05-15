@@ -37,6 +37,7 @@ func New(chain *core.Blockchain) *fiber.App {
 	})
 
 	didService := services.NewDidService()
+	vcService := services.NewVCService()
 	blockService := services.NewBlockService()
 	transactionService := services.NewTransactionService()
 
@@ -45,11 +46,15 @@ func New(chain *core.Blockchain) *fiber.App {
 	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService, chain))
 	apiRoutes.Get("/blocks/:blockId/transactions", handlers.GetTransactions(transactionService, chain))
 
-	// all dids routes
+	// all DIDs routes
 	apiRoutes.Get("/dids", handlers.GetDIDs(didService, chain))
 	apiRoutes.Get("/dids/:did", handlers.GetDID(didService, chain))
 	apiRoutes.Post("/dids", handlers.CreateDID(didService, chain))
 	apiRoutes.Delete("/dids/:did", handlers.RevokeDid(didService, chain))
+
+	// all VC routes
+	apiRoutes.Post("/dids/:did/vc", handlers.CreateVC(vcService, chain))
+	apiRoutes.Get("/dids/:did/vc/:urn", handlers.GetVC(vcService, chain))
 
 	return app
 }

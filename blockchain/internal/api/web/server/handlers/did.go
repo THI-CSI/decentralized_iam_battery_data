@@ -111,7 +111,7 @@ func RevokeDid(service services.DidService, chain *core.Blockchain) fiber.Handle
 		slog.Info("RevokeDid was called", did)
 
 		if err := service.RevokeDid(c.UserContext(), chain, did); err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return c.SendStatus(fiber.StatusOK)

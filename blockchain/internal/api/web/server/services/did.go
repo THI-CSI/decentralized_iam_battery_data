@@ -65,7 +65,7 @@ func (s *didService) CreateDID(userContext context.Context, chain *core.Blockcha
 func (s *didService) RevokeDid(userContext context.Context, chain *core.Blockchain, didId string) error {
 	did, err := chain.FindDID(didId)
 	if err != nil {
-		return err
+		return domain.NotFoundError(err.Error())
 	}
 
 	did.Revoked = true

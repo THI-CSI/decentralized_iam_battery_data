@@ -137,13 +137,17 @@ func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &didResponse)
 			if err != nil {
-				return nil, err
+				// TODO check if this works
+				continue
 			}
 			if didResponse.ID == did {
 				return &didResponse, nil
 			}
 		}
 	}
+	// TODO
+	// Check for an alternative way to send this error because this error would
+	// always be an internal server error for the API.
 	return nil, errors.New("did not found")
 }
 
