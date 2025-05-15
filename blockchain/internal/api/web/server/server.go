@@ -44,9 +44,11 @@ func New(chain *core.Blockchain) *fiber.App {
 	//apiRoutes.Get("/v1/grants/:did", handlers.GetAccessRightsForDid(didService))
 
 	blockService := services.NewBlockService()
+	transactionService := services.NewTransactionService()
 
 	apiRoutes.Get("/blocks", handlers.GetBlocks(blockService, chain))
 	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService, chain))
+	apiRoutes.Get("/blocks/:blockId/transactions", handlers.GetTransactions(transactionService, chain))
 
 	return app
 }

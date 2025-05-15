@@ -19,6 +19,7 @@ type BlockResponse struct {
 // BlockchainResponse represents the blockchain
 type BlockchainResponse []BlockResponse
 
+// ConvertBlockToResponse converts a block to a BlockResponse
 func ConvertBlockToResponse(b core.Block) BlockResponse {
 	return BlockResponse{
 		Index:             b.Index,

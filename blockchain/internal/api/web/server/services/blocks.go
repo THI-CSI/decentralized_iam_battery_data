@@ -9,7 +9,6 @@ import (
 
 // BlockService defines the interface for returning blocks of the blockchain
 type BlockService interface {
-	// GetBlocks returns all blocks of the blockchain
 	GetBlocks(ctx context.Context, chain *core.Blockchain) (*domain.BlockchainResponse, error)
 	GetBlock(userContext context.Context, chain *core.Blockchain, blockId int) (*domain.BlockResponse, error)
 }
