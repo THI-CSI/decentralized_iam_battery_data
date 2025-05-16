@@ -1,10 +1,12 @@
 import json
 import os
 import logging
+from datetime import datetime
 
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
+from fastapi.responses import JSONResponse
 from tinydb import TinyDB, where
 from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign
 from dotenv import load_dotenv
@@ -18,6 +20,17 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
+
+def error_response(status_code: int, message: str):
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": status_code,
+            "message": message,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    )
 
 
 def get_db():
@@ -62,7 +75,7 @@ async def create_item(
 ):
     verify_request(item, private_key)
     if db.search(where("did") == did):
-        raise HTTPException(status_code=400, detail="Entry already exists.")
+        return error_response(400, "Entry already exists.")
     else:
         db.insert({"did": did, "encrypted_data": item.model_dump()})
         return {"ok": f"Entry for {did} added successfully."}
@@ -78,7 +91,7 @@ async def update_item(
     decrypted_item = verify_request(item, private_key)
     document = db.search(where("did") == did)
     if not document:
-        raise HTTPException(status_code=404, detail="Entry doesn't exist.")
+        return error_response(404, "Entry doesn't exist.")
     decrypted_document = decrypt_and_verify(private_key, document[0]["encrypted_data"])
     for key, value in decrypted_item.items():
         set_nested_value(decrypted_document, key.split("."), value)
