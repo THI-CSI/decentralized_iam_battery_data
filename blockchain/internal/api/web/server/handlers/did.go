@@ -39,6 +39,7 @@ func GetDIDs(service services.DidService, chain *core.Blockchain) fiber.Handler 
 // @Tags DIDs
 // @Accept json
 // @Produce json
+// @Param did path string true "DID"
 // @Success 200 {object} core.Did
 // @Failure 400 {object} domain.ErrorResponseHTTP
 // @Failure 500 {object} domain.ErrorResponseHTTP
@@ -72,7 +73,7 @@ func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 // @Success 201 {object} core.Did
 // @Failure 400 {object} domain.ErrorResponseHTTP
 // @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/dids/{did} [post]
+// @Router /api/v1/dids [post]
 func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		createDid, err := utils.ParseAndValidateStruct[domain.CreateDid](c)
@@ -98,6 +99,7 @@ func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handle
 // @Tags DIDs
 // @Accept json
 // @Produce json
+// @Param did path string true "DID"
 // @Success 200
 // @Failure 400 {object} domain.ErrorResponseHTTP
 // @Failure 500 {object} domain.ErrorResponseHTTP
@@ -112,7 +114,7 @@ func RevokeDid(service services.DidService, chain *core.Blockchain) fiber.Handle
 		slog.Info("RevokeDid was called", did)
 
 		if err := service.RevokeDid(c.UserContext(), chain, did); err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+			return err
 		}
 
 		return c.SendStatus(fiber.StatusOK)

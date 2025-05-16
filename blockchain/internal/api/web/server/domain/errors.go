@@ -30,14 +30,17 @@ func ValidationError(error validator.ValidationErrors) *fiber.Error {
 	return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("invalid payload: %v", error.Error()))
 }
 
+// CreatedError returns a 201 status code with fiber
 func CreatedError(err string) *fiber.Error {
 	return fiber.NewError(fiber.StatusCreated)
 }
 
+// BadRequestError returns a 400 status code with fiber
 func BadRequestError(err string) *fiber.Error {
 	return fiber.NewError(fiber.StatusBadRequest, err)
 }
 
+// NotFoundError returns a 404 status code with fiber
 func NotFoundError(err string) *fiber.Error {
 	return fiber.NewError(fiber.StatusNotFound, err)
 }

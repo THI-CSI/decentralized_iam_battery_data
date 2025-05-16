@@ -69,8 +69,8 @@ http POST localhost:8080/api/v1/dids/did:batterypass:896ad506-9843-48d3-b599-be4
 ```
 The DID specified in the API URL must be the same as the Issuer DID in the verifiable credential.
 
-#### Get a single VC
+#### Get a VC Record
 The endpoint `/dids/<did>/vc/<urn>` can be used to retrieve the specified VC record on the blockchain:
 ```shell
-http GET localhost:8080/api/v1/dids/did:batterypass:896ad506-9843-48d3-b599-be45fca2bb3e/vc/urn:uuid:cc4e69d7-b7f7-4155-ac8b-5af63df4472a
+http GET localhost:8080/api/v1/vc/urn:uuid:cc4e69d7-b7f7-4155-ac8b-5af63df4472a
 ```

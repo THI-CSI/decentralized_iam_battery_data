@@ -54,7 +54,7 @@ func New(chain *core.Blockchain) *fiber.App {
 
 	// all VC routes
 	apiRoutes.Post("/dids/:did/vc", handlers.CreateVC(vcService, chain))
-	apiRoutes.Get("/dids/:did/vc/:urn", handlers.GetVC(vcService, chain))
+	apiRoutes.Get("/vc/:urn", handlers.GetVC(vcService, chain))
 
 	return app
 }

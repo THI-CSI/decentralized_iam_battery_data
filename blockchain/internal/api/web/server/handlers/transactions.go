@@ -18,6 +18,7 @@ import (
 // @Tags Blocks
 // @Accept json
 // @Produce json
+// @Param blockId path int true "Block ID"
 // @Success 200 {object} domain.BlockResponse
 // @Failure 400 {object} domain.ErrorResponseHTTP
 // @Failure 500 {object} domain.ErrorResponseHTTP

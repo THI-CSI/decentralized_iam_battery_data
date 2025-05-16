@@ -52,6 +52,7 @@ func (s *didService) GetDID(userContext context.Context, chain *core.Blockchain,
 	return chain.FindDID(did)
 }
 
+// CreateDID appends a new DID to the blockcahin
 func (s *didService) CreateDID(userContext context.Context, chain *core.Blockchain, createDid *domain.CreateDid) (*coreTypes.Did, error) {
 	did := domain.ConvertRequestToDid(createDid)
 
@@ -63,6 +64,7 @@ func (s *didService) CreateDID(userContext context.Context, chain *core.Blockcha
 	return &did, nil
 }
 
+// RevokeDid revokes an existing DID on the blockchain
 func (s *didService) RevokeDid(userContext context.Context, chain *core.Blockchain, didId string) error {
 	did, err := chain.FindDID(didId)
 	if err != nil {
@@ -71,7 +73,7 @@ func (s *didService) RevokeDid(userContext context.Context, chain *core.Blockcha
 
 	did.Revoked = true
 	if err := chain.AppendDid(did); err != nil {
-		return err
+		return domain.BadRequestError(err.Error())
 	}
 
 	return nil

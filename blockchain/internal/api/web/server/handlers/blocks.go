@@ -42,6 +42,7 @@ func GetBlocks(service services.BlockService, chain *core.Blockchain) fiber.Hand
 // @Tags Blocks
 // @Accept json
 // @Produce json
+// @Param blockId path int true "Block ID"
 // @Success 200 {object} domain.BlockResponse
 // @Failure 400 {object} domain.ErrorResponseHTTP
 // @Failure 500 {object} domain.ErrorResponseHTTP
@@ -56,7 +57,7 @@ func GetBlock(service services.BlockService, chain *core.Blockchain) fiber.Handl
 
 		result, err := service.GetBlock(c.UserContext(), chain, blockId)
 		if err != nil {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
+			return domain.NotFoundError(err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)
