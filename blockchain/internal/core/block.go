@@ -10,7 +10,7 @@ import (
 )
 
 // TransactionThreshold is the number of PendingTransactions required to create a new block.
-const TransactionThreshold = 1
+const TransactionThreshold = 2
 
 // Block represents a unit in the blockchain containing a set of Transactions.
 // Each block is cryptographically linked to the previous one.

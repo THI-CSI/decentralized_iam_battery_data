@@ -85,6 +85,13 @@ func (chain *Blockchain) AppendBlock(block Block) {
 
 // VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
 func (chain *Blockchain) VerifyDID(did string) DidState {
+	for _, tx := range PendingTransactions {
+		didPending, _ := core.UnmarshalDid(tx)
+		if didPending.ID == did {
+			return DidPending
+		}
+	}
+
 	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)
@@ -108,6 +115,12 @@ func (chain *Blockchain) VerifyDID(did string) DidState {
 
 // VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
 func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
+	for _, tx := range PendingTransactions {
+		vcPending, _ := core.UnmarshalVc(tx)
+		if vcPending.ID == uri {
+			return VCPending
+		}
+	}
 	var block *Block
 	for i := len(*chain) - 1; i >= 0; i-- {
 		block = chain.GetBlock(i)

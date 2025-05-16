@@ -1,4 +1,15 @@
 # API Documentation
+You can build the swagger documentation with the [`tools.py`script](tools.md):
+```shell
+python3 tools.py docs
+```
+
+Then you can start the webserver:
+```shell
+python3 tools.py run -web
+```
+
+And then you can view the swagger documentation under the following domain: `http://localhost:8080/swagger/index.html`
 
 ## API Interaction
 We will use [`httpie`](https://httpie.io/docs/cli/linux) to interact with the API via the console, but you can also use `curl`. 
@@ -56,6 +67,7 @@ The `POST` endpoint `/dids/<did>/vc` can be used to create a new VC record on th
 ```shell
 http POST localhost:8080/api/v1/dids/did:batterypass:896ad506-9843-48d3-b599-be45fca2bb3e/vc < docs/api-examples/vc-example.json
 ```
+The DID specified in the API URL must be the same as the Issuer DID in the verifiable credential.
 
 #### Get a single VC
 The endpoint `/dids/<did>/vc/<urn>` can be used to retrieve the specified VC record on the blockchain:

@@ -17,6 +17,7 @@ const (
 	DidValid DidState = iota
 	DidAbsent
 	DidRevoked
+	DidPending
 )
 
 type VCState int
@@ -26,6 +27,7 @@ const (
 	VCAbsent
 	VCTampered
 	VCExpired
+	VCPending
 )
 
 // PendingTransactions is a slice of transactions that make up the next block
@@ -52,8 +54,15 @@ func CreateTrustAnchor() {
 }
 
 func (chain *Blockchain) AppendDid(did *core.Did) error {
-	if chain.VerifyDID(did.ID) == DidRevoked {
-		return errors.New("did is revoked")
+	didState := chain.VerifyDID(did.ID)
+	if didState == DidPending {
+		return errors.New("DID is on the list of pending transactions and will be added to the blockchain soon")
+	}
+	if didState == DidRevoked {
+		return errors.New("DID is already revoked")
+	}
+	if didState == DidValid && !did.Revoked {
+		return errors.New("DID already exists")
 	}
 
 	now := time.Now()
@@ -69,7 +78,11 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 }
 
 func (chain *Blockchain) AppendVcRecords(vcRecords *core.VCRecord) error {
-	if chain.VerifyVCRecord(vcRecords.ID, vcRecords.VcHash) != VCAbsent {
+	vcState := chain.VerifyVCRecord(vcRecords.ID, vcRecords.VcHash)
+	if vcState == VCPending {
+		return errors.New("VC Record is on the list of pending transactions and will be added to the blockchain soon")
+	}
+	if vcState != VCAbsent {
 		return errors.New(fmt.Sprintf("VC Record is already present: '%s'", vcRecords.ID))
 	}
 

@@ -46,6 +46,7 @@ func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 // @Tags VCs
 // @Accept json
 // @Produce json
+// @Param recipe body core.Vc true "VC"
 // @Success 201 {object} core.VCRecord
 // @Failure 400 {object} domain.ErrorResponseHTTP
 // @Failure 500 {object} domain.ErrorResponseHTTP
@@ -53,15 +54,28 @@ func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
+		did := c.Params("did")
+		didState := chain.VerifyDID(did)
+		// TODO: Should be able to add VC if DID is pending
+		if didState != core.DidValid {
+			slog.Warn("Invalid DID: %v=%v\n", did, didState)
+			return domain.BadRequestError("DID does not exist or is revoked")
+		}
+
 		// TODO: Proof can not be an object (with type, created, verificationMethod, proofPurpose and jws) but just a string!
-		vc, err := utils.ParseAndValidateStruct[coreTypes.Vc](c)
+		vc, err := coreTypes.UnmarshalVc(c.BodyRaw())
 		if err != nil {
 			slog.Warn("Invalid Verifiable Credential: %v\n", err)
 			return domain.BadRequestError("Invalid Verifiable Credential")
 		}
 
+		if vc.Issuer != did {
+			slog.Warn("The Issuer of the VC is different to the specified DID: %v!=%v\n", vc.Issuer, did)
+			return domain.BadRequestError("Invalid Verifiable Credential")
+		}
+
 		slog.Info("CreateVC was called", vc)
-		result, err := service.CreateVCRecord(c.UserContext(), chain, vc)
+		result, err := service.CreateVCRecord(c.UserContext(), chain, &vc)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
