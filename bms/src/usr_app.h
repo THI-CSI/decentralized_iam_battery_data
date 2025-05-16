@@ -11,9 +11,12 @@
 #ifndef USR_APP_H_
 #define USR_APP_H_
 
+#include <stdint.h>
 #if( ipconfigUSE_DHCP != 0 )
     #include "FreeRTOS_DHCP.h"
 #endif
+
+
 
 #define USR_TEST_DOMAIN_NAME "www.freertos.org"
 #define USR_TEST_PING_IP "8.8.8.8"
@@ -55,7 +58,7 @@ uint32_t isNetworkUp(void);
 BaseType_t vSendPing( const char *pcIPAddress);
 void print_ipconfig(void);
 void print_pingResult(void);
-void dnsQuerryFunc(char *domain_name);
+int dnsQuerryFunc(char *domain_name, char *ip_address);
 
 typedef struct st_ping_data
 {

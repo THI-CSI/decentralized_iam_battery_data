@@ -86,13 +86,17 @@ rfp-cli -device ra -tool jlink -file build/bms.srec -a -s 1M -vo 3.3 -if swd
 
 ## Usage
 
-To communicate with the device over Ethernet, you must first configure your network interface. Since only IPv4 is supported and DHCP is not available, you need to manually assign IP addresses.
+To communicate with the device over Ethernet, you must first configure your network interface. Since only IPv4 is supported and DHCP is not available, you need to manually assign IP addresses. Additionally hostnames can be assigned in the `dns-server.conf` file.
 
 ### Linux
 
-To set your IP address:
+To set your Gateway IP address:
 ```bash
    sudo ip addr add 192.168.0.3/24 dev <your_interface_name>
+```
+To assign your DNS server (no root needed)
+```bash
+	sudo ip addr add 192.168.0.2/24 dev <your_interface_name>
 ```
 To assign the server IP address:
 ```bash
@@ -113,7 +117,7 @@ To set your IP address:
 netsh interface ip add address <your_interface_name> static 192.168.0.3 255.255.255.0
 ```
 
-To assign te server IP address:
+To assign the server IP address:
 ```powershell 
 netsh interface ip add address <your_interface_name> static 192.168.1.100 255.255.255.0
 ```

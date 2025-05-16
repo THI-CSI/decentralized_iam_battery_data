@@ -10,7 +10,10 @@ OBJ=$(SRC:.c=.o)
 RASC_EXE_PATH=
 
 D_FILES=$(SRC:.c=.d)
-INCLUDES = -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
+INCLUDES = \
+	-I./bms-config-override \
+    -I./src \
+    -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include \
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS/Source/include	\
@@ -22,11 +25,10 @@ INCLUDES = -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
     -I./ra-lib/ra_cfg/fsp_cfg	\
     -I./ra-lib/ra_cfg/fsp_cfg/bsp	\
     -I./ra-lib/ra_gen	\
-    -I./src	\
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include
 
 
-all: move $(PROJECT_NAME).elf obj_copy
+all: move $(PROJECT_NAME).elf obj_copy dns
 
 
 # ---- YOU NEED TO HAVE E2STUDIO/RASC INSTALLED IN ORDER TO EXECUTE THE TARGETS -----
@@ -50,6 +52,9 @@ move:
 # Build docs
 docs:
 	doxygen
+
+dns:
+	dnsmasq -C dns-server.conf
 
 # Build final Firmware ELF
 $(PROJECT_NAME).elf: $(OBJ)
