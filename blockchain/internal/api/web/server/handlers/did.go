@@ -84,7 +84,7 @@ func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handle
 
 		result, err := service.CreateDID(c.UserContext(), chain, createDid)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusCreated, result)
