@@ -32,13 +32,14 @@ func (s *didService) GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]co
 	var dids []coreTypes.Did
 	var did coreTypes.Did
 	var err error
-	for _, block := range *chain {
+	for i := len(*chain) - 1; i >= 0; i-- {
+		block := chain.GetBlock(i)
 		for _, transaction := range block.Transactions {
 			err = json.Unmarshal(transaction, &did)
 			if err != nil {
 				return nil, err
 			}
-			if strings.HasPrefix(did.ID, "did:batterypass:") {
+			if strings.HasPrefix(did.ID, "did:batterypass:") && !containsDid(dids, did.ID) {
 				dids = append(dids, did)
 			}
 		}
@@ -74,4 +75,13 @@ func (s *didService) RevokeDid(userContext context.Context, chain *core.Blockcha
 	}
 
 	return nil
+}
+
+func containsDid(didList []coreTypes.Did, didId string) bool {
+	for _, did := range didList {
+		if did.ID == didId {
+			return true
+		}
+	}
+	return false
 }
