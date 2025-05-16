@@ -64,12 +64,44 @@
       "description": "The subject of the credential, which must match one of the predefined claim types."
     },
     "proof": {
-      "type": "string",
+      "$ref": "#/$defs/Proof",
       "description": "Cryptographic proof that makes the credential verifiable."
     }
   },
 
   "$defs": {
+    "Proof": {
+      "title": "Proof",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "created", "verificationMethod", "proofPurpose", "jws"],
+      "properties": {
+        "type":{
+          "type": "string",
+          "enum": ["EcdsaSecp256r1Signature2019"],
+          "description": "The type of the digital signature used."
+        },
+        "created":{
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp, when the proof was created."
+        },
+        "verificationMethod":{
+          "type": "string",
+          "pattern": "^did:[a-z0-9]+:[a-zA-Z0-9\\.\\-]+#[a-zA-Z0-9_-]+$",
+          "description": "The DID that identifies the public key used to verify the signature."
+        },
+        "proofPurpose":{
+          "type": "string",
+          "enum": ["assertionMethod"],
+          "description": "The purpose for which the proof is provided"
+        },
+        "jws":{
+          "type": "string",
+          "description": "Signature of the Verifiable Credential."
+        }
+      }
+    },
     "BMSProduction": {
       "title": "BMSProduction",
       "type": "object",

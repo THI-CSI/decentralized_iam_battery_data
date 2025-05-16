@@ -1,138 +1,33 @@
 # IAM Blockchain
-
 The IAM blockchain is the database for our decentralized identity and access management platform for battery data. It will store decentralized identities (DIDs) and verifiable credentials (VCs) to store the different identities and access rights of other network entities.
 
-## Project Structure
+Here you can read more about:
+- [Project Structure](docs/modules.md#project-structure)
+- [Blockchain Modules](docs/modules.md#modules)
+- [Getting Started](#getting-started)
+- [`tools.py` Documentation](docs/tools.md)
+- - [Docker Setup](docs/tools.md#docker-setup)
+- - [Available Commands](docs/tools.md#available-commands)
+- - [Example Commands](docs/tools.md#example-commands)
+- [API Documentation](docs/api.md)
 
-| Directory         | Description                                            |
-| ----------------- | ------------------------------------------------------ |
-| cmd/              | Contains the entry point of the program                |
-| internal/core/    | Contains the primary implementation of the blockchain  |
-| internal/api/     | Contains the external interfaces for the application   |
-| internal/api/web/ | Contains the web api for the application               |
-| internal/api/cli/ | Contains the CLI for the application                   |
-| internal/storage/ | Contains functionality to load and save the blockchain |
-
-## Modules
-
-### Core
-
-The core module (`internal/core/`) contains the primary functionality of the blockchain.
-It includes the data structures that define the blocks and transactions, as well as the functions to create and validate them.
-
-### API
-
-The api module (`/internal/api/`) contains the external interfaces for the blockchain.
-It is planned to provide a web interface (`/internal/api/web/`) that can be used to make HTTP requests to create new transactions or retrieve information from the blockchain.
-
-To generate new swagger documentation use the command:
-
-It is also planned to provide a simple CLI (`/internal/api/cli`) to interact with the blockchain for testing and development purposes.
-
-### Storage
-
-The storage module (`/internal/storage/`) will provide an interface to load and store data from different sources.
-Since this project is only a proof of concept, we will only store the blockchain in a file for now.
-
-## Usage
-
-Make sure you are in the `decentralized_iam_battery_data/blockchain` directory.
-
-Run commands using:
-
+## Getting Started
+You can use the 'install' command from the 'tools.py' script to install all required dependencies:
 ```shell
-python3 tools.py [cmd] [options]
+python3 tools.py install
 ```
 
-To see all available commands:
-
+You can then build the documentation using the 'docs' command:
 ```shell
-python3 tools.py -h
+python3 tools.py docs
 ```
 
-### Run Docker Setup
-
-The Docker setup launches both the blockchain API and the frontend. Once the setup is running, the application will be accessible at [localhost:8443](http://localhost:8443).
-
-- Swagger Documentation: Access the API documentation at [localhost:8443/swagger](localhost:8443/swagger).
-
-**Starting the Docker Setup**
-
-To build and start the Docker containers in detached mode:
-
-```python
-python3 tools.py dev up -d --build
-```
-
-**Stopping the Docker Setup**
-
-To stop and remove the running Docker containers:
-
-```python
-python3 tools.py dev down
-```
-
-### Available Commands
-
-| Command    | Description                                                                                                                     |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `install`  | Installs all required dependencies for the project Blockchain. This includes node.js packages, python packages and go packages. |
-| `run`      | Starts the blockchain application using the main Go entry point.                                                                |
-| `build`    | Compiles the blockchain application and outputs the binary to `./bin/blockchain`.                                               |
-| `format`   | Formats all Go source files in the project using `gofmt`.                                                                       |
-| `test`     | Runs the unit tests defined in the `internal/core/` module with verbose output.                                                 |
-| `generate` | Generates Go types from JSON Schema definitions located in `internal/jsonschema/`. Requires node.js and the `quicktype` tool.   |
-| `docs`     | Generates project documentation. You can specify the type using `--type`.                                                       |
-| `dev`      | Executes all docker commands and uses `docker-compose-dev.yml`.                                                                 |
-
-_Note:_ `quicktype example.json -l schema -o ./internal/jsonschema/schemaname.json` can be used to generate json-schemas from json examples
-
-### Documentation types
-
-| Type            | Description                                                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `all` (default) | Generate Swagger (OpenAPI) documentation, Go-specific technical documentation and documentation for DIDs and verifiable credentials. |
-| `swagger`       | Generates Swagger (OpenApi) documentation from Go comments using `swag`.                                                             |
-| `go`            | Creates Go-specific technical documentation using a custom shell script (`./scripts/generates-docs.sh`).                             |
-| `did-vc`        | Generates documentation for DIDs and verifiable credentials (`./scripts/generate-did-vc-docs`).                                      |
-
-### Blockchain Commands
-
-**Help Command:**
-
+The final step is to start the Docker containers with the `dev` command to start up the blockchain, the web API and the frontend:
 ```shell
-python3 tools.py run help
+python3 tools.py dev --build
 ```
 
-| Type              | Description                                      |
-| ----------------- | ------------------------------------------------ |
-| `-demo`           | Generate a demo blockchain and validate it.      |
-| `-genesis`        | Creates a new blockchain and saves it to a file. |
-| `-print-chain`    | Print the entire blockchain.                     |
-| `-file`           | Specify a different filename.                    |
-| `-web`            | Starts the blockchain api.                       |
-| `-help`           | Print the help page.                             |
+Once everything has started, you can access the Swagger API documentation at the following address: `http://127.0.0.1:8080/swagger/index.html`
 
-**Example Command:**
-Generate a new empty blockchain with a genesis block:
-```shell
-python3 tools.py run -genesis
-python3 tools.py run -print-chain
-```
+[Here you can see how to interact with the API](docs/api.md#api-interaction)
 
-Generate a demo blockchain with some example DIDs and VCs:
-```shell
-python3 tools.py run -demo
-cat blockchain-demo.json | jq # To check the contents of the blockchain demo in detail
-python3 tools.py run -file=blockchain-demo.json -print-chain
-```
-
-Starts the blockchain and the web api:
-```shell
-python3 tools.py run -web
-```
-
-Starts the blockchain, the web api and automatically creates a demo transactions every three seconds:
-```shell
-python3 tools.py run -web -demo
-```

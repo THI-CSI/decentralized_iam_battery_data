@@ -3,11 +3,13 @@ package cli
 import (
 	"blockchain/internal/api/web"
 	"blockchain/internal/core"
+	core_type "blockchain/internal/core/types"
 	"blockchain/internal/storage"
-	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"os/signal"
 	"time"
 )
 
@@ -36,6 +38,9 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 	filename := "blockchain.json"
 	var err error
 	flag.Parse()
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
 
 	if *cli.demo && !*cli.web {
 		return generateDemoBlockchain(chain, filename)
@@ -69,6 +74,14 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 		return err
 	}
 
+	select {
+	case <-interrupt:
+		log.Println("Interrupt received! Stopping blockchain...")
+		if err = storage.Save(filename, *chain); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -77,43 +90,55 @@ func generateDemoBlockchain(chain *core.Blockchain, filename string) error {
 	filename = "blockchain-demo.json"
 	fmt.Println("Creates a demo blockchain...")
 
-	data, err := os.ReadFile("./docs/VC-DID-examples/bms.json")
+	rawJson, err := os.ReadFile("./docs/VC-DID-examples/bms.json")
 	if err != nil {
 		return fmt.Errorf("could not read file: %v", err)
 	}
-	var rawbms json.RawMessage = data
+	didBms, err := core_type.UnmarshalDid(rawJson)
+	if err != nil {
+		return err
+	}
 
-	data, err = os.ReadFile("./docs/VC-DID-examples/oem.json")
+	rawJson, err = os.ReadFile("./docs/VC-DID-examples/oem.json")
 	if err != nil {
 		return fmt.Errorf("could not read file: %v", err)
 	}
-	var rawoem json.RawMessage = data
+	didOem, err := core_type.UnmarshalDid(rawJson)
+	if err != nil {
+		return err
+	}
 
-	data, err = os.ReadFile("./docs/VC-DID-examples/cloud.json")
+	rawJson, err = os.ReadFile("./docs/VC-DID-examples/cloud.json")
 	if err != nil {
 		return fmt.Errorf("could not read file: %v", err)
 	}
-	var rawcloud json.RawMessage = data
+	didCloud, err := core_type.UnmarshalDid(rawJson)
+	if err != nil {
+		return err
+	}
 
-	data, err = os.ReadFile("./docs/VC-DID-examples/vcRecord.json")
+	rawJson, err = os.ReadFile("./docs/VC-DID-examples/vcRecord.json")
 	if err != nil {
 		return fmt.Errorf("could not read file: %v", err)
 	}
-	var vcRecord json.RawMessage = data
+	vcRecord, err := core_type.UnmarshalVCRecord(rawJson)
+	if err != nil {
+		return err
+	}
 
 	//Generate the genesis block and 3 additional blocks with above DIDs as Transactions
 	chain = core.CreateChain()
-	chain.AppendTransaction(rawoem)
-	chain.AppendTransaction(rawbms)
-	chain.AppendTransaction(rawcloud)
+	chain.AppendDid(&didBms)
+	chain.AppendDid(&didCloud)
+	chain.AppendDid(&didOem)
 	chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
-	chain.AppendTransaction(rawcloud)
-	chain.AppendTransaction(rawoem)
+	chain.AppendDid(&didCloud)
+	chain.AppendDid(&didOem)
 	chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
-	chain.AppendTransaction(vcRecord)
+	chain.AppendVcRecords(&vcRecord)
 	chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
-	chain.AppendTransaction(rawcloud)
-	chain.AppendTransaction(rawoem)
+	chain.AppendDid(&didCloud)
+	chain.AppendDid(&didOem)
 	chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
 
 	chain.Print()
@@ -146,16 +171,19 @@ func startWebApi(chain *core.Blockchain, filename string, createDemoTransactions
 	if createDemoTransactions {
 		go func() {
 			data, _ := os.ReadFile("./docs/VC-DID-examples/oem.json")
-			var rawoem json.RawMessage = data
+			did, err := core_type.UnmarshalDid(data)
+			if err != nil {
+				return
+			}
 
 			for {
 				time.Sleep(3 * time.Second)
-				chain.AppendTransaction(rawoem)
+				chain.AppendDid(&did)
 				fmt.Println("[+] Added Transaction")
 			}
 		}()
 	}
 
 	fmt.Println("Starting the Web API...")
-	web.CreateServer()
+	web.CreateServer(chain)
 }

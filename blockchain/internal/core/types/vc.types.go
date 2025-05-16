@@ -39,35 +39,49 @@ type Vc struct {
 	// Identifier representing the entity that issued the credential.                                  
 	Issuer                                                                               string        `json:"issuer"`
 	// Cryptographic proof that makes the credential verifiable.                                       
-	Proof                                                                                string        `json:"proof"`
+	Proof                                                                                Proof         `json:"proof"`
 	// Specifies the type(s) of the credential, must include 'VerifiableCredential'.                   
 	Type                                                                                 []string      `json:"type"`
 }
 
 // The subject of the credential, which must match one of the predefined claim types.
 type BmsProduction struct {
-	// DID of the Battery Management System.                             
-	//                                                                   
-	// DID of the BMS to which access is granted.                        
-	BmsDid                                                 string        `json:"bmsDid"`
-	// Unique identifier for the BMS production credential.              
-	//                                                                   
-	// Unique identifier for the service access credential.              
-	ID                                                     string        `json:"id"`
-	// Optional lot number for the BMS production.                       
-	LotNumber                                              *string       `json:"lotNumber,omitempty"`
-	// Date when the BMS was produced.                                   
-	ProducedOn                                             *string       `json:"producedOn,omitempty"`
-	// Type indicator for a BMS production event.                        
-	//                                                                   
-	// Type indicator for a service access permission.                   
-	Type                                                   Type          `json:"type"`
-	// Level of access granted (read or write).                          
-	AccessLevel                                            []AccessLevel `json:"accessLevel,omitempty"`
-	// Start of the validity period for service access.                  
-	ValidFrom                                              *time.Time    `json:"validFrom,omitempty"`
-	// End of the validity period for service access.                    
-	ValidUntil                                             *time.Time    `json:"validUntil,omitempty"`
+	// DID of the Battery Management System.                                     
+	//                                                                           
+	// DID of the BMS to which access is granted.                                
+	BmsDid                                                 string                `json:"bmsDid"`
+	// Unique identifier for the BMS production credential.                      
+	//                                                                           
+	// Unique identifier for the service access credential.                      
+	ID                                                     string                `json:"id"`
+	// Optional lot number for the BMS production.                               
+	LotNumber                                              *string               `json:"lotNumber,omitempty"`
+	// Date when the BMS was produced.                                           
+	ProducedOn                                             *string               `json:"producedOn,omitempty"`
+	// Type indicator for a BMS production event.                                
+	//                                                                           
+	// Type indicator for a service access permission.                           
+	Type                                                   CredentialSubjectType `json:"type"`
+	// Level of access granted (read or write).                                  
+	AccessLevel                                            []AccessLevel         `json:"accessLevel,omitempty"`
+	// Start of the validity period for service access.                          
+	ValidFrom                                              *time.Time            `json:"validFrom,omitempty"`
+	// End of the validity period for service access.                            
+	ValidUntil                                             *time.Time            `json:"validUntil,omitempty"`
+}
+
+// Cryptographic proof that makes the credential verifiable.
+type Proof struct {
+	// The timestamp, when the proof was created.                                       
+	Created                                                                time.Time    `json:"created"`
+	// Signature of the Verifiable Credential.                                          
+	Jws                                                                    string       `json:"jws"`
+	// The purpose for which the proof is provided                                      
+	ProofPurpose                                                           ProofPurpose `json:"proofPurpose"`
+	// The type of the digital signature used.                                          
+	Type                                                                   ProofType    `json:"type"`
+	// The DID that identifies the public key used to verify the signature.             
+	VerificationMethod                                                     string       `json:"verificationMethod"`
 }
 
 type AccessLevel string
@@ -77,11 +91,25 @@ const (
 	Write AccessLevel = "write"
 )
 
-type Type string
+type CredentialSubjectType string
 
 const (
-	BMSProduction Type = "BMSProduction"
-	ServiceAccess Type = "ServiceAccess"
+	BMSProduction CredentialSubjectType = "BMSProduction"
+	ServiceAccess CredentialSubjectType = "ServiceAccess"
+)
+
+// The purpose for which the proof is provided
+type ProofPurpose string
+
+const (
+	AssertionMethod ProofPurpose = "assertionMethod"
+)
+
+// The type of the digital signature used.
+type ProofType string
+
+const (
+	EcdsaSecp256R1Signature2019 ProofType = "EcdsaSecp256r1Signature2019"
 )
 
 // Defines the JSON-LD context, providing meaning to terms used in the credential.

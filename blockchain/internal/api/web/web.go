@@ -2,6 +2,7 @@ package web
 
 import (
 	"blockchain/internal/api/web/server"
+	"blockchain/internal/core"
 	"context"
 	"fmt"
 	"log"
@@ -39,8 +40,8 @@ func gracefulShutdown(app *fiber.App, done chan bool) {
 
 // CreateServer initializes the Fiber server, starts it, and ensures graceful shutdown handling.
 // The server runs in a goroutine to allow for concurrent shutdown handling via `gracefulShutdown`.
-func CreateServer() {
-	app := server.New()
+func CreateServer(chain *core.Blockchain) {
+	app := server.New(chain)
 
 	config := server.NewConfiguration()
 

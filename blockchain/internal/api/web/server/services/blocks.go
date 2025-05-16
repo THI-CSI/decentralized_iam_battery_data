@@ -1,0 +1,41 @@
+package services
+
+import (
+	"blockchain/internal/api/web/server/domain"
+	"blockchain/internal/core"
+	"context"
+	"fmt"
+)
+
+// BlockService defines the interface for returning blocks of the blockchain
+type BlockService interface {
+	GetBlocks(ctx context.Context, chain *core.Blockchain) (*domain.BlockchainResponse, error)
+	GetBlock(userContext context.Context, chain *core.Blockchain, blockId int) (*domain.BlockResponse, error)
+}
+
+// blockService is a concrete implementation of the BlockService interface.
+type blockService struct{}
+
+// NewBlockService creates and returns a new instance of the BlockService implementation.
+func NewBlockService() BlockService {
+	return &blockService{}
+}
+
+// GetBlocks gets all blocks
+func (s *blockService) GetBlocks(ctx context.Context, chain *core.Blockchain) (*domain.BlockchainResponse, error) {
+	var blockchainResponse domain.BlockchainResponse
+	for _, block := range *chain {
+		blockchainResponse = append(blockchainResponse, domain.ConvertBlockToResponse(block))
+	}
+	return &blockchainResponse, nil
+}
+
+// GetBlock get a block by an id
+func (s *blockService) GetBlock(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.BlockResponse, error) {
+	block := chain.GetBlock(blockId)
+	if block == nil {
+		return nil, fmt.Errorf("block with id '%d' not found", blockId)
+	}
+	blockResponse := domain.ConvertBlockToResponse(*block)
+	return &blockResponse, nil
+}

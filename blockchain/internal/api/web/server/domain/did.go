@@ -1,29 +1,64 @@
 package domain
 
-// CreateDid represents a request payload to create a new Decentralized Identifier (DID).
+import (
+	"blockchain/internal/core"
+	coreTypes "blockchain/internal/core/types"
+	"fmt"
+	"time"
+)
+
+// CreateDid defines the struct supplied by the users
 type CreateDid struct {
-	// PublicKey is the public key associated with the DID. It is a required field.
-	PublicKey string `json:"publicKey" validate:"required"`
+	// Public key information used for verifying signatures and authentication.
+	PublicKey PublicKey `json:"publicKey" required:"true"`
+	// Optional array of service endpoints related to the DID subject, such as APIs or metadata
+	// services.
+	Service []DidSchema `json:"service,omitempty" required:"true"`
 }
 
-// Did represents a Decentralized Identifier (DID).
-// This struct is currently empty and may be used as a placeholder or extended later.
-type Did struct{}
-
-// AccessRight represents a permission or access right associated with a DID.
-// This struct is currently empty and may be extended to include specific permissions or resource identifiers.
-type AccessRight struct{}
-
-// GrantAccessRights represents a request to assign a specific role to a DID.
-type GrantAccessRights struct {
-	// Did is the identifier to which the access role is granted. It is required.
-	Did string `json:"did" validate:"required"`
-	// Role is the name of the access role to be granted. It is required.
-	Role string `json:"role" validate:"required"`
+// PublicKey Public key information used for verifying signatures and authentication.
+type PublicKey struct {
+	// DID that have the ability to make changes to this DID-Document.
+	Controller string `json:"controller" required:"true"`
+	// The public key encoded in multibase format.
+	PublicKeyMultibase string `json:"publicKeyMultibase" required:"true"`
+	// Type of the verification method, e.g., 'Ed25519VerificationKey2020'.
+	Type string `json:"type" required:"true"`
 }
 
-// AccessRightsResponse encapsulates a list of access rights.
-type AccessRightsResponse struct {
-	// AccessRights is a list of access rights associated with a DID.
-	AccessRights []*AccessRight `json:"accessRights"`
+// DidSchema Represents a service associated with the DID subject,
+// such as a metadata or data access point.
+type DidSchema struct {
+	// The actual service endpoint, which can be a URL.
+	ServiceEndpoint string `json:"serviceEndpoint" required:"true"`
+	// Type or category of the service, e.g., 'BatteryDataService'.
+	Type string `json:"type" required:"true"`
+}
+
+// ConvertRequestToDid converts a supplied DID to a core type object
+func ConvertRequestToDid(createDid *CreateDid) coreTypes.Did {
+	now := time.Now()
+	didId := core.GenerateDid()
+
+	var didServices []coreTypes.DidSchema
+	for i, service := range createDid.Service {
+		didServices = append(didServices, coreTypes.DidSchema{
+			ServiceEndpoint: service.ServiceEndpoint,
+			Type:            service.Type,
+			ID:              fmt.Sprintf("%s#service-%v", didId, i),
+		})
+	}
+
+	return coreTypes.Did{
+		ID: didId,
+		PublicKey: coreTypes.PublicKey{
+			Controller:         createDid.PublicKey.Controller,
+			ID:                 fmt.Sprintf("%s#key-1", didId),
+			PublicKeyMultibase: createDid.PublicKey.PublicKeyMultibase,
+			Type:               createDid.PublicKey.Type,
+		},
+		Revoked:   false,
+		Service:   didServices,
+		Timestamp: &now,
+	}
 }
