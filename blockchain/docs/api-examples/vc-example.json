@@ -8,7 +8,7 @@
     "VerifiableCredential",
     "ServiceAccess"
   ],
-  "issuer": "did:batterypass:bms.sn-987654321",
+  "issuer": "did:batterypass:3804a7bc-6a0e-4456-b592-a94248fb3b61",
   "holder": "did:batterypass:service.tuv-sued-42",
   "issuanceDate": "2025-07-04T07:45:00Z",
   "expirationDate": "2027-07-04T07:45:00Z",
@@ -20,5 +20,11 @@
     "validFrom": "2025-07-04T07:45:00Z",
     "validUntil": "2027-07-04T07:45:00Z"
   },
-  "proof": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-07-04T07:45:05Z",
+    "verificationMethod": "did:batterypass:bms.sn-987654321#device-key",
+    "proofPurpose": "assertionMethod",
+    "jws": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
+  }
 }

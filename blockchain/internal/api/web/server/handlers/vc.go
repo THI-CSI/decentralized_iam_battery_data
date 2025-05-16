@@ -62,7 +62,6 @@ func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler 
 			return domain.BadRequestError("DID does not exist or is revoked")
 		}
 
-		// TODO: Proof can not be an object (with type, created, verificationMethod, proofPurpose and jws) but just a string!
 		vc, err := coreTypes.UnmarshalVc(c.BodyRaw())
 		if err != nil {
 			slog.Warn("Invalid Verifiable Credential: %v\n", err)
