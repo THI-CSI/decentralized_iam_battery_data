@@ -14,7 +14,7 @@ export default function SingleDidOverview() {
         <div className={"flex w-full flex-col gap-8"}>
             <div
                 className={
-                    "bg-primary/2 flex h-fit w-full items-center gap-2 rounded-lg p-6 shadow-xl dark:bg-zinc-900 dark:text-white"
+                    "bg-primary/2 flex h-fit w-full items-center gap-2 rounded-lg p-6 shadow dark:bg-zinc-900 dark:text-white"
                 }
             >
                 <h3 className={"font-semibold"}>DID Details for:</h3>
@@ -23,7 +23,7 @@ export default function SingleDidOverview() {
             <div>
                 <h2 className={"text-primary text-2xl font-semibold"}>Related Transactions</h2>
 
-                <div className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow-xl dark:bg-zinc-900 dark:text-white"}>
+                <div className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow dark:bg-zinc-900 dark:text-white"}>
                     <h3 className={"text-lg font-semibold"}>Public Key:</h3>
                     <Table>
                         <TableBody>

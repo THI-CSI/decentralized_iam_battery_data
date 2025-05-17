@@ -14,7 +14,7 @@ export default function DidOverview() {
     return (
         <div className={"w-full"}>
             <h2 className={"text-primary mb-6 text-2xl font-semibold"}>All Unique DIDs</h2>
-            <div className={"overflow-hidden shadow-xl"}>
+            <div className={"overflow-hidden shadow"}>
                 <Table>
                     <TableHeader className={"w-full divide-y divide-gray-200"}>
                         <TableRow className={"bg-primary/10"}>

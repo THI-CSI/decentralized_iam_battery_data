@@ -19,9 +19,7 @@ export default function SingleBlockOverview() {
                 {transaction.map((tx, i) => (
                     <div
                         key={i}
-                        className={
-                            "bg-primary/2 h-fit w-full rounded-lg p-6 shadow-xl dark:bg-zinc-900 dark:text-white"
-                        }
+                        className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow dark:bg-zinc-900 dark:text-white"}
                     >
                         <pre className={"text-sm"}>{JSON.stringify(tx, null, 2)}</pre>
                     </div>

@@ -12,7 +12,7 @@ export type BlockCardProps = {
  */
 export default function BlockCard(props: BlockCardProps) {
     return (
-        <div className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow-xl dark:bg-zinc-900 dark:text-white"}>
+        <div className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow dark:bg-zinc-900 dark:text-white"}>
             <h2 className={"text-primary mb-6 text-2xl font-semibold"}>Block #{props.block.id}</h2>
             <div className={"grid grid-cols-2 gap-4"}>
                 <div>

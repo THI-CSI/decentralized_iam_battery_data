@@ -3,14 +3,9 @@ import { Api } from "@/api/api.tsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 
 /**
- * The properties for {@link BlockOverview}
- */
-export type BlockOverviewProps = {};
-
-/**
  * The block overview for the application
  */
-export default function BlockOverview(props: BlockOverviewProps) {
+export default function BlockOverview() {
     const data = Route.useLoaderData();
     if (!data) {
         return <h1>Loading ...</h1>;
@@ -18,7 +13,7 @@ export default function BlockOverview(props: BlockOverviewProps) {
     return (
         <div className={"w-full"}>
             <h2 className={"text-primary mb-6 text-2xl font-semibold"}>Recent Blocks</h2>
-            <div className={"overflow-hidden shadow-xl"}>
+            <div className={"overflow-hidden shadow"}>
                 <Table>
                     <TableHeader className={"w-full divide-y divide-gray-200"}>
                         <TableRow className={"bg-primary/10"}>
