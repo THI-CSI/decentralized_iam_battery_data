@@ -7,19 +7,20 @@ import (
 	"blockchain/internal/core"
 	"github.com/gofiber/fiber/v2"
 	"log/slog"
+	"net/url"
 )
 
 // GetDIDs retrieves all DIDs from the blockchain
 //
-// @Summary Get all DIDs
-// @Description Get all DIDs from the blockchain
-// @Tags DIDs
-// @Accept json
-// @Produce json
-// @Success 200 {object} []core.Did
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/dids [get]
+//	@Summary		Get all DIDs
+//	@Description	Get all DIDs from the blockchain
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	[]core.Did
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids [get]
 func GetDIDs(service services.DidService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		slog.Info("GetDIDs was called", "info")
@@ -34,19 +35,23 @@ func GetDIDs(service services.DidService, chain *core.Blockchain) fiber.Handler 
 
 // GetDID retrieves a DID from the blockchain
 //
-// @Summary Get a single DID
-// @Description Get a DID from the blockchain
-// @Tags DIDs
-// @Accept json
-// @Produce json
-// @Param did path string true "DID"
-// @Success 200 {object} core.Did
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/dids/{did} [get]
+//	@Summary		Get a single DID
+//	@Description	Get a DID from the blockchain
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Param			did	path		string	true	"DID"
+//	@Success		200	{object}	core.Did
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids/{did} [get]
 func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		did := c.Params("did")
+		did, err := url.QueryUnescape(did)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
 		if !utils.IsDidValid(did) {
 			return domain.BadRequestError("Invalid Did")
 		}
@@ -64,16 +69,16 @@ func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 
 // CreateDID creates a DID on the blockchain
 //
-// @Summary Create a new DID
-// @Description Create a new DID on the blockchain
-// @Tags DIDs
-// @Accept json
-// @Produce json
-// @Param recipe body domain.CreateDid true "DID"
-// @Success 201 {object} core.Did
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/dids [post]
+//	@Summary		Create a new DID
+//	@Description	Create a new DID on the blockchain
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Param			recipe	body		domain.CreateDid	true	"DID"
+//	@Success		201		{object}	core.Did
+//	@Failure		400		{object}	domain.ErrorResponseHTTP
+//	@Failure		500		{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids [post]
 func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		createDid, err := utils.ParseAndValidateStruct[domain.CreateDid](c)
@@ -94,19 +99,23 @@ func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handle
 
 // RevokeDid revokes a DID on the blockchain and creates a new transaction
 //
-// @Summary Revokes a DID
-// @Description Revokes a DID on the blockchain and creates a new transaction
-// @Tags DIDs
-// @Accept json
-// @Produce json
-// @Param did path string true "DID"
-// @Success 200
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/dids/{did} [delete]
+//	@Summary		Revokes a DID
+//	@Description	Revokes a DID on the blockchain and creates a new transaction
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Param			did	path	string	true	"DID"
+//	@Success		200
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids/{did} [delete]
 func RevokeDid(service services.DidService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		did := c.Params("did")
+		did, err := url.QueryUnescape(did)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
 		if !utils.IsDidValid(did) {
 			return domain.BadRequestError("Invalid Did")
 		}

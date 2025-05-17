@@ -13,16 +13,16 @@ import (
 
 // GetTransactions returns all transactions of a block
 //
-// @Summary Get all transactions of a block
-// @Description Get all transactions of a block
-// @Tags Blocks
-// @Accept json
-// @Produce json
-// @Param blockId path int true "Block ID"
-// @Success 200 {object} domain.BlockResponse
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/blocks/{blockId}/transactions [get]
+//	@Summary		Get all transactions of a block
+//	@Description	Get all transactions of a block
+//	@Tags			Blocks
+//	@Accept			json
+//	@Produce		json
+//	@Param			blockId	path		int	true	"Block ID"
+//	@Success		200		{object} 	domain.TransactionResponse
+//	@Failure		400		{object}	domain.ErrorResponseHTTP
+//	@Failure		500		{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/blocks/{blockId}/transactions [get]
 func GetTransactions(service services.TransactionService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		blockId, err := strconv.Atoi(c.Params("blockId"))

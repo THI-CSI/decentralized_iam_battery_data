@@ -1,6 +1,7 @@
 package services
 
 import (
+	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/core"
 	"context"
 	"encoding/json"
@@ -9,7 +10,7 @@ import (
 
 // TransactionService defines the interface for returning transactions of a block of the blockchain
 type TransactionService interface {
-	GetTransactions(ctx context.Context, chain *core.Blockchain, blockId int) (*[]json.RawMessage, error)
+	GetTransactions(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.TransactionResponse, error)
 }
 
 // transactionService is a concrete implementation of the TransactionService interface.
@@ -21,10 +22,19 @@ func NewTransactionService() TransactionService {
 }
 
 // GetTransactions gets all transactions of a block
-func (s *transactionService) GetTransactions(ctx context.Context, chain *core.Blockchain, blockId int) (*[]json.RawMessage, error) {
+func (s *transactionService) GetTransactions(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.TransactionResponse, error) {
 	block := chain.GetBlock(blockId)
 	if block == nil {
 		return nil, fmt.Errorf("block %d not found", blockId)
 	}
-	return &block.Transactions, nil
+	var transactionResponse domain.TransactionResponse
+	for _, transaction := range block.Transactions {
+		var item map[string]interface{}
+		err := json.Unmarshal(transaction, &item)
+		if err != nil {
+			return nil, err
+		}
+		transactionResponse = append(transactionResponse, item)
+	}
+	return &transactionResponse, nil
 }
