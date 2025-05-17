@@ -12,16 +12,16 @@ import (
 
 // GetVC retrieves a VC from the blockchain
 //
-// @Summary Get a VC Record
-// @Description Get a VC Record from the blockchain
-// @Tags VCs
-// @Accept json
-// @Produce json
-// @Param urn path string true "VC Record URN"
-// @Success 200 {object} core.VCRecord
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/vc/{urn} [get]
+//	@Summary		Get a VC Record
+//	@Description	Get a VC Record from the blockchain
+//	@Tags			VCs
+//	@Accept			json
+//	@Produce		json
+//	@Param			urn	path		string	true	"VC Record URN"
+//	@Success		200	{object}	core.VCRecord
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/vc/{urn} [get]
 func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		urn := c.Params("urn")
@@ -42,17 +42,17 @@ func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 
 // CreateVC creates a VC on the blockchain
 //
-// @Summary Create a new VC
-// @Description Create a new VC on the blockchain
-// @Tags VCs
-// @Accept json
-// @Produce json
-// @Param did path string true "DID"
-// @Param recipe body core.Vc true "VC"
-// @Success 201 {object} core.VCRecord
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/dids/{did}/vc [post]
+//	@Summary		Create a new VC
+//	@Description	Create a new VC on the blockchain
+//	@Tags			VCs
+//	@Accept			json
+//	@Produce		json
+//	@Param			did		path		string	true	"DID"
+//	@Param			recipe	body		core.Vc	true	"VC"
+//	@Success		201		{object}	core.VCRecord
+//	@Failure		400		{object}	domain.ErrorResponseHTTP
+//	@Failure		500		{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids/{did}/vc [post]
 func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 

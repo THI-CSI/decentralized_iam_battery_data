@@ -40,6 +40,13 @@ func gracefulShutdown(app *fiber.App, done chan bool) {
 
 // CreateServer initializes the Fiber server, starts it, and ensures graceful shutdown handling.
 // The server runs in a goroutine to allow for concurrent shutdown handling via `gracefulShutdown`.
+//
+//	@title			Blockchain API
+//	@version		1.0
+//	@description	This is the api for the blockchain
+//
+//	@host		localhost:8080
+//	@BasePath	/api/v1
 func CreateServer(chain *core.Blockchain) {
 	app := server.New(chain)
 
