@@ -1,12 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Api } from "@/api/api.tsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 
-/**
- * The DID overview of the application
- */
-export default function DidOverview() {
+export function DidOverview() {
+    const navigate = useNavigate();
+
     const data = Route.useLoaderData();
     if (!data) {
         return <h1>Loading ...</h1>;
@@ -17,15 +16,23 @@ export default function DidOverview() {
             <div className={"overflow-hidden shadow"}>
                 <Table>
                     <TableHeader className={"w-full divide-y divide-gray-200"}>
-                        <TableRow className={"bg-primary/10"}>
+                        <TableRow className={"bg-primary/10 hover:bg-primary/10"}>
                             <TableHead>Did</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Details</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {data.map((did) => (
-                            <TableRow key={did.id}>
+                            <TableRow
+                                className={"hover:cursor-pointer"}
+                                key={did.id}
+                                onClick={() =>
+                                    navigate({
+                                        to: "/dids/$didId",
+                                        params: { didId: encodeURI(did.id!) },
+                                    })
+                                }
+                            >
                                 <TableCell className={"text-sky-600"}>{did.id}</TableCell>
                                 <TableCell>
                                     {did.revoked ? (
@@ -33,15 +40,6 @@ export default function DidOverview() {
                                     ) : (
                                         <Badge variant={"destructive"}>revoked</Badge>
                                     )}
-                                </TableCell>
-                                <TableCell>
-                                    <Link
-                                        className={"text-sky-600 hover:text-sky-800"}
-                                        to={"/dids/$didId"}
-                                        params={{ didId: encodeURI(did.id!) }}
-                                    >
-                                        Details
-                                    </Link>
                                 </TableCell>
                             </TableRow>
                         ))}

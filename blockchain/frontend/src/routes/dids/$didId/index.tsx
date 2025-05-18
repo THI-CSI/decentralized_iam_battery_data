@@ -49,9 +49,7 @@ export default function SingleDidOverview() {
                 {data.service!.map((service, i) => (
                     <div
                         key={service.id}
-                        className={
-                            "bg-primary/2 h-fit w-full rounded-lg p-6 shadow-xl dark:bg-zinc-900 dark:text-white"
-                        }
+                        className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow dark:bg-zinc-900 dark:text-white"}
                     >
                         <h3 className={"text-lg font-semibold"}>Service: {i + 1}</h3>
                         <Table>

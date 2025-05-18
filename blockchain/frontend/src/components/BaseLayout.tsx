@@ -14,7 +14,7 @@ export function BaseLayout({
             <div>{navbar}</div>
 
             <div className="dark:lg:rind-white/10 m-2 flex grow p-3 md:p-8 lg:rounded-lg lg:bg-white lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900">
-                {children}
+                <div className={"mx-auto w-full max-w-6xl"}>{children}</div>
             </div>
         </div>
     );
