@@ -5,11 +5,13 @@ import (
 	"blockchain/internal/core"
 	core_type "blockchain/internal/core/types"
 	"blockchain/internal/storage"
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -39,8 +41,8 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 	var err error
 	flag.Parse()
 
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
 	if *cli.demo && !*cli.web {
 		return generateDemoBlockchain(chain, filename)
@@ -75,7 +77,7 @@ func (cli *Cli) Parse(chain *core.Blockchain) error {
 	}
 
 	select {
-	case <-interrupt:
+	case <-ctx.Done():
 		log.Println("Interrupt received! Stopping blockchain...")
 		if err = storage.Save(filename, *chain); err != nil {
 			return err
