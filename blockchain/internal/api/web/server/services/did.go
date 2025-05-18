@@ -13,27 +13,29 @@ import (
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
 // and their associated access rights.
 type DidService interface {
-	GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]coreTypes.Did, error)
-	GetDID(userContext context.Context, chain *core.Blockchain, did string) (*coreTypes.Did, error)
-	CreateDID(userContext context.Context, chain *core.Blockchain, create *domain.CreateDid) (*coreTypes.Did, error)
-	RevokeDid(userContext context.Context, chain *core.Blockchain, did string) error
+	GetDIDs(ctx context.Context) (*[]coreTypes.Did, error)
+	GetDID(userContext context.Context, did string) (*coreTypes.Did, error)
+	CreateDID(userContext context.Context, create *domain.CreateDid) (*coreTypes.Did, error)
+	RevokeDid(userContext context.Context, did string) error
 }
 
 // didService is a concrete implementation of the DidService interface.
-type didService struct{}
+type didService struct {
+	chain *core.Blockchain
+}
 
 // NewDidService creates and returns a new instance of the DidService implementation.
-func NewDidService() DidService {
-	return &didService{}
+func NewDidService(chain *core.Blockchain) DidService {
+	return &didService{chain: chain}
 }
 
 // GetDIDs returns all DIDs in the blockchain
-func (s *didService) GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]coreTypes.Did, error) {
+func (s *didService) GetDIDs(ctx context.Context) (*[]coreTypes.Did, error) {
 	var dids []coreTypes.Did
 	var did coreTypes.Did
 	var err error
-	for i := len(*chain) - 1; i >= 0; i-- {
-		block := chain.GetBlock(i)
+	for i := len(*s.chain) - 1; i >= 0; i-- {
+		block := *s.chain.GetBlock(i)
 		for _, transaction := range block.Transactions {
 			err = json.Unmarshal(transaction, &did)
 			if err != nil {
@@ -47,17 +49,17 @@ func (s *didService) GetDIDs(ctx context.Context, chain *core.Blockchain) (*[]co
 	return &dids, nil
 }
 
-// GetDID returns
-func (s *didService) GetDID(userContext context.Context, chain *core.Blockchain, did string) (*coreTypes.Did, error) {
-	return chain.FindDID(did)
+// GetDID returns a single DID
+func (s *didService) GetDID(userContext context.Context, did string) (*coreTypes.Did, error) {
+	return s.chain.FindDID(did)
 }
 
 // CreateDID appends a new DID to the blockcahin
-func (s *didService) CreateDID(userContext context.Context, chain *core.Blockchain, createDid *domain.CreateDid) (*coreTypes.Did, error) {
+func (s *didService) CreateDID(userContext context.Context, createDid *domain.CreateDid) (*coreTypes.Did, error) {
 	did := domain.ConvertRequestToDid(createDid)
 
 	// Create Transaction
-	if err := chain.AppendDid(&did); err != nil {
+	if err := s.chain.AppendDid(&did); err != nil {
 		return nil, err
 	}
 
@@ -65,20 +67,24 @@ func (s *didService) CreateDID(userContext context.Context, chain *core.Blockcha
 }
 
 // RevokeDid revokes an existing DID on the blockchain
-func (s *didService) RevokeDid(userContext context.Context, chain *core.Blockchain, didId string) error {
-	did, err := chain.FindDID(didId)
+func (s *didService) RevokeDid(userContext context.Context, didId string) error {
+	did, err := s.chain.FindDID(didId)
 	if err != nil {
 		return domain.NotFoundError(err.Error())
 	}
 
 	did.Revoked = true
-	if err := chain.AppendDid(did); err != nil {
+	if err := s.chain.AppendDid(did); err != nil {
 		return domain.BadRequestError(err.Error())
 	}
 
 	return nil
 }
 
+// containsDid checks if a DID is in a list of DIDs
+//
+// true if the list contains this DID already
+// false if the list does not contain this DID
 func containsDid(didList []coreTypes.Did, didId string) bool {
 	for _, did := range didList {
 		if did.ID == didId {

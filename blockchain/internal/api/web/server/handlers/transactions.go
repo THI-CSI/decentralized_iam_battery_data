@@ -4,7 +4,6 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
-	"blockchain/internal/core"
 	"log/slog"
 	"strconv"
 
@@ -13,17 +12,17 @@ import (
 
 // GetTransactions returns all transactions of a block
 //
-// @Summary Get all transactions of a block
-// @Description Get all transactions of a block
-// @Tags Blocks
-// @Accept json
-// @Produce json
-// @Param blockId path int true "Block ID"
-// @Success 200 {object} domain.BlockResponse
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/blocks/{blockId}/transactions [get]
-func GetTransactions(service services.TransactionService, chain *core.Blockchain) fiber.Handler {
+//	@Summary		Get all transactions of a block
+//	@Description	Get all transactions of a block
+//	@Tags			Blocks
+//	@Accept			json
+//	@Produce		json
+//	@Param			blockId	path		int	true	"Block ID"
+//	@Success		200		{object} 	domain.TransactionResponse
+//	@Failure		400		{object}	domain.ErrorResponseHTTP
+//	@Failure		500		{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/blocks/{blockId}/transactions [get]
+func GetTransactions(service services.TransactionService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		blockId, err := strconv.Atoi(c.Params("blockId"))
 		if err != nil {
@@ -31,7 +30,7 @@ func GetTransactions(service services.TransactionService, chain *core.Blockchain
 		}
 		slog.Info("GetTransactions was called", blockId)
 
-		result, err := service.GetTransactions(c.UserContext(), chain, blockId)
+		result, err := service.GetTransactions(c.UserContext(), blockId)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
