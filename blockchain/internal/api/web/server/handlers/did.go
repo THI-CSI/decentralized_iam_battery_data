@@ -4,7 +4,6 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
-	"blockchain/internal/core"
 	"github.com/gofiber/fiber/v2"
 	"log/slog"
 	"net/url"
@@ -21,10 +20,10 @@ import (
 //	@Failure		400	{object}	domain.ErrorResponseHTTP
 //	@Failure		500	{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/dids [get]
-func GetDIDs(service services.DidService, chain *core.Blockchain) fiber.Handler {
+func GetDIDs(service services.DidService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		slog.Info("GetDIDs was called", "info")
-		result, err := service.GetDIDs(c.UserContext(), chain)
+		result, err := service.GetDIDs(c.UserContext())
 		if err != nil {
 			return err
 		}
@@ -45,7 +44,7 @@ func GetDIDs(service services.DidService, chain *core.Blockchain) fiber.Handler 
 //	@Failure		400	{object}	domain.ErrorResponseHTTP
 //	@Failure		500	{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/dids/{did} [get]
-func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
+func GetDID(service services.DidService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		did := c.Params("did")
 		did, err := url.QueryUnescape(did)
@@ -58,7 +57,7 @@ func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 
 		slog.Info("GetDID was called", did)
 
-		result, err := service.GetDID(c.UserContext(), chain, did)
+		result, err := service.GetDID(c.UserContext(), did)
 		if err != nil {
 			return fiber.NewError(fiber.StatusNotFound, err.Error())
 		}
@@ -79,7 +78,7 @@ func GetDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
 //	@Failure		400		{object}	domain.ErrorResponseHTTP
 //	@Failure		500		{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/dids [post]
-func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handler {
+func CreateDID(service services.DidService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		createDid, err := utils.ParseAndValidateStruct[domain.CreateDid](c)
 		if err != nil {
@@ -88,7 +87,7 @@ func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handle
 
 		slog.Info("CreateDID was called", createDid)
 
-		result, err := service.CreateDID(c.UserContext(), chain, createDid)
+		result, err := service.CreateDID(c.UserContext(), createDid)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
@@ -109,7 +108,7 @@ func CreateDID(service services.DidService, chain *core.Blockchain) fiber.Handle
 //	@Failure		400	{object}	domain.ErrorResponseHTTP
 //	@Failure		500	{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/dids/{did} [delete]
-func RevokeDid(service services.DidService, chain *core.Blockchain) fiber.Handler {
+func RevokeDid(service services.DidService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		did := c.Params("did")
 		did, err := url.QueryUnescape(did)
@@ -122,7 +121,7 @@ func RevokeDid(service services.DidService, chain *core.Blockchain) fiber.Handle
 
 		slog.Info("RevokeDid was called", did)
 
-		if err := service.RevokeDid(c.UserContext(), chain, did); err != nil {
+		if err := service.RevokeDid(c.UserContext(), did); err != nil {
 			return err
 		}
 

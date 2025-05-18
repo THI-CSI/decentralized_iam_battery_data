@@ -13,7 +13,7 @@ import (
 	"github.com/gofiber/swagger"
 )
 
-// NewServer initializes and returns a configured Fiber application.
+// New initializes and returns a configured Fiber application.
 func New(chain *core.Blockchain) *fiber.App {
 	app := fiber.New(fiber.Config{
 		ServerHeader: "blockchain",
@@ -36,25 +36,25 @@ func New(chain *core.Blockchain) *fiber.App {
 		return c.SendString("ok")
 	})
 
-	didService := services.NewDidService()
-	vcService := services.NewVCService()
-	blockService := services.NewBlockService()
-	transactionService := services.NewTransactionService()
+	didService := services.NewDidService(chain)
+	vcService := services.NewVCService(chain)
+	blockService := services.NewBlockService(chain)
+	transactionService := services.NewTransactionService(chain)
 
 	// all blocks routes
-	apiRoutes.Get("/blocks", handlers.GetBlocks(blockService, chain))
-	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService, chain))
-	apiRoutes.Get("/blocks/:blockId/transactions", handlers.GetTransactions(transactionService, chain))
+	apiRoutes.Get("/blocks", handlers.GetBlocks(blockService))
+	apiRoutes.Get("/blocks/:blockId", handlers.GetBlock(blockService))
+	apiRoutes.Get("/blocks/:blockId/transactions", handlers.GetTransactions(transactionService))
 
 	// all DIDs routes
-	apiRoutes.Get("/dids", handlers.GetDIDs(didService, chain))
-	apiRoutes.Get("/dids/:did", handlers.GetDID(didService, chain))
-	apiRoutes.Post("/dids", handlers.CreateDID(didService, chain))
-	apiRoutes.Delete("/dids/:did", handlers.RevokeDid(didService, chain))
+	apiRoutes.Get("/dids", handlers.GetDIDs(didService))
+	apiRoutes.Get("/dids/:did", handlers.GetDID(didService))
+	apiRoutes.Post("/dids", handlers.CreateDID(didService))
+	apiRoutes.Delete("/dids/:did", handlers.RevokeDid(didService))
 
 	// all VC routes
 	apiRoutes.Post("/dids/:did/vc", handlers.CreateVC(vcService, chain))
-	apiRoutes.Get("/vc/:urn", handlers.GetVC(vcService, chain))
+	apiRoutes.Get("/vc/:urn", handlers.GetVC(vcService))
 
 	return app
 }

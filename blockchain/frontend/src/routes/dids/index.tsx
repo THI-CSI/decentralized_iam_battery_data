@@ -36,9 +36,9 @@ export function DidOverview() {
                                 <TableCell className={"text-sky-600"}>{did.id}</TableCell>
                                 <TableCell>
                                     {did.revoked ? (
-                                        <Badge>active</Badge>
-                                    ) : (
                                         <Badge variant={"destructive"}>revoked</Badge>
+                                    ) : (
+                                        <Badge variant={"secondary"}>active</Badge>
                                     )}
                                 </TableCell>
                             </TableRow>

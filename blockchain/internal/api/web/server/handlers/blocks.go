@@ -4,7 +4,6 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
-	"blockchain/internal/core"
 	"log/slog"
 	"strconv"
 
@@ -22,11 +21,11 @@ import (
 //	@Failure		400	{object}	domain.ErrorResponseHTTP
 //	@Failure		500	{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/blocks [get]
-func GetBlocks(service services.BlockService, chain *core.Blockchain) fiber.Handler {
+func GetBlocks(service services.BlockService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		slog.Info("GetBlocks was called")
 
-		result, err := service.GetBlocks(c.UserContext(), chain)
+		result, err := service.GetBlocks(c.UserContext())
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
@@ -47,7 +46,7 @@ func GetBlocks(service services.BlockService, chain *core.Blockchain) fiber.Hand
 //	@Failure		400		{object}	domain.ErrorResponseHTTP
 //	@Failure		500		{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/blocks/{blockId} [get]
-func GetBlock(service services.BlockService, chain *core.Blockchain) fiber.Handler {
+func GetBlock(service services.BlockService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		blockId, err := strconv.Atoi(c.Params("blockId"))
 		if err != nil {
@@ -55,7 +54,7 @@ func GetBlock(service services.BlockService, chain *core.Blockchain) fiber.Handl
 		}
 		slog.Info("GetBlock was called", blockId)
 
-		result, err := service.GetBlock(c.UserContext(), chain, blockId)
+		result, err := service.GetBlock(c.UserContext(), blockId)
 		if err != nil {
 			return domain.NotFoundError(err.Error())
 		}

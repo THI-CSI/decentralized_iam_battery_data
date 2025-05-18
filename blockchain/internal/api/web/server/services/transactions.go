@@ -10,20 +10,22 @@ import (
 
 // TransactionService defines the interface for returning transactions of a block of the blockchain
 type TransactionService interface {
-	GetTransactions(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.TransactionResponse, error)
+	GetTransactions(ctx context.Context, blockId int) (*domain.TransactionResponse, error)
 }
 
 // transactionService is a concrete implementation of the TransactionService interface.
-type transactionService struct{}
+type transactionService struct {
+	chain *core.Blockchain
+}
 
 // NewTransactionService creates and returns a new instance of the TransactionService implementation.
-func NewTransactionService() TransactionService {
-	return &transactionService{}
+func NewTransactionService(chain *core.Blockchain) TransactionService {
+	return &transactionService{chain: chain}
 }
 
 // GetTransactions gets all transactions of a block
-func (s *transactionService) GetTransactions(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.TransactionResponse, error) {
-	block := chain.GetBlock(blockId)
+func (s *transactionService) GetTransactions(ctx context.Context, blockId int) (*domain.TransactionResponse, error) {
+	block := s.chain.GetBlock(blockId)
 	if block == nil {
 		return nil, fmt.Errorf("block %d not found", blockId)
 	}

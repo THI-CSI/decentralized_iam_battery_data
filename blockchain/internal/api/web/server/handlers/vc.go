@@ -22,7 +22,7 @@ import (
 //	@Failure		400	{object}	domain.ErrorResponseHTTP
 //	@Failure		500	{object}	domain.ErrorResponseHTTP
 //	@Router			/api/v1/vc/{urn} [get]
-func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
+func GetVC(service services.VCService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		urn := c.Params("urn")
 		if !utils.IsUrnValid(urn) {
@@ -31,7 +31,7 @@ func GetVC(service services.VCService, chain *core.Blockchain) fiber.Handler {
 
 		slog.Info("GetVC was called", urn)
 
-		result, err := service.GetVCRecord(c.UserContext(), chain, urn)
+		result, err := service.GetVCRecord(c.UserContext(), urn)
 		if err != nil {
 			return fiber.NewError(fiber.StatusNotFound, err.Error())
 		}
@@ -76,7 +76,7 @@ func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler 
 		}
 
 		slog.Info("CreateVC was called", vc)
-		result, err := service.CreateVCRecord(c.UserContext(), chain, &vc)
+		result, err := service.CreateVCRecord(c.UserContext(), &vc)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}

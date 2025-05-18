@@ -9,30 +9,32 @@ import (
 
 // BlockService defines the interface for returning blocks of the blockchain
 type BlockService interface {
-	GetBlocks(ctx context.Context, chain *core.Blockchain) (*domain.BlockchainResponse, error)
-	GetBlock(userContext context.Context, chain *core.Blockchain, blockId int) (*domain.BlockResponse, error)
+	GetBlocks(ctx context.Context) (*domain.BlockchainResponse, error)
+	GetBlock(userContext context.Context, blockId int) (*domain.BlockResponse, error)
 }
 
 // blockService is a concrete implementation of the BlockService interface.
-type blockService struct{}
+type blockService struct {
+	chain *core.Blockchain
+}
 
 // NewBlockService creates and returns a new instance of the BlockService implementation.
-func NewBlockService() BlockService {
-	return &blockService{}
+func NewBlockService(chain *core.Blockchain) BlockService {
+	return &blockService{chain: chain}
 }
 
 // GetBlocks gets all blocks
-func (s *blockService) GetBlocks(ctx context.Context, chain *core.Blockchain) (*domain.BlockchainResponse, error) {
+func (s *blockService) GetBlocks(ctx context.Context) (*domain.BlockchainResponse, error) {
 	var blockchainResponse domain.BlockchainResponse
-	for _, block := range *chain {
+	for _, block := range *s.chain {
 		blockchainResponse = append(blockchainResponse, domain.ConvertBlockToResponse(block))
 	}
 	return &blockchainResponse, nil
 }
 
 // GetBlock get a block by an id
-func (s *blockService) GetBlock(ctx context.Context, chain *core.Blockchain, blockId int) (*domain.BlockResponse, error) {
-	block := chain.GetBlock(blockId)
+func (s *blockService) GetBlock(ctx context.Context, blockId int) (*domain.BlockResponse, error) {
+	block := s.chain.GetBlock(blockId)
 	if block == nil {
 		return nil, fmt.Errorf("block with id '%d' not found", blockId)
 	}
