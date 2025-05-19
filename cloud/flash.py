@@ -27,12 +27,16 @@ def generate_keys() -> ECCKeyPair | None:
 
 def register_public_key(public_key: ECC.EccKey, did: str) -> bool:
     try:
-        endpoint = "http://localhost:8443/api/v1/did/"
+        endpoint = "http://localhost:8080/api/v1/dids/"
         response = requests.post(
             endpoint,
             json={
-                "publicKey": multibase.encode(public_key.export_key(format="DER"), "base64url"),
-                # "did": did
+                "publicKey": {
+                    "id": did + "#key-1",
+                    "type": "Multikey",
+                    "controller": did,
+                    "publicKeyMultibase": multibase.encode(public_key.export_key(format="DER"), "base58btc"),
+                },
             }
         )
         return response.status_code == 200
@@ -44,7 +48,7 @@ if __name__ == "__main__":
     key_pair = generate_keys()
     if key_pair is None:
         exit()
-    if register_public_key(key_pair.public_key, ""):
+    if register_public_key(key_pair.public_key, "did:batterypass:bms"):
         print("Public key registered successfully")
     else:
         print("Failed to register public key")
