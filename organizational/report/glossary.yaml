@@ -1,0 +1,4 @@
+test:
+  short: "Test"
+  long: "Test"
+  description: "Test"
