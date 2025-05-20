@@ -21,7 +21,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-
 def error_response(status_code: int, message: str):
     return JSONResponse(
         status_code=status_code,
@@ -32,7 +31,6 @@ def error_response(status_code: int, message: str):
         }
     )
 
-
 def get_db():
     db = TinyDB("db.json")
     try:
@@ -40,11 +38,9 @@ def get_db():
     finally:
         db.close()
 
-
 @lru_cache()
 def get_private_key():
     return load_private_key(os.getenv("PASSPHRASE", "secret"))
-
 
 def set_nested_value(doc, path_keys, new_value):
     current_level = doc
@@ -52,41 +48,47 @@ def set_nested_value(doc, path_keys, new_value):
         current_level = current_level.setdefault(key, {})
     current_level[path_keys[-1]] = new_value
 
-
 @app.get("/")
 def read_root():
     return {"message": "API is working"}
 
-
 @app.get("/batterypass/{did}", summary="Get a battery pass entry by DID")
 async def read_item(
-        did: str = Path(description="Must be a properly formed DID"),
-        db: TinyDB = Depends(get_db),
+    did: str = Path(description="Must be a properly formed DID"),
+    db: TinyDB = Depends(get_db),
 ):
     return db.search(where("did") == did)
 
+@app.get("/batterypass/", summary="List all stored DIDs")
+async def list_dids(db: TinyDB = Depends(get_db)):
+    entries = db.all()
+    return [entry["did"] for entry in entries if "did" in entry]
 
 @app.put("/batterypass/{did}", summary="Create a new battery pass entry for a DID")
 async def create_item(
-        item: EncryptedPayload,
-        did: str,
-        db: TinyDB = Depends(get_db),
-        private_key: ECC.EccKey = Depends(get_private_key),
+    item: EncryptedPayload,
+    did: str,
+    db: TinyDB = Depends(get_db),
+    private_key: ECC.EccKey = Depends(get_private_key),
 ):
     verify_request(item, private_key)
     if db.search(where("did") == did):
+        logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
     else:
-        db.insert({"did": did, "encrypted_data": item.model_dump()})
+        db.insert({
+            "did": did,
+            "encrypted_data": item.model_dump(),
+            "created_at": datetime.utcnow().isoformat()
+        })
         return {"ok": f"Entry for {did} added successfully."}
-
 
 @app.post("/batterypass/{did}")
 async def update_item(
-        item: EncryptedPayload,
-        did: int,
-        db: TinyDB = Depends(get_db),
-        private_key: ECC.EccKey = Depends(get_private_key),
+    item: EncryptedPayload,
+    did: int,
+    db: TinyDB = Depends(get_db),
+    private_key: ECC.EccKey = Depends(get_private_key),
 ):
     decrypted_item = verify_request(item, private_key)
     document = db.search(where("did") == did)
