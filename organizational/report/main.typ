@@ -1,0 +1,23 @@
+#import "conf.typ": conf, customFigure, longline
+#import "@preview/glossy:0.4.0": *
+
+
+#show: init-glossary.with(yaml("./glossary.yaml"))
+
+#show: doc => conf(
+  title: [Decentralized Identity and Access Management für Batteriedaten],
+  major: [Cybersicherheit B. Sc.],
+  sem_type: [Sommersemester],
+  sem_year: [2025],
+  university: (
+    name: [Technische Hochschule Ingolstadt], 
+    logo_path: "THILogo.png",
+  ),
+  doc,
+)
+
+#include "01_einleitung/main.typ"
+
+#include "02_hauptteil/wrapper.typ"
+
+#include "03_schluss/main.typ"
