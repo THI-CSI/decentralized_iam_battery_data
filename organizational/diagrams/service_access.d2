@@ -1,0 +1,14 @@
+shape: sequence_diagram
+Service->Service: Creating VC
+Service->BMS: Sends prepared VC
+BMS->Blockchain: Checks Service DID
+Blockchain->BMS: Verifies Service DID
+BMS->BMS: Signs VC
+BMS->Blockchain: Creates transaction for VC record
+BMS->Service: Sends signed VC
+Service->Cloud: Sends signed VC with batterypass request
+Cloud->Blockchain: Checks signed VC Record
+Blockchain->Cloud: Verifies signed VC Record
+Cloud->Blokchain: Checks DID of Holder and Issuer
+Blockchain->Cloud: Verifies DID
+Cloud->Service: Send Batterypass
