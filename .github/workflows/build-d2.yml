@@ -1,0 +1,33 @@
+name: Build D2 Diagrams
+
+# Triggers on every push onto main
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install D2
+        run: |
+          curl -fsSL https://d2lang.com/install.sh | sh -s --
+          echo "$HOME/.d2/bin" >> $GITHUB_PATH
+
+      - name: Generate diagrams from D2 files
+        run: |
+          mkdir -p build/diagrams
+          for file in organizational/diagrams/*.d2; do
+            filename=$(basename "$file" .d2)
+            ~/.d2/bin/d2 "$file" "build/diagrams/${filename}.svg"
+          done
+      - name: Upload diagrams as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: d2-diagrams
+          path: build/diagrams
