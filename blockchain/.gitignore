@@ -5,10 +5,11 @@ package-lock.json
 node_modules/
 .venv/
 docs/swagger
-docs/did.schema.md
 docs/go.md
-docs/vc.schema.md
-docs/vc.record.schema.md
+docs/schema
+schema_doc.css
+schema_doc.min.js
 frontend/node_modules
 .idea
 blockchain-demo.json
+

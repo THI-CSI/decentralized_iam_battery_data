@@ -1,6 +1,10 @@
 {
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://your-domain.com/contexts/did"
+  ],
   "id": "did:batterypass:cloud.vw-node-eu-central",
-  "publicKey": {
+  "verificationMethod": {
     "id": "did:batterypass:cloud.vw-node-eu-central#key-1",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass:oem.VW",

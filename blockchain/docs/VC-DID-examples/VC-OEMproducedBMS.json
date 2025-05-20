@@ -1,7 +1,7 @@
 {
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
-    "https://batterypass.com/contexts/bms-production/v1"
+    "https://your-domain.com/contexts/vc"
   ],
   "id": "urn:uuid:982c43ee-3d16-419a-a2f4-5c61710f428b",
   "type": [

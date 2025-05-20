@@ -4,16 +4,31 @@
   "title": "Battery-Ecosystem DID Document",
   "description": "Minimal on-chain DID record with a revocation tag.",
   "type": "object",
-  "required": ["id", "publicKey", "revoked"],
+  "required": ["@context", "id", "verificationMethod", "timestamp", "revoked"],
   "additionalProperties": false,
   "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "enum": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://your-domain.com/contexts/did"
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "description": "Defines the JSON-LD context, providing meaning to terms used in the did."
+    },
     "id": {
       "type": "string",
       "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
       "description": "Decentralized Identifier (DID) for the entity, following the DID syntax."
     },
-    "publicKey": {
-      "$ref": "#/$defs/VerificationMethod",
+    "verificationMethod": {
+      "$ref": "#/$defs/verificationMethod",
       "description": "Public key information used for verifying signatures and authentication."
     },
     "service": {
@@ -32,7 +47,7 @@
     }
   },
   "$defs": {
-    "VerificationMethod": {
+    "verificationMethod": {
       "type": "object",
       "required": ["id", "type", "controller", "publicKeyMultibase"],
       "additionalProperties": false,

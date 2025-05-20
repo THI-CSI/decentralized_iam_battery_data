@@ -1,6 +1,10 @@
 {
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://your-domain.com/contexts/did"
+  ],
   "id": "did:batterypass.eu",
-  "publicKey": {
+  "verificationMethod": {
     "id": "did:batterypass.eu#root-key",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass.eu",

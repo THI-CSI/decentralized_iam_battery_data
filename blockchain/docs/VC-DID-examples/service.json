@@ -1,6 +1,10 @@
 {
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://your-domain.com/contexts/did"
+  ],
   "id": "did:batterypass:service.tuv-sued-42",
-  "publicKey": {
+  "verificationMethod": {
     "id": "did:batterypass:service.tuv-sued-42#key-1",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass.eu",
