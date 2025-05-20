@@ -23,6 +23,7 @@ jobs:
         run: |
           mkdir -p assets/diagrams
           for file in organizational/diagrams/*.d2; do
+            filename=$(basename "$file" .d2)
             d2 "$file" "assets/diagrams/${filename}.svg"
           done
       - name: Upload diagrams as artifacts
