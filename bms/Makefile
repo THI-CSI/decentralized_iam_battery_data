@@ -43,10 +43,10 @@ config: rasc_check
 # ----------------------------------------------------------------------------------
 # Move generated files to subfolder
 move:
-	@if [ -d ld ]; then mv ld ra-lib; fi 
-	@if [ -d ra_gen ]; then mv ra_gen ra-lib; fi
-	@if [ -d ra_cfg ]; then mv ra_cfg ra-lib; fi
-	@if [ -d ra ]; then mv ra ra-lib; fi
+	@if [ -d ld ]; then rsync -a ld ra-lib; fi 
+	@if [ -d ra_gen ]; then rsync -a ra_gen ra-lib; fi
+	@if [ -d ra_cfg ]; then rsync -a ra_cfg ra-lib; fi
+	@if [ -d ra ]; then rsync -a ra ra-lib; fi
 	sed -i -e 's/INCLUDE ld/INCLUDE ra-lib\/ld/' ra-lib/ld/fsp.ld
 
 # Build docs
