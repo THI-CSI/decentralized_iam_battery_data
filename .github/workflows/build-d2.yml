@@ -29,4 +29,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: d2-diagrams
-          path: build/diagrams
+          path: assets/diagrams
