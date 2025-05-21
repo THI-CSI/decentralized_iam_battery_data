@@ -14,7 +14,7 @@
         "format": "uri",
         "enum": [
           "https://www.w3.org/2018/credentials/v1",
-          "https://your-domain.com/contexts/did"
+          "http://localhost:8443/docs/did.schema.html"
         ]
       },
       "minItems": 2,

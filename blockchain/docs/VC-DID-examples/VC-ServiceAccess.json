@@ -1,7 +1,7 @@
 {
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
-    "https://your-domain.com/contexts/vc"
+    "http://localhost:8443/docs/vc.schema.html"
   ],
   "id": "urn:uuid:cc4e69d7-b7f7-4155-ac8b-5af63df4472a",
   "type": [

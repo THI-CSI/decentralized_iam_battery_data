@@ -193,7 +193,7 @@ def main():
                     TYPES + "/vc.record.types.go",
                 ]
             )
-            run_command(["bash", "./scripts/"])
+            run_command(["bash", "./scripts/gen-api.sh"])
         else:
             print(
                 'Install dependencies, before generating types: "python3 tools.py install"'

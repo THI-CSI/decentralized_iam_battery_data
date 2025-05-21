@@ -24,7 +24,7 @@
         "format": "uri",
         "enum": [
           "https://www.w3.org/2018/credentials/v1",
-          "https://your-domain.com/contexts/vc"
+          "http://localhost:8443/docs/vc.schema.html"
         ]
       },
       "minItems": 2,
