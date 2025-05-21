@@ -65,8 +65,7 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 		return errors.New("DID already exists")
 	}
 
-	now := time.Now()
-	did.Timestamp = &now
+	did.Timestamp = time.Now()
 	rawJson, err := did.Marshal()
 	if err != nil {
 		return err

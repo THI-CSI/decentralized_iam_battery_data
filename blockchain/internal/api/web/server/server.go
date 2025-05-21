@@ -56,7 +56,7 @@ func New(chain *core.Blockchain) *fiber.App {
 	apiRoutes.Get("/vc/:urn", handlers.GetVC(vcService))
 
 	// serve static schema html files
-	app.Get("/docs/schema/:file", func(c *fiber.Ctx) error {
+	apiRoutes.Get("/docs/schema/:file", func(c *fiber.Ctx) error {
 		file := c.Params("file")
 		return c.SendFile("./docs/schema/html/" + file)
 	})

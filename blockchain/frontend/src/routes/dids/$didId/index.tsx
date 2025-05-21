@@ -29,19 +29,19 @@ export default function SingleDidOverview() {
                         <TableBody>
                             <TableRow>
                                 <TableCell>Controller:</TableCell>
-                                <TableCell>{data.publicKey!.controller}</TableCell>
+                                <TableCell>{data.verificationMethod!.controller}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Id:</TableCell>
-                                <TableCell>{data.publicKey!.id}</TableCell>
+                                <TableCell>{data.verificationMethod!.id}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Public key multi base:</TableCell>
-                                <TableCell>{data.publicKey!.publicKeyMultibase}</TableCell>
+                                <TableCell>{data.verificationMethod!.publicKeyMultibase}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Type:</TableCell>
-                                <TableCell>{data.publicKey!.type}</TableCell>
+                                <TableCell>{data.verificationMethod!.type}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

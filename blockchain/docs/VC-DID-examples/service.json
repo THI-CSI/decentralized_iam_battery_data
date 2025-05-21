@@ -7,7 +7,7 @@
   "verificationMethod": {
     "id": "did:batterypass:service.tuv-sued-42#key-1",
     "type": "JsonWebKey2020",
-    "controller": "did:batterypass.eu",
+    "controller": "did:batterypass:eu",
     "publicKeyMultibase": "z6MkqhF8pbUxQmyFzZzd2Mo7nBfEY4PjwJa1bv9vJf1WZ58G"
   },
   "timestamp": "2025-04-04T07:30:00Z",

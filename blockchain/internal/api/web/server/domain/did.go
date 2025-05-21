@@ -37,7 +37,6 @@ type DidSchema struct {
 
 // ConvertRequestToDid converts a supplied DID to a core type object
 func ConvertRequestToDid(createDid *CreateDid) coreTypes.Did {
-	now := time.Now()
 	didId := core.GenerateDid()
 
 	var didServices []coreTypes.DidSchema
@@ -50,8 +49,12 @@ func ConvertRequestToDid(createDid *CreateDid) coreTypes.Did {
 	}
 
 	return coreTypes.Did{
+		Context: []coreTypes.Context{
+			coreTypes.HTTPLocalhost8443DocsDidSchemaHTML,
+			coreTypes.HTTPSWWWW3Org2018CredentialsV1,
+		},
 		ID: didId,
-		PublicKey: coreTypes.PublicKey{
+		VerificationMethod: coreTypes.VerificationMethod{
 			Controller:         createDid.PublicKey.Controller,
 			ID:                 fmt.Sprintf("%s#key-1", didId),
 			PublicKeyMultibase: createDid.PublicKey.PublicKeyMultibase,
@@ -59,6 +62,6 @@ func ConvertRequestToDid(createDid *CreateDid) coreTypes.Did {
 		},
 		Revoked:   false,
 		Service:   didServices,
-		Timestamp: &now,
+		Timestamp: time.Now(),
 	}
 }

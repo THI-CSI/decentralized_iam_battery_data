@@ -14,7 +14,7 @@ export default function DocsIframe(_props: DocsIframeProps) {
 
     return (
         <div className={"h-full w-full"}>
-            <iframe src={`/docs/schema/${schema_name}`} className={"h-full w-full"}></iframe>
+            <iframe src={`/api/v1/docs/schema/${schema_name}`} className={"h-full w-full"}></iframe>
         </div>
     );
 }

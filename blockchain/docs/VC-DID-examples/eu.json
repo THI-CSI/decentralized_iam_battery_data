@@ -3,9 +3,9 @@
     "https://www.w3.org/2018/credentials/v1",
     "http://localhost:8443/docs/did.schema.html"
   ],
-  "id": "did:batterypass.eu",
+  "id": "did:batterypass:eu",
   "verificationMethod": {
-    "id": "did:batterypass.eu#root-key",
+    "id": "did:batterypass:eu#root-key",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass.eu",
     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
