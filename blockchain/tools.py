@@ -184,20 +184,6 @@ def main():
                     QUICKTYPE,
                     "-s",
                     "schema",
-                    SCHEMA_DIR + "/vc.schema.json",
-                    "--top-level",
-                    "VC",
-                    "--package",
-                    "core",
-                    "-o",
-                    TYPES + "/vc.types.go",
-                ]
-            )
-            run_command(
-                [
-                    QUICKTYPE,
-                    "-s",
-                    "schema",
                     SCHEMA_DIR + "/vc.record.schema.json",
                     "--top-level",
                     "VCRecord",

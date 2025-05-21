@@ -73,7 +73,7 @@ func GetDID(service services.DidService) fiber.Handler {
 //	@Tags			DIDs
 //	@Accept			json
 //	@Produce		json
-//	@Param			recipe	body		domain.CreateDid	true	"DID"
+//	@Param			did body		domain.CreateDid	true	"DID"
 //	@Success		201		{object}	core.Did
 //	@Failure		400		{object}	domain.ErrorResponseHTTP
 //	@Failure		500		{object}	domain.ErrorResponseHTTP

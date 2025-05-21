@@ -40,7 +40,7 @@ export default function HeaderLayout() {
                                         <Link
                                             className={"h-full w-full"}
                                             to={"/docs/$schema_name"}
-                                            params={{ schema_name: "vc.schema.html" }}
+                                            params={{ schema_name: "did.schema.html" }}
                                         >
                                             DID
                                         </Link>

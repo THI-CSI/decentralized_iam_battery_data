@@ -1,12 +1,10 @@
 package services
 
 import (
+	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/core"
 	coreTypes "blockchain/internal/core/types"
 	"context"
-	"crypto/sha3"
-	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"time"
 )
@@ -14,7 +12,7 @@ import (
 // VCService defines the interface for creating and returning vcs of the blockchain
 type VCService interface {
 	GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VCRecord, error)
-	CreateVCRecord(userContext context.Context, vcSchema *coreTypes.Vc) (*coreTypes.VCRecord, error)
+	CreateVCRecord(userContext context.Context, request *domain.VCRequest) (*coreTypes.VCRecord, error)
 }
 
 // vcService is a concrete implementation of the VCService interface.
@@ -33,25 +31,18 @@ func (v *vcService) GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VC
 }
 
 // CreateVCRecord creates a new VC record on the blockchain based on the provided VC
-func (v *vcService) CreateVCRecord(userContext context.Context, vcSchema *coreTypes.Vc) (*coreTypes.VCRecord, error) {
-	hasher := sha3.New256()
-	rawJson, _ := json.Marshal(vcSchema)
-	_, err := hasher.Write(rawJson)
-	if err != nil {
-		return nil, err
-	}
-	hash := hasher.Sum(nil)
+func (v *vcService) CreateVCRecord(userContext context.Context, request *domain.VCRequest) (*coreTypes.VCRecord, error) {
 
-	vcExists, _ := v.chain.FindVCRecord(vcSchema.ID)
+	vcExists, _ := v.chain.FindVCRecord(request.ID)
 	if vcExists != nil {
 		return nil, errors.New("VC is already recorded on the blockchain")
 	}
 
 	vcRecord := coreTypes.VCRecord{
-		ExpirationDate: vcSchema.ExpirationDate,
-		ID:             vcSchema.ID,
+		ExpirationDate: request.ExpirationDate,
+		ID:             request.ID,
 		Timestamp:      time.Now(),
-		VcHash:         hex.EncodeToString(hash),
+		VcHash:         request.VcHash,
 	}
 
 	// Create Transaction
