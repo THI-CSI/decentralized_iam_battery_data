@@ -20,9 +20,7 @@ jobs:
       - name: Compile Typst to PDF
         run: |
           mkdir -p assets
-          for file in organizational/report/main.typ; do
-            typst compile "$file" "assets/${file%.typ}.pdf"
-          done
+          typst compile "organizational/report/main.typ" "assets/report.pdf"
 
       - name: Upload PDFs as artifact
         uses: actions/upload-artifact@v4
