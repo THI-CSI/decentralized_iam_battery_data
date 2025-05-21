@@ -1,10 +1,11 @@
 name: Build D2 Diagrams
 
-# Triggers on every push onto main
 on:
   push:
     branches:
       - main
+    paths:
+      - organizational/diagrams
   workflow_dispatch:
 
 jobs:
@@ -26,8 +27,14 @@ jobs:
             filename=$(basename "$file" .d2)
             d2 "$file" "assets/diagrams/${filename}.svg"
           done
-      - name: Upload diagrams as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: d2-diagrams
-          path: assets/diagrams
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add organizational/assets/*.svg
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "action: update d2 diagrams"
+            git push
+          fi
