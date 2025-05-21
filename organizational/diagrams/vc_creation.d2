@@ -1,0 +1,10 @@
+shape: sequence_diagram
+
+Holder->Issuer: Sends crafted VC
+Issuer->Blockchain: Searches for Holder DID Record
+Blockchain->Issuer: Returns first occurrence of DID record (or none)
+Issuer->Issuer: Check if no record and revocation timestamp
+Issuer->Holder: Deny VC (if not verifed)
+Issuer->Issuer: Sign VC (if verified)
+Issuer->Blockchain: Writes signed VC Record
+Issuer-> Holder: Sends signed VC back

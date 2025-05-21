@@ -1,14 +1,13 @@
 package storage
 
 import (
-	"blockchain/internal/core"
 	"bytes"
 	"encoding/json"
 	"io"
 	"os"
 )
 
-func Load(path string, v *core.Blockchain) error {
+func Load(path string, v interface{}) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -27,7 +26,7 @@ func Load(path string, v *core.Blockchain) error {
 	return json.Unmarshal(r, v)
 }
 
-func Save(path string, v core.Blockchain) error {
+func Save(path string, v interface{}) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err

@@ -12,12 +12,47 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as DidsIndexImport } from './routes/dids/index'
+import { Route as BlocksIndexImport } from './routes/blocks/index'
+import { Route as DocsSchemanameIndexImport } from './routes/docs/$schema_name/index'
+import { Route as DidsDidIdIndexImport } from './routes/dids/$didId/index'
+import { Route as BlocksBlockIdIndexImport } from './routes/blocks/$blockId/index'
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DidsIndexRoute = DidsIndexImport.update({
+  id: '/dids/',
+  path: '/dids/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const BlocksIndexRoute = BlocksIndexImport.update({
+  id: '/blocks/',
+  path: '/blocks/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DocsSchemanameIndexRoute = DocsSchemanameIndexImport.update({
+  id: '/docs/$schema_name/',
+  path: '/docs/$schema_name/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DidsDidIdIndexRoute = DidsDidIdIndexImport.update({
+  id: '/dids/$didId/',
+  path: '/dids/$didId/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const BlocksBlockIdIndexRoute = BlocksBlockIdIndexImport.update({
+  id: '/blocks/$blockId/',
+  path: '/blocks/$blockId/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -32,6 +67,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/blocks/': {
+      id: '/blocks/'
+      path: '/blocks'
+      fullPath: '/blocks'
+      preLoaderRoute: typeof BlocksIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/dids/': {
+      id: '/dids/'
+      path: '/dids'
+      fullPath: '/dids'
+      preLoaderRoute: typeof DidsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/blocks/$blockId/': {
+      id: '/blocks/$blockId/'
+      path: '/blocks/$blockId'
+      fullPath: '/blocks/$blockId'
+      preLoaderRoute: typeof BlocksBlockIdIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/dids/$didId/': {
+      id: '/dids/$didId/'
+      path: '/dids/$didId'
+      fullPath: '/dids/$didId'
+      preLoaderRoute: typeof DidsDidIdIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/docs/$schema_name/': {
+      id: '/docs/$schema_name/'
+      path: '/docs/$schema_name'
+      fullPath: '/docs/$schema_name'
+      preLoaderRoute: typeof DocsSchemanameIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -39,32 +109,76 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blocks': typeof BlocksIndexRoute
+  '/dids': typeof DidsIndexRoute
+  '/blocks/$blockId': typeof BlocksBlockIdIndexRoute
+  '/dids/$didId': typeof DidsDidIdIndexRoute
+  '/docs/$schema_name': typeof DocsSchemanameIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/blocks': typeof BlocksIndexRoute
+  '/dids': typeof DidsIndexRoute
+  '/blocks/$blockId': typeof BlocksBlockIdIndexRoute
+  '/dids/$didId': typeof DidsDidIdIndexRoute
+  '/docs/$schema_name': typeof DocsSchemanameIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/blocks/': typeof BlocksIndexRoute
+  '/dids/': typeof DidsIndexRoute
+  '/blocks/$blockId/': typeof BlocksBlockIdIndexRoute
+  '/dids/$didId/': typeof DidsDidIdIndexRoute
+  '/docs/$schema_name/': typeof DocsSchemanameIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/blocks'
+    | '/dids'
+    | '/blocks/$blockId'
+    | '/dids/$didId'
+    | '/docs/$schema_name'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/blocks'
+    | '/dids'
+    | '/blocks/$blockId'
+    | '/dids/$didId'
+    | '/docs/$schema_name'
+  id:
+    | '__root__'
+    | '/'
+    | '/blocks/'
+    | '/dids/'
+    | '/blocks/$blockId/'
+    | '/dids/$didId/'
+    | '/docs/$schema_name/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BlocksIndexRoute: typeof BlocksIndexRoute
+  DidsIndexRoute: typeof DidsIndexRoute
+  BlocksBlockIdIndexRoute: typeof BlocksBlockIdIndexRoute
+  DidsDidIdIndexRoute: typeof DidsDidIdIndexRoute
+  DocsSchemanameIndexRoute: typeof DocsSchemanameIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BlocksIndexRoute: BlocksIndexRoute,
+  DidsIndexRoute: DidsIndexRoute,
+  BlocksBlockIdIndexRoute: BlocksBlockIdIndexRoute,
+  DidsDidIdIndexRoute: DidsDidIdIndexRoute,
+  DocsSchemanameIndexRoute: DocsSchemanameIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +191,31 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/blocks/",
+        "/dids/",
+        "/blocks/$blockId/",
+        "/dids/$didId/",
+        "/docs/$schema_name/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/blocks/": {
+      "filePath": "blocks/index.tsx"
+    },
+    "/dids/": {
+      "filePath": "dids/index.tsx"
+    },
+    "/blocks/$blockId/": {
+      "filePath": "blocks/$blockId/index.tsx"
+    },
+    "/dids/$didId/": {
+      "filePath": "dids/$didId/index.tsx"
+    },
+    "/docs/$schema_name/": {
+      "filePath": "docs/$schema_name/index.tsx"
     }
   }
 }

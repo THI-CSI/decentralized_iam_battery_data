@@ -4,98 +4,127 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
-	"log/slog"
-
 	"github.com/gofiber/fiber/v2"
+	"log/slog"
+	"net/url"
 )
 
-// CreateDid handles the creation of a new Decentralized Identifier (DID).
-// It accepts a public key in the request body and returns a newly created DID.
+// GetDIDs retrieves all DIDs from the blockchain
 //
-// @Summary Create a DID
-// @Description Create a DID with a public key
-// @Tags Did
-// @Accept json
-// @Produce json
-// @Param did body domain.CreateDid true "DID Request"
-// @Success 201 {object} domain.Did
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/did [post]
-func CreateDid(service services.DidService) fiber.Handler {
+//	@Summary		Get all DIDs
+//	@Description	Get all DIDs from the blockchain
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	[]core.Did
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids [get]
+func GetDIDs(service services.DidService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		createDto, err := utils.ParseAndValidateStruct[domain.CreateDid](c)
+		slog.Info("GetDIDs was called", "info")
+		result, err := service.GetDIDs(c.UserContext())
 		if err != nil {
 			return err
 		}
 
-		slog.Info("CreateDid was called", "info", createDto)
+		return utils.WriteResponse(c, fiber.StatusOK, result)
+	}
+}
 
-		result, err := service.CreateDid(c.UserContext(), createDto)
+// GetDID retrieves a DID from the blockchain
+//
+//	@Summary		Get a single DID
+//	@Description	Get a DID from the blockchain
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Param			did	path		string	true	"DID"
+//	@Success		200	{object}	core.Did
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids/{did} [get]
+func GetDID(service services.DidService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		did := c.Params("did")
+		did, err := url.QueryUnescape(did)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+		if !utils.IsDidValid(did) {
+			return domain.BadRequestError("Invalid Did")
+		}
+
+		slog.Info("GetDID was called", did)
+
+		result, err := service.GetDID(c.UserContext(), did)
+		if err != nil {
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
+		}
+
+		return utils.WriteResponse(c, fiber.StatusOK, result)
+	}
+}
+
+// CreateDID creates a DID on the blockchain
+//
+//	@Summary		Create a new DID
+//	@Description	Create a new DID on the blockchain
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Param			did body		domain.CreateDid	true	"DID"
+//	@Success		201		{object}	core.Did
+//	@Failure		400		{object}	domain.ErrorResponseHTTP
+//	@Failure		500		{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids [post]
+func CreateDID(service services.DidService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		createDid, err := utils.ParseAndValidateStruct[domain.CreateDid](c)
+		if err != nil {
+			return domain.BadRequestError("Invalid Did")
+		}
+
+		slog.Info("CreateDID was called", createDid)
+
+		result, err := service.CreateDID(c.UserContext(), createDid)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
 		return utils.WriteResponse(c, fiber.StatusCreated, result)
 	}
 }
 
-// GrantAccessRight grants specific access rights to a DID.
-// It receives the target DID and role from the request body.
+// RevokeDid revokes a DID on the blockchain and creates a new transaction
 //
-// @Summary Grant access rights
-// @Description Grant access rights to another DID
-// @Tags Did
-// @Accept json
-// @Produce json
-// @Param did body domain.GrantAccessRights true "Grant Access Request"
-// @Success 200
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/grant [put]
-func GrantAccessRight(service services.DidService) fiber.Handler {
+//	@Summary		Revokes a DID
+//	@Description	Revokes a DID on the blockchain and creates a new transaction
+//	@Tags			DIDs
+//	@Accept			json
+//	@Produce		json
+//	@Param			did	path	string	true	"DID"
+//	@Success		200
+//	@Failure		400	{object}	domain.ErrorResponseHTTP
+//	@Failure		500	{object}	domain.ErrorResponseHTTP
+//	@Router			/api/v1/dids/{did} [delete]
+func RevokeDid(service services.DidService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		grantDto, err := utils.ParseAndValidateStruct[domain.GrantAccessRights](c)
+		did := c.Params("did")
+		did, err := url.QueryUnescape(did)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+		if !utils.IsDidValid(did) {
+			return domain.BadRequestError("Invalid Did")
 		}
 
-		slog.Info("GrantAccessRight was called", "info", grantDto)
+		slog.Info("RevokeDid was called", did)
 
-		if err := service.GrantAccessRight(c.UserContext(), grantDto); err != nil {
+		if err := service.RevokeDid(c.UserContext(), did); err != nil {
 			return err
 		}
 
 		return c.SendStatus(fiber.StatusOK)
-	}
-}
-
-// GetAccessRightsForDid retrieves all access rights associated with a given DID.
-//
-// @Summary Get access rights for DID
-// @Description Get all access rights for a specified DID
-// @Tags Did
-// @Accept json
-// @Produce json
-// @Param did path string true "DID Identifier"
-// @Success 200 {object} domain.AccessRightsResponse
-// @Failure 400 {object} domain.ErrorResponseHTTP
-// @Failure 500 {object} domain.ErrorResponseHTTP
-// @Router /api/v1/grants/{did} [get]
-func GetAccessRightsForDid(service services.DidService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		didId := c.Params("did")
-		if didId == "" {
-			return fiber.NewError(fiber.StatusBadRequest, "Did params not found")
-		}
-
-		slog.Info("GetAccessRightsForDid was called", "info", didId)
-
-		result, err := service.GetAccessRightsForDid(c.UserContext(), didId)
-		if err != nil {
-			return err
-		}
-
-		return utils.WriteResponse(c, fiber.StatusOK, domain.AccessRightsResponse{AccessRights: result})
 	}
 }

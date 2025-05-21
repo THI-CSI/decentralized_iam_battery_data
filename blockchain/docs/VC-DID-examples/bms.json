@@ -1,6 +1,10 @@
 {
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "http://localhost:8443/docs/did.schema.html"
+  ],
   "id": "did:batterypass:bms.identifier",
-  "publicKey": {
+  "verificationMethod": {
     "id": "did:batterypass:bms.identifier#key-1",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass:oem.VW",

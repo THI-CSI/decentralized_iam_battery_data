@@ -21,13 +21,13 @@ DELETE_FOLDER = [
     "bin",
     ".venv",
     "node_modules",
-    "./docs/did.schema.md",
+    "./docs/schema",
     "./docs/go.md",
-    "./docs/vc.record.schema.md",
-    "./docs/vc.schema.md",
     "./docs/swagger",
     "package.json",
     "package-lock.json",
+    "schema_doc.css",
+    "schema_doc.min.js",
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
@@ -44,8 +44,12 @@ def check_return_code(code):
 
 
 def blockchain_cmd(unknown_args):
-    process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
-    check_return_code(process.returncode)
+    try:
+        process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
+        check_return_code(process.returncode)
+    except KeyboardInterrupt:
+        print(f"[{sys.argv[0]}]", "Interrupt received. Stopping application!")
+        sys.exit(0)
 
 
 def docker_compose_dev(command: str, unknown_args):
@@ -111,7 +115,9 @@ def main():
                 if os.path.exists(f"{DOCS}/swagger"):
                     blockchain_cmd(unknown_args)
                 else:
-                    print("You need to generate the swagger documentation before you can start the webserver")
+                    print(
+                        "You need to generate the swagger documentation before you can start the webserver"
+                    )
             else:
                 blockchain_cmd(unknown_args)
 
@@ -130,12 +136,20 @@ def main():
         run_command(["mkdir", "-p", DOCS])
         if args.type in ("swagger", "all"):
             run_command(
-                ["swag", "init", "-g", "./cmd/main.go", "-o", f"{DOCS}/swagger/"]
+                [
+                    "swag",
+                    "init",
+                    "-g",
+                    "./internal/api/web/web.go",
+                    "-o",
+                    f"{DOCS}/swagger/",
+                ]
             )
         if args.type in ("go", "all"):
             run_command(["bash", "./scripts/generate-docs.sh"])
         if args.type in ("did-vc", "all"):
-            run_command(["bash", "./scripts/generate-did-vc-docs.sh"])
+            run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
+            run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
 
     elif args.command == "clean":
         for folder in DELETE_FOLDER:
@@ -163,20 +177,6 @@ def main():
                     "core",
                     "-o",
                     TYPES + "/did.types.go",
-                ]
-            )
-            run_command(
-                [
-                    QUICKTYPE,
-                    "-s",
-                    "schema",
-                    SCHEMA_DIR + "/vc.schema.json",
-                    "--top-level",
-                    "VC",
-                    "--package",
-                    "core",
-                    "-o",
-                    TYPES + "/vc.types.go",
                 ]
             )
             run_command(

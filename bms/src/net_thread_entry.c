@@ -13,6 +13,7 @@
 #include "FreeRTOS_Sockets.h"
 #include "common_utils.h"
 #include "usr_app.h"
+#include <stdint.h>
 #include <string.h>
 
 /* Domain for the DNS Host lookup is used in this Example Project.
@@ -25,7 +26,6 @@ uint8_t *gp_domain_name = (uint8_t *) USR_TEST_DOMAIN_NAME;
  * when running this project.
  */
 //uint8_t *gp_remote_ip_address = "132.158.142.140";
-uint8_t *gp_remote_ip_address = "192.168.1.100";
 // uint8_t  *gp_remote_ip_address = (uint8_t *)USR_TEST_PING_IP;
 
 Socket_t xSocket;
@@ -49,7 +49,7 @@ Socket_t xSocket;
     static  uint8_t ucIPAddress[ 4 ]        = {192, 168, 0, 52};
     static  uint8_t ucNetMask[ 4 ]          = {255, 255, 255, 0};
     static  uint8_t ucGatewayAddress[ 4 ]   = {192, 168, 0, 3};
-    static  uint8_t ucDNSServerAddress[ 4 ] = {10, 60, 1, 2};
+    static  uint8_t ucDNSServerAddress[ 4 ] = {192, 168, 0, 2};
 #endif
 
 
@@ -278,7 +278,7 @@ void net_thread_entry(void *pvParameters)
     }
 
     APP_PRINT(ETH_POSTINIT);
-    
+    char *gp_remote_ip_address = "192.168.1.100";
     while (1) 
     {
         if (SUCCESS == isNetworkUp()) 
@@ -288,6 +288,7 @@ void net_thread_entry(void *pvParameters)
                 APP_PRINT("\r\nNetwork is Up");
                 usr_print_ability |= PRINT_UP_MSG_DISABLE;
             }
+			dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
             if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
             {
     #if( ipconfigUSE_DHCP != 0 )
@@ -369,7 +370,7 @@ eDHCPCallbackAnswer_t eReturn = eDHCPContinue;
  **********************************************************************************************************************/
 void print_pingResult(void)
 {
-    APP_PRINT("\r\n \r\nPing Statistics for %s :\r\n",(char *)gp_remote_ip_address);
+    //APP_PRINT("\r\n \r\nPing Statistics for %s :\r\n",(char *)gp_remote_ip_address);
     APP_PRINT("\r\nPackets: Sent  = %02d, Received = %02d, Lost = %02d \r\n",ping_data.sent,ping_data.received,ping_data.lost);
 }
 
@@ -422,12 +423,11 @@ void print_ipconfig(void)
  * @brief      DNS Query for the requested Domain name.  Uses the FreeRTOS Client API  FreeRTOS_gethostbyname
  *             to get the IP address for the domain name
  * @param[in]  Domain name
- * @retval     None
+ * @retval     Status
  **********************************************************************************************************************/
-void dnsQuerryFunc(char *domain)
+int dnsQuerryFunc(char *domain, char *ip_address)
 {
     uint32_t ulIPAddress = RESET_VALUE;
-    int8_t cBuffer[ 16 ] = {RESET_VALUE};
 
     /* Lookup the IP address of the FreeRTOS.org website. */
     ulIPAddress = FreeRTOS_gethostbyname((char*)domain);
@@ -435,15 +435,18 @@ void dnsQuerryFunc(char *domain)
     if( ulIPAddress != 0 )
     {
         /* Convert the IP address to a string. */
-        FreeRTOS_inet_ntoa( ulIPAddress, ( char * ) cBuffer);
+        FreeRTOS_inet_ntoa( ulIPAddress, ( char * ) ip_address);
 
         /* Print out the IP address obtained from the DNS lookup. */
-        APP_PRINT ("\r\nDNS Lookup for \"www.freertos.org\" is      : %s  \r\n", cBuffer);
+        APP_PRINT ("\r\nDNS Lookup for \"test-server.lan\" is      : %s  \r\n", ip_address);
+		return 0;
     }
     else
     {
-        APP_PRINT ("\r\nDNS Lookup failed for \"www.freertos.org\" \r\n");
-    }
+        APP_PRINT ("\r\nDNS Lookup failed for \"test-server.lan\" \r\n");
+		return 1;
+	}
+	return 1;
 }
 
 /*******************************************************************************************************************//**
