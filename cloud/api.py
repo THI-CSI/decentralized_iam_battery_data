@@ -3,6 +3,7 @@ import os
 import logging
 from datetime import datetime
 
+
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
@@ -12,6 +13,7 @@ from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, e
 from dotenv import load_dotenv
 from util.models import EncryptedPayload
 from util.middleware import verify_request
+
 
 app = FastAPI()
 load_dotenv()
@@ -98,3 +100,29 @@ async def update_item(
     encrypt_and_sign(private_key.public_key(), json.dumps(decrypted_document).encode("utf-8"))
     db.update(document[0], where("did") == did)
     return {"ok": f"Entry for {did} updated successfully."}
+
+
+@app.delete("/batterypass/{did}")
+async def delete_item(
+        did: int,
+        db: TinyDB = Depends(get_db),
+):
+    """
+    For a given DID, delete the entry from the database.
+    :param did: The DID of the entry to delete.
+    :param db: Dependency for the database.
+    :return: None
+    """
+
+    # Search for database entry with the given DID
+    document = db.search(where("did") == did)
+
+    # If no entry is found, raise an HTTP exception
+    if not document:
+        raise HTTPException(status_code=404, detail="Entry doesn't exist.")
+
+    # Delete the entry from the database
+    db.remove(where("did") == did)
+
+    # Return a success message indicating the deletion was successful
+    return {"ok": f"Entry for {did} deleted successfully."}

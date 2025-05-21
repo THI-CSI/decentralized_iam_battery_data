@@ -1,9 +1,17 @@
 import pathlib
 import logging
 import base64
+import json
+import requests
+
 from Crypto.Protocol import HPKE
 from Crypto.PublicKey import ECC
+from typing import Dict, Any
+from Crypto.Hash import SHA3_256
 
+
+# devbod: TODO: Change this when having more info
+BLOCKCHAIN_URL = "http://localhost:8000/FILLER/FOR/NOW"
 
 def decrypt_and_verify(receiver_key: ECC.EccKey, message_bundle: dict) -> bytes:
     enc = base64.b64decode(message_bundle["enc"])
@@ -74,3 +82,71 @@ def load_private_key(passphrase: str) -> ECC.EccKey:
 
 def register_key(key: ECC.EccKey):
     pass
+
+
+def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+    """
+    Extract URI, issuer, and holder from a VC object.
+
+    :param vc: The Verifiable Credential (VC) as a dictionary.
+    :return: A tuple containing (URI, Issuer ID, Holder ID).
+    """
+
+    # Get all necessary data from the verifiable credential
+    uri = vc.get("id")
+    issuer = vc.get("issuer")
+    subject = vc.get("credentialSubject")
+
+    # Checking credentialSubjects form (If we have a uniform form, this is not necessary,
+    # but will be left in for now)
+    if isinstance(subject, dict):
+        holder = subject.get("id")
+    elif isinstance(subject, list) and len(subject) > 0:
+        holder = subject[0].get("id")
+    else:
+        holder = None
+
+    # Check if all data is present, if not raise a ValueError
+    if uri is None or issuer is None or holder is None:
+        raise ValueError("Invalid Verifiable Credential")
+
+    return uri, issuer, holder
+
+
+def verify_vc(vc_json_object: json) -> bool:
+    """
+    This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
+    creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
+    """
+
+    # Extract the uri, issuer and holder
+    uri, issuer, holder = extract_vc_info(vc_json_object)
+
+    # To generate the Hash, we must first serialize the Object
+    serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
+
+    # Create the SHA3-256bit Hash
+    vc_hash = SHA3_256.new(serialized_vc)
+
+    # devbod: TODO: Should we use hexdigest()?
+    # vc_digest = vc_hash.hexdigest()
+
+    # Now we need to send the Data to the Blockchain
+    # First we create the Datastructures we send
+    data = {
+        "uri": uri,
+        "issuer": issuer,
+        "holder": holder,
+        "hash": vc_hash
+    }
+
+    # Then we send the Data to the Blockchain
+    response = requests.post(BLOCKCHAIN_URL, json=data)
+
+    # If the response is 200, we can assume the VC is valid
+    if response.status_code == 200:
+        return True
+    # If not, we can assume the VC is invalid. We should check for reasons in the future
+    # devbod: TODO: Check for Reasons
+    else:
+        return False
