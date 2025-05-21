@@ -1,0 +1,29 @@
+name: Build Typst to PDF
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Typst
+        uses: typst-community/setup-typst@v3
+
+      - name: Compile Typst to PDF
+        run: |
+          mkdir -p assets
+          typst compile "organizational/report/main.typ" "assets/report.pdf"
+
+      - name: Upload PDFs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: typst-pdfs
+          path: assets/
