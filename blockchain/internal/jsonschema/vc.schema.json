@@ -2,27 +2,34 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "vc",
   "title": "Battery-Ecosystem Verifiable Credential",
-  "description": "Generic VC envelope with three supported claim types.",
+  "description": "Custom VC envelope with two supported claim types.",
   "type": "object",
   "required": [
     "@context",
     "id",
     "type",
     "issuer",
+    "holder",
     "issuanceDate",
+    "expirationDate",
     "credentialSubject",
     "proof"
   ],
   "additionalProperties": false,
   "properties": {
     "@context": {
-      "oneOf": [
-        { "type": "string", "format": "uri" },
-        {
-          "type": "array",
-          "items": { "type": ["string"] }
-        }
-      ],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "enum": [
+          "https://www.w3.org/2018/credentials/v1",
+          "http://localhost:8443/docs/vc.schema.html"
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
       "description": "Defines the JSON-LD context, providing meaning to terms used in the credential."
     },
     "id": {
@@ -106,7 +113,7 @@
       "title": "BMSProduction",
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "type", "bmsDid", "producedOn"],
+      "required": ["id", "type", "bmsDid", "timestamp", "lotNumber"],
       "properties": {
         "id": {
           "type": "string",
@@ -122,7 +129,7 @@
           "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
           "description": "DID of the Battery Management System."
         },
-        "producedOn": {
+        "timestamp": {
           "type": "string",
           "format": "date",
           "description": "Date when the BMS was produced."
@@ -137,7 +144,7 @@
     "ServiceAccess": {
       "title": "ServiceAccess",
       "type": "object",
-      "required": ["id", "type", "bmsDid", "accessLevel"],
+      "required": ["id", "type", "bmsDid", "accessLevel", "validFrom", "validUntil"],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -155,7 +162,7 @@
           "description": "DID of the BMS to which access is granted."
         },
         "accessLevel": {
-          "description": "Level of access granted (read or write).",
+          "description": "Level of access granted (read and/or write).",
           "type": "array",
           "items": {
             "type": "string",
@@ -183,19 +190,9 @@
     {
       "if": {
         "properties": {
-          "credentialSubject": { "required": ["batteryPassId"] }
-        }
-      },
-      "then": {
-        "properties": {
-          "type": { "contains": { "const": "BatteryPassRelationship" } }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "credentialSubject": { "required": ["producedOn"] }
+          "credentialSubject": {
+            "properties": { "type": { "const": "BMSProduction" } }
+          }
         }
       },
       "then": {
@@ -207,7 +204,9 @@
     {
       "if": {
         "properties": {
-          "credentialSubject": { "required": ["accessLevel"] }
+          "credentialSubject": {
+            "properties": { "type": { "const": "ServiceAccess" } }
+          }
         }
       },
       "then": {

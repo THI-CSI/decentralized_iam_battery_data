@@ -1,5 +1,14 @@
-import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button.tsx";
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+    navigationMenuTriggerStyle,
+} from "./ui/navigation-menu";
 
 /**
  * The header layout for the application
@@ -19,23 +28,65 @@ export default function HeaderLayout() {
                         <h1 className={"text-2xl font-bold tracking-tight md:text-3xl"}>Blockchain Explorer</h1>
                     </div>
                 </div>
-                <nav className={"flex space-x-2 sm:space-x-3"}>
-                    <Button
-                        navbar={pathname === "/blocks" ? "default" : "outline"}
-                        onClick={() => navigate({ to: "/blocks" })}
-                    >
-                        Blocks
-                    </Button>
-                    <Button
-                        navbar={pathname === "/dids" ? "default" : "outline"}
-                        onClick={() => navigate({ to: "/dids" })}
-                    >
-                        DIDs
-                    </Button>
+                <nav className={"flex gap-8 space-x-2 sm:space-x-3"}>
+                    <NavigationMenu>
+                        <NavigationMenuList className={"gap-4"}>
+                            <NavigationMenuItem>
+                                <NavigationMenuTrigger className={"bg-sidebar-primary text-white duration-0"}>
+                                    Docs
+                                </NavigationMenuTrigger>
+                                <NavigationMenuContent>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/docs/$schema_name"}
+                                            params={{ schema_name: "did.schema.html" }}
+                                        >
+                                            DID
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/docs/$schema_name"}
+                                            params={{ schema_name: "vc.record.schema.html" }}
+                                        >
+                                            VC Records
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/docs/$schema_name"}
+                                            params={{ schema_name: "vc.schema.html" }}
+                                        >
+                                            VC Schema
+                                        </Link>
+                                    </NavigationMenuLink>
+                                </NavigationMenuContent>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <Link to={"/blocks"}>
+                                    <NavigationMenuLink>Blocks</NavigationMenuLink>
+                                </Link>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <Link to={"/dids"}>
+                                    <NavigationMenuLink>Dids</NavigationMenuLink>
+                                </Link>
+                            </NavigationMenuItem>
+                        </NavigationMenuList>
+                    </NavigationMenu>
                     {pathname !== "/blocks" && pathname !== "/dids" && (
                         <Button
-                            navbar={"ghost"}
-                            onClick={() => navigate(pathname.includes("blocks") ? { to: "/blocks" } : { to: "/dids" })}
+                            navbar={"outline"}
+                            onClick={() =>
+                                navigate(
+                                    pathname.includes("blocks") || pathname.includes("docs")
+                                        ? { to: "/blocks" }
+                                        : { to: "/dids" },
+                                )
+                            }
                         >
                             Back
                         </Button>

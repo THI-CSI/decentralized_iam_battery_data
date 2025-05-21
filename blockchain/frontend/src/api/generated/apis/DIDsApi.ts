@@ -29,7 +29,7 @@ export interface ApiV1DidsDidGetRequest {
 }
 
 export interface ApiV1DidsPostRequest {
-    recipe: DomainCreateDid;
+    did: DomainCreateDid;
 }
 
 /**
@@ -139,10 +139,10 @@ export class DIDsApi extends runtime.BaseAPI {
      * Create a new DID
      */
     async apiV1DidsPostRaw(requestParameters: ApiV1DidsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CoreDid>> {
-        if (requestParameters['recipe'] == null) {
+        if (requestParameters['did'] == null) {
             throw new runtime.RequiredError(
-                'recipe',
-                'Required parameter "recipe" was null or undefined when calling apiV1DidsPost().'
+                'did',
+                'Required parameter "did" was null or undefined when calling apiV1DidsPost().'
             );
         }
 
@@ -157,7 +157,7 @@ export class DIDsApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: requestParameters['recipe'],
+            body: requestParameters['did'],
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response);

@@ -21,13 +21,13 @@ DELETE_FOLDER = [
     "bin",
     ".venv",
     "node_modules",
-    "./docs/did.schema.md",
+    "./docs/schema",
     "./docs/go.md",
-    "./docs/vc.record.schema.md",
-    "./docs/vc.schema.md",
     "./docs/swagger",
     "package.json",
     "package-lock.json",
+    "schema_doc.css",
+    "schema_doc.min.js",
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
@@ -148,7 +148,8 @@ def main():
         if args.type in ("go", "all"):
             run_command(["bash", "./scripts/generate-docs.sh"])
         if args.type in ("did-vc", "all"):
-            run_command(["bash", "./scripts/generate-did-vc-docs.sh"])
+            run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
+            run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
 
     elif args.command == "clean":
         for folder in DELETE_FOLDER:
@@ -176,20 +177,6 @@ def main():
                     "core",
                     "-o",
                     TYPES + "/did.types.go",
-                ]
-            )
-            run_command(
-                [
-                    QUICKTYPE,
-                    "-s",
-                    "schema",
-                    SCHEMA_DIR + "/vc.schema.json",
-                    "--top-level",
-                    "VC",
-                    "--package",
-                    "core",
-                    "-o",
-                    TYPES + "/vc.types.go",
                 ]
             )
             run_command(

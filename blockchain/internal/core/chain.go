@@ -116,7 +116,7 @@ func (chain *Blockchain) VerifyDID(did string) DidState {
 // VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
 func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
 	for _, tx := range PendingTransactions {
-		vcPending, _ := core.UnmarshalVc(tx)
+		vcPending, _ := core.UnmarshalVCRecord(tx)
 		if vcPending.ID == uri {
 			return VCPending
 		}

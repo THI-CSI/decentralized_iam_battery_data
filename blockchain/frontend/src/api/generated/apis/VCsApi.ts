@@ -16,13 +16,13 @@
 import * as runtime from '../runtime';
 import type {
   CoreVCRecord,
-  CoreVc,
   DomainErrorResponseHTTP,
+  DomainVCRequest,
 } from '../models/index';
 
 export interface ApiV1DidsDidVcPostRequest {
     did: string;
-    recipe: CoreVc;
+    vc: DomainVCRequest;
 }
 
 export interface ApiV1VcUrnGetRequest {
@@ -46,10 +46,10 @@ export class VCsApi extends runtime.BaseAPI {
             );
         }
 
-        if (requestParameters['recipe'] == null) {
+        if (requestParameters['vc'] == null) {
             throw new runtime.RequiredError(
-                'recipe',
-                'Required parameter "recipe" was null or undefined when calling apiV1DidsDidVcPost().'
+                'vc',
+                'Required parameter "vc" was null or undefined when calling apiV1DidsDidVcPost().'
             );
         }
 
@@ -64,7 +64,7 @@ export class VCsApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: requestParameters['recipe'],
+            body: requestParameters['vc'],
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response);

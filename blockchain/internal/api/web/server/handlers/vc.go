@@ -5,7 +5,6 @@ import (
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
-	coreTypes "blockchain/internal/core/types"
 	"github.com/gofiber/fiber/v2"
 	"log/slog"
 )
@@ -48,7 +47,7 @@ func GetVC(service services.VCService) fiber.Handler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			did		path		string	true	"DID"
-//	@Param			recipe	body		core.Vc	true	"VC"
+//	@Param			vc body		domain.VCRequest true "VC"
 //	@Success		201		{object}	core.VCRecord
 //	@Failure		400		{object}	domain.ErrorResponseHTTP
 //	@Failure		500		{object}	domain.ErrorResponseHTTP
@@ -64,19 +63,14 @@ func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler 
 			return domain.BadRequestError("DID does not exist or is revoked")
 		}
 
-		vc, err := coreTypes.UnmarshalVc(c.BodyRaw())
+		vc, err := utils.ParseAndValidateStruct[domain.VCRequest](c)
 		if err != nil {
 			slog.Warn("Invalid Verifiable Credential: %v\n", err)
 			return domain.BadRequestError("Invalid Verifiable Credential")
 		}
 
-		if vc.Issuer != did {
-			slog.Warn("The Issuer of the VC is different to the specified DID: %v!=%v\n", vc.Issuer, did)
-			return domain.BadRequestError("Invalid Verifiable Credential")
-		}
-
 		slog.Info("CreateVC was called", vc)
-		result, err := service.CreateVCRecord(c.UserContext(), &vc)
+		result, err := service.CreateVCRecord(c.UserContext(), vc)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
