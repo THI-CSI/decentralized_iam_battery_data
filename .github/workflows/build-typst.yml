@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - organizational/report
   workflow_dispatch:
 
 jobs:
@@ -22,8 +24,11 @@ jobs:
           mkdir -p assets
           typst compile "organizational/report/main.typ" "assets/report.pdf"
 
-      - name: Upload PDFs as artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload PDF as release
+        uses: softprops/action-gh-release@v2
         with:
-          name: typst-pdfs
-          path: assets/
+          name: "Typst PDF Release - ${{ github.sha }}"
+          tag_name: "typst-${{ github.sha }}"
+          files: assets/report.pdf
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
