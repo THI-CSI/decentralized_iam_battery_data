@@ -25,7 +25,7 @@ jobs:
           mkdir -p assets/diagrams
           for file in organizational/diagrams/*.d2; do
             filename=$(basename "$file" .d2)
-            d2 "$file" "assets/diagrams/${filename}.svg"
+            d2 "$file" "organizational/assets/${filename}.svg"
           done
       - name: Commit and push changes
         run: |
