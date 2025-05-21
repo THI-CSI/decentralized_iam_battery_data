@@ -27,7 +27,7 @@ DELETE_FOLDER = [
     "package.json",
     "package-lock.json",
     "schema_doc.css",
-    "schema_doc.min.js"
+    "schema_doc.min.js",
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
@@ -179,20 +179,20 @@ def main():
                     TYPES + "/did.types.go",
                 ]
             )
-#             run_command(
-#                 [
-#                     QUICKTYPE,
-#                     "-s",
-#                     "schema",
-#                     SCHEMA_DIR + "/vc.schema.json",
-#                     "--top-level",
-#                     "VC",
-#                     "--package",
-#                     "core",
-#                     "-o",
-#                     TYPES + "/vc.types.go",
-#                 ]
-#             )
+            run_command(
+                [
+                    QUICKTYPE,
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/vc.schema.json",
+                    "--top-level",
+                    "VC",
+                    "--package",
+                    "core",
+                    "-o",
+                    TYPES + "/vc.types.go",
+                ]
+            )
             run_command(
                 [
                     QUICKTYPE,
@@ -207,6 +207,7 @@ def main():
                     TYPES + "/vc.record.types.go",
                 ]
             )
+            run_command(["bash", "./scripts/"])
         else:
             print(
                 'Install dependencies, before generating types: "python3 tools.py install"'

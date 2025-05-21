@@ -13,3 +13,5 @@ for file in "$SCHEMA_DIR"/*.json; do
   "$VENV/bin/generate-schema-doc" "$file"
   mv schema_doc.html "$DOCS/$(basename "$file" .json).html"
 done
+
+mv "schema_doc.css" "schema_doc.min.js" "./docs/schema/html"

@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as DidsIndexImport } from './routes/dids/index'
 import { Route as BlocksIndexImport } from './routes/blocks/index'
+import { Route as DocsSchemanameIndexImport } from './routes/docs/$schema_name/index'
 import { Route as DidsDidIdIndexImport } from './routes/dids/$didId/index'
 import { Route as BlocksBlockIdIndexImport } from './routes/blocks/$blockId/index'
 
@@ -34,6 +35,12 @@ const DidsIndexRoute = DidsIndexImport.update({
 const BlocksIndexRoute = BlocksIndexImport.update({
   id: '/blocks/',
   path: '/blocks/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DocsSchemanameIndexRoute = DocsSchemanameIndexImport.update({
+  id: '/docs/$schema_name/',
+  path: '/docs/$schema_name/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DidsDidIdIndexImport
       parentRoute: typeof rootRoute
     }
+    '/docs/$schema_name/': {
+      id: '/docs/$schema_name/'
+      path: '/docs/$schema_name'
+      fullPath: '/docs/$schema_name'
+      preLoaderRoute: typeof DocsSchemanameIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -99,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/dids': typeof DidsIndexRoute
   '/blocks/$blockId': typeof BlocksBlockIdIndexRoute
   '/dids/$didId': typeof DidsDidIdIndexRoute
+  '/docs/$schema_name': typeof DocsSchemanameIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -107,6 +122,7 @@ export interface FileRoutesByTo {
   '/dids': typeof DidsIndexRoute
   '/blocks/$blockId': typeof BlocksBlockIdIndexRoute
   '/dids/$didId': typeof DidsDidIdIndexRoute
+  '/docs/$schema_name': typeof DocsSchemanameIndexRoute
 }
 
 export interface FileRoutesById {
@@ -116,13 +132,26 @@ export interface FileRoutesById {
   '/dids/': typeof DidsIndexRoute
   '/blocks/$blockId/': typeof BlocksBlockIdIndexRoute
   '/dids/$didId/': typeof DidsDidIdIndexRoute
+  '/docs/$schema_name/': typeof DocsSchemanameIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/blocks' | '/dids' | '/blocks/$blockId' | '/dids/$didId'
+  fullPaths:
+    | '/'
+    | '/blocks'
+    | '/dids'
+    | '/blocks/$blockId'
+    | '/dids/$didId'
+    | '/docs/$schema_name'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/blocks' | '/dids' | '/blocks/$blockId' | '/dids/$didId'
+  to:
+    | '/'
+    | '/blocks'
+    | '/dids'
+    | '/blocks/$blockId'
+    | '/dids/$didId'
+    | '/docs/$schema_name'
   id:
     | '__root__'
     | '/'
@@ -130,6 +159,7 @@ export interface FileRouteTypes {
     | '/dids/'
     | '/blocks/$blockId/'
     | '/dids/$didId/'
+    | '/docs/$schema_name/'
   fileRoutesById: FileRoutesById
 }
 
@@ -139,6 +169,7 @@ export interface RootRouteChildren {
   DidsIndexRoute: typeof DidsIndexRoute
   BlocksBlockIdIndexRoute: typeof BlocksBlockIdIndexRoute
   DidsDidIdIndexRoute: typeof DidsDidIdIndexRoute
+  DocsSchemanameIndexRoute: typeof DocsSchemanameIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -147,6 +178,7 @@ const rootRouteChildren: RootRouteChildren = {
   DidsIndexRoute: DidsIndexRoute,
   BlocksBlockIdIndexRoute: BlocksBlockIdIndexRoute,
   DidsDidIdIndexRoute: DidsDidIdIndexRoute,
+  DocsSchemanameIndexRoute: DocsSchemanameIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -163,7 +195,8 @@ export const routeTree = rootRoute
         "/blocks/",
         "/dids/",
         "/blocks/$blockId/",
-        "/dids/$didId/"
+        "/dids/$didId/",
+        "/docs/$schema_name/"
       ]
     },
     "/": {
@@ -180,6 +213,9 @@ export const routeTree = rootRoute
     },
     "/dids/$didId/": {
       "filePath": "dids/$didId/index.tsx"
+    },
+    "/docs/$schema_name/": {
+      "filePath": "docs/$schema_name/index.tsx"
     }
   }
 }

@@ -1,12 +1,11 @@
 package server
 
 import (
+	_ "blockchain/docs/swagger" // Required for Swagger documentation
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/handlers"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/core"
-
-	_ "blockchain/docs/swagger" // Required for Swagger documentation
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -55,6 +54,12 @@ func New(chain *core.Blockchain) *fiber.App {
 	// all VC routes
 	apiRoutes.Post("/dids/:did/vc", handlers.CreateVC(vcService, chain))
 	apiRoutes.Get("/vc/:urn", handlers.GetVC(vcService))
+
+	// serve static schema html files
+	app.Get("/docs/schema/:file", func(c *fiber.Ctx) error {
+		file := c.Params("file")
+		return c.SendFile("./docs/schema/html/" + file)
+	})
 
 	return app
 }
