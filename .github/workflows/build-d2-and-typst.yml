@@ -46,7 +46,7 @@ jobs:
 
       - name: Compile Typst to PDF
         run: |
-          typst compile "orgranizational/report/main.typ" "assets/report.pdf"
+          typst compile "organizational/report/main.typ" "assets/report.pdf"
 
       - name: Upload PDF as release
         uses: softprops/action-gh-release@v2
