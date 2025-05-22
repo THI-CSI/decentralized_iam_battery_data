@@ -52,7 +52,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with: 
           name: "Typst PDF Release - ${{ github.sha }}"
-          tag_name: "typst-"
+          tag_name: "typst-${{ github.sha }}"
           files: assets/report.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
