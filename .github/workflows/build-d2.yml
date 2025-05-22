@@ -1,4 +1,4 @@
-name: Build Diagrams and Report
+name: Build D2 Diagrams
 
 on:
   push:
@@ -6,11 +6,10 @@ on:
       - main
     paths:
       - organizational/diagrams
-      - organizational/report
   workflow_dispatch:
 
 jobs:
-  build:
+  build-diagrams:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,12 +22,11 @@ jobs:
 
       - name: Generate diagrams from D2 files
         run: |
-          mkdir -p assets
+          mkdir -p assets/diagrams
           for file in organizational/diagrams/*.d2; do
             filename=$(basename "$file" .d2)
             d2 "$file" "organizational/assets/${filename}.svg"
           done
-
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
@@ -40,19 +38,3 @@ jobs:
             git commit -m "action: update d2 diagrams"
             git push
           fi
-
-      - name: Install Typst
-        uses: typst-community/setup-typst@v3
-
-      - name: Compile Typst to PDF
-        run: |
-          typst compile "orgranizational/report/main.typ" "assets/report.pdf"
-
-      - name: Upload PDF as release
-        uses: softprops/action-gh-release@v2
-        with: 
-          name: "Typst PDF Release - ${{ github.sha }}"
-          tag_name: "typst-${{ github.sha }}"
-          files: assets/report.pdf
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
