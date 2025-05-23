@@ -471,6 +471,7 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     
   Module "FreeRTOS Port (rm_freertos_port)"
+  Module "FreeRTOS Heap 4"
   Module "MbedTLS (Crypto Only)"
     Hardware Acceleration: TRNG: Enabled
     Hardware Acceleration: Key Format: AES: Plaintext and Wrapped (Vendor)
@@ -704,9 +705,9 @@ FSP Configuration
     RNG: MBEDTLS_ENTROPY_MIN_HARDWARE value: 32
     General: MBEDTLS_MEMORY_ALIGN_MULTIPLE: Undefine
     General: MBEDTLS_MEMORY_ALIGN_MULTIPLE value: 4
-    Platform: MBEDTLS_PLATFORM_STD_CALLOC: Define
+    Platform: MBEDTLS_PLATFORM_STD_CALLOC: Undefine
     Platform: MBEDTLS_PLATFORM_STD_CALLOC value: calloc
-    Platform: MBEDTLS_PLATFORM_STD_FREE: Define
+    Platform: MBEDTLS_PLATFORM_STD_FREE: Undefine
     Platform: MBEDTLS_PLATFORM_STD_FREE value: free
     Platform: MBEDTLS_PLATFORM_STD_SETBUF: Undefine
     Platform: MBEDTLS_PLATFORM_STD_SETBUF value: setbuf
@@ -791,7 +792,10 @@ FSP Configuration
     Code Flash Programming Enable: Disabled
     Data Flash Programming Enable: Enabled
     
-  Module "Key Injection for PSA Crypto"
+  Module "Realtime Clock (r_rtc)"
+    Parameter Checking: Default (BSP)
+    Set Source Clock in Open: Enabled
+    
   FreeRTOS
     General: Custom FreeRTOSConfig.h: 
     General: Use Preemption: Enabled
@@ -826,8 +830,8 @@ FSP Configuration
     General: Message Buffer Length Type: size_t
     Memory Allocation: Clear Memory on Free: Disabled
     Memory Allocation: Support Static Allocation: Enabled
-    Memory Allocation: Support Dynamic Allocation: Disabled
-    Memory Allocation: Total Heap Size: 1024
+    Memory Allocation: Support Dynamic Allocation: Enabled
+    Memory Allocation: Total Heap Size: 0x5000
     Memory Allocation: Application Allocated Heap: Disabled
     Stats: Generate Run Time Stats: Disabled
     Timers: Use Timers: Enabled
@@ -870,12 +874,32 @@ FSP Configuration
       Pin Configuration Name: g_bsp_pin_cfg
       
     Instance "FreeRTOS Port (rm_freertos_port)"
+    Instance "g_rtc0 Realtime Clock (r_rtc)"
+      Name: g_rtc0
+      Clock Source: Sub-Clock
+      Frequency Comparision Value (LOCO): 255
+      Automatic Adjustment Mode: Enabled
+      Automatic Adjustment Period: 10 Seconds
+      Adjustment Type (Plus-Minus): NONE
+      Error Adjustment Value: 0
+      Callback: bms_cloud_transaction_cb
+      Alarm Interrupt Priority: Priority 2
+      Period Interrupt Priority: Disabled
+      Carry Interrupt Priority: Priority 2
+      
+  Thread "BMS2Cloud"
+    Symbol: bms_cloud_transaction
+    Name: BMS2Cloud
+    Stack size (bytes): 0x3000
+    Priority: 1
+    Thread Context: NULL
+    Memory Allocation: Static
+    Allocate Secure Context: Enable
+    
+    Instance "FreeRTOS Heap 4"
     Instance "MbedTLS (Crypto Only)"
       Instance "Mbed Crypto H/W Acceleration (rm_psa_crypto)"
         Instance "SCE Compatibility Mode"
-          Instance "Key Injection for PSA Crypto"
-            General: Name: g_sce9_key_install
-            
       Instance "LittleFS"
         
         Instance "LittleFS on Flash (rm_littlefs_flash)"
@@ -895,3 +919,7 @@ FSP Configuration
             Flash Ready Interrupt Priority: Disabled
             Flash Error Interrupt Priority: Disabled
             
+  Object "g_new_binary_semaphore0 Binary Semaphore"
+    Symbol: g_new_binary_semaphore0
+    Memory Allocation: Static
+    
