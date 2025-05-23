@@ -9,8 +9,8 @@
 * SPDX-License-Identifier: BSD-3-Clause
 ***********************************************************************************************************************/
 
-#ifndef CRYPTO_EP_H_
-#define CRYPTO_EP_H_
+#ifndef CRYPTO_BMS_H_
+#define CRYPTO_BMS_H_
 
 /* Macro definitions.*/
 #define ECC_256_BIT_LENGTH        (256U)              /* key size in bits for ECC*/
@@ -22,6 +22,9 @@
 #define ECC_KEY_ID                ((psa_key_id_t) 6)
 #define AES_KEY_BITS              (256U)             /* key size in bits for AES*/
 #define ECC_RSA_PAYLOAD_SIZE      (30U)
+#define SALT_LENGTH               (32U)
+#define INFO_LENGTH               (20U)
+#define NONCE_LENGTH              (12U)
 
 /*Function declaration */
 psa_status_t aes_operation(void);
@@ -32,4 +35,4 @@ fsp_err_t littlefs_init(void);
 void deinit_littlefs(void);
 psa_status_t ecc_rsa_hashing_operation(unsigned char * payload, uint8_t * payload_hash, size_t * payload_hash_len);
 
-#endif /* CRYPTO_EP_H_ */
+#endif /* CRYPTO_BMS_H_ */
