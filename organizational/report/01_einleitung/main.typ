@@ -13,6 +13,8 @@ Beispiel für einen Verweis: @THILogo
 
 Beispiel für einen Glossar-Eintrag: @test
 
+Beispiel für ein Zitat @decentral-batterydata-management-github
+
 Eine Longline kann erstellt werden mit `#longline()`. Diese wird in der Konfiguration definiert.
 #longline()
 
