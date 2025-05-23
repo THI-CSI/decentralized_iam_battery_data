@@ -5,6 +5,7 @@
 #show: init-glossary.with(yaml("./glossary.yaml"))
 
 #show: doc => conf(
+  type: [Abschlussbericht],
   title: [Decentralized Identity and Access Management für Batteriedaten],
   major: [Cybersicherheit B. Sc.],
   sem_type: [Sommersemester],

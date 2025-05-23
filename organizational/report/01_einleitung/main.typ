@@ -15,3 +15,6 @@ Beispiel für einen Glossar-Eintrag: @test
 
 Eine Longline kann erstellt werden mit `#longline()`. Diese wird in der Konfiguration definiert.
 #longline()
+
+== Aufbau des Berichts
+(Struktur)
