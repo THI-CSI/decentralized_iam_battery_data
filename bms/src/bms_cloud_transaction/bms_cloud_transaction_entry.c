@@ -15,6 +15,9 @@ mbedtls_platform_context ctx = {RESET_VALUE};
 void bms_cloud_transaction_entry(void *pvParameters)
 {
     FSP_PARAMETER_NOT_USED (pvParameters);
+    // Set did in DF
+    __attribute__((section(".data_flash")))
+    const uint8_t did[32] = "did:example:123456789abcdefgh";
     // The rate at which the task waits on the Semaphore availability.
     TickType_t Semphr_wait_ticks = pdMS_TO_TICKS (WAIT_TIME);
     // Initialize RTC
