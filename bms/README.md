@@ -36,10 +36,10 @@ https://www.segger.com/downloads/jlink
 ### 4. Clone the GitHub Repository
 
 Open a terminal or command prompt and run:
-   ```bash
-   git clone --recurse-submodules https://github.com/THI-CSI/decentralized_iam_battery_data.git
-   cd bms
-   ```
+```bash
+git clone --recurse-submodules https://github.com/THI-CSI/decentralized_iam_battery_data.git
+cd bms
+```
 
 Additionally, update the `CC` and `OBJCOPY` variables in the `Makefile` to point to your installed ARM toolchain executable.
 
@@ -92,11 +92,11 @@ To communicate with the device over Ethernet, you must first configure your netw
 
 To set your Gateway IP address:
 ```bash
-   sudo ip addr add 192.168.0.3/24 dev <your_interface_name>
+sudo ip addr add 192.168.0.3/24 dev <your_interface_name>
 ```
 To assign your DNS server (no root needed)
 ```bash
-	sudo ip addr add 192.168.0.2/24 dev <your_interface_name>
+sudo ip addr add 192.168.0.2/24 dev <your_interface_name>
 ```
 To assign the server IP address:
 ```bash
@@ -105,6 +105,20 @@ sudo ip addr add 192.168.1.100/24 dev <your_interface_name>
 Then, to start a server listener (e.g., using Netcat):
 ```bash
 nc -l -p 12345 -s 192.168.1.100
+```
+
+To forward packets to the internet or the Docker network, you need to configure your firewall. In this example, I’ll use `iptables`, though you can use any firewall of your choice. Just make sure to watch for any rules that might block the packets.
+
+```bash
+# Enable forwarding of packets
+sudo sysctl -w net.ipv4.ip_forward=1
+# internal is the interface to the BMS
+# external is the interface to the outside, e.g. internet or docker network
+sudo iptables -A FORWARD -i <internal> -o <external> -j ACCEPT
+sudo iptables -A FORWARD -i <external> -o <internal> -m state --state RELATED,ESTABLISHED -j ACCEPT 
+
+# If you want to access the internet you need to masquerade the IP from the BMS for routing purposes
+sudo iptables -t nat -A POSTROUTING -o <external> -j MASQUERADE
 ```
 
 ### Windows
