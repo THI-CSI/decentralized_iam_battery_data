@@ -19,6 +19,5 @@ fsp_err_t rtc_init(void);
 fsp_err_t set_rtc_calendar_time(void);
 fsp_err_t set_rtc_calendar_alarm(void);
 void rtc_deinit(void);
-void bms_cloud_transaction_cb(rtc_callback_args_t *p_args);
 
 #endif /* RTC_EP_H_ */

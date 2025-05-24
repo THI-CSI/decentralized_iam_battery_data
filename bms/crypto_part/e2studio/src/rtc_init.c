@@ -95,18 +95,3 @@ void rtc_deinit(void)
         APP_ERR_PRINT("** RTC module Close failed **  \r\n");
     }
 }
-
-void bms_cloud_transaction_cb(rtc_callback_args_t *p_args)
-{
-    if(RTC_EVENT_ALARM_IRQ == p_args->event)
-    {
-        FSP_PARAMETER_NOT_USED(p_args);
-        // Variable is set to true if priority of unblocked task is higher
-        // than the task that was in running state when interrupt occurred
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xSemaphoreGiveFromISR (g_new_binary_semaphore0 , &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-    }
-}
-
-

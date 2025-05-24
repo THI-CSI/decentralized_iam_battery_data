@@ -1,7 +1,11 @@
+#include "common.h"
 #include "bms_cloud_transaction.h"
 #include "bms_cloud_transaction_entry.h"
 #include "common_utils.h"
 #include "portable.h"
+#include "mbedtls/pk.h"
+#include "mbedtls/ecp.h"
+#include "rtc_init.h"
 
 // platform context structure
 mbedtls_platform_context ctx = {RESET_VALUE};
@@ -18,13 +22,13 @@ void bms_cloud_transaction_entry(void *pvParameters)
 
     for (;;)
     {
-        if (pdPASS == xSemaphoreTake(g_new_binary_semaphore0 , Semphr_wait_ticks))
+        if (pdPASS == xSemaphoreTake(bms_cloud_sem, Semphr_wait_ticks))
         {
             // Initialize context_structs on heap
             encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
             message_context  *message_ctx = (message_context *)pvPortCalloc(1, sizeof(message_context));
             // Request DID-docs and initialize encryption_ctx->did_documents
-            uint8_t number_of_endpoints = fetch_did_documenst(encryption_ctx);
+            uint8_t number_of_endpoints = fetch_did_documents(encryption_ctx);
             // Query dynamic battery data
             simulate_battery_data_query(encryption_ctx);
             // Send message_ctx
@@ -149,7 +153,7 @@ psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_ha
     mbedtls_mpi_init(&ecp->d);
     mbedtls_pk_setup(&ctx_pk, mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY));
     ctx_pk.pk_ctx = ecp;
-    ecc_pub_key_length_der_encoded = mtls_pk_write_pubkey_der(&ctx_pk, ecc_pub_key_der_encoded, sizeof(ecc_pub_key_der_encoded));
+    ecc_pub_key_length_der_encoded = mbedtls_pk_write_pubkey_der(&ctx_pk, ecc_pub_key_der_encoded, sizeof(ecc_pub_key_der_encoded));
     message_ctx->der_encoded_ephermal_key = (uint8_t *)pvPortCalloc(1, ecc_pub_key_length_der_encoded);
     memcpy(message_ctx->der_encoded_ephermal_key, ecc_pub_key_der_write_ptr - ecc_pub_key_length_der_encoded, ecc_pub_key_length_der_encoded);
 
@@ -217,7 +221,7 @@ psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_co
 
     // AES-GCM 256 encryption
     status = psa_aead_encrypt(encryption_ctx->aes_key_handle, PSA_ALG_GCM, nonce, NONCE_LENGTH, message_ctx->aad, AAD_LENGTH, encryption_ctx->battery_data_json,
-                              encryption_ctx->battery_data_length, message_ctx->battery_data_encrypted, encrypted_data_size, &message_ctx->encryptedt_data_length);
+                              encryption_ctx->battery_data_length, message_ctx->battery_data_encrypted, encrypted_data_size, &message_ctx->encrypted_data_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_aead_encrypt API FAILED ** \r\n");
 
     return status;

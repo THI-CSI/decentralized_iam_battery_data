@@ -279,13 +279,13 @@
       <property id="module.driver.rtc.err_adjustment_period" value="module.driver.rtc.err_adjustment_period.p1"/>
       <property id="module.driver.rtc.err_adjustment_type" value="module.driver.rtc.err_adjustment_type.t1"/>
       <property id="module.driver.rtc.err_adjustment_value" value="0"/>
-      <property id="module.driver.rtc.p_callback" value="bms_cloud_transaction_cb"/>
+      <property id="module.driver.rtc.p_callback" value="irq_callback"/>
       <property id="module.driver.rtc.alarm_ipl" value="board.icu.common.irq.priority2"/>
       <property id="module.driver.rtc.periodic_ipl" value="_disabled"/>
       <property id="module.driver.rtc.carry_ipl" value="board.icu.common.irq.priority2"/>
     </module>
     <object id="rtos.awsfreertos.object.binary_semaphore.1900834505">
-      <property id="rtos.awsfreertos.object.binary_semaphore.symbol" value="g_new_binary_semaphore0"/>
+      <property id="rtos.awsfreertos.object.binary_semaphore.symbol" value="bms_cloud_sem"/>
       <property id="rtos.awsfreertos.object.binary_semaphore.allocation" value="rtos.awsfreertos.object.binary_semaphore.allocation.static"/>
     </object>
     <context id="_hal.0">
@@ -312,6 +312,15 @@
           </stack>
         </stack>
       </stack>
+    </context>
+    <context id="rtos.awsfreertos.thread.816056162">
+      <property id="_symbol" value="net_thread"/>
+      <property id="rtos.awsfreertos.thread.name" value="NetworkThread"/>
+      <property id="rtos.awsfreertos.thread.stack" value="1024"/>
+      <property id="rtos.awsfreertos.thread.priority" value="1"/>
+      <property id="rtos.awsfreertos.thread.context" value="NULL"/>
+      <property id="rtos.awsfreertos.thread.allocation" value="rtos.awsfreertos.thread.allocation.static"/>
+      <property id="rtos.awsfreertos.thread.secure_context" value="rtos.awsfreertos.thread.secure_context.enable"/>
     </context>
     <config id="config.driver.flash_hp">
       <property id="config.driver.flash_hp.param_checking_enable" value="config.flash_hp.param_checking_enable.bsp"/>

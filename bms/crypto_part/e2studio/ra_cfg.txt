@@ -882,7 +882,7 @@ FSP Configuration
       Automatic Adjustment Period: 10 Seconds
       Adjustment Type (Plus-Minus): NONE
       Error Adjustment Value: 0
-      Callback: bms_cloud_transaction_cb
+      Callback: irq_callback
       Alarm Interrupt Priority: Priority 2
       Period Interrupt Priority: Disabled
       Carry Interrupt Priority: Priority 2
@@ -919,7 +919,16 @@ FSP Configuration
             Flash Ready Interrupt Priority: Disabled
             Flash Error Interrupt Priority: Disabled
             
-  Object "g_new_binary_semaphore0 Binary Semaphore"
-    Symbol: g_new_binary_semaphore0
+  Thread "NetworkThread"
+    Symbol: net_thread
+    Name: NetworkThread
+    Stack size (bytes): 1024
+    Priority: 1
+    Thread Context: NULL
+    Memory Allocation: Static
+    Allocate Secure Context: Enable
+    
+  Object "bms_cloud_sem Binary Semaphore"
+    Symbol: bms_cloud_sem
     Memory Allocation: Static
     

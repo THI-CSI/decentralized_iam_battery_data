@@ -53,7 +53,7 @@ typedef struct {
 
 typedef struct {
     uint8_t *battery_data_encrypted; /* aad: nonce */
-    size_t encryptedt_data_length;
+    size_t encrypted_data_length;
     uint8_t aad[AAD_LENGTH]; /* == nonce */
     uint8_t salt[SALT_LENGTH];
     uint8_t info[INFO_LENGTH];
