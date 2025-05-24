@@ -68,13 +68,13 @@ static uint32_t usr_print_ability = RESET_VALUE;
  * @retval     Status
  **********************************************************************************************************************/
 
-int vTCPSend(char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
+int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
 {
     struct freertos_sockaddr xRemoteAddress;
     BaseType_t xAlreadyTransmitted = 0, xBytesSent = 0;
 
     xRemoteAddress.sin_port = FreeRTOS_htons( 12345 );
-    xRemoteAddress.sin_address.ulIP_IPv4 = FreeRTOS_inet_addr_quick( 192, 168, 1, 100 );
+    xRemoteAddress.sin_address.ulIP_IPv4 = FreeRTOS_inet_addr(pcIPAddress);
     xRemoteAddress.sin_family = FREERTOS_AF_INET4;
 
     xSocket = FreeRTOS_socket(FREERTOS_AF_INET4, FREERTOS_SOCK_STREAM, FREERTOS_IPPROTO_TCP);
@@ -278,7 +278,7 @@ void net_thread_entry(void *pvParameters)
     }
 
     APP_PRINT(ETH_POSTINIT);
-    char *gp_remote_ip_address = "192.168.1.100";
+    char gp_remote_ip_address[] = "255.255.255.255";
     while (1) 
     {
         if (SUCCESS == isNetworkUp()) 
@@ -288,7 +288,6 @@ void net_thread_entry(void *pvParameters)
                 APP_PRINT("\r\nNetwork is Up");
                 usr_print_ability |= PRINT_UP_MSG_DISABLE;
             }
-			dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
             if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
             {
     #if( ipconfigUSE_DHCP != 0 )
@@ -297,15 +296,29 @@ void net_thread_entry(void *pvParameters)
     #endif
                 /* Updated IP credentials on to the RTT console */
                 print_ipconfig();
-                APP_PRINT("Sending Hello World...");
-                if (!vTCPSend("Hello World!\n", 13)) {
-                    APP_PRINT("Sent Hello World!");
+                APP_PRINT("Sending Hello World to the test-server...\n");
+				dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
+
+                if (!vTCPSend(gp_remote_ip_address, "Hello World!\n", 13)) {
+                    APP_PRINT("Sent Hello World!\n");
                 } else {
-                    APP_PRINT("Couldn't send Hello World!");
+                    APP_PRINT("Couldn't send Hello World!\n");
+                }
+				APP_PRINT("Trying to send to Freertos...\n");
+				dnsQuerryFunc(USR_TEST_DOMAIN_NAME, gp_remote_ip_address);
+				for (int i = 0; i < 100; i++) {
+					vSendPing(gp_remote_ip_address);
+					vTaskDelay(100);
+				}
+				// Test Connection to outside world
+				if (!vSendPing(gp_remote_ip_address)) {
+                    APP_PRINT("Sent Ping to external Address %s", gp_remote_ip_address);
+                } else {
+                    APP_PRINT("Couldn't send Ping to external Address %s", gp_remote_ip_address);
                 }
             }
             vTaskDelay(100);
-            return;
+            vTaskDelete( NULL );
         }
     }
 
@@ -431,19 +444,18 @@ int dnsQuerryFunc(char *domain, char *ip_address)
 
     /* Lookup the IP address of the FreeRTOS.org website. */
     ulIPAddress = FreeRTOS_gethostbyname((char*)domain);
-
     if( ulIPAddress != 0 )
     {
         /* Convert the IP address to a string. */
         FreeRTOS_inet_ntoa( ulIPAddress, ( char * ) ip_address);
 
-        /* Print out the IP address obtained from the DNS lookup. */
-        APP_PRINT ("\r\nDNS Lookup for \"test-server.lan\" is      : %s  \r\n", ip_address);
+		/* Print out the IP address obtained from the DNS lookup. */
+        APP_PRINT ("\r\nDNS Lookup for %s is      : %s  \r\n", domain, ip_address);
 		return 0;
     }
     else
     {
-        APP_PRINT ("\r\nDNS Lookup failed for \"test-server.lan\" \r\n");
+        APP_PRINT ("\r\nDNS Lookup failed for %s \r\n", domain);
 		return 1;
 	}
 	return 1;
