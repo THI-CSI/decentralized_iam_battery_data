@@ -6,7 +6,7 @@ from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
 from tinydb import TinyDB, where
-from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign
+from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign, determine_role
 from dotenv import load_dotenv
 from util.models import EncryptedPayload
 from util.middleware import verify_request
@@ -64,8 +64,11 @@ async def create_item(
     if db.search(where("did") == did):
         raise HTTPException(status_code=400, detail="Entry already exists.")
     else:
-        db.insert({"did": did, "encrypted_data": item.model_dump()})
-        return {"ok": f"Entry for {did} added successfully."}
+        if determine_role(db, did) == "oem":
+            db.insert({"did": did, "encrypted_data": item.model_dump()})
+            return {"ok": f"Entry for {did} added successfully."}
+        else:
+            raise HTTPException(status_code=403, detail="Unauthorized.")
 
 
 @app.post("/batterypass/{did}")

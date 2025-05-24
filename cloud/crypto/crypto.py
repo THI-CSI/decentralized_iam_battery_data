@@ -1,22 +1,43 @@
 import pathlib
 import logging
 import base64
+import os
+
+import requests
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 from Crypto.Protocol import HPKE
+from Crypto.Protocol.DH import key_agreement
+from Crypto.Protocol.KDF import HKDF
+from Crypto.Random import get_random_bytes
+from Crypto.Signature import DSS
 from Crypto.PublicKey import ECC
+from multiformats import multibase
+from tinydb import TinyDB, where
+
+
+def hkdf(shared_secret):
+    salt = get_random_bytes(16)
+    return HKDF(master=shared_secret, key_len=256 // 8, salt=salt, hashmod=SHA256, context=None)
 
 
 def decrypt_and_verify(receiver_key: ECC.EccKey, message_bundle: dict) -> bytes:
-    enc = base64.b64decode(message_bundle["enc"])
-    ciphertext = base64.b64decode(message_bundle["ciphertext"])
-    decapsulator = HPKE.new(
-        receiver_key=receiver_key,
-        aead_id=HPKE.AEAD.AES256_GCM,
-        enc=enc
-    )
+    # TODO: @valljah Implement appropriate decryption and verification in accordance to BMS encryption
+    ephemeral_pub_bytes = multibase.decode(message_bundle["pkE"])
+    ephemeral_pub = ECC.import_key(ephemeral_pub_bytes)
+    shared_secret = key_agreement(eph_pub=ephemeral_pub, static_priv=receiver_key, kdf=hkdf)
+    signature = multibase.decode(message_bundle["sig"])
+    ciphertext = multibase.decode(message_bundle["ciphertext"])
+    did = message_bundle["did"]
+    info = message_bundle["info"]
+    sender_key = retrieve_public_key(did)
+    verifier = DSS.new(sender_key, "fips-186-3")
+    verifier.verify(SHA256.new(ephemeral_pub_bytes + info + did + ciphertext), signature)
     try:
-        return decapsulator.unseal(ciphertext)
+        return (AES.new(key=shared_secret, mode=AES.MODE_GCM, nonce=ciphertext[:12])
+                .decrypt_and_verify(ciphertext[28:], ciphertext[12:28]))
     except ValueError:
-        raise ValueError("Invalid signature")
+        raise ValueError("Failed decryption due to invalid MAC tag.")
 
 
 def encrypt_and_sign(receiver_key: ECC.EccKey, message: bytes) -> dict:
@@ -32,14 +53,19 @@ def encrypt_and_sign(receiver_key: ECC.EccKey, message: bytes) -> dict:
     }
 
 
-def verify_credentials(request):
+def verify_credentials(did, info) -> ECC.EccKey:
     # TODO: Verify the credentials by checking against the DID document
     pass
 
 
-def determine_role(request):
-    # TODO: Retrieve role from DID document
-    pass
+def determine_role(db: TinyDB, did: str) -> str | None:
+    if db.search(where("id") == did):
+        return "bms"
+    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
+    if not did_response.ok:
+        return None
+    controller = did_response.json()["publicKey"]["controller"]
+    return "oem" if controller == "did:batterypass:eu" else None
 
 
 def generate_keys(password: str) -> None:
@@ -47,22 +73,22 @@ def generate_keys(password: str) -> None:
     keys_dir = pathlib.Path(__file__).parent / "keys"
     keys_dir.mkdir(exist_ok=True)
     if not (keys_dir / "key.pem").is_file():
-        key = ECC.generate(curve="P-384")
-        export_private_key(key, password, keys_dir)
+        key = ECC.generate(curve="P-256")
+        export_private_key(key, password, keys_dir / "key.pem")
         logging.info(f"Generated {keys_dir / "key.pem"}")
         register_key(key.public_key())
 
 
-def export_private_key(key: ECC.EccKey, passphrase: str, keys_dir: pathlib.Path) -> None:
+def export_private_key(key: ECC.EccKey, passphrase: str, key_path: pathlib.Path) -> None:
     private_key_pem = key.export_key(
         format="PEM",
         passphrase=passphrase,
         protection="PBKDF2WithHMAC-SHA512AndAES256-CBC",
         prot_params={"iteration_count": 131072}
     )
-    with open(keys_dir / "key.pem", "w") as f:
+    with open(key_path, "w") as f:
         f.write(private_key_pem)
-    (keys_dir / "key.pem").chmod(0o600)
+    key_path.chmod(0o600)
 
 
 def load_private_key(passphrase: str) -> ECC.EccKey:
@@ -72,5 +98,20 @@ def load_private_key(passphrase: str) -> ECC.EccKey:
         return ECC.import_key(f.read(), passphrase=passphrase)
 
 
-def register_key(key: ECC.EccKey):
-    pass
+def register_key(public_key: ECC.EccKey):
+    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids", json={
+        "publicKey": {
+            "type": "Multikey",
+            "publicKeyMultibase": multibase.encode(public_key.export_key(format="DER"), "base58btc"),
+        },
+        "service": {
+            "type": "BatteryPassAPI",
+            "serviceEndpoint": os.getenv("BASE_URL", "http://localhost:8567"),
+        }
+    })
+    return response.status_code == 200
+
+
+def retrieve_public_key(did: str) -> ECC.EccKey:
+    response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
+    return ECC.import_key(multibase.decode(response.json()["publicKey"]["publicKeyMultibase"]))
