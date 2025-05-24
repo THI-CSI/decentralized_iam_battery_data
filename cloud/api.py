@@ -8,7 +8,7 @@ from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
 from fastapi.responses import JSONResponse
 from tinydb import TinyDB, where
-from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign
+from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign, determine_role
 from dotenv import load_dotenv
 from util.models import EncryptedPayload, SuccessfulResponse, ErrorResponse
 from util.middleware import verify_request
@@ -111,12 +111,11 @@ async def create_item(
         logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
     else:
-        db.insert({
-            "did": did,
-            "encrypted_data": item.model_dump(),
-            "created_at": datetime.utcnow().isoformat()
-        })
-        return {"ok": f"Entry for {did} added successfully."}
+        if determine_role(db, did) == "oem":
+            db.insert({"did": did, "encrypted_data": item.model_dump()})
+            return {"ok": f"Entry for {did} added successfully."}
+        else:
+            raise HTTPException(status_code=403, detail="Unauthorized.")
 
 
 @app.post("/batterypass/{did}",
