@@ -15,7 +15,7 @@
 #include "usr_app.h"
 #include <stdint.h>
 #include <string.h>
-
+#include "cJSON.h"
 /* Domain for the DNS Host lookup is used in this Example Project.
  * The project can be built with different *gp_domain_name to validate the DNS client
  */
@@ -257,6 +257,15 @@ void net_thread_entry(void *pvParameters)
     fsp_pack_version_t version = {RESET_VALUE};
 
     FSP_PARAMETER_NOT_USED (pvParameters);
+
+	cJSON *json = cJSON_CreateObject();
+	cJSON_AddStringToObject(json, "name", "Battery Data");
+	cJSON_AddNumberToObject(json, "State of Health", 100);
+	cJSON_AddNumberToObject(json, "State of Charge", 90);
+	char *string = cJSON_Print(json);
+	APP_PRINT("Battery Mock Data: %s\n", string);
+	vPortFree(string);
+	cJSON_Delete(json);
 
     /* version get API for FLEX pack information */
     R_FSP_VersionGet (&version);
