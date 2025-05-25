@@ -29,7 +29,7 @@ fsp_err_t rtc_init(void)
 fsp_err_t set_rtc_calendar_time(void)
 {
     fsp_err_t err = FSP_SUCCESS;
-    unsigned char read_time[BUFFER_SIZE_DOWN] = "23:05:2025 17:00:00";
+    unsigned char read_time[25] = "23:05:2025 17:00:00";
     rtc_date_time_conversion(&g_set_time, &read_time[0]);
 
     // Set the time
@@ -84,6 +84,27 @@ fsp_err_t set_rtc_calendar_alarm(void)
         return err;
     }
     return err;
+}
+
+rtc_time_t get_rtc_calendar_time(void)
+{
+    rtc_time_t g_present_time =  {
+     .tm_hour    =  RESET_VALUE,
+     .tm_isdst   =  RESET_VALUE,
+     .tm_mday    =  RESET_VALUE,
+     .tm_min     =  RESET_VALUE,
+     .tm_mon     =  RESET_VALUE,
+     .tm_sec     =  RESET_VALUE,
+     .tm_wday    =  RESET_VALUE,
+     .tm_yday    =  RESET_VALUE,
+     .tm_year    =  RESET_VALUE,
+    };
+    if (FSP_SUCCESS != R_RTC_CalendarTimeGet(&g_rtc0_ctrl, &g_present_time))
+    {
+        APP_ERR_PRINT("\r\nGetting RTC Calendar time failed.\r\n");
+    }
+
+    return g_present_time;
 }
 
 void rtc_deinit(void)

@@ -17,9 +17,6 @@ void bms_cloud_transaction_entry(void *pvParameters)
     FSP_PARAMETER_NOT_USED (pvParameters);
     // The rate at which the task waits on the Semaphore availability.
     TickType_t Semphr_wait_ticks = pdMS_TO_TICKS (WAIT_TIME);
-    // Initialize RTC
-    initialize_rtc();
-
     for (;;)
     {
         if (pdPASS == xSemaphoreTake(bms_cloud_sem, Semphr_wait_ticks))
@@ -40,31 +37,6 @@ void bms_cloud_transaction_entry(void *pvParameters)
                 ethernet_send(encryption_ctx->did_documents[i]->ip, message_ctx);
             }
         }
-    }
-}
-
-void initialize_rtc()
-{
-    fsp_err_t err = FSP_SUCCESS;
-    err = rtc_init();
-    if (FSP_SUCCESS != err)
-    {
-        APP_ERR_PRINT("\r\n ** RTC INIT FAILED ** \r\n");
-        APP_ERR_TRAP(err);
-    }
-    err = set_rtc_calendar_time();
-    if (FSP_SUCCESS != err)
-    {
-        rtc_deinit();
-        APP_ERR_PRINT("\r\nRTC Calendar Time Set failed.\r\nClosing the driver. Restart the Application\r\n");
-        APP_ERR_TRAP(err);
-    }
-    err = set_rtc_calendar_alarm();
-    if (FSP_SUCCESS != err)
-    {
-       rtc_deinit();
-       APP_ERR_PRINT("\r\nPeriodic interrupt rate setting failed.\r\nClosing the driver. Restart the Application\r\n");
-       APP_ERR_TRAP(err);
     }
 }
 
@@ -113,6 +85,8 @@ psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *en
     status = encrypt_battery_data(encryption_ctx, message_ctx);
     CHECK_PSA_SUCCESS(status, "");
     // Generate signed JSON-message
+    status = generate_signed_json_message(message_ctx);
+    CHECK_PSA_SUCCESS(status, "");
 
     return status;
 }
@@ -156,6 +130,7 @@ psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_ha
     ecc_pub_key_length_der_encoded = mbedtls_pk_write_pubkey_der(&ctx_pk, ecc_pub_key_der_encoded, sizeof(ecc_pub_key_der_encoded));
     message_ctx->der_encoded_ephermal_key = (uint8_t *)pvPortCalloc(1, ecc_pub_key_length_der_encoded);
     memcpy(message_ctx->der_encoded_ephermal_key, ecc_pub_key_der_write_ptr - ecc_pub_key_length_der_encoded, ecc_pub_key_length_der_encoded);
+    message_ctx->der_encoded_ephermal_key_length = ecc_pub_key_length_der_encoded;
 
     return status;
 }
@@ -182,7 +157,7 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     // Shared-Secret agreement and aes-key derivation
     status = psa_key_derivation_setup(&derivation_operation, PSA_ALG_KEY_AGREEMENT(PSA_ALG_ECDH, PSA_ALG_HKDF(PSA_ALG_SHA_256)));
     CHECK_PSA_SUCCESS(status, "\r\n** psa_key_derivation_setup API FAILED ** \r\n");
-    status = status = psa_key_derivation_set_capacity(&derivation_operation, AES_KEY_BITS);
+    status = psa_key_derivation_set_capacity(&derivation_operation, AES_KEY_BITS);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_key_derivation_set_capacity API FAILED ** \r\n");
     status = psa_key_derivation_input_bytes(&derivation_operation, PSA_KEY_DERIVATION_INPUT_SALT, message_ctx->salt, SALT_LENGTH);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_bytes API FAILED ** \r\n", &derivation_operation);
@@ -227,60 +202,69 @@ psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_co
     return status;
 }
 
-/*******************************************************************************************************************//**
- *  @brief       Initialize Littlefs operation.
- *  @param[IN]   None
- *  @retval      FSP_SUCCESS or any other possible error code
- **********************************************************************************************************************/
-fsp_err_t littlefs_init(void)
+psa_status_t generate_signed_json_message(message_context *message_ctx)
 {
-    fsp_err_t          err                       = FSP_SUCCESS;
-    int                lfs_err                   = RESET_VALUE;
+    psa_status_t status = (psa_status_t)RESET_VALUE;
+    psa_key_handle_t signing_key_handle = (psa_key_handle_t)RESET_VALUE;
+    unsigned char* concatenated_message_string;
+    size_t concatenated_message_string_length = RESET_VALUE;
+    uint8_t message_hash[PSA_HASH_MAX_SIZE] = {RESET_VALUE};
+    size_t message_hash_len = RESET_VALUE;
+    unsigned char signature[PSA_SIGNATURE_MAX_SIZE] = {RESET_VALUE};
+    size_t signature_length = RESET_VALUE;
 
-    /* Open LittleFS Flash port.*/
-    err = RM_LITTLEFS_FLASH_Open(&g_rm_littlefs0_ctrl, &g_rm_littlefs0_cfg);
-    if(FSP_SUCCESS != err)
-    {
-        APP_ERR_PRINT("\r\n** RM_LITTLEFS_FLASH_Open API FAILED ** \r\n");
-        return err;
-    }
+    // Sign hash of message_ctx
+    status = psa_open_key(SIGNING_KEY_ID, &signing_key_handle);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
+    concatenated_message_string = create_message_string(message_ctx, &concatenated_message_string_length);
+    status = ecc_hashing_operation(concatenated_message_string, concatenated_message_string_length, message_hash, &message_hash_len);
+    CHECK_PSA_SUCCESS(status, "\r\n** ecc_hashing_operation failed. ** \r\n");
+    status = psa_sign_hash(signing_key_handle, PSA_ALG_ECDSA(PSA_ALG_SHA_256), message_hash, message_hash_len, signature, sizeof(signature), &signature_length);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_sign_hash API FAILED ** \r\n");
+    status = psa_close_key(signing_key_handle);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
+    // Generate signed JSON-Message
 
-    /* Format the filesystem. */
-    lfs_err = lfs_format(&g_rm_littlefs0_lfs, &g_rm_littlefs0_lfs_cfg);
-    if(RESET_VALUE != lfs_err)
-    {
-        APP_ERR_PRINT("\r\n** lfs_format API FAILED ** \r\n");
-        deinit_littlefs();
-        return (fsp_err_t)lfs_err;
-    }
-
-    /* Mount the filesystem. */
-    lfs_err = lfs_mount(&g_rm_littlefs0_lfs, &g_rm_littlefs0_lfs_cfg);
-    if(RESET_VALUE != lfs_err)
-    {
-        APP_ERR_PRINT("\r\n** lfs_mount API FAILED ** \r\n");
-        deinit_littlefs();
-        return (fsp_err_t)lfs_err;
-    }
-    return err;
+    return status;
 }
 
-/*******************************************************************************************************************//**
- *  @brief       De-Initialize the Littlefs.
- *  @param[IN]   None
- *  @retval      None
- **********************************************************************************************************************/
-void deinit_littlefs(void)
+unsigned char* create_message_string(message_context *message_ctx, size_t *concatenated_message_string_length)
 {
-    fsp_err_t          err                       = FSP_SUCCESS;
-    /*Closes the lower level driver */
-    err = RM_LITTLEFS_FLASH_Close(&g_rm_littlefs0_ctrl);
-    /* Handle error */
-    if(FSP_SUCCESS != err)
-    {
-        APP_ERR_PRINT("\r\n** RM_LITTLEFS_FLASH_Close API FAILED ** \r\n");
-    }
+    *concatenated_message_string_length =
+            message_ctx->encrypted_data_length +
+            AAD_LENGTH +
+            SALT_LENGTH +
+            DID_LENGTH +
+            message_ctx->der_encoded_ephermal_key_length;
+    unsigned char *concatenated_message_string = (char *)pvPortCalloc(1, *concatenated_message_string_length);
+    unsigned char *index_ptr = concatenated_message_string;
+    memcpy(concatenated_message_string, (char *)message_ctx->battery_data_encrypted, message_ctx->encrypted_data_length);
+    index_ptr += message_ctx->encrypted_data_length;
+    memcpy(index_ptr, message_ctx->aad, AAD_LENGTH);
+    index_ptr += AAD_LENGTH;
+    memcpy(index_ptr, message_ctx->salt, SALT_LENGTH);
+    index_ptr += SALT_LENGTH;
+    memcpy(index_ptr, message_ctx->did, DID_LENGTH);
+    index_ptr += DID_LENGTH;
+    memcpy(index_ptr, message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
+
+    return concatenated_message_string;
 }
+
+psa_status_t ecc_hashing_operation(unsigned char *payload, uint8_t payload_length, uint8_t *payload_hash, size_t *payload_hash_len)
+{
+    psa_status_t             status         = (psa_status_t)RESET_VALUE;
+    psa_hash_operation_t     hash_operation = {RESET_VALUE};
+    status = psa_hash_setup(&hash_operation, PSA_ALG_SHA_256);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_hash_setup API FAILED ** \r\n");
+    status = psa_hash_update(&hash_operation, payload, payload_length);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_hash_update API FAILED ** \r\n");
+    status = psa_hash_finish(&hash_operation, payload_hash, PSA_HASH_MAX_SIZE, payload_hash_len);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_hash_finish API FAILED ** \r\n");
+
+    return status;
+}
+
 
 /*******************************************************************************************************************//**
  *  @brief       De-initialize the platform, print and trap error.
@@ -288,7 +272,7 @@ void deinit_littlefs(void)
  *  @param[IN]   err_str   error string
  *  @retval      None
  **********************************************************************************************************************/
-void handle_error(psa_status_t status, char * err_str)
+void handle_error(psa_status_t status, char *err_str)
 {
     mbedtls_psa_crypto_free();
     /* De-initialize the platform.*/
