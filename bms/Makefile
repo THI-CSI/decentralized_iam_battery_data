@@ -13,6 +13,7 @@ D_FILES=$(SRC:.c=.d)
 INCLUDES = \
 	-I./bms-config-override \
     -I./src \
+	-I./ra-lib/c_json \
     -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include \
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
