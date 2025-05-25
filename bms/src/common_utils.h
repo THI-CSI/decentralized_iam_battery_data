@@ -16,7 +16,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "hal_data.h"
-
 /* SEGGER RTT and error related headers */
 #include "SEGGER_RTT/SEGGER_RTT.h"
 
@@ -27,33 +26,6 @@
 #define LVL_ERR      (1u)       /* error conditions   */
 
 #define RESET_VALUE             (0x00)
-
-#if defined (BOARD_RA6M3_EK) || defined (BOARD_RA6M3G_EK)
-#define KIT_NAME                "EK-RA6M3"
-#elif defined (BOARD_RA6M5_EK)
-#define KIT_NAME                "EK-RA6M5"
-#else
-#define KIT_NAME                "EK-RA6M4"
-#endif
-
-#define EP_VERSION              ("1.0")
-#define MODULE_NAME             "Ethernet using FreeRTOS+TCP"
-#define BANNER_INFO             "\r\n********************************************************************************"\
-                                "\r\n*   Renesas FSP Example Project for "MODULE_NAME" Module         *"\
-                                "\r\n*   Example Project Version %s                                                *"\
-                                "\r\n*   Flex Software Pack Version  %d.%d.%d                                          *"\
-                                "\r\n********************************************************************************"\
-                                "\r\nRefer to readme.txt file for more details on Example Project and              " \
-                                "\r\nFSP User's Manual for more information about "MODULE_NAME"                    "\
-                                "\r\n********************************************************************************\r\n"
-
-#define ETH_PREINIT             "\r\n \r\n--------------------------------------------------------------------------------"\
-                                "\r\nEthernet adapter Configuration for Renesas "KIT_NAME": Pre IP Init       "\
-                                "\r\n--------------------------------------------------------------------------------\r\n\r\n"
-
-#define ETH_POSTINIT             "\r\n \r\n--------------------------------------------------------------------------------"\
-                                "\r\nEthernet adapter Configuration for Renesas "KIT_NAME": Post IP Init       "\
-                                "\r\n--------------------------------------------------------------------------------\r\n\r\n"
 
 #define SEGGER_INDEX            (0)
 
