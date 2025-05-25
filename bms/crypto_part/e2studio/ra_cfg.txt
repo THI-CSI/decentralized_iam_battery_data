@@ -59,7 +59,7 @@ FSP Configuration
     
   RA6M5 event data
   RA Common
-    Main stack size (bytes): 0x5000
+    Main stack size (bytes): 0x6000
     Heap size (bytes): 0x6000
     MCU Vcc (mV): 3300
     Parameter checking: Disabled
@@ -471,6 +471,10 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     
   Module "FreeRTOS Port (rm_freertos_port)"
+  Module "Realtime Clock (r_rtc)"
+    Parameter Checking: Default (BSP)
+    Set Source Clock in Open: Enabled
+    
   Module "FreeRTOS Heap 4"
   Module "MbedTLS (Crypto Only)"
     Hardware Acceleration: TRNG: Enabled
@@ -792,10 +796,6 @@ FSP Configuration
     Code Flash Programming Enable: Disabled
     Data Flash Programming Enable: Enabled
     
-  Module "Realtime Clock (r_rtc)"
-    Parameter Checking: Default (BSP)
-    Set Source Clock in Open: Enabled
-    
   FreeRTOS
     General: Custom FreeRTOSConfig.h: 
     General: Use Preemption: Enabled
@@ -887,15 +887,6 @@ FSP Configuration
       Period Interrupt Priority: Disabled
       Carry Interrupt Priority: Priority 2
       
-  Thread "BMS2Cloud"
-    Symbol: bms_cloud_transaction
-    Name: BMS2Cloud
-    Stack size (bytes): 0x3000
-    Priority: 1
-    Thread Context: NULL
-    Memory Allocation: Static
-    Allocate Secure Context: Enable
-    
     Instance "FreeRTOS Heap 4"
     Instance "MbedTLS (Crypto Only)"
       Instance "Mbed Crypto H/W Acceleration (rm_psa_crypto)"
@@ -919,11 +910,20 @@ FSP Configuration
             Flash Ready Interrupt Priority: Disabled
             Flash Error Interrupt Priority: Disabled
             
-  Thread "NetworkThread"
-    Symbol: net_thread
-    Name: NetworkThread
-    Stack size (bytes): 1024
+  Thread "BMS2Cloud"
+    Symbol: bms_cloud_transaction
+    Name: BMS2Cloud
+    Stack size (bytes): 0x3000
     Priority: 1
+    Thread Context: NULL
+    Memory Allocation: Static
+    Allocate Secure Context: Enable
+    
+  Thread "CustomInit"
+    Symbol: init_thread
+    Name: CustomInit
+    Stack size (bytes): 0x4000
+    Priority: 2
     Thread Context: NULL
     Memory Allocation: Static
     Allocate Secure Context: Enable
