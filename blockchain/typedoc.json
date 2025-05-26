@@ -1,0 +1,7 @@
+{
+  "entryPointStrategy": "expand",
+  "entryPoints": ["frontend/src"],
+  "out": "docs/sourcecode/typescript",
+  "tsconfig": "frontend/tsconfig.json"
+}
+

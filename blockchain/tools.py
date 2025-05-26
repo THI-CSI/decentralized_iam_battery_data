@@ -160,7 +160,7 @@ def main():
                 " --entryPointStrategy",
                 "expand"
                 "--out",
-                DOCS + "/sourcecode"
+                DOCS + "/sourcecode/typescript"
             ]
         )
         run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
