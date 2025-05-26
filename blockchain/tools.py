@@ -155,12 +155,7 @@ def main():
         )
         run_command(
             [
-                TYPEDOC,
-                "frontend/src",
-                " --entryPointStrategy",
-                "expand"
-                "--out",
-                DOCS + "/sourcecode/typescript"
+                TYPEDOC
             ]
         )
         run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
