@@ -32,6 +32,7 @@ DELETE_FOLDER = [
 
 SCHEMA_DIR = "./internal/jsonschema"
 QUICKTYPE = "./node_modules/.bin/quicktype"
+TYPEDOC = "./node_modules/.bin/typedoc"
 SCHEMA_RESOLVER = "./node_modules/.bin/json-schema-resolver"
 DOCS = "./docs"
 TYPES = "./internal/core/types"
@@ -134,22 +135,36 @@ def main():
 
     elif args.command == "docs":
         run_command(["mkdir", "-p", DOCS])
-        if args.type in ("swagger", "all"):
-            run_command(
-                [
-                    "swag",
-                    "init",
-                    "-g",
-                    "./internal/api/web/web.go",
-                    "-o",
-                    f"{DOCS}/swagger/",
-                ]
-            )
-        if args.type in ("go", "all"):
-            run_command(["bash", "./scripts/generate-docs.sh"])
-        if args.type in ("did-vc", "all"):
-            run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
-            run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
+        run_command(
+            [
+                "swag",
+                "init",
+                "-g",
+                "./internal/api/web/web.go",
+                "-o",
+                f"{DOCS}/swagger/",
+            ]
+        )
+        run_command(
+            [
+                "gomarkdoc",
+                "./...",
+                 "-o",
+                  DOCS + "/sourcecode/go.md"
+            ]
+        )
+        run_command(
+            [
+                TYPEDOC,
+                "frontend/src",
+                " --entryPointStrategy",
+                "expand"
+                "--out",
+                DOCS + "/sourcecode"
+            ]
+        )
+        run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
+        run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
 
     elif args.command == "clean":
         for folder in DELETE_FOLDER:

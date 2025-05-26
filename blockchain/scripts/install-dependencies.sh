@@ -15,5 +15,6 @@ go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
 # NPM installs
 npm install --save-dev quicktype@23.2.4 # flag makes sure its in the projects devDependencies not dependencies
 npm install --save-dev json-schema-resolver
+npm install --save-dev typedoc
 # PIP installs
 $PIP install json-schema-for-humans

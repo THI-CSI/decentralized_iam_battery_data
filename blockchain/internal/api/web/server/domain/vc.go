@@ -2,6 +2,7 @@ package domain
 
 import "time"
 
+// VCRequest represents a request for creating a Verifiable Credential with expiration date, id, and hash.
 type VCRequest struct {
 	// Expiration Date of the related Verifiable Credential
 	ExpirationDate *time.Time `json:"expirationDate,omitempty" validate:"required"`

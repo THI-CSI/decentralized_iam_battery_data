@@ -46,7 +46,7 @@ python3 tools.py dev --build
 ```
 
 Once everything has started, you can access the Swagger API documentation at the following address:
-`http://127.0.0.1:8080/swagger/index.html`
+`http://127.0.0.1:8443/swagger/index.html`
 
 [Here you can see how to interact with the API](docs/api.md#api-interaction)
 
