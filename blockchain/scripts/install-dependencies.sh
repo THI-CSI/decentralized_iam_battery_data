@@ -21,5 +21,6 @@ npm install --save-dev class-variance-authority
 npm install --save-dev lucide-react
 npm install --save-dev tailwind-merge
 npm install --save-dev web-vitals
+npm install --save-dev typedoc typedoc-plugin-markdown
 # PIP installs
 $PIP install json-schema-for-humans

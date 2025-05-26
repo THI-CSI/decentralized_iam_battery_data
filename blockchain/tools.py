@@ -153,11 +153,7 @@ def main():
                   DOCS + "/sourcecode/go.md"
             ]
         )
-        run_command(
-            [
-                TYPEDOC
-            ]
-        )
+        run_command([TYPEDOC])
         run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
         run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
 
