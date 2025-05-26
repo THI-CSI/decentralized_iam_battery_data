@@ -20,6 +20,16 @@ Here you can read more about:
 
 ## Getting Started
 
+### Docker
+
+You can use the 'dev' command from the 'tools.py' script run all blockcahin components in docker.
+```shell
+
+python3 tools.py dev <insert docker commands e.g. up -d —-build>
+```
+
+### Manual
+
 You can use the 'install' command from the 'tools.py' script to install all required dependencies:
 
 ```shell
