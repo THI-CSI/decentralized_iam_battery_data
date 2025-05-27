@@ -1,7 +1,19 @@
 // Import customFigures and longline
 #import "../conf.typ": customFigure, longline
 
-= Einleitung
+= Inhaltsverzeichnis
+
+#toc
+
+#include Einleitung blabla?
+#include Hauptteil blabla?
+#include Schluss blabla?
+
+
+
+Typst Funktionsweisen
+(Struktur)
+
 Nachdem die custom Funktionen importiert wurden (`#import "../conf.typ": customFigure, longline`), können sie in der Konfiguration verwendet werden.
 Ein Bild kann mit `#customFigure()` eingebunden werden. Die Funktion wird in der Konfiguration definiert.
 #customFigure(
@@ -15,6 +27,3 @@ Beispiel für einen Glossar-Eintrag: @test
 
 Eine Longline kann erstellt werden mit `#longline()`. Diese wird in der Konfiguration definiert.
 #longline()
-
-== Aufbau des Berichts
-(Struktur)
