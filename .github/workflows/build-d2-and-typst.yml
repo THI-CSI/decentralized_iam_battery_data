@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - organizational/diagrams
-      - organizational/report
+      - organizational/diagrams/**
+      - organizational/report/**
   workflow_dispatch:
 
 jobs:
