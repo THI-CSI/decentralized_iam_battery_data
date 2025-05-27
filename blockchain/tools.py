@@ -22,12 +22,13 @@ DELETE_FOLDER = [
     ".venv",
     "node_modules",
     "./docs/schema",
-    "./docs/go.md",
+    "./docs/sourcecode,
     "./docs/swagger",
     "package.json",
     "package-lock.json",
     "schema_doc.css",
     "schema_doc.min.js",
+    "package.json"
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
