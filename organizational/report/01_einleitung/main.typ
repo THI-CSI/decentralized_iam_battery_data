@@ -1,17 +1,7 @@
 // Import customFigures and longline
 #import "../conf.typ": customFigure, longline
 
-= Inhaltsverzeichnis
-
-#toc
-
-#include Einleitung blabla?
-#include Hauptteil blabla?
-#include Schluss blabla?
-
-
-
-Typst Funktionsweisen
+== Typst Funktionsweisen
 (Struktur)
 
 Nachdem die custom Funktionen importiert wurden (`#import "../conf.typ": customFigure, longline`), können sie in der Konfiguration verwendet werden.
