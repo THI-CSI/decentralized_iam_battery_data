@@ -8,7 +8,20 @@ export type BlockCardProps = {
 };
 
 /**
- * Card for block
+ * A UI card component that displays details for a single blockchain block.
+ *
+ * @remarks
+ * This component shows:
+ * - Block ID
+ * - Block Hash
+ * - Previous Block Hash
+ * - Timestamp
+ * - Merkle Root
+ *
+ * It's designed for both light and dark themes and uses a responsive layout.
+ *
+ * @param props - Component props containing block metadata
+ * @returns A styled block info card
  */
 export default function BlockCard(props: BlockCardProps) {
     return (

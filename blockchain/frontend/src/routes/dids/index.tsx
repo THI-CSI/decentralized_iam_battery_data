@@ -3,6 +3,16 @@ import { Api } from "@/api/api.tsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 
+/**
+ * Component that displays a table of all Decentralized Identifiers (DIDs).
+ *
+ * @remarks
+ * - Uses a route loader to fetch DID data from the API.
+ * - Allows row-based navigation to a detailed DID view using `useNavigate()`.
+ * - Displays status as a badge ("active" or "revoked").
+ *
+ * @returns A table UI with all known DIDs and their statuses.
+ */
 export function DidOverview() {
     const navigate = useNavigate();
 
@@ -50,6 +60,14 @@ export function DidOverview() {
     );
 }
 
+/**
+ * Route definition for `/dids/` that loads a list of all DIDs.
+ *
+ * @remarks
+ * - Registers {@link DidOverview} as the component.
+ * - Uses a loader to fetch DID data from the backend.
+ * - Logs errors to the console if the API call fails.
+ */
 export const Route = createFileRoute("/dids/")({
     component: DidOverview,
     loader: async () => await Api.did.getAll().catch((err) => console.error(err)),

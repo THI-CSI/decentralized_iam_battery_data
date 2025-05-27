@@ -3,7 +3,14 @@ import { Api } from "@/api/api.tsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 
 /**
- * The block overview for the application
+ * Component that renders an overview of recent blocks.
+ *
+ * @remarks
+ * - Displays block index, timestamp, and hash in a table.
+ * - Each row is clickable and navigates to a detailed block view.
+ * - Uses a route loader to fetch data from the backend.
+ *
+ * @returns A table listing blockchain blocks.
  */
 export default function BlockOverview() {
     const navigate = useNavigate();
@@ -48,6 +55,13 @@ export default function BlockOverview() {
     );
 }
 
+/**
+ * Route definition for `/blocks/`.
+ *
+ * @remarks
+ * - Loads recent blocks via `Api.block.getAll()`.
+ * - Logs fetch errors but does not recover from them (no fallback).
+ */
 export const Route = createFileRoute("/blocks/")({
     component: BlockOverview,
     loader: async () => await Api.block.getAll().catch((err) => console.error(err)),

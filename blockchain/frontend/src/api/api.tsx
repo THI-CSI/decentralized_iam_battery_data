@@ -1,12 +1,10 @@
 import {
-    type ApiResponse,
     type ApiV1BlocksBlockIdGetRequest,
     type ApiV1BlocksBlockIdTransactionsGetRequest,
     type ApiV1DidsDidGetRequest,
     type ApiV1VcUrnGetRequest,
     BlocksApi,
     Configuration,
-    type CoreDid,
     DIDsApi,
     VCsApi,
 } from "@/api/generated";
