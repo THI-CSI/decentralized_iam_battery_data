@@ -3,6 +3,6 @@
   "entryPoints": ["frontend/src"],
   "out": "docs/sourcecode/typescript",
   "tsconfig": "frontend/tsconfig.json",
-  "exclude": ["frontend/src/api/**/*"],
+  "exclude": ["frontend/src/api/**/*", "frontend/src/routeTree.gen.ts"],
   "plugin": ["typedoc-plugin-markdown"]
 }

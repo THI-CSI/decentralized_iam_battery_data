@@ -10,8 +10,16 @@ import {
     navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
 
+
 /**
- * The header layout for the application
+ * The main navigation header for the application.
+ *
+ * @remarks
+ * - Stays sticky at the top of the viewport.
+ * - Includes branding, route links, and schema doc shortcuts.
+ * - Uses a conditional "Back" button depending on route context.
+ *
+ * @returns JSX for the application header.
  */
 export default function HeaderLayout() {
     const navigate = useNavigate();
