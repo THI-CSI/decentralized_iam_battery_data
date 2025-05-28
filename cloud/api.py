@@ -110,12 +110,10 @@ async def create_item(
     if db.search(where("did") == did):
         logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
-    else:
-        if determine_role(db, did) == "oem":
-            db.insert({"did": did, "encrypted_data": item.model_dump()})
-            return {"ok": f"Entry for {did} added successfully."}
-        else:
-            raise HTTPException(status_code=403, detail="Unauthorized.")
+    if not determine_role(db, did, item["did"]) == "oem":
+        return error_response(403, "Unauthorized.")
+    db.insert({"did": did, "encrypted_data": item.model_dump()})
+    return {"ok": f"Entry for {did} added successfully."}
 
 
 @app.post("/batterypass/{did}",
@@ -137,6 +135,8 @@ async def update_item(
     document = db.search(where("did") == did)
     if not document:
         return error_response(404, "Entry doesn't exist.")
+    if not determine_role(db, did, item["did"]) == "bms":
+        raise HTTPException(status_code=403, detail="Unauthorized.")
     decrypted_document = decrypt_and_verify(private_key, document[0]["encrypted_data"])
     for key, value in decrypted_item.items():
         set_nested_value(decrypted_document, key.split("."), value)
