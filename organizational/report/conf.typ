@@ -47,7 +47,7 @@
   university: (),
   doc,
 ) = {
-  set text(font: "Arial", lang: "de", size: 11pt)
+  set text(font: "Liberation Sans", lang: "de", size: 11pt)
   set align(center)
   show "TODO": text(stroke: red + 1pt, [TODO])
   text(24pt, [ #type ])
