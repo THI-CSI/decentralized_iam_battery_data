@@ -55,7 +55,7 @@ def all_in_one_crypto(private_signing_key, public_cloud_key, dynamic_battery_dat
         encoding=serialization.Encoding.DER,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
-    cloud_public_key_der = public_ephermal_key.public_bytes(
+    cloud_public_key_der = public_cloud_key.public_bytes(
         encoding=serialization.Encoding.DER,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
