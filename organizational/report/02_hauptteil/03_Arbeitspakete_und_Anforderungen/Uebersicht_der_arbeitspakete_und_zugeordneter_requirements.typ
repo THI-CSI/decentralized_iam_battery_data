@@ -1,3 +1,8 @@
+In diesem Kapitel werden die einzelnen Arbeitspakete detailliert beschrieben. 
+Jedes Team stellt seine Aufgaben, Ergebnisse und Herausforderungen vor. 
+Im Folgenden findet sich eine Zuordnung der von den jeweiligen Teams behandelten Requirements.
+Eine Mehrfachauflistung ist möglich.
+
 #align(center, table(
   align: left, 
   columns: (
