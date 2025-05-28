@@ -21,3 +21,17 @@ Detailed information about issues, pull requests and our contribution guidelines
 
 ## Notes
 Documentation is done here in GitHub, but quick notes can be found in [our HedgeDoc](https://md.s0ck.de/Project2025). The main page of our HedgeDoc can be found [here](https://md.s0ck.de/Project2025) and should include links to all other Docs created by us.
+
+## Sequence Diagrams
+
+- [BMS DID Creation](organizational/assets/bms_did_creation.svg)
+- [ORG DID Creation](organizational/assets/org_did_creation.svg)
+- [VC Creation](organizational/assets/vc_creation.svg)
+- [Service Access](organizational/assets/service_access.svg)
+- [DID Revocation](organizational/assets/did_revocation.svg)
+
+## Communication Protocol
+
+We are using **HTTP** as communication protocol.
+
+
