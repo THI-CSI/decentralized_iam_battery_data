@@ -61,7 +61,9 @@ func CalculateBlockHash(block Block) string {
 func GenerateGenesisBlock() Block {
 	var block Block
 
-	CreateTrustAnchor()
+    if err := CreateTrustAnchor(); err != nil {
+        fmt.Println("CreateTrustAnchor method failed: ", err)
+    }
 
 	block.Index = 0
 	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")

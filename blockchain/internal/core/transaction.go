@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"os"
 	"time"
 )
 
@@ -30,28 +31,62 @@ const (
 	VCPending
 )
 
+// TrustanchorPath is the relative path from tools.py to the trustanchor.json file.
+// The trustanchor.json file contains the EU DID Document.
+const TrustanchorPath = "internal/core/trustanchor.json"
+
 // PendingTransactions is a slice of transactions that make up the next block
 var PendingTransactions []json.RawMessage
 
+// CreateTrustAnchor loads the EU DID transaction as a trust anchor from a file
+func CreateTrustAnchor() error {
+	PendingTransactions = nil
+
+	// Read the DID document from a file
+	data, err := os.ReadFile(TrustanchorPath)
+	if err != nil {
+		return fmt.Errorf(`failed to read trustanchor.json: %w`, err)
+	}
+	fmt.Println(string(data))
+
+	// Unmarshal using the generated function
+	did, err := core.UnmarshalDid(data)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal DID document: %w", err)
+	}
+
+	// Update the timestamp field
+	did.Timestamp = time.Now().UTC().Truncate(time.Second)
+
+	// Marshal using the generated method
+	modifiedData, err := did.Marshal()
+	if err != nil {
+		return fmt.Errorf("failed to marshal DID document: %w", err)
+	}
+	fmt.Println(string(modifiedData))
+	PendingTransactions = append(PendingTransactions, modifiedData)
+	return nil
+}
+
 // CreateTrustAnchor Creates the EU DID transaction as trust anchor
 // At the moment this is a Hardcoded DID Document for development
-func CreateTrustAnchor() {
-	PendingTransactions = nil
-	now := time.Now().UTC().Format(time.RFC3339)
-
-	rawJSON := fmt.Sprintf(`{
-  "id": "did:batterypass.eu",
-  "verificationMethod": {
-    "id": "did:batterypass.eu#root-key",
-    "type": "JsonWebKey2020",
-    "controller": "did:batterypass.eu",
-    "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
-  },
-  "timestamp": "%s",
-  "revoked": false
-}`, now)
-	PendingTransactions = append(PendingTransactions, json.RawMessage(rawJSON))
-}
+// func CreateTrustAnchor() {
+// 	PendingTransactions = nil
+// 	now := time.Now().UTC().Format(time.RFC3339)
+//
+// 	rawJSON := fmt.Sprintf(`{
+//   "id": "did:batterypass.eu",
+//   "verificationMethod": {
+//     "id": "did:batterypass.eu#root-key",
+//     "type": "JsonWebKey2020",
+//     "controller": "did:batterypass.eu",
+//     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
+//   },
+//   "timestamp": "%s",
+//   "revoked": false
+// }`, now)
+// 	PendingTransactions = append(PendingTransactions, json.RawMessage(rawJSON))
+// }
 
 func (chain *Blockchain) AppendDid(did *core.Did) error {
 	didState := chain.VerifyDID(did.ID)
