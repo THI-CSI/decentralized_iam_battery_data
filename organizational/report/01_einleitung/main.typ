@@ -1,7 +1,9 @@
 // Import customFigures and longline
 #import "../conf.typ": customFigure, longline
 
-= Einleitung
+== Typst Funktionsweisen
+(Struktur)
+
 Nachdem die custom Funktionen importiert wurden (`#import "../conf.typ": customFigure, longline`), können sie in der Konfiguration verwendet werden.
 Ein Bild kann mit `#customFigure()` eingebunden werden. Die Funktion wird in der Konfiguration definiert.
 #customFigure(
@@ -13,8 +15,7 @@ Beispiel für einen Verweis: @THILogo
 
 Beispiel für einen Glossar-Eintrag: @test
 
+Beispiel für ein Zitat @decentral-batterydata-management-github
+
 Eine Longline kann erstellt werden mit `#longline()`. Diese wird in der Konfiguration definiert.
 #longline()
-
-== Aufbau des Berichts
-(Struktur)

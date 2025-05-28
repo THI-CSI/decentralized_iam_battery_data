@@ -12,7 +12,7 @@
   sem_year: [2025],
   university: (
     name: [Technische Hochschule Ingolstadt], 
-    logo_path: "THILogo.png",
+    logo_path: "THILogo.svg",
   ),
   doc,
 )
