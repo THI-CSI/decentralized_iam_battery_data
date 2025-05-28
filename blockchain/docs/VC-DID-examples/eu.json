@@ -7,7 +7,7 @@
   "verificationMethod": {
     "id": "did:batterypass:eu#root-key",
     "type": "JsonWebKey2020",
-    "controller": "did:batterypass.eu",
+    "controller": "did:batterypass:eu",
     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
   },
   "timestamp": "2025-04-02T09:00:00Z",

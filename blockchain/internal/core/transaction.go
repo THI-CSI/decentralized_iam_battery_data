@@ -75,11 +75,11 @@ func CreateTrustAnchor() error {
 // 	now := time.Now().UTC().Format(time.RFC3339)
 //
 // 	rawJSON := fmt.Sprintf(`{
-//   "id": "did:batterypass.eu",
+//   "id": "did:batterypass:eu",
 //   "verificationMethod": {
-//     "id": "did:batterypass.eu#root-key",
+//     "id": "did:batterypass:eu#root-key",
 //     "type": "JsonWebKey2020",
-//     "controller": "did:batterypass.eu",
+//     "controller": "did:batterypass:eu",
 //     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
 //   },
 //   "timestamp": "%s",
