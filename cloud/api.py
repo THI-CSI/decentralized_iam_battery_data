@@ -63,18 +63,16 @@ async def create_item(
     verify_request(item, private_key)
     if db.search(where("did") == did):
         raise HTTPException(status_code=400, detail="Entry already exists.")
-    else:
-        if determine_role(db, did) == "oem":
-            db.insert({"did": did, "encrypted_data": item.model_dump()})
-            return {"ok": f"Entry for {did} added successfully."}
-        else:
-            raise HTTPException(status_code=403, detail="Unauthorized.")
+    if not determine_role(db, did, item["did"]) == "oem":
+        raise HTTPException(status_code=403, detail="Unauthorized.")
+    db.insert({"did": did, "encrypted_data": item.model_dump()})
+    return {"ok": f"Entry for {did} added successfully."}
 
 
 @app.post("/batterypass/{did}")
 async def update_item(
         item: EncryptedPayload,
-        did: int,
+        did: str,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
@@ -82,6 +80,8 @@ async def update_item(
     document = db.search(where("did") == did)
     if not document:
         raise HTTPException(status_code=404, detail="Entry doesn't exist.")
+    if not determine_role(db, did, item["did"]) == "bms":
+        raise HTTPException(status_code=403, detail="Unauthorized.")
     decrypted_document = decrypt_and_verify(private_key, document[0]["encrypted_data"])
     for key, value in decrypted_item.items():
         set_nested_value(decrypted_document, key.split("."), value)

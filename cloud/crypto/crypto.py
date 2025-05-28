@@ -1,3 +1,5 @@
+import functools
+import json
 import pathlib
 import logging
 import base64
@@ -9,42 +11,59 @@ from Crypto.Hash import SHA256
 from Crypto.Protocol import HPKE
 from Crypto.Protocol.DH import key_agreement
 from Crypto.Protocol.KDF import HKDF
-from Crypto.Random import get_random_bytes
 from Crypto.Signature import DSS
 from Crypto.PublicKey import ECC
 from multiformats import multibase
 from tinydb import TinyDB, where
 
 
-def hkdf(shared_secret):
-    salt = get_random_bytes(16)
-    return HKDF(master=shared_secret, key_len=256 // 8, salt=salt, hashmod=SHA256, context=None)
+def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> dict:
+    message = json.loads(message_bytes)
+    fields_to_decode = ["ciphertext", "aad", "salt", "signature", "eph_pub"]
+    decoded_message = {key: base64.b64decode(value) for key, value in message.items() if key in fields_to_decode}
+    eph_pub_der = decoded_message["eph_pub"]
+    eph_pub = ECC.import_key(eph_pub_der)
+    nonce = decoded_message["aad"]
+    ciphertext = decoded_message["ciphertext"]
+    salt = decoded_message["salt"]
+    signature = decoded_message["signature"]
+    ciphertext_data = ciphertext[:-16]
+    tag = ciphertext[-16:]
+    context = eph_pub_der + receiver_key.public_key().export_key(format="DER")
+    did = message["did"]
 
-
-def decrypt_and_verify(receiver_key: ECC.EccKey, message_bundle: dict) -> bytes:
-    # TODO: @valljah Implement appropriate decryption and verification in accordance to BMS encryption
-    ephemeral_pub_bytes = multibase.decode(message_bundle["pkE"])
-    ephemeral_pub = ECC.import_key(ephemeral_pub_bytes)
-    shared_secret = key_agreement(eph_pub=ephemeral_pub, static_priv=receiver_key, kdf=hkdf)
-    signature = multibase.decode(message_bundle["sig"])
-    ciphertext = multibase.decode(message_bundle["ciphertext"])
-    did = message_bundle["did"]
-    info = message_bundle["info"]
+    # Verify signature
     sender_key = retrieve_public_key(did)
-    verifier = DSS.new(sender_key, "fips-186-3")
-    verifier.verify(SHA256.new(ephemeral_pub_bytes + info + did + ciphertext), signature)
+    verifier = DSS.new(sender_key, mode="fips-186-3", encoding="der")
+    message_to_verify = json.dumps({key: value for key, value in message.items() if key != "signature"}).encode()
     try:
-        return (AES.new(key=shared_secret, mode=AES.MODE_GCM, nonce=ciphertext[:12])
-                .decrypt_and_verify(ciphertext[28:], ciphertext[12:28]))
+        verifier.verify(SHA256.new(message_to_verify), signature)
+    except ValueError:
+        raise ValueError("Failed decryption due to invalid signature.")
+
+    # Decrypt message
+    hkdf = functools.partial(HKDF, key_len=32, hashmod=SHA256, salt=salt, context=context)
+    aes_key = key_agreement(eph_pub=eph_pub, static_priv=receiver_key, kdf=hkdf)
+    cipher = AES.new(aes_key, AES.MODE_GCM, nonce=nonce)
+    cipher.update(nonce)
+    try:
+        plaintext = cipher.decrypt_and_verify(ciphertext_data, tag)
+        return json.loads(plaintext)
+    except json.JSONDecodeError:
+        raise ValueError("Failed decoding decrypted data to JSON.")
     except ValueError:
         raise ValueError("Failed decryption due to invalid MAC tag.")
 
 
-def encrypt_and_sign(receiver_key: ECC.EccKey, message: bytes) -> dict:
-    encapsulator = HPKE.new(
-        receiver_key=receiver_key,
-        aead_id=HPKE.AEAD.AES256_GCM,
-    )
+def decrypt_hpke(private_key: ECC.EccKey, bundle: dict) -> bytes:
+    enc = base64.b64decode(bundle["enc"])
+    ciphertext = base64.b64decode(bundle["ciphertext"])
+    decapsulator = HPKE.new(enc=enc, aead_id=HPKE.AEAD.AES256_GCM, receiver_key=private_key)
+    return decapsulator.unseal(ciphertext)
+
+
+def encrypt_hpke(private_key: ECC.EccKey, message: bytes) -> dict:
+    encapsulator = HPKE.new(receiver_key=private_key.public_key(), aead_id=HPKE.AEAD.AES256_GCM)
     ciphertext = encapsulator.seal(message)
     enc = encapsulator.enc
     return {
@@ -58,13 +77,13 @@ def verify_credentials(did, info) -> ECC.EccKey:
     pass
 
 
-def determine_role(db: TinyDB, did: str) -> str | None:
-    if db.search(where("id") == did):
+def determine_role(db: TinyDB, accessed_did: str, sender_did: str) -> str | None:
+    if db.search(where("id") == sender_did):  # determine_role is called after verify_request
         return "bms"
-    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
+    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{accessed_did}")
     if not did_response.ok:
         return None
-    controller = did_response.json()["publicKey"]["controller"]
+    controller = did_response.json()["controller"]
     return "oem" if controller == "did:batterypass:eu" else None
 
 
@@ -114,4 +133,5 @@ def register_key(public_key: ECC.EccKey):
 
 def retrieve_public_key(did: str) -> ECC.EccKey:
     response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
-    return ECC.import_key(multibase.decode(response.json()["publicKey"]["publicKeyMultibase"]))
+    # TODO: Add revoked check
+    return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
