@@ -1,3 +1,4 @@
+import os
 import pathlib
 import logging
 import base64
@@ -9,9 +10,6 @@ from Crypto.PublicKey import ECC
 from typing import Dict, Any
 from Crypto.Hash import SHA3_256
 
-
-# devbod: TODO: Change this when having more info
-BLOCKCHAIN_URL = "http://localhost:8000/FILLER/FOR/NOW"
 
 def decrypt_and_verify(receiver_key: ECC.EccKey, message_bundle: dict) -> bytes:
     enc = base64.b64decode(message_bundle["enc"])
@@ -141,12 +139,11 @@ def verify_vc(vc_json_object: json) -> bool:
     }
 
     # Then we send the Data to the Blockchain
-    response = requests.post(BLOCKCHAIN_URL, json=data)
+    response = requests.post(os.getenv("BLOCKCHAIN_URL", "http://localhost:8443"), json=data)
 
     # If the response is 200, we can assume the VC is valid
     if response.status_code == 200:
         return True
     # If not, we can assume the VC is invalid. We should check for reasons in the future
-    # devbod: TODO: Check for Reasons
     else:
         return False
