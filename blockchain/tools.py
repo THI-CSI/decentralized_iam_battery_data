@@ -199,6 +199,10 @@ def main():
             )
 
     elif args.command == "dev":
+        if os.path.exists("./blockchain.json/"):
+            run_command(["rm", "-rf", "./blockchain.json/"])
+        if not os.path.exists("./blockchain.json"):
+            blockchain_cmd(["-genesis"])
         docker_compose_dev(args.docker_command, unknown_args)
 
     else:

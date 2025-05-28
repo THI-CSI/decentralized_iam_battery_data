@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
     networks: [net-blockchain]
     volumes:
-      - ./blockchain.json:/app/blockchain.json
+      - ./:/app/
 
   frontend-dev:
     restart: unless-stopped
