@@ -22,13 +22,13 @@ DELETE_FOLDER = [
     ".venv",
     "node_modules",
     "./docs/schema",
-    "./docs/sourcecode,
+    "./docs/sourcecode",
     "./docs/swagger",
     "package.json",
     "package-lock.json",
     "schema_doc.css",
     "schema_doc.min.js",
-    "package.json"
+    "package.json",
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
@@ -146,14 +146,7 @@ def main():
                 f"{DOCS}/swagger/",
             ]
         )
-        run_command(
-            [
-                "gomarkdoc",
-                "./...",
-                 "-o",
-                  DOCS + "/sourcecode/go.md"
-            ]
-        )
+        run_command(["gomarkdoc", "./...", "-o", DOCS + "/sourcecode/go.md"])
         run_command([TYPEDOC])
         run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
         run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
