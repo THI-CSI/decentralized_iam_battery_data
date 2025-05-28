@@ -58,6 +58,12 @@ def set_nested_value(doc, path_keys, new_value):
 
 @app.get("/")
 def read_root():
+    """
+    Handles the root endpoint of the API and provides a response indicating
+    the operational status of the API.
+
+    :return: A dictionary containing a message indicating that the API is working
+    """
     return {"message": "API is working"}
 
 
@@ -66,6 +72,14 @@ async def read_item(
         did: str = Path(description="Must be a properly formed DID"),
         db: TinyDB = Depends(get_db),
 ):
+    """
+    Retrieve a battery pass entry by a specified Decentralized Identifier (DID).
+    This endpoint fetches information from the TinyDB database corresponding
+    to the given DID. The DID must be formatted correctly for the query to
+    execute successfully.
+
+    :return: A list of query results from the database that matches the specified DID.
+    """
     return db.search(where("did") == did)
 
 
@@ -76,6 +90,16 @@ async def create_item(
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
+    """
+    Create a new battery pass entry for a DID.
+
+    This endpoint allows adding a new entry associated with the specified
+    DID in the database. The item payload undergoes verification using the
+    provided private key. If an entry for the DID already exists within the
+    database, an HTTPException with status code 400 is raised.
+
+    :return: Success message indicating the entry was added successfully.
+    """
     verify_request(item, private_key)
     if db.search(where("did") == did):
         return error_response(400, "Entry already exists.")
@@ -91,6 +115,16 @@ async def update_item(
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
+    """
+    Updates an existing entry in the database for a specified DID (decentralized identifier) by decrypting the
+    provided encrypted payload, modifying the corresponding entry, and encrypting it again.
+
+    Decodes the encrypted data provided in the request payload using the specified private key. Fetches the document
+    associated with the given DID from the database, decrypts it, and applies the updates from the payload. The updated
+    data is re-encrypted and stored back in the database.
+
+    :return: A dictionary confirming a successful update for the specified DID.
+    """
     decrypted_item = verify_request(item, private_key)
     document = db.search(where("did") == did)
     if not document:
@@ -110,8 +144,7 @@ async def delete_item(
 ):
     """
     For a given DID, delete the entry from the database.
-    :param did: The DID of the entry to delete.
-    :param db: Dependency for the database.
+
     :return: None
     """
 
