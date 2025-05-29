@@ -6,10 +6,6 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/ecp.h"
 
-// Write DID in DF
-__attribute__((section(".data_flash")))
-const uint8_t did[32] = "did:example:123456789abcdefgh";
-
 /* CustomInit entry function */
 /* pvParameters contains TaskHandle_t */
 void init_thread_entry(void *pvParameters)
@@ -25,45 +21,55 @@ void init_thread_entry(void *pvParameters)
 
 void generate_signing_key_pair()
 {
-    int mbed_ret_val = RESET_VALUE;
-    mbedtls_platform_context ctx = {RESET_VALUE};
-    psa_status_t status = (psa_status_t)RESET_VALUE;
-    psa_key_attributes_t signing_key_attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_handle_t signing_key_handle = RESET_VALUE;
+    psa_status_t status = (psa_status_t)RESET_VALUE;
+    if (PSA_SUCCESS == psa_open_key(SIGNING_KEY_ID, &signing_key_handle))
+    {
+        status = psa_close_key(signing_key_handle);
+        CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
+    } else
+    {
+        int mbed_ret_val = RESET_VALUE;
+        mbedtls_platform_context ctx = {RESET_VALUE};
+        psa_key_attributes_t signing_key_attributes = PSA_KEY_ATTRIBUTES_INIT;
 
-    // Setup the platform; initialize the SCE
-    mbed_ret_val = mbedtls_platform_setup(&ctx);
-    if (RESET_VALUE != mbed_ret_val)
-    {
-        APP_ERR_PRINT("\r\n** mbedtls_platform_setup API FAILED ** \r\n");
-        APP_ERR_TRAP(mbed_ret_val);
-    }
-    // Initialize crypto library
-    status = psa_crypto_init();
-    if (PSA_SUCCESS != status)
-    {
-        APP_ERR_PRINT("\r\n** psa_crypto_init API FAILED ** \r\n");
-        /* De-initialize the platform.*/
+        // Setup the platform; initialize the SCE
+        mbed_ret_val = mbedtls_platform_setup(&ctx);
+        if (RESET_VALUE != mbed_ret_val)
+        {
+            APP_ERR_PRINT("\r\n** mbedtls_platform_setup API FAILED ** \r\n");
+            APP_ERR_TRAP(mbed_ret_val);
+        }
+        // Initialize crypto library
+        status = psa_crypto_init();
+        if (PSA_SUCCESS != status)
+        {
+            APP_ERR_PRINT("\r\n** psa_crypto_init API FAILED ** \r\n");
+            /* De-initialize the platform.*/
+            mbedtls_platform_teardown(&ctx);
+            APP_ERR_TRAP(status);
+        }
+        // Initialize littlefs
+        if (FSP_SUCCESS != littlefs_init())
+        {
+            APP_ERR_PRINT("\r\n** littlefs operation failed. ** \r\n");
+        }
+        // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime, key_id
+        psa_set_key_usage_flags(&signing_key_attributes, PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_SIGN_MESSAGE);
+        psa_set_key_algorithm(&signing_key_attributes, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
+        psa_set_key_type(&signing_key_attributes, PSA_KEY_TYPE_ECC_KEY_PAIR_WRAPPED(PSA_ECC_FAMILY_SECP_R1));
+        psa_set_key_bits(&signing_key_attributes, SIGNING_KEY_256_BIT_LENGTH);
+        psa_set_key_lifetime(&signing_key_attributes, PSA_KEY_LIFETIME_PERSISTENT);
+        psa_set_key_id(&signing_key_attributes, SIGNING_KEY_ID);
+
+        status = psa_generate_key(&signing_key_attributes, &signing_key_handle);
+        CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_key API FAILED ** \r\n");
+        status = psa_close_key(signing_key_handle);
+        CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
+        mbedtls_psa_crypto_free();
         mbedtls_platform_teardown(&ctx);
-        APP_ERR_TRAP(status);
     }
-    // Initialize littlefs
-    if (FSP_SUCCESS != littlefs_init())
-    {
-        APP_ERR_PRINT("\r\n** littlefs operation failed. ** \r\n");
-    }
-    // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime, key_id
-    psa_set_key_usage_flags(&signing_key_attributes, PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_SIGN_MESSAGE);
-    psa_set_key_algorithm(&signing_key_attributes, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
-    psa_set_key_type(&signing_key_attributes, PSA_KEY_TYPE_ECC_KEY_PAIR_WRAPPED(PSA_ECC_FAMILY_SECP_R1));
-    psa_set_key_bits(&signing_key_attributes, SIGNING_KEY_256_BIT_LENGTH);
-    psa_set_key_lifetime(&signing_key_attributes, PSA_KEY_LIFETIME_PERSISTENT);
-    psa_set_key_id(&signing_key_attributes, SIGNING_KEY_ID);
 
-    status = psa_generate_key(&signing_key_attributes, &signing_key_handle);
-    CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_key API FAILED ** \r\n");
-    status = psa_close_key(signing_key_handle);
-    CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
 }
 
 void initialize_rtc()

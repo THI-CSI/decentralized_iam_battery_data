@@ -86,8 +86,9 @@ fsp_err_t set_rtc_calendar_alarm(void)
     return err;
 }
 
-rtc_time_t get_rtc_calendar_time(void)
+void get_rtc_calendar_time(uint8_t *timestamp_bytes)
 {
+    char timestamp_string[20] = {RESET_VALUE};
     rtc_time_t g_present_time =  {
      .tm_hour    =  RESET_VALUE,
      .tm_isdst   =  RESET_VALUE,
@@ -103,8 +104,17 @@ rtc_time_t get_rtc_calendar_time(void)
     {
         APP_ERR_PRINT("\r\nGetting RTC Calendar time failed.\r\n");
     }
+    /* Modify the date in standard format to user readable format */
+    rtc_date_readability_update(&g_present_time);
+    sprintf(timestamp_string, "%02d:%02d:%04d %02d:%02d:%02d", g_present_time.tm_mday, g_present_time.tm_mon , g_present_time.tm_year,
+            g_present_time.tm_hour, g_present_time.tm_min, g_present_time.tm_sec);
+    memcpy(timestamp_bytes, timestamp_string, 19);
+}
 
-    return g_present_time;
+void rtc_date_readability_update(rtc_time_t * time)
+{
+    time->tm_mon  +=  MON_ADJUST_VALUE;
+    time->tm_year +=  YEAR_ADJUST_VALUE;
 }
 
 void rtc_deinit(void)

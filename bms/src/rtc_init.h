@@ -18,7 +18,8 @@
 fsp_err_t rtc_init(void);
 fsp_err_t set_rtc_calendar_time(void);
 fsp_err_t set_rtc_calendar_alarm(void);
-rtc_time_t get_rtc_calendar_time(void);
+void get_rtc_calendar_time(uint8_t *timestamp_bytes);
+void rtc_date_readability_update(rtc_time_t * time);
 void rtc_deinit(void);
 
 #endif /* RTC_EP_H_ */

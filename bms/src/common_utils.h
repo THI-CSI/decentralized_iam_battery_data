@@ -18,6 +18,9 @@
 #include "hal_data.h"
 /* SEGGER RTT and error related headers */
 #include "SEGGER_RTT/SEGGER_RTT.h"
+/* json header files */
+#include "c_json/cJSON.h"
+#include "core_json.h"
 
 
 #define BIT_SHIFT_8  (8u)

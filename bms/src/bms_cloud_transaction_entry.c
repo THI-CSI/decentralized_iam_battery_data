@@ -1,13 +1,18 @@
 #include "common.h"
+#include "common_utils.h"
 #include "bms_cloud_transaction.h"
 #include "bms_cloud_transaction_entry.h"
-#include "common_utils.h"
 #include "portable.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/ecp.h"
+#include "mbedtls/base64.h"
 #include "rtc_init.h"
 
-// platform context structure
+// Write DID in DF
+__attribute__((section(".data_flash")))
+const char did[30] = "did:example:123456789abcdefgh";
+
+// Platform context structure
 mbedtls_platform_context ctx = {RESET_VALUE};
 
 /* BMS2Cloud entry function */
@@ -31,19 +36,77 @@ void bms_cloud_transaction_entry(void *pvParameters)
             // Send message_ctx
             for (uint8_t i = 0; i < number_of_endpoints; i++)
             {
+                final_message_struct *final_message = (final_message_struct *)pvPortCalloc(1, sizeof(final_message_struct));
                 // Initialize message_ctx
-                prepare_message_ctx(i, encryption_ctx, message_ctx);
-                // Send message_ctx to did_document[i]->ip
-                ethernet_send(encryption_ctx->did_documents[i]->ip, message_ctx);
+                prepare_message_ctx(i, encryption_ctx, message_ctx, final_message);
+                // Send message_ctx to did_document[i]->endpoint
+                ethernet_send(encryption_ctx->did_documents[i]->endpoint, encryption_ctx->did_documents[i]->endpoint_length, final_message);
+                // Free resources
             }
         }
     }
 }
 
-void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx)
+uint8_t fetch_did_documents(encryption_context *encryption_ctx)
 {
-   psa_status_t       status                    = (psa_status_t)RESET_VALUE;
-   int                mbed_ret_val              = RESET_VALUE;
+    uint8_t number_of_endpoints = RESET_VALUE;
+    encryption_ctx->did_documents = (did_document **)pvPortCalloc(number_of_endpoints, sizeof(did_document *));
+    for (uint8_t i = 0; i < number_of_endpoints; i++)
+    {
+        encryption_ctx->did_documents[i] = (did_document *)pvPortCalloc(1, sizeof(did_document));
+        encryption_ctx->did_documents[i]->endpoint = (char *)pvPortCalloc(ENDPOINT_MAX_BUFFER_SIZE, sizeof(char));
+        encryption_ctx->did_documents[i]->public_key = (uint8_t *)pvPortCalloc(ECC_256_PUB_MAX_BUFFER_SIZE, sizeof(uint8_t));
+        size_t xReceivedBytes = RESET_VALUE;
+        char cReceivedString[1024];
+        uint8_t retries = RESET_VALUE;
+        memset(cReceivedString, RESET_VALUE, sizeof(cReceivedString));
+        do
+        {
+            xReceivedBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
+
+        } while(xReceivedBytes == 0 || retries < 10);
+        if (JSONSuccess == JSON_Validate(cReceivedString, xReceivedBytes))
+        {
+            char public_key_query[] = "verificationMethod.publicKeyMultibase";
+            char *public_key_base_64;
+            size_t public_key_base_64_length;
+            JSON_Search(cReceivedString, xReceivedBytes, public_key_query, strlen(public_key_query), &public_key_base_64, &public_key_base_64_length);
+            mbedtls_base64_decode(encryption_ctx->did_documents[i]->public_key, ECC_256_PUB_MAX_BUFFER_SIZE, &encryption_ctx->did_documents[i]->public_key_length,
+                                  (unsigned char *)public_key_base_64, public_key_base_64_length);
+            der_encoding(encryption_ctx->did_documents[i]->public_key, encryption_ctx->did_documents[i]->public_key_length, &encryption_ctx->did_documents[i]->public_key_der_encoded,
+                         &encryption_ctx->did_documents[i]->public_key_der_encoded_length);
+            char endpoint_query[] = "service.serviceEndpoint";
+            JSON_Search(cReceivedString, xReceivedBytes, endpoint_query, strlen(endpoint_query), &encryption_ctx->did_documents[i]->endpoint,
+                        &encryption_ctx->did_documents[i]->endpoint_length);
+        }
+    }
+
+    return number_of_endpoints;
+}
+
+void simulate_battery_data_query(encryption_context *encryption_ctx)
+{
+    char *battery_data_string = (char *)pvPortCalloc(MAX_MODFIED_DATA_BUFFER, sizeof(char));
+    int number_of_full_battery_cycles = get_number_of_full_battery_cycles();
+    double energy_throughput = get_energy_throughput();
+    double time_extreme_high_temperature = get_time_extreme_high_temperature();
+
+    sprintf(battery_data_string, "performance.batteryCondition.numberOfFullCycles.numberOfFullCyclesValue: %d; " \
+            "performance.energyThroughput: %f; " \
+            "performance.temperatureInformation.timeExtremeHighTemp: %f",
+            number_of_full_battery_cycles, energy_throughput, time_extreme_high_temperature);
+    encryption_ctx->battery_data_length = strlen(battery_data_string);
+    encryption_ctx->battery_data = (uint8_t *)pvPortCalloc(encryption_ctx->battery_data_length, sizeof(uint8_t));
+    memcpy(encryption_ctx->battery_data, battery_data_string, encryption_ctx->battery_data_length);
+    // Free memory
+    vPortFree(battery_data_string);
+}
+
+void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
+{
+   psa_status_t status = (psa_status_t)RESET_VALUE;
+   int mbed_ret_val = RESET_VALUE;
+
    // Setup the platform; initialize the SCE
    mbed_ret_val = mbedtls_platform_setup(&ctx);
    if (RESET_VALUE != mbed_ret_val)
@@ -60,7 +123,7 @@ void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encrypti
        mbedtls_platform_teardown(&ctx);
        APP_ERR_TRAP(status);
    }
-   status = crypto_operations(recipient_counter, encryption_ctx, message_ctx);
+   status = crypto_operations(recipient_counter, encryption_ctx, message_ctx, final_message);
    if (PSA_SUCCESS != status)
    {
        // HPKE operation failed. Perform cleanup and trap error.
@@ -71,7 +134,7 @@ void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encrypti
    mbedtls_platform_teardown(&ctx);
 }
 
-psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx)
+psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
     psa_key_handle_t ephermal_key_handle = (psa_key_handle_t)RESET_VALUE;
@@ -85,7 +148,7 @@ psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *en
     status = encrypt_battery_data(encryption_ctx, message_ctx);
     CHECK_PSA_SUCCESS(status, "");
     // Generate signed JSON-message
-    status = generate_signed_json_message(message_ctx);
+    status = generate_signed_json_message(message_ctx, final_message);
     CHECK_PSA_SUCCESS(status, "");
 
     return status;
@@ -95,11 +158,8 @@ psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_ha
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
     psa_key_attributes_t ecc_attributes = PSA_KEY_ATTRIBUTES_INIT;
-    uint8_t ecc_pub_key[ECC_256_PUB_SIZE] = {RESET_VALUE};
+    uint8_t ecc_pub_key[ECC_256_PUB_MAX_BUFFER_SIZE] = {RESET_VALUE};
     size_t ecc_pub_key_length = RESET_VALUE;
-    uint8_t ecc_pub_key_der_encoded[ECC_256_PUB_DER_MAX_SIZE] = {RESET_VALUE};
-    uint8_t *ecc_pub_key_der_write_ptr = ecc_pub_key_der_encoded + sizeof(ecc_pub_key_der_encoded);
-    size_t ecc_pub_key_length_der_encoded = RESET_VALUE;
 
     // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime
     psa_set_key_usage_flags(&ecc_attributes, PSA_KEY_USAGE_DERIVE);
@@ -113,26 +173,38 @@ psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_ha
     CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_key API FAILED ** \r\n")
 
     // Export public key
-    status = psa_export_public_key(*ephermal_key_handle, ecc_pub_key, ECC_256_PUB_SIZE , &ecc_pub_key_length);
+    status = psa_export_public_key(*ephermal_key_handle, ecc_pub_key, ECC_256_PUB_MAX_BUFFER_SIZE, &ecc_pub_key_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_export_public_key API FAILED ** \r\n");
 
     // DER-encoding of public key
+    der_encoding(ecc_pub_key, ecc_pub_key_length, &message_ctx->der_encoded_ephermal_key, &message_ctx->der_encoded_ephermal_key_length);
+
+    return status;
+}
+
+void der_encoding(uint8_t *ecc_pub_key, size_t ecc_pub_key_length, uint8_t **der_encoded_key_buffer, size_t *der_encoded_key_buffer_length)
+{
+    uint8_t ecc_pub_key_der_encoded[ECC_256_PUB_DER_MAX_BUFFER_SIZE] = {RESET_VALUE};
+    uint8_t *ecc_pub_key_der_write_ptr = ecc_pub_key_der_encoded + ECC_256_PUB_DER_MAX_BUFFER_SIZE;
+    size_t ecc_pub_key_length_der_encoded = RESET_VALUE;
+
     mbedtls_pk_context ctx_pk;
     mbedtls_pk_init(&ctx_pk);
     mbedtls_ecp_keypair *ecp = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair)); // pvPortCalloc?
     mbedtls_ecp_keypair_init(ecp);
-
     mbedtls_ecp_group_load(&ecp->grp, MBEDTLS_ECP_DP_SECP256R1);
     mbedtls_ecp_point_read_binary(&ecp->grp, &ecp->Q, ecc_pub_key, ecc_pub_key_length);
     mbedtls_mpi_init(&ecp->d);
     mbedtls_pk_setup(&ctx_pk, mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY));
     ctx_pk.pk_ctx = ecp;
-    ecc_pub_key_length_der_encoded = mbedtls_pk_write_pubkey_der(&ctx_pk, ecc_pub_key_der_encoded, sizeof(ecc_pub_key_der_encoded));
-    message_ctx->der_encoded_ephermal_key = (uint8_t *)pvPortCalloc(1, ecc_pub_key_length_der_encoded);
-    memcpy(message_ctx->der_encoded_ephermal_key, ecc_pub_key_der_write_ptr - ecc_pub_key_length_der_encoded, ecc_pub_key_length_der_encoded);
-    message_ctx->der_encoded_ephermal_key_length = ecc_pub_key_length_der_encoded;
 
-    return status;
+    ecc_pub_key_length_der_encoded = (size_t)mbedtls_pk_write_pubkey_der(&ctx_pk, ecc_pub_key_der_encoded, ecc_pub_key_length);
+    *der_encoded_key_buffer = (uint8_t *)pvPortCalloc(ecc_pub_key_length_der_encoded, sizeof(uint8_t));
+    memcpy(*der_encoded_key_buffer, ecc_pub_key_der_write_ptr - ecc_pub_key_length_der_encoded, ecc_pub_key_length_der_encoded);
+    *der_encoded_key_buffer_length = ecc_pub_key_length_der_encoded;
+
+    mbedtls_pk_free(&ctx_pk);
+    mbedtls_ecp_keypair_free(ecp);
 }
 
 psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephermal_key_handle)
@@ -141,10 +213,13 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     psa_key_derivation_operation_t derivation_operation = PSA_KEY_DERIVATION_OPERATION_INIT;
     psa_key_attributes_t aes_attributes = PSA_KEY_ATTRIBUTES_INIT;
     did_document *did_doc = encryption_ctx->did_documents[recipient_counter];
+    size_t info_length = message_ctx->der_encoded_ephermal_key_length + did_doc->public_key_der_encoded_length;
+    uint8_t info[info_length];
+    memcpy(info, message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
+    memcpy(info, did_doc->public_key_der_encoded, did_doc->public_key_der_encoded_length);
 
     // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime
-    // ! To-do: wrapped aes-key
-    psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT);
+    psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT);
     psa_set_key_algorithm(&aes_attributes, PSA_ALG_GCM);
     psa_set_key_type(&aes_attributes, PSA_KEY_TYPE_AES_WRAPPED);
     psa_set_key_bits(&aes_attributes, AES_KEY_BITS);
@@ -163,7 +238,7 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_bytes API FAILED ** \r\n", &derivation_operation);
     status = psa_key_derivation_key_agreement(&derivation_operation, PSA_KEY_DERIVATION_INPUT_SECRET, ephermal_key_handle, did_doc->public_key, did_doc->public_key_length);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_key_agreement API FAILED ** \r\n", &derivation_operation);
-    status = psa_key_derivation_input_bytes(&derivation_operation, PSA_KEY_DERIVATION_INPUT_INFO, did_doc->public_key, did_doc->public_key_length);
+    status = psa_key_derivation_input_bytes(&derivation_operation, PSA_KEY_DERIVATION_INPUT_INFO, info, info_length);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_bytes API FAILED ** \r\n", &derivation_operation);
     status = psa_key_derivation_output_key(&aes_attributes, &derivation_operation, &encryption_ctx->aes_key_handle);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_output_key API FAILED ** \r\n", &derivation_operation);
@@ -185,8 +260,8 @@ psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_co
     // Generate IV (96 bits), calculate encrypted_data_size and allocate heap for encrypted data
     status = psa_generate_random(nonce, NONCE_LENGTH);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_random API FAILED ** \r\n");
-    encrypted_data_size = encryption_ctx->battery_data_length + TAG_LENGTH;
-    message_ctx->battery_data_encrypted = (uint8_t *)pvPortCalloc(1, encrypted_data_size);
+    encrypted_data_size = PSA_AEAD_ENCRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES_WRAPPED, PSA_ALG_GCM, encryption_ctx->battery_data_length);
+    message_ctx->battery_data_encrypted = (uint8_t *)pvPortCalloc(encrypted_data_size, sizeof(uint8_t));
     if (NULL == message_ctx->battery_data_encrypted)
     {
         APP_ERR_PRINT("\r\n** Out Of Memory. ** \r\n");
@@ -195,74 +270,141 @@ psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_co
     memcpy(message_ctx->aad, nonce, NONCE_LENGTH);
 
     // AES-GCM 256 encryption
-    status = psa_aead_encrypt(encryption_ctx->aes_key_handle, PSA_ALG_GCM, nonce, NONCE_LENGTH, message_ctx->aad, AAD_LENGTH, encryption_ctx->battery_data_json,
+    status = psa_aead_encrypt(encryption_ctx->aes_key_handle, PSA_ALG_GCM, nonce, NONCE_LENGTH, message_ctx->aad, AAD_LENGTH, encryption_ctx->battery_data,
                               encryption_ctx->battery_data_length, message_ctx->battery_data_encrypted, encrypted_data_size, &message_ctx->encrypted_data_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_aead_encrypt API FAILED ** \r\n");
+    status = psa_destroy_key(encryption_ctx->aes_key_handle);
+    CHECK_PSA_SUCCESS(status, "\r\n** psa_destroy_key API FAILED ** \r\n");
 
     return status;
 }
 
-psa_status_t generate_signed_json_message(message_context *message_ctx)
+
+psa_status_t generate_signed_json_message(message_context *message_ctx, final_message_struct *final_message)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
     psa_key_handle_t signing_key_handle = (psa_key_handle_t)RESET_VALUE;
-    unsigned char* concatenated_message_string;
-    size_t concatenated_message_string_length = RESET_VALUE;
-    uint8_t message_hash[PSA_HASH_MAX_SIZE] = {RESET_VALUE};
-    size_t message_hash_len = RESET_VALUE;
-    unsigned char signature[PSA_SIGNATURE_MAX_SIZE] = {RESET_VALUE};
+    uint8_t *concatenated_message_bytes = NULL;
+    size_t concatenated_message_bytes_length = RESET_VALUE;
+    uint8_t concatenated_message_bytes_hash[PSA_HASH_MAX_SIZE] = {RESET_VALUE};
+    size_t concatenated_message_bytes_hash_length = RESET_VALUE;
+    uint8_t signature[PSA_SIGNATURE_MAX_SIZE] = {RESET_VALUE};
     size_t signature_length = RESET_VALUE;
+    cJSON *json_message = cJSON_CreateObject();
 
     // Sign hash of message_ctx
     status = psa_open_key(SIGNING_KEY_ID, &signing_key_handle);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
-    concatenated_message_string = create_message_string(message_ctx, &concatenated_message_string_length);
-    status = ecc_hashing_operation(concatenated_message_string, concatenated_message_string_length, message_hash, &message_hash_len);
+    create_message_string(message_ctx, &concatenated_message_bytes, &concatenated_message_bytes_length, json_message);
+    status = ecc_hashing_operation(concatenated_message_bytes, concatenated_message_bytes_length, concatenated_message_bytes_hash, &concatenated_message_bytes_hash_length);
     CHECK_PSA_SUCCESS(status, "\r\n** ecc_hashing_operation failed. ** \r\n");
-    status = psa_sign_hash(signing_key_handle, PSA_ALG_ECDSA(PSA_ALG_SHA_256), message_hash, message_hash_len, signature, sizeof(signature), &signature_length);
+    status = psa_sign_hash(signing_key_handle, PSA_ALG_ECDSA(PSA_ALG_SHA_256), concatenated_message_bytes_hash, concatenated_message_bytes_hash_length, signature, PSA_SIGNATURE_MAX_SIZE, &signature_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_sign_hash API FAILED ** \r\n");
     status = psa_close_key(signing_key_handle);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
-    // Generate signed JSON-Message
+    // Generate final signed JSON-Message
+    generate_final_signed_json_message(json_message, signature, signature_length, final_message);
 
     return status;
 }
 
-unsigned char* create_message_string(message_context *message_ctx, size_t *concatenated_message_string_length)
+void create_message_string(message_context *message_ctx, uint8_t **concatenated_message_bytes, size_t *concatenated_message_bytes_length, cJSON *message_json)
 {
-    *concatenated_message_string_length =
-            message_ctx->encrypted_data_length +
-            AAD_LENGTH +
-            SALT_LENGTH +
-            DID_LENGTH +
-            message_ctx->der_encoded_ephermal_key_length;
-    unsigned char *concatenated_message_string = (char *)pvPortCalloc(1, *concatenated_message_string_length);
-    unsigned char *index_ptr = concatenated_message_string;
-    memcpy(concatenated_message_string, (char *)message_ctx->battery_data_encrypted, message_ctx->encrypted_data_length);
-    index_ptr += message_ctx->encrypted_data_length;
-    memcpy(index_ptr, message_ctx->aad, AAD_LENGTH);
-    index_ptr += AAD_LENGTH;
-    memcpy(index_ptr, message_ctx->salt, SALT_LENGTH);
-    index_ptr += SALT_LENGTH;
-    memcpy(index_ptr, message_ctx->did, DID_LENGTH);
-    index_ptr += DID_LENGTH;
-    memcpy(index_ptr, message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
-
-    return concatenated_message_string;
+    CHECK_JSON_STATUS(message_json, message_json);
+    // Base64 encoding of ciphertext and adding to message_json
+    size_t ciphertext_base64_size = (size_t) ceil(message_ctx->encrypted_data_length / 3.0) * 4 + 1;
+    size_t ciphertext_base64_bytes_written = RESET_VALUE;
+    unsigned char ciphertext_base64[ciphertext_base64_size];
+    mbedtls_base64_encode(ciphertext_base64, ciphertext_base64_size, &ciphertext_base64_bytes_written,
+                          (unsigned char *)message_ctx->battery_data_encrypted, message_ctx->encrypted_data_length);
+    ciphertext_base64[ciphertext_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "ciphertext", (char *)ciphertext_base64);
+    // Base64 encoding of AAD and adding to message_json
+    size_t aad_base64_size = (size_t) ceil(AAD_LENGTH / 3) * 4 + 1;
+    size_t aad_base64_bytes_written = RESET_VALUE;
+    unsigned char aad_base64[aad_base64_size];
+    mbedtls_base64_encode(aad_base64, aad_base64_size, &aad_base64_bytes_written, (unsigned char *)message_ctx->aad, AAD_LENGTH);
+    aad_base64[aad_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "aad", (char *)aad_base64);
+    // Base64 encoding of salt and adding to message_json
+    size_t salt_base64_size = (size_t) ceil(SALT_LENGTH / 3) * 4 + 1;
+    size_t salt_base64_bytes_written = RESET_VALUE;
+    unsigned char salt_base64[aad_base64_size];
+    mbedtls_base64_encode(salt_base64, salt_base64_size, &salt_base64_bytes_written, (unsigned char *)message_ctx->salt, SALT_LENGTH);
+    salt_base64[salt_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "salt", (char *)salt_base64);
+    // Base64 encoding of did and adding to message_json
+    size_t did_base64_size = (size_t) ceil(DID_LENGTH / 3) * 4 + 1;
+    size_t did_base64_bytes_written = RESET_VALUE;
+    unsigned char did_base64[did_base64_size];
+    mbedtls_base64_encode(did_base64, did_base64_size, &did_base64_bytes_written, (unsigned char *)did, DID_LENGTH);
+    did_base64[did_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "did", (char *)did_base64);
+    // Base64 encoding of ephermal_public_key_der and adding to message_json
+    size_t ephermal_public_key_der_base64_size = (size_t) ceil(message_ctx->der_encoded_ephermal_key_length / 3) * 4 + 1;
+    size_t ephermal_publick_key_der_base64_bytes_written = RESET_VALUE;
+    unsigned char ephermal_public_key_der_base64[ephermal_public_key_der_base64_size];
+    mbedtls_base64_encode(ephermal_public_key_der_base64, ephermal_public_key_der_base64_size, &ephermal_publick_key_der_base64_bytes_written,
+                             (unsigned char *)message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
+    ephermal_public_key_der_base64[ephermal_publick_key_der_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "ephermal_public_key", (char *)ephermal_public_key_der_base64);
+    // Get timestamp, base64 encoding of timestamp and adding to message_json
+    get_rtc_calendar_time(message_ctx->timestamp_bytes);
+    size_t timestamp_base64_size = (size_t) ceil(TIMESTAMP_LENGTH / 3) * 4 + 1;
+    size_t timestamp_bytes_written = RESET_VALUE;
+    unsigned char timestamp_base64[timestamp_base64_size];
+    mbedtls_base64_encode(timestamp_base64, timestamp_base64_size, &timestamp_bytes_written, (unsigned char *)message_ctx->timestamp_bytes, TIMESTAMP_LENGTH);
+    timestamp_base64[timestamp_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "timestamp", (char *)timestamp_base64);
+    // Create concatenated message string to sign
+    char *concatenated_message_string = cJSON_Print(message_json);
+    *concatenated_message_bytes_length = strlen(concatenated_message_string);
+    *concatenated_message_bytes = (uint8_t *)pvPortCalloc(*concatenated_message_bytes_length, sizeof(uint8_t));
+    memcpy(*concatenated_message_bytes, concatenated_message_string, *concatenated_message_bytes_length);
 }
 
-psa_status_t ecc_hashing_operation(unsigned char *payload, uint8_t payload_length, uint8_t *payload_hash, size_t *payload_hash_len)
+psa_status_t ecc_hashing_operation(uint8_t *concatenated_message_bytes, size_t concatenated_message_bytes_length, uint8_t *concatenated_message_bytes_hash, size_t *concatenated_message_bytes_hash_length)
 {
-    psa_status_t             status         = (psa_status_t)RESET_VALUE;
-    psa_hash_operation_t     hash_operation = {RESET_VALUE};
+    psa_status_t status = (psa_status_t)RESET_VALUE;
+    psa_hash_operation_t hash_operation = {RESET_VALUE};
     status = psa_hash_setup(&hash_operation, PSA_ALG_SHA_256);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_hash_setup API FAILED ** \r\n");
-    status = psa_hash_update(&hash_operation, payload, payload_length);
+    status = psa_hash_update(&hash_operation, concatenated_message_bytes, concatenated_message_bytes_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_hash_update API FAILED ** \r\n");
-    status = psa_hash_finish(&hash_operation, payload_hash, PSA_HASH_MAX_SIZE, payload_hash_len);
+    status = psa_hash_finish(&hash_operation, concatenated_message_bytes_hash, PSA_HASH_MAX_SIZE, concatenated_message_bytes_hash_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_hash_finish API FAILED ** \r\n");
+    // Free memory
+    vPortFree(concatenated_message_bytes);
 
     return status;
+}
+
+void generate_final_signed_json_message(cJSON* json_message, uint8_t *signature, size_t signature_length, final_message_struct *final_message)
+{
+    // Base64 encoding of signature and adding to message_json
+    size_t signatur_base64_size = (size_t) ceil(signature_length / 3) * 4 + 1;
+    size_t signature_base64_bytes_written = RESET_VALUE;
+    unsigned char signature_base64[signatur_base64_size];
+    mbedtls_base64_encode(signature_base64, signatur_base64_size, &signature_base64_bytes_written, (unsigned char *)signature, signature_length);
+    signature_base64[signature_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(json_message, "signature", (char *)signature_base64);
+    // Initlialize final message struct
+    char *final_message_string = cJSON_Print(json_message);
+    final_message->signed_message_bytes_length = strlen(final_message_string);
+    final_message->signed_message_bytes = (uint8_t *)pvPortCalloc(final_message->signed_message_bytes_length, sizeof(uint8_t));
+    memcpy(final_message->signed_message_bytes, final_message_string, final_message->signed_message_bytes_length);
+    cJSON_Delete(json_message);
+}
+
+void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct *final_message)
+{
+    size_t xBytesSentEndpoint = RESET_VALUE;
+    size_t xBytesSentMessage = RESET_VALUE;
+    xBytesSentEndpoint = xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
+    do {
+        xBytesSentMessage = xMessageBufferSend(crypto_net_message_buffer, (void *)final_message->signed_message_bytes, final_message->signed_message_bytes_length,
+                                               pdMS_TO_TICKS(1000));
+    } while (xBytesSentMessage > 0);
 }
 
 
