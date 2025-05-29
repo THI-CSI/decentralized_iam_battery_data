@@ -11,8 +11,7 @@ import (
 type CreateDid struct {
 	// Public key information used for verifying signatures and authentication.
 	PublicKey PublicKey `json:"publicKey" validate:"required"`
-	// Optional array of service endpoints related to the DID subject, such as APIs or metadata
-	// services.
+	// Optional array of service endpoints related to the DID subject, such as APIs or metadata services.
 	Service []DidSchema `json:"service,omitempty" validate:"required"`
 }
 

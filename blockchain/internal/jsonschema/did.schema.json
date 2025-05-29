@@ -1,5 +1,4 @@
 {
-  
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "did",
   "title": "Battery-Ecosystem DID Document",
@@ -20,76 +19,124 @@
       },
       "minItems": 2,
       "maxItems": 2,
-      "uniqueItems": true,
-      "description": "Defines the JSON-LD context, providing meaning to terms used in the did."
+      "uniqueItems": true
     },
     "id": {
       "type": "string",
-      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
-      "description": "Decentralized Identifier (DID) for the entity, following the DID syntax."
+      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$"
     },
     "verificationMethod": {
-      "$ref": "#/$defs/verificationMethod",
-      "description": "Public key information used for verifying signatures and authentication."
+      "$ref": "#/$defs/verificationMethod"
     },
     "service": {
       "type": "array",
-      "items": { "$ref": "#/$defs/ServiceEndpoint" },
-      "description": "Optional array of service endpoints related to the DID subject, such as APIs or metadata services."
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/BatterypassApiService" },
+          { "$ref": "#/$defs/HandleDidService" }
+        ]
+      }
     },
     "timestamp": {
       "type": "string",
-      "format": "date-time",
-      "description": "Timestamp indicating when the DID document was created/modified."
+      "format": "date-time"
     },
     "revoked": {
-      "type": "boolean",
-      "description": "Boolean flag indicating whether this DID has been revoked."
+      "type": "boolean"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "id": { "pattern": "^did:batterypass:bms" }
+        }
+      },
+      "then": {
+        "required": ["service"],
+        "properties": {
+          "service": {
+            "items": { "$ref": "#/$defs/BatterypassApiService" },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "id": {
+            "pattern": "^did:batterypass:cloud"
+          }
+        }
+      },
+      "then": {
+        "required": ["service"],
+        "properties": {
+          "service": {
+            "items": {
+              "$ref": "#/$defs/BatterypassApiService"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "id": { "pattern": "^did:batterypass:(eu|oem)" }
+        }
+      },
+      "then": {
+        "required": ["service"],
+        "properties": {
+          "service": {
+            "items": { "$ref": "#/$defs/HandleDidService" },
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "verificationMethod": {
       "type": "object",
       "required": ["id", "type", "controller", "publicKeyMultibase"],
       "additionalProperties": false,
-      "description": "A method by which a DID subject can be authenticated, typically using cryptographic keys.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Identifier for the verification method, typically a DID fragment."
-        },
-        "type": {
-          "type": "string",
-          "description": "Type of the verification method, e.g., 'Ed25519VerificationKey2020'."
-        },
-        "controller": {
-          "type": "string",
-          "description": "DID that has the ability to make changes to this DID-Document."
-        },
-        "publicKeyMultibase": {
-          "type": "string",
-          "description": "The public key encoded in multibase format."
-        }
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "controller": { "type": "string" },
+        "publicKeyMultibase": { "type": "string" }
       }
     },
-    "ServiceEndpoint": {
+    "BatterypassApiService": {
       "type": "object",
       "required": ["id", "type", "serviceEndpoint"],
       "additionalProperties": false,
-      "description": "Represents a service associated with the DID subject, such as a metadata or data access point.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Identifier for the service endpoint, typically a DID fragment."
+          "pattern": "^did:batterypass:(bms|cloud):[A-Za-z0-9._-]+#batterypassApi(-[a-zA-Z0-9._-]+)?"
         },
-        "type": {
+        "type": { "const": "BatteryPassAPI" },
+        "serviceEndpoint": { "type": "string" }
+      }
+    },
+    "HandleDidService": {
+      "type": "object",
+      "required": ["id", "type", "serviceEndpoint"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
           "type": "string",
-          "description": "Type or category of the service, e.g., 'BatteryDataService'."
+          "pattern": "^did:batterypass:(oem|eu):[A-Za-z0-9._-]+#handleDid$"
         },
-        "serviceEndpoint": {
-          "type": ["string"],
-          "description": "The actual service endpoint, which can be a URL."
-        }
+        "type": { "const": "HandleDID" },
+        "serviceEndpoint": { "type": "string" }
       }
     }
   }

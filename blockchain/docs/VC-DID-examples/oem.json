@@ -12,9 +12,9 @@
   },
   "service": [
     {
-      "id": "did:batterypass:oem.vw-node-eu-central",
-      "type": "IssueVC",
-      "serviceEndpoint": "https://<client-endpoint>"
+      "id": "did:batterypass:oem.VW#handleDid",
+      "type": "HandleDID",
+      "serviceEndpoint": "Endlpoint to request creation/modification/revocation of Cloud & BMS Dids"
     }
   ],
   "timestamp": "2025-04-01T08:00:00Z",

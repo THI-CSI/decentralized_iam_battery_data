@@ -10,6 +10,13 @@
     "controller": "did:batterypass:eu",
     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
   },
+  "service": [
+    {
+      "id": "did:batterypass:eu#handleDid",
+      "type": "HandleDID",
+      "serviceEndpoint": "Endlpoint to request creation/modification/revocation of Cloud & Service & OEM Dids"
+    }
+  ],
   "timestamp": "2025-04-02T09:00:00Z",
   "revoked": false
 }

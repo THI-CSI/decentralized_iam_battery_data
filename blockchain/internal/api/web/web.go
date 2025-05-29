@@ -45,7 +45,7 @@ func gracefulShutdown(app *fiber.App, done chan bool) {
 //	@version		1.0
 //	@description	This is the api for the blockchain
 //
-//	@host		localhost:8080
+//	@host		localhost:8443
 //	@BasePath	/api/v1
 func CreateServer(chain *core.Blockchain) {
 	app := server.New(chain)
