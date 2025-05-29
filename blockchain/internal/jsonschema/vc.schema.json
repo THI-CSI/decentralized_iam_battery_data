@@ -96,7 +96,7 @@
         "verificationMethod":{
           "type": "string",
           "pattern": "^did:[a-z0-9]+:[a-zA-Z0-9\\.\\-]+#[a-zA-Z0-9_-]+$",
-          "description": "The DID that identifies the public key used to verify the signature."
+          "description": "The DID that identifies the public key used to verify the signature. (Issuer)"
         },
         "proofPurpose":{
           "type": "string",

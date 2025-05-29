@@ -47,7 +47,6 @@ func CreateTrustAnchor() error {
 	if err != nil {
 		return fmt.Errorf(`failed to read trustanchor.json: %w`, err)
 	}
-	fmt.Println(string(data))
 
 	// Unmarshal using the generated function
 	did, err := core.UnmarshalDid(data)
@@ -63,30 +62,9 @@ func CreateTrustAnchor() error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal DID document: %w", err)
 	}
-	fmt.Println(string(modifiedData))
 	PendingTransactions = append(PendingTransactions, modifiedData)
 	return nil
 }
-
-// CreateTrustAnchor Creates the EU DID transaction as trust anchor
-// At the moment this is a Hardcoded DID Document for development
-// func CreateTrustAnchor() {
-// 	PendingTransactions = nil
-// 	now := time.Now().UTC().Format(time.RFC3339)
-//
-// 	rawJSON := fmt.Sprintf(`{
-//   "id": "did:batterypass:eu",
-//   "verificationMethod": {
-//     "id": "did:batterypass:eu#root-key",
-//     "type": "JsonWebKey2020",
-//     "controller": "did:batterypass:eu",
-//     "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
-//   },
-//   "timestamp": "%s",
-//   "revoked": false
-// }`, now)
-// 	PendingTransactions = append(PendingTransactions, json.RawMessage(rawJSON))
-// }
 
 func (chain *Blockchain) AppendDid(did *core.Did) error {
 	didState := chain.VerifyDID(did.ID)
