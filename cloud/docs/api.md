@@ -49,7 +49,7 @@ All endpoints receive their body encrypted with the pre-discussed hybrid scheme.
 The contents of the ciphertext payload differ from endpoint to endpoint, but the
 overarching body is the same for all of them.
 
-```json lines
+```jsonc
 {
   "ciphertext": "...", // the encrypted contents of the actual body
   "aad": "...", // the nonce used for the encryption
@@ -76,7 +76,6 @@ completed successfully:
 
 ```http
 HTTP/1.1 200 OK
-...
 
 { "ok": "..." }
 ```
@@ -85,11 +84,20 @@ or an error including the status code, specific error message and timestamp:
 
 ```http
 HTTP/1.1 400 Bad Request
-...
 
 {
   "status": 400,
-  "message": "Something went wrong",
+  "message": "Entry already exists.",
+  "timestamp": "2025-05-27T10:30:00Z"
+}
+```
+
+```http
+HTTP/1.1 404 Not Found
+
+{
+  "status": 404,
+  "message": "Entry doesn't exist.",
   "timestamp": "2025-05-27T10:30:00Z"
 }
 ```
