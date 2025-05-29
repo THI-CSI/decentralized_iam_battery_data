@@ -2,7 +2,10 @@ package utils
 
 import (
 	"blockchain/internal/api/web/server/domain"
+	"crypto/ed25519"
+	"encoding/base64"
 	"errors"
+	"github.com/multiformats/go-multibase"
 	"regexp"
 	"strings"
 
@@ -57,4 +60,42 @@ func IsDidValid(did string) bool {
 func IsUrnValid(urn string) bool {
 	matched, _ := regexp.MatchString(`^urn:uuid:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$`, urn)
 	return matched
+}
+
+// VerifySignature verifies an Ed25519 signature using a public key in multibase format.
+// The public key must have a multicodec prefix of 0xED (Ed25519).
+func VerifySignature(data []byte, signatureB64, publicKeyMultibase string) error {
+	// Decode the multibase-encoded public key
+	_, decoded, err := multibase.Decode(publicKeyMultibase)
+	if err != nil {
+		return errors.New("invalid multibase-encoded public key")
+	}
+
+	// Ensure the multicodec prefix is 0xED for Ed25519
+	if len(decoded) < 1 || decoded[0] != 0xED {
+		return errors.New("missing or invalid Ed25519 multicodec prefix")
+	}
+
+	// Extract the actual public key bytes
+	pubKeyBytes := decoded[1:]
+	if len(pubKeyBytes) != ed25519.PublicKeySize {
+		return errors.New("invalid public key length after decoding")
+	}
+	pubKey := ed25519.PublicKey(pubKeyBytes)
+
+	// Decode the base64-encoded signature
+	sigBytes, err := base64.StdEncoding.DecodeString(signatureB64)
+	if err != nil {
+		return errors.New("invalid base64 signature")
+	}
+	if len(sigBytes) != ed25519.SignatureSize {
+		return errors.New("invalid signature length")
+	}
+
+	// Verify the signature
+	if !ed25519.Verify(pubKey, data, sigBytes) {
+		return errors.New("signature verification failed")
+	}
+
+	return nil
 }
