@@ -796,6 +796,7 @@ FSP Configuration
     Code Flash Programming Enable: Disabled
     Data Flash Programming Enable: Enabled
     
+  Module "Key Injection for PSA Crypto"
   FreeRTOS
     General: Custom FreeRTOSConfig.h: 
     General: Use Preemption: Enabled
@@ -891,6 +892,9 @@ FSP Configuration
     Instance "MbedTLS (Crypto Only)"
       Instance "Mbed Crypto H/W Acceleration (rm_psa_crypto)"
         Instance "SCE Compatibility Mode"
+          Instance "Key Injection for PSA Crypto"
+            General: Name: g_sce9_key_install
+            
       Instance "LittleFS"
         
         Instance "LittleFS on Flash (rm_littlefs_flash)"
@@ -930,5 +934,15 @@ FSP Configuration
     
   Object "bms_cloud_sem Binary Semaphore"
     Symbol: bms_cloud_sem
+    Memory Allocation: Static
+    
+  Object "net_crypto_message_buffer Message Buffer"
+    Symbol: net_crypto_message_buffer
+    Message Buffer Size (Bytes): 1024
+    Memory Allocation: Static
+    
+  Object "crypto_net_message_buffer Message Buffer"
+    Symbol: crypto_net_message_buffer
+    Message Buffer Size (Bytes): 512
     Memory Allocation: Static
     

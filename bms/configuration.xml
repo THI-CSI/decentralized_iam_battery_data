@@ -235,6 +235,14 @@
       <description>FreeRTOS - Memory Management - Heap 4</description>
       <originalPack>Amazon.FreeRTOS-Kernel.11.1.0+fsp.5.9.0.pack</originalPack>
     </component>
+    <component apiversion="" class="Libraries" condition="" group="coreJSON" subgroup="source" variant="" vendor="AWS" version="3.3.0+fsp.5.9.0">
+      <description>AWS Core JSON</description>
+      <originalPack>Amazon.coreJSON.3.3.0+fsp.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_sce9_ra6_key_injection" variant="" vendor="Renesas" version="5.9.0">
+      <description>Secure Cryptography Engine on RA6 Mode(SCE9)</description>
+      <originalPack>Renesas.RA.5.9.0.pack</originalPack>
+    </component>
   </raComponentSelection>
   <raElcConfiguration/>
   <raIcuConfiguration/>
@@ -284,9 +292,22 @@
       <property id="module.driver.flash.ipl" value="_disabled"/>
       <property id="module.driver.flash.err_ipl" value="_disabled"/>
     </module>
+    <module id="module.driver.sce9_key_injection.1495400356">
+      <property id="module.driver.sce9_key_injection.name" value="g_sce9_key_install"/>
+    </module>
     <object id="rtos.awsfreertos.object.binary_semaphore.1900834505">
       <property id="rtos.awsfreertos.object.binary_semaphore.symbol" value="bms_cloud_sem"/>
       <property id="rtos.awsfreertos.object.binary_semaphore.allocation" value="rtos.awsfreertos.object.binary_semaphore.allocation.static"/>
+    </object>
+    <object id="rtos.awsfreertos.object.message_buffer.727501554">
+      <property id="rtos.awsfreertos.object.message_buffer.symbol" value="net_crypto_message_buffer"/>
+      <property id="rtos.awsfreertos.object.message_buffer.size_bytes" value="1024"/>
+      <property id="rtos.awsfreertos.object.message_buffer.allocation" value="rtos.awsfreertos.object.message_buffer.allocation.static"/>
+    </object>
+    <object id="rtos.awsfreertos.object.message_buffer.770338983">
+      <property id="rtos.awsfreertos.object.message_buffer.symbol" value="crypto_net_message_buffer"/>
+      <property id="rtos.awsfreertos.object.message_buffer.size_bytes" value="512"/>
+      <property id="rtos.awsfreertos.object.message_buffer.allocation" value="rtos.awsfreertos.object.message_buffer.allocation.static"/>
     </object>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
@@ -295,7 +316,9 @@
       <stack module="module.freertos.heap.4.1855982809"/>
       <stack module="module.driver.psa_crypto.1276303987">
         <stack module="module.driver.rm_psa_crypto.405715143" requires="module.driver.rm_psa_crypto">
-          <stack module="module.driver.sce9.plaintext.185796928" requires="module.driver.rm_psa_crypto.requires.sce"/>
+          <stack module="module.driver.sce9.plaintext.185796928" requires="module.driver.rm_psa_crypto.requires.sce">
+            <stack module="module.driver.sce9_key_injection.1495400356" requires="module.driver.sce.requires.sce9_key_injection"/>
+          </stack>
         </stack>
         <stack module="module.arm.mbed.littlefs.1474290650" requires="module.driver.rm_psa_crypto.requires.middleware.stdio_wrapper">
           <stack module="module.middleware.rm_littlefs.260727364" requires="module.arm.mbed.littlefs.requires.littlefs_port">
