@@ -16,10 +16,10 @@ This document describes the error handling and retry strategy used for sending d
 
 ## Location  
 The logic is implemented in:  
-cloud/test_client.py
+[cloud/test_client.py](../test_client.py)
 
 Function used:  
-send_dummy_data_with_retry(data, max_retries=3)
+`send_dummy_data_with_retry(data, max_retries=3)`
 
 ## Future Improvements  
 - Use exponential backoff instead of fixed delay  

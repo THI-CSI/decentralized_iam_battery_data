@@ -3,7 +3,6 @@ import os
 import logging
 from datetime import datetime
 
-
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
@@ -11,11 +10,14 @@ from fastapi.responses import JSONResponse
 from tinydb import TinyDB, where
 from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign
 from dotenv import load_dotenv
-from util.models import EncryptedPayload
+from util.models import EncryptedPayload, SuccessfulResponse, ErrorResponse
 from util.middleware import verify_request
 
+app = FastAPI(
+    title="Battery Pass API",
+    description="A detailed API description can be found under <code>cloud/docs/api.md</code>."
+)
 
-app = FastAPI()
 load_dotenv()
 generate_keys(os.getenv("PASSPHRASE", "secret"))
 logging.basicConfig(
@@ -23,15 +25,17 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+
 def error_response(status_code: int, message: str):
     return JSONResponse(
         status_code=status_code,
         content={
             "status": status_code,
             "message": message,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now().isoformat()
         }
     )
+
 
 def get_db():
     db = TinyDB("db.json")
@@ -40,9 +44,11 @@ def get_db():
     finally:
         db.close()
 
+
 @lru_cache()
 def get_private_key():
     return load_private_key(os.getenv("PASSPHRASE", "secret"))
+
 
 def set_nested_value(doc, path_keys, new_value):
     current_level = doc
@@ -50,28 +56,55 @@ def set_nested_value(doc, path_keys, new_value):
         current_level = current_level.setdefault(key, {})
     current_level[path_keys[-1]] = new_value
 
-@app.get("/")
+
+@app.get("/",
+         summary="API Health Check",
+         tags=["General"],
+         response_model=SuccessfulResponse)
 def read_root():
-    return {"message": "API is working"}
+    return {"ok": "API is running"}
 
-@app.get("/batterypass/{did}", summary="Get a battery pass entry by DID")
-async def read_item(
-    did: str = Path(description="Must be a properly formed DID"),
-    db: TinyDB = Depends(get_db),
-):
-    return db.search(where("did") == did)
 
-@app.get("/batterypass/", summary="List all stored DIDs")
+@app.get("/batterypass/",
+         summary="List all stored DIDs",
+         tags=["Battery Pass"],
+         responses={
+             200: {"model": list[str]}
+         })
 async def list_dids(db: TinyDB = Depends(get_db)):
     entries = db.all()
     return [entry["did"] for entry in entries if "did" in entry]
 
-@app.put("/batterypass/{did}", summary="Create a new battery pass entry for a DID")
+
+@app.get("/batterypass/{did}",
+         summary="Get a battery pass entry by DID",
+         tags=["Battery Pass"],
+         responses={
+             200: {"model": SuccessfulResponse},
+             400: {"model": ErrorResponse},
+             404: {"model": ErrorResponse},
+         })
+async def read_item(
+        did: str = Path(description="A properly formed DID"),
+        db: TinyDB = Depends(get_db),
+):
+    return db.search(where("did") == did)
+
+
+@app.put("/batterypass/{did}",
+         summary="Create a new battery pass entry for a DID",
+         tags=["Battery Pass"],
+         responses={
+             200: {"model": SuccessfulResponse},
+             400: {"model": ErrorResponse},
+             403: {"model": ErrorResponse},
+             404: {"model": ErrorResponse},
+         })
 async def create_item(
-    item: EncryptedPayload,
-    did: str,
-    db: TinyDB = Depends(get_db),
-    private_key: ECC.EccKey = Depends(get_private_key),
+        item: EncryptedPayload,
+        did: str = Path(description="A properly formed DID"),
+        db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
 ):
     verify_request(item, private_key)
     if db.search(where("did") == did):
@@ -85,12 +118,21 @@ async def create_item(
         })
         return {"ok": f"Entry for {did} added successfully."}
 
-@app.post("/batterypass/{did}")
+
+@app.post("/batterypass/{did}",
+          summary="Update a battery pass entry by DID",
+          tags=["Battery Pass"],
+          responses={
+              200: {"model": SuccessfulResponse},
+              400: {"model": ErrorResponse},
+              403: {"model": ErrorResponse},
+              404: {"model": ErrorResponse},
+          })
 async def update_item(
-    item: EncryptedPayload,
-    did: int,
-    db: TinyDB = Depends(get_db),
-    private_key: ECC.EccKey = Depends(get_private_key),
+        item: EncryptedPayload,
+        did: str = Path(description="A properly formed DID"),
+        db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
 ):
     decrypted_item = verify_request(item, private_key)
     document = db.search(where("did") == did)
@@ -104,18 +146,20 @@ async def update_item(
     return {"ok": f"Entry for {did} updated successfully."}
 
 
-@app.delete("/batterypass/{did}")
+@app.delete("/batterypass/{did}",
+            summary="Delete a battery pass entry by DID",
+            tags=["Battery Pass"],
+            responses={
+                200: {"model": SuccessfulResponse},
+                400: {"model": ErrorResponse},
+                403: {"model": ErrorResponse},
+                404: {"model": ErrorResponse},
+            })
 async def delete_item(
-        did: int,
+        item: EncryptedPayload,
+        did: str = Path(description="A properly formed DID"),
         db: TinyDB = Depends(get_db),
 ):
-    """
-    For a given DID, delete the entry from the database.
-    :param did: The DID of the entry to delete.
-    :param db: Dependency for the database.
-    :return: None
-    """
-
     # Search for database entry with the given DID
     document = db.search(where("did") == did)
 
