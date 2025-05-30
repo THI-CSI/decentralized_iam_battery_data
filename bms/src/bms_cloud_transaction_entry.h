@@ -6,7 +6,8 @@
 #define ECC_256_PUB_MAX_BUFFER_SIZE (70U)
 #define ENDPOINT_MAX_BUFFER_SIZE (200U)
 #define ECC_256_BIT_LENGTH (256U)
-#define ECC_256_PUB_DER_MAX_BUFFER_SIZE (130U)
+#define ECC_256_PUB_DER_MAX_BUFFER_SIZE (128U)
+#define ECC_256_PUB_RAW_LENGTH (65U)
 #define AES_KEY_BITS (256U)
 #define SALT_LENGTH (32U)
 #define NONCE_LENGTH (12U)
@@ -38,8 +39,7 @@
 typedef struct {
     char *endpoint;
     size_t endpoint_length;
-    uint8_t *public_key;
-    size_t public_key_length;
+    uint8_t public_key[ECC_256_PUB_RAW_LENGTH];
     uint8_t *public_key_der_encoded;
     size_t public_key_der_encoded_length;
 } did_document;
@@ -78,6 +78,7 @@ psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *en
 psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_handle_t *ephermal_key_handle);
 psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephermal_key_handle);
 void der_encoding(uint8_t *ecc_pub_key, size_t ecc_pub_key_length, uint8_t **der_encoded_key_buffer, size_t *der_encoded_key_buffer_length);
+void der_decoding(uint8_t *ecc_pub_key_der, size_t ecc_pub_key_der_length, uint8_t *raw_key_buffer);
 psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_context *message_ctx);
 psa_status_t generate_signed_json_message(message_context *message_ctx, final_message_struct *final_message);
 void create_message_string(message_context *message_ctx, uint8_t **concatenated_message_bytes, size_t *concatenated_message_bytes_length, cJSON *message_json);
