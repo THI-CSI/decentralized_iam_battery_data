@@ -2,13 +2,15 @@ import json
 import os
 import logging
 from datetime import datetime
+from json import JSONDecodeError
 
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, HTTPException, Path
 from fastapi.responses import JSONResponse
 from tinydb import TinyDB, where
-from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign, determine_role
+from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_hpke, determine_role, \
+    decrypt_hpke
 from dotenv import load_dotenv
 from util.models import EncryptedPayload, SuccessfulResponse, ErrorResponse
 from util.middleware import verify_request
@@ -106,13 +108,20 @@ async def create_item(
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
-    verify_request(item, private_key)
+    try:
+        decrypted_item = verify_request(item, private_key)
+    except ValueError as e:
+        return error_response(400, e.args[0])
+
+    if not determine_role(db, did, item["did"]) == "oem":
+        return error_response(403, "Unauthorized.")
     if db.search(where("did") == did):
         logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
-    if not determine_role(db, did, item["did"]) == "oem":
-        return error_response(403, "Unauthorized.")
-    db.insert({"did": did, "encrypted_data": item.model_dump()})
+    db.insert({
+        "did": did,
+        "encrypted_data": encrypt_hpke(private_key, decrypted_item)
+    })
     return {"ok": f"Entry for {did} added successfully."}
 
 
@@ -131,17 +140,28 @@ async def update_item(
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
-    decrypted_item = verify_request(item, private_key)
+    try:
+        decrypted_item = json.loads(verify_request(item, private_key))
+    except JSONDecodeError:
+        return error_response(400, "Error occurred while decoding JSON.")
+    except ValueError as e:
+        return error_response(400, e.args[0])
+
     document = db.search(where("did") == did)
+    if determine_role(db, did, item["did"]) != "bms":
+        return error_response(403, "Unauthorized.")
     if not document:
         return error_response(404, "Entry doesn't exist.")
-    if not determine_role(db, did, item["did"]) == "bms":
-        raise HTTPException(status_code=403, detail="Unauthorized.")
-    decrypted_document = decrypt_and_verify(private_key, document[0]["encrypted_data"])
-    for key, value in decrypted_item.items():
+    decrypted_document = json.loads(decrypt_hpke(private_key, document[0]["encrypted_data"]))
+    for element in decrypted_item:  # Iterate over the list of JSON items
+        if not isinstance(element, dict) or len(element) != 1:
+            return error_response(400, "Invalid update format.")
+        key, value = next(iter(element.items()))
         set_nested_value(decrypted_document, key.split("."), value)
-    encrypt_and_sign(private_key.public_key(), json.dumps(decrypted_document).encode("utf-8"))
-    db.update(document[0], where("did") == did)
+    encrypted_data = encrypt_hpke(
+        private_key.public_key(), json.dumps(decrypted_document).encode()
+    )
+    db.update({"encrypted_data": encrypted_data}, where("did") == did)
     return {"ok": f"Entry for {did} updated successfully."}
 
 
@@ -158,13 +178,22 @@ async def delete_item(
         item: EncryptedPayload,
         did: str = Path(description="A properly formed DID"),
         db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
 ):
+    try:
+        verify_request(item, private_key)
+    except ValueError as e:
+        return error_response(400, e.args[0])
+
+    if determine_role(db, did, item["did"]) != "bms":
+        return error_response(403, "Unauthorized.")
+
     # Search for database entry with the given DID
     document = db.search(where("did") == did)
 
     # If no entry is found, raise an HTTP exception
     if not document:
-        raise HTTPException(status_code=404, detail="Entry doesn't exist.")
+        return error_response(404, "Entry doesn't exist.")
 
     # Delete the entry from the database
     db.remove(where("did") == did)

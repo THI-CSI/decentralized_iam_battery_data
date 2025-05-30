@@ -22,7 +22,7 @@ from multiformats import multibase
 from tinydb import TinyDB, where
 
 
-def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> dict:
+def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
     message = json.loads(message_bytes)
     fields_to_decode = ["ciphertext", "aad", "salt", "signature", "eph_pub"]
     decoded_message = {key: base64.b64decode(value) for key, value in message.items() if key in fields_to_decode}
@@ -53,9 +53,7 @@ def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> dict:
     cipher.update(nonce)
     try:
         plaintext = cipher.decrypt_and_verify(ciphertext_data, tag)
-        return json.loads(plaintext)
-    except json.JSONDecodeError:
-        raise ValueError("Failed decoding decrypted data to JSON.")
+        return plaintext
     except ValueError:
         raise ValueError("Failed decryption due to invalid MAC tag.")
 
