@@ -86,12 +86,7 @@ void simulate_battery_data_query(encryption_context *encryption_ctx)
 {
     char *battery_data_string = (char *)pvPortCalloc(MAX_MODFIED_DATA_BUFFER, sizeof(char));
     int number_of_full_battery_cycles = get_number_of_full_battery_cycles();
-    double energy_throughput = get_energy_throughput();
-    double time_extreme_high_temperature = get_time_extreme_high_temperature();
-    sprintf(battery_data_string, "performance.batteryCondition.numberOfFullCycles.numberOfFullCyclesValue: %d; " \
-            "performance.energyThroughput: %f; " \
-            "performance.temperatureInformation.timeExtremeHighTemp: %f",
-            number_of_full_battery_cycles, energy_throughput, time_extreme_high_temperature);
+    sprintf(battery_data_string, "performance.batteryCondition.numberOfFullCycles.numberOfFullCyclesValue: %d", number_of_full_battery_cycles);
     encryption_ctx->battery_data_length = strlen(battery_data_string);
     encryption_ctx->battery_data = (uint8_t *)pvPortCalloc(encryption_ctx->battery_data_length, sizeof(uint8_t));
     memcpy(encryption_ctx->battery_data, battery_data_string, encryption_ctx->battery_data_length);
@@ -103,18 +98,6 @@ int get_number_of_full_battery_cycles(void)
 {
     int number_of_full_battery_cycles = 200;
     return number_of_full_battery_cycles;
-}
-
-double get_energy_throughput(void)
-{
-    double energy_throughput = 12.0;
-    return energy_throughput;
-}
-
-double get_time_extreme_high_temperature(void)
-{
-    double time_extreme_high_temp = 12.0;
-    return time_extreme_high_temp;
 }
 
 void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
@@ -251,10 +234,10 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     size_t info_length = message_ctx->der_encoded_ephermal_key_length + did_doc->public_key_der_encoded_length;
     uint8_t info[info_length];
     memcpy(info, message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
-    memcpy(info, did_doc->public_key_der_encoded, did_doc->public_key_der_encoded_length);
+    memcpy(info + message_ctx->der_encoded_ephermal_key_length, did_doc->public_key_der_encoded, did_doc->public_key_der_encoded_length);
 
     // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime
-    psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT);
+    psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_EXPORT);
     psa_set_key_algorithm(&aes_attributes, PSA_ALG_GCM);
     psa_set_key_type(&aes_attributes, PSA_KEY_TYPE_AES);
     psa_set_key_bits(&aes_attributes, AES_KEY_BITS);
@@ -295,7 +278,7 @@ psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_co
     // Generate IV (96 bits), calculate encrypted_data_size and allocate heap for encrypted data
     status = psa_generate_random(nonce, NONCE_LENGTH);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_random API FAILED ** \r\n");
-    encrypted_data_size = PSA_AEAD_ENCRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES_WRAPPED, PSA_ALG_GCM, encryption_ctx->battery_data_length);
+    encrypted_data_size = PSA_AEAD_ENCRYPT_OUTPUT_SIZE(PSA_KEY_TYPE_AES, PSA_ALG_GCM, encryption_ctx->battery_data_length);
     message_ctx->battery_data_encrypted = (uint8_t *)pvPortCalloc(encrypted_data_size, sizeof(uint8_t));
     if (NULL == message_ctx->battery_data_encrypted)
     {
@@ -348,7 +331,7 @@ void create_message_string(message_context *message_ctx, uint8_t **concatenated_
     CHECK_JSON_STATUS(message_json, message_json);
 
     // Base64 encoding of ciphertext and adding to message_json
-    size_t ciphertext_base64_size = (size_t) ((message_ctx->encrypted_data_length +2) / 3.0) * 4 + 1;
+    size_t ciphertext_base64_size = (size_t) ((message_ctx->encrypted_data_length + 2) / 3.0) * 4 + 1;
     size_t ciphertext_base64_bytes_written = RESET_VALUE;
     unsigned char ciphertext_base64[ciphertext_base64_size];
     mbedtls_base64_encode(ciphertext_base64, ciphertext_base64_size, &ciphertext_base64_bytes_written,

@@ -71,8 +71,6 @@ typedef struct {
 uint8_t fetch_did_documents(encryption_context *encryption_ctx);
 void simulate_battery_data_query(encryption_context *encryption_ctx);
 int get_number_of_full_battery_cycles(void);
-double get_energy_throughput(void);
-double get_time_extreme_high_temperature(void);
 void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message);
 psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message);
 psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_handle_t *ephermal_key_handle);
