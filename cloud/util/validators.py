@@ -1,26 +1,31 @@
-import os
+from pathlib import Path
 import json
 import re
-from jsonschema import validate, ValidationError
+from jsonschema import validate, Draft4Validator, ValidationError
 
-CLOUD_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-SCHEMA_DIR = os.path.join(CLOUD_ROOT, 'Batterypass')
+# Define relevant paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+SCHEMA_DIR = PROJECT_ROOT / 'cloud' / 'BatteryPassDataModel'
 
-# ------------------------------- Shared ------------------------------- +
+# ------------------------------- Shared ------------------------------- #
 def load_schema(submodel: str) -> dict:
-    path = os.path.join(SCHEMA_DIR, f"{submodel}-schema.json")
-    if not os.path.exists(path):
+    """Load a schema from the BatteryPassDataModel"""
+    submodel = submodel[0].upper() + submodel[1:]
+    path = SCHEMA_DIR / f"{submodel}-schema.json"
+    if not path.exists():
         raise FileNotFoundError(f"Schema not found for {submodel}")
-    with open(path, "r") as f:
+    with path.open("r", encoding="utf-16") as f:
         return json.load(f)
 
 # ------------------------------- Full Payload Validation ------------------------------- #
 def validate_battery_pass_payload(data: dict):
+    """Validate a complete given battery pass payload"""
     results = {}
     for submodel_name, payload in data.items():
         try:
             schema = load_schema(submodel_name)
-            validate(instance=payload, schema=schema)
+            #validate(instance=payload, schema=schema)
+            Draft4Validator(schema).validate(payload)
             results[submodel_name] = "Valid"
         except FileNotFoundError as e:
             results[submodel_name] = f"Missing schema: {e}"
@@ -30,6 +35,7 @@ def validate_battery_pass_payload(data: dict):
 
 # ------------------------------- Field-Level Update Validation ------------------------------- #
 def parse_path(path_str: str):
+    """Parse a given path and return all steps"""
     steps = []
     parts = path_str.split(".")
     for part in parts:
@@ -40,8 +46,8 @@ def parse_path(path_str: str):
                 steps.append(int(match.group(3)))
     return steps
 
-
 def get_subschema(schema: dict, path_steps: list):
+    """Get subschema from a given schema"""
     current = schema
     for step in path_steps:
         if isinstance(step, int):  # array index
@@ -57,7 +63,25 @@ def get_subschema(schema: dict, path_steps: list):
     return current
 
 
+def resolve_ref(schema, ref):
+    """Resolves a local $ref within a schema"""
+    if not ref.startswith("#/"):
+        raise ValueError(f"Only local refs supported: {ref}")
+    parts = ref.lstrip("#/").split("/")
+    sub = schema
+    for part in parts:
+        sub = sub[part]
+    return sub
+
+def dereference_subschema(schema, subschema):
+    """Resolve $ref in the subschema (single level only)"""
+    if "$ref" in subschema:
+        return resolve_ref(schema, subschema["$ref"])
+    return subschema
+
+
 def validate_updates(update_list: list):
+    """Validate updates from the PUT-request"""
     results = []
     for update in update_list:
         if len(update) != 1:
@@ -73,7 +97,12 @@ def validate_updates(update_list: list):
             schema = load_schema(submodel)
             path_steps = parse_path(relative_path)
             subschema = get_subschema(schema, path_steps)
-            validate(instance=value, schema=subschema)
+
+            # Resolve $ref if present
+            resolved_subschema = dereference_subschema(schema, subschema)
+
+            # Validate just the value
+            Draft4Validator(resolved_subschema).validate(value)
             results.append({"path": full_path, "valid": True})
         except (ValidationError, FileNotFoundError, ValueError) as e:
             results.append({"path": full_path, "valid": False, "error": str(e)})
