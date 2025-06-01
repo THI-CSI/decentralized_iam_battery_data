@@ -1,0 +1,8 @@
+{
+  "ciphertext": "Q2lwaGVydGV4dCBibG9iIHRleHQgYmFzZTY0IGVuY29kZWQ=",
+  "aad": "QUJDREVGR0hJSktMTU5PUA==",
+  "salt": "U2FsdEhlcmUyMzQ1Njc4OQ==",
+  "eph_pub": "UHVibGljS2V5Rm9yRW5jcnlwdGlvblRlc3REYXRhIQ==",
+  "did": null,
+  "signature": "U2lnbmF0dXJlUmVhbFZhbHVlU2lnbmVkIQ=="
+}
