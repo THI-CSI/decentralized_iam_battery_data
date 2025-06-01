@@ -36,7 +36,8 @@ QUICKTYPE = "./node_modules/.bin/quicktype"
 TYPEDOC = "./node_modules/.bin/typedoc"
 SCHEMA_RESOLVER = "./node_modules/.bin/json-schema-resolver"
 DOCS = "./docs"
-TYPES = "./internal/core/types"
+CORETYPES = "./internal/core/types"
+APITYPES = "./internal/api/types"
 
 
 def check_return_code(code):
@@ -176,7 +177,7 @@ def main():
                     "--package",
                     "core",
                     "-o",
-                    TYPES + "/did.types.go",
+                    CORETYPES + "/did.types.go",
                 ]
             )
             run_command(
@@ -190,7 +191,21 @@ def main():
                     "--package",
                     "core",
                     "-o",
-                    TYPES + "/vc.record.types.go",
+                    CORETYPES + "/vc.record.types.go",
+                ]
+            )
+            run_command(
+                [
+                    QUICKTYPE,
+                    "-s",
+                    "schema",
+                    SCHEMA_DIR + "/api/requests/request.vc.create.schema.json",
+                    "--top-level",
+                    "VCRequest",
+                    "--package",
+                    "api",
+                    "-o",
+                    APITYPES + "/request.vc.create.types.go",
                 ]
             )
         else:

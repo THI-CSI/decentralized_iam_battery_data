@@ -1,20 +1,10 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "vc",
   "title": "Battery-Ecosystem Verifiable Credential",
-  "description": "Custom VC envelope with two supported claim types.",
+  "description": "Schema for verifying claims of a holder with verifier proof.",
   "type": "object",
-  "required": [
-    "@context",
-    "id",
-    "type",
-    "issuer",
-    "holder",
-    "issuanceDate",
-    "expirationDate",
-    "credentialSubject",
-    "proof"
-  ],
+  "required": ["@context", "id", "type", "issuer", "holder", "issuanceDate", "expirationDate", "credentialSubject", "proof"],
   "additionalProperties": false,
   "properties": {
     "@context": {
@@ -32,160 +22,55 @@
       "uniqueItems": true,
       "description": "Defines the JSON-LD context, providing meaning to terms used in the credential."
     },
-    "id": {
-      "type": "string",
-      "format": "uri",
-      "description": "Unique identifier for the Verifiable Credential."
-    },
+    "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
     "type": {
       "type": "array",
       "minItems": 1,
       "items": { "type": "string" },
-      "contains": { "const": "VerifiableCredential" },
-      "description": "Specifies the type(s) of the credential, must include 'VerifiableCredential'."
+      "contains": { "const": "VerifiableCredential" }
     },
-    "issuer": {
-      "type": ["string"],
-      "description": "Identifier representing the entity that issued the credential."
-    },
-    "holder": {
-      "type": "string",
-      "format": "uri",
-      "description": "Identifier of the entity that holds the credential."
-    },
-    "issuanceDate": {
-      "type": "string",
-      "format": "date-time",
-      "description": "The date and time the credential was issued."
-    },
-    "expirationDate": {
-      "type": "string",
-      "format": "date-time",
-      "description": "The date and time after which the credential is no longer valid."
-    },
+    "issuer": { "$ref": "common.defs.schema.json#/definitions/DID" },
+    "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
+    "issuanceDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
+    "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "credentialSubject": {
       "oneOf": [
-        { "$ref": "#/$defs/BMSProduction" },
-        { "$ref": "#/$defs/ServiceAccess" }
-      ],
-      "description": "The subject of the credential, which must match one of the predefined claim types."
+        { "$ref": "#/definitions/BMSProduction" },
+        { "$ref": "#/definitions/ServiceAccess" }
+      ]
     },
-    "proof": {
-      "$ref": "#/$defs/Proof",
-      "description": "Cryptographic proof that makes the credential verifiable."
-    }
+    "proof": { "$ref": "common.defs.schema.json#/definitions/Proof" }
   },
-
-  "$defs": {
-    "Proof": {
-      "title": "Proof",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["type", "created", "verificationMethod", "proofPurpose", "jws"],
-      "properties": {
-        "type":{
-          "type": "string",
-          "enum": ["EcdsaSecp256r1Signature2019"],
-          "description": "The type of the digital signature used."
-        },
-        "created":{
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp, when the proof was created."
-        },
-        "verificationMethod":{
-          "type": "string",
-          "pattern": "^did:[a-z0-9]+:[a-zA-Z0-9\\.\\-]+#[a-zA-Z0-9_-]+$",
-          "description": "The DID that identifies the public key used to verify the signature. (Issuer)"
-        },
-        "proofPurpose":{
-          "type": "string",
-          "enum": ["assertionMethod"],
-          "description": "The purpose for which the proof is provided"
-        },
-        "jws":{
-          "type": "string",
-          "description": "Signature of the Verifiable Credential."
-        }
-      }
-    },
+  "definitions": {
     "BMSProduction": {
-      "title": "BMSProduction",
       "type": "object",
-      "additionalProperties": false,
       "required": ["id", "type", "bmsDid", "timestamp", "lotNumber"],
+      "additionalProperties": false,
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uri",
-          "description": "Unique identifier for the BMS production credential."
-        },
-        "type": {
-          "const": "BMSProduction",
-          "description": "Type indicator for a BMS production event."
-        },
-        "bmsDid": {
-          "type": "string",
-          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
-          "description": "DID of the Battery Management System."
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date",
-          "description": "Date when the BMS was produced."
-        },
-        "lotNumber": {
-          "type": "string",
-          "description": "Optional lot number for the BMS production."
-        }
+        "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
+        "type": { "const": "BMSProduction" },
+        "bmsDid": { "$ref": "common.defs.schema.json#/definitions/DID" },
+        "timestamp": { "type": "string", "format": "date" },
+        "lotNumber": { "type": "string" }
       }
     },
-
     "ServiceAccess": {
-      "title": "ServiceAccess",
       "type": "object",
       "required": ["id", "type", "bmsDid", "accessLevel", "validFrom", "validUntil"],
       "additionalProperties": false,
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uri",
-          "description": "Unique identifier for the service access credential."
-        },
-        "type": {
-          "const": "ServiceAccess",
-          "description": "Type indicator for a service access permission."
-        },
-        "bmsDid": {
-          "type": "string",
-          "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
-          "description": "DID of the BMS to which access is granted."
-        },
+        "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
+        "type": { "const": "ServiceAccess" },
+        "bmsDid": { "$ref": "common.defs.schema.json#/definitions/DID" },
         "accessLevel": {
-          "description": "Level of access granted (read and/or write).",
           "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "read",
-              "write"
-            ]
-          }
+          "items": { "type": "string", "enum": ["read", "write"] }
         },
-        "validFrom": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Start of the validity period for service access."
-        },
-        "validUntil": {
-          "type": "string",
-          "format": "date-time",
-          "description": "End of the validity period for service access."
-        }
+        "validFrom": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
+        "validUntil": { "$ref": "common.defs.schema.json#/definitions/DateTime" }
       }
     }
   },
-
   "allOf": [
     {
       "if": {

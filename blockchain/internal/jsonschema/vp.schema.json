@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "vp.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vp",
   "title": "Battery-Ecosystem Verifiable Presentation",
   "description": "Schema for verifying presentations of VCs with holder proof.",
   "type": "object",
@@ -30,71 +30,26 @@
     },
     "type": {
       "type": "array",
-      "items": {
-        "type": "string"
-      },
+      "items": [
+        { "const": "VerifiablePresentation" }
+      ],
       "minItems": 1,
-      "contains": {
-        "const": "VerifiablePresentation"
-      },
-      "description": "Type of the object, must include 'VerifiablePresentation'."
+      "maxItems": 1
     },
     "verifiableCredential": {
       "type": "array",
       "minItems": 1,
       "maxItems": 1,
-      "items": {
-        "$ref": "vc.schema.json"
-      },
-      "description": "Array of Verifiable Credentials being presented (only one allowed here)."
+      "items": { "$ref": "vc.schema.json" }
     },
-    "holder": {
-      "type": "string",
-      "format": "uri",
-      "description": "DID of the entity presenting the credentials."
-    },
+    "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
     "proof": {
-      "title": "Proof",
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "type",
-        "created",
-        "verificationMethod",
-        "challenge",
-        "proofPurpose",
-        "jws"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["EcdsaSecp256r1Signature2019"],
-          "description": "Type of digital signature."
-        },
-        "created": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Time the proof was created."
-        },
-        "verificationMethod": {
-          "type": "string",
-          "pattern": "^did:[a-z0-9]+:[a-zA-Z0-9.\\-]+#[a-zA-Z0-9_-]+$",
-          "description": "The DID that identifies the public key used to verify the signature. (Holder)"
-        },
-        "challenge": {
-          "type": "string",
-          "description": "A random string provided by the Verifier upon request to prevent replay attacks."
-        },
-        "proofPurpose": {
-          "type": "string",
-          "enum": ["authentication"],
-          "description": "The purpose for which the proof is provided"
-        },
-        "jws": {
-          "type": "string",
-          "description": "Signature of the Verifiable Credential."
+      "allOf": [
+        { "$ref": "common.defs.schema.json#/definitions/Proof" },
+        {
+          "required": ["challenge"]
         }
-      }
+      ]
     }
   }
 }

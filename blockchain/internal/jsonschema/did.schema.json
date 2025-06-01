@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "did",
   "title": "Battery-Ecosystem DID Document",
   "description": "Minimal on-chain DID record with a revocation tag.",
@@ -21,28 +21,21 @@
       "maxItems": 2,
       "uniqueItems": true
     },
-    "id": {
-      "type": "string",
-      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$"
-    },
-    "verificationMethod": {
-      "$ref": "#/$defs/verificationMethod"
-    },
+    "id": { "$ref": "common.defs.schema.json#/definitions/DID" },
+    "verificationMethod": { "$ref": "#/definitions/verificationMethod" },
     "service": {
       "type": "array",
       "items": {
         "oneOf": [
-          { "$ref": "#/$defs/BatterypassApiService" },
-          { "$ref": "#/$defs/HandleDidService" }
+          { "$ref": "#/definitions/BatterypassApiService" },
+          { "$ref": "#/definitions/HandleDidService" }
         ]
       }
     },
-    "timestamp": {
-      "type": "string",
-      "format": "date-time"
-    },
+    "timestamp": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "revoked": {
-      "type": "boolean"
+      "type": "boolean",
+      "description" : "A revoked flag indicating if an DID is no longer valid."
     }
   },
   "allOf": [
@@ -56,7 +49,7 @@
         "required": ["service"],
         "properties": {
           "service": {
-            "items": { "$ref": "#/$defs/BatterypassApiService" },
+            "items": { "$ref": "#/definitions/BatterypassApiService" },
             "minItems": 1
           }
         }
@@ -75,7 +68,7 @@
         "properties": {
           "service": {
             "items": {
-              "$ref": "#/$defs/BatterypassApiService"
+              "$ref": "#/definitions/BatterypassApiService"
             },
             "minItems": 1,
             "maxItems": 1
@@ -93,7 +86,7 @@
         "required": ["service"],
         "properties": {
           "service": {
-            "items": { "$ref": "#/$defs/HandleDidService" },
+            "items": { "$ref": "#/definitions/HandleDidService" },
             "minItems": 1,
             "maxItems": 1
           }
@@ -101,7 +94,7 @@
       }
     }
   ],
-  "$defs": {
+  "definitions": {
     "verificationMethod": {
       "type": "object",
       "required": ["id", "type", "controller", "publicKeyMultibase"],

@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: Blockchain API
+  version: 1.0.0
+
+paths:
+  /vc/create:
+    post:
+      summary: Create a VC Record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../jsonschema/api/requests/request.vc.create.schema.json'
+      responses:
+        '201':
+          description: VC Record written successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                const: "VC Record written"
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing required field: id"
+
+  /vc/revoke:
+    post:
+      summary: Revoke a VC Record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../jsonschema/api/requests/request.vc.revoke.schema.json'
+      responses:
+        '201':
+          description: VC Record revoked successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                const: "VC Record revoked"
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing required field: id"
+
+  /vc/verify:
+    post:
+      summary: Verify a VC Record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../jsonschema/api/requests/request.vc.verify.schema.json'
+      responses:
+        '201':
+          description: VC Record successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: '../../jsonschema/api/responses/response.vc.verify.schema.json'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing required field: id"
+
+  /did/createormodify:
+    post:
+      summary: Create or modify a DID document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../jsonschema/api/requests/request.did.createormodify.schema.json'
+      responses:
+        '201':
+          description: DID created or modified successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum:
+                  - "DID modified"
+                  - "DID created"
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing required field: id"
+
+  /did/revoke:
+    post:
+      summary: Revoke a DID document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../../jsonschema/api/requests/request.did.revoke.schema.json'
+      responses:
+        '201':
+          description: DID created or modified successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                const: "DID revoked"
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing required field: id"
