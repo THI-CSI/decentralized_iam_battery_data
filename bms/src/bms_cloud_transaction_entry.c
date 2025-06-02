@@ -26,8 +26,8 @@ void bms_cloud_transaction_entry(void *pvParameters)
     {
         if (pdPASS == xSemaphoreTake(bms_cloud_sem, Semphr_wait_ticks))
         {
-        	// Initialize encryption_context on heap
-			encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
+            // Initialize encryption_context on heap
+            encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
             // Request DID-docs and initialize encryption_ctx->did_documents
             uint8_t number_of_endpoints = fetch_did_documents(encryption_ctx);
             // Query dynamic battery data
@@ -36,7 +36,7 @@ void bms_cloud_transaction_entry(void *pvParameters)
             for (uint8_t i = 0; i < number_of_endpoints; i++)
             {
             	// Initialize context_structs on heap
-				message_context  *message_ctx = (message_context *)pvPortCalloc(1, sizeof(message_context));
+            	message_context  *message_ctx = (message_context *)pvPortCalloc(1, sizeof(message_context));
                 final_message_struct *final_message = (final_message_struct *)pvPortCalloc(1, sizeof(final_message_struct));
                 // Initialize message_ctx
                 prepare_message_ctx(i, encryption_ctx, message_ctx, final_message);
@@ -68,10 +68,10 @@ uint8_t fetch_did_documents(encryption_context *encryption_ctx)
         memset(cReceivedString, RESET_VALUE, sizeof(cReceivedString));
         xSemaphoreGive(crypto_net_sem);
         do
-		{
-			xReceivedBytes0 = xMessageBufferReceive(net_crypto_message_buffer, (void *)&number_of_endpoints, sizeof(uint8_t), pdMS_TO_TICKS(1000));
+        {
+            xReceivedBytes0 = xMessageBufferReceive(net_crypto_message_buffer, (void *)&number_of_endpoints, sizeof(uint8_t), pdMS_TO_TICKS(1000));
 
-		} while(xReceivedBytes0 == 0);
+        } while(xReceivedBytes0 == 0);
         do
         {
             xReceivedBytes1 = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
@@ -447,20 +447,20 @@ void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct 
 
 void free_contexts(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context  *message_ctx, final_message_struct *final_message)
 {
-	// Free encryption_context
-	vPortFree(encryption_ctx->did_documents[recipient_counter]->endpoint);
-	vPortFree(encryption_ctx->did_documents[recipient_counter]->public_key_der_encoded);
-	vPortFree(encryption_ctx->did_documents[recipient_counter]);
-	encryption_ctx->aes_key_handle = (psa_key_handle_t)RESET_VALUE;
-
-	// Free message_context
-	vPortFree(message_ctx->battery_data_encrypted);
-	vPortFree(message_ctx->der_encoded_ephermal_key);
-	vPortFree(message_ctx);
-
-	// Free final_message_struct
-	vPortFree(final_message->signed_message_bytes);
-	vPortFree(final_message);
+    // Free encryption_context
+    vPortFree(encryption_ctx->did_documents[recipient_counter]->endpoint);
+    vPortFree(encryption_ctx->did_documents[recipient_counter]->public_key_der_encoded);
+    vPortFree(encryption_ctx->did_documents[recipient_counter]);
+    encryption_ctx->aes_key_handle = (psa_key_handle_t)RESET_VALUE;
+    
+    // Free message_context
+    vPortFree(message_ctx->battery_data_encrypted);
+    vPortFree(message_ctx->der_encoded_ephermal_key);
+    vPortFree(message_ctx);
+    
+    // Free final_message_struct
+    vPortFree(final_message->signed_message_bytes);
+    vPortFree(final_message);
 }
 
 /*******************************************************************************************************************//**
