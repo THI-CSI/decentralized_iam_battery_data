@@ -94,7 +94,7 @@ To set your Gateway IP address:
 ```bash
 sudo ip addr add 192.168.0.3/24 dev <your_interface_name>
 ```
-To assign your DNS server (no root needed)
+To assign your DNS server
 ```bash
 sudo ip addr add 192.168.0.2/24 dev <your_interface_name>
 ```
