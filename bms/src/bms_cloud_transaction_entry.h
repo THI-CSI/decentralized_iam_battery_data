@@ -49,8 +49,6 @@ typedef struct {
     size_t battery_data_length;
     did_document **did_documents;
     psa_key_handle_t aes_key_handle;
-    uint8_t *der_encoded_signing_pub_key;
-    size_t der_encoded_signing_pub_key_length;
 } encryption_context;
 
 typedef struct {
@@ -83,6 +81,7 @@ void create_message_string(message_context *message_ctx, uint8_t **concatenated_
 psa_status_t ecc_hashing_operation(uint8_t *concatenated_message_bytes, size_t concatenated_message_bytes_length, uint8_t *concatenated_message_bytes_hash, size_t *concatenated_message_bytes_hash_length);
 void generate_final_signed_json_message(cJSON* json_message, uint8_t *signature, size_t signature_length, final_message_struct *final_message);
 void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct *final_message);
+void free_contexts(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context  *message_ctx, final_message_struct *final_message);
 void handle_error(psa_status_t status, char * err_str);
 
 #endif /* BMS_CLOUD_H_ */

@@ -309,6 +309,10 @@
       <property id="rtos.awsfreertos.object.message_buffer.size_bytes" value="512"/>
       <property id="rtos.awsfreertos.object.message_buffer.allocation" value="rtos.awsfreertos.object.message_buffer.allocation.static"/>
     </object>
+    <object id="rtos.awsfreertos.object.binary_semaphore.432543665">
+      <property id="rtos.awsfreertos.object.binary_semaphore.symbol" value="crypto_net_sem"/>
+      <property id="rtos.awsfreertos.object.binary_semaphore.allocation" value="rtos.awsfreertos.object.binary_semaphore.allocation.static"/>
+    </object>
     <context id="_hal.0">
       <stack module="module.driver.ioport_on_ioport.0"/>
       <stack module="module.middleware.rm_freertos_port.0"/>

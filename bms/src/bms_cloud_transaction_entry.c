@@ -26,9 +26,8 @@ void bms_cloud_transaction_entry(void *pvParameters)
     {
         if (pdPASS == xSemaphoreTake(bms_cloud_sem, Semphr_wait_ticks))
         {
-            // Initialize context_structs on heap
-            encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
-            message_context  *message_ctx = (message_context *)pvPortCalloc(1, sizeof(message_context));
+        	// Initialize encryption_context on heap
+			encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
             // Request DID-docs and initialize encryption_ctx->did_documents
             uint8_t number_of_endpoints = fetch_did_documents(encryption_ctx);
             // Query dynamic battery data
@@ -36,13 +35,20 @@ void bms_cloud_transaction_entry(void *pvParameters)
             // Send message_ctx
             for (uint8_t i = 0; i < number_of_endpoints; i++)
             {
+            	// Initialize context_structs on heap
+				message_context  *message_ctx = (message_context *)pvPortCalloc(1, sizeof(message_context));
                 final_message_struct *final_message = (final_message_struct *)pvPortCalloc(1, sizeof(final_message_struct));
                 // Initialize message_ctx
                 prepare_message_ctx(i, encryption_ctx, message_ctx, final_message);
                 // Send message_ctx to did_document[i]->endpoint
                 ethernet_send(encryption_ctx->did_documents[i]->endpoint, encryption_ctx->did_documents[i]->endpoint_length, final_message);
                 // Free resources
+                free_contexts(i, encryption_ctx, message_ctx, final_message);
             }
+            // Free encryption_context
+            vPortFree(encryption_ctx->battery_data);
+            vPortFree(encryption_ctx->did_documents);
+            vPortFree(encryption_ctx);
         }
     }
 }
@@ -56,26 +62,32 @@ uint8_t fetch_did_documents(encryption_context *encryption_ctx)
         encryption_ctx->did_documents[i] = (did_document *)pvPortCalloc(1, sizeof(did_document));
         encryption_ctx->did_documents[i]->endpoint = (char *)pvPortCalloc(ENDPOINT_MAX_BUFFER_SIZE, sizeof(char));
         encryption_ctx->did_documents[i]->public_key_der_encoded = (uint8_t *)pvPortCalloc(ECC_256_PUB_DER_MAX_BUFFER_SIZE, sizeof(uint8_t));
-        size_t xReceivedBytes = RESET_VALUE;
+        size_t xReceivedBytes0 = RESET_VALUE;
+        size_t xReceivedBytes1 = RESET_VALUE;
         char cReceivedString[1024];
-        uint8_t retries = RESET_VALUE;
         memset(cReceivedString, RESET_VALUE, sizeof(cReceivedString));
+        xSemaphoreGive(crypto_net_sem);
+        do
+		{
+			xReceivedBytes0 = xMessageBufferReceive(net_crypto_message_buffer, (void *)&number_of_endpoints, sizeof(uint8_t), pdMS_TO_TICKS(1000));
+
+		} while(xReceivedBytes0 == 0);
         do
         {
-            xReceivedBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
+            xReceivedBytes1 = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
 
-        } while(xReceivedBytes == 0 || retries < 10);
-        if (JSONSuccess == JSON_Validate(cReceivedString, xReceivedBytes))
+        } while(xReceivedBytes1 == 0);
+        if (JSONSuccess == JSON_Validate(cReceivedString, xReceivedBytes1))
         {
             char public_key_query[] = "verificationMethod.publicKeyMultibase";
             char *public_key_base_64;
             size_t public_key_base_64_length;
-            JSON_Search(cReceivedString, xReceivedBytes, public_key_query, strlen(public_key_query), &public_key_base_64, &public_key_base_64_length);
+            JSON_Search(cReceivedString, xReceivedBytes1, public_key_query, strlen(public_key_query), &public_key_base_64, &public_key_base_64_length);
             mbedtls_base64_decode(encryption_ctx->did_documents[i]->public_key_der_encoded, ECC_256_PUB_DER_MAX_BUFFER_SIZE, &encryption_ctx->did_documents[i]->public_key_der_encoded_length,
                                   (unsigned char *)public_key_base_64, public_key_base_64_length);
             der_decoding(encryption_ctx->did_documents[i]->public_key_der_encoded, encryption_ctx->did_documents[i]->public_key_der_encoded_length, encryption_ctx->did_documents[i]->public_key);
             char endpoint_query[] = "service.serviceEndpoint";
-            JSON_Search(cReceivedString, xReceivedBytes, endpoint_query, strlen(endpoint_query), &encryption_ctx->did_documents[i]->endpoint,
+            JSON_Search(cReceivedString, xReceivedBytes1, endpoint_query, strlen(endpoint_query), &encryption_ctx->did_documents[i]->endpoint,
                         &encryption_ctx->did_documents[i]->endpoint_length);
         }
     }
@@ -237,7 +249,7 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     memcpy(info + message_ctx->der_encoded_ephermal_key_length, did_doc->public_key_der_encoded, did_doc->public_key_der_encoded_length);
 
     // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime
-    psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_EXPORT);
+    psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT);
     psa_set_key_algorithm(&aes_attributes, PSA_ALG_GCM);
     psa_set_key_type(&aes_attributes, PSA_KEY_TYPE_AES);
     psa_set_key_bits(&aes_attributes, AES_KEY_BITS);
@@ -433,6 +445,23 @@ void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct 
     } while (xBytesSentMessage > 0);
 }
 
+void free_contexts(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context  *message_ctx, final_message_struct *final_message)
+{
+	// Free encryption_context
+	vPortFree(encryption_ctx->did_documents[recipient_counter]->endpoint);
+	vPortFree(encryption_ctx->did_documents[recipient_counter]->public_key_der_encoded);
+	vPortFree(encryption_ctx->did_documents[recipient_counter]);
+	encryption_ctx->aes_key_handle = (psa_key_handle_t)RESET_VALUE;
+
+	// Free message_context
+	vPortFree(message_ctx->battery_data_encrypted);
+	vPortFree(message_ctx->der_encoded_ephermal_key);
+	vPortFree(message_ctx);
+
+	// Free final_message_struct
+	vPortFree(final_message->signed_message_bytes);
+	vPortFree(final_message);
+}
 
 /*******************************************************************************************************************//**
  *  @brief       De-initialize the platform, print and trap error.

@@ -946,3 +946,7 @@ FSP Configuration
     Message Buffer Size (Bytes): 512
     Memory Allocation: Static
     
+  Object "crypto_net_sem Binary Semaphore"
+    Symbol: crypto_net_sem
+    Memory Allocation: Static
+    
