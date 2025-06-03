@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "transactions",
+  "$id": "response.transactions",
   "type": "array",
   "description": "An array holding transactions contained in a block (DID Documents, VC Records)",
   "minItems": 1,

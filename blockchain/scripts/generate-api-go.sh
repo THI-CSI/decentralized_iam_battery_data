@@ -2,16 +2,13 @@
 
 set -e
 
-WORKINGDIR="./internal/api/web/"
+SPEC="./internal/api/web/openapi.yaml"
 BUNDLED_SPEC="./internal/api/web/openapi.bundled.yaml"
 OUTPUT_DIR="./internal/api/web/server"
 PACKAGE_NAME="server"
-REDOCLY="../../../node_modules/.bin/redocly"
 
 echo "Bundling OpenAPI spec with Redocly..."
-cd $WORKINGDIR
-$REDOCLY bundle "openapi.yaml" -o "openapi.bundled.yaml"
-cd ../../..
+npx redocly bundle "$SPEC" -o "$BUNDLED_SPEC"
 
 echo "Ensuring output directory exists..."
 mkdir -p "$OUTPUT_DIR"

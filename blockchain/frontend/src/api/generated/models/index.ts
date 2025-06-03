@@ -3,31 +3,6 @@
 /**
  * 
  * @export
- * @interface BatterypassApiService
- */
-export interface BatterypassApiService {
-    /**
-     * 
-     * @type {string}
-     * @memberof BatterypassApiService
-     */
-    id: string;
-    /**
-     * 
-     * @type {any}
-     * @memberof BatterypassApiService
-     */
-    type: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof BatterypassApiService
-     */
-    serviceEndpoint: string;
-}
-/**
- * 
- * @export
  * @interface CreateOrModifyDid201Response
  */
 export interface CreateOrModifyDid201Response {
@@ -92,7 +67,7 @@ export interface CreateVcRecord400Response {
  */
 export interface DidSchema {
     /**
-     * 
+     * Defines the JSON-LD context, providing meaning to terms used in the did.
      * @type {Set<string>}
      * @memberof DidSchema
      */
@@ -104,17 +79,17 @@ export interface DidSchema {
      */
     id: string;
     /**
-     * 
+     * Public key information used for verifying signatures and authentication.
      * @type {VerificationMethod}
      * @memberof DidSchema
      */
     verificationMethod: VerificationMethod;
     /**
-     * 
-     * @type {Array<DidSchemaServiceInner>}
+     * Optional array of service endpoints related to the DID subject, such as APIs or metadata services.
+     * @type {Array<ServiceEndpoint>}
      * @memberof DidSchema
      */
-    service?: Array<DidSchemaServiceInner>;
+    service?: Array<ServiceEndpoint>;
     /**
      * 
      * @type {string}
@@ -122,7 +97,7 @@ export interface DidSchema {
      */
     timestamp: string;
     /**
-     * A revoked flag indicating if an DID is no longer valid.
+     * Boolean flag indicating whether this DID has been revoked.
      * @type {boolean}
      * @memberof DidSchema
      */
@@ -139,37 +114,6 @@ export const DidSchemaContextEnum = {
 } as const;
 export type DidSchemaContextEnum = typeof DidSchemaContextEnum[keyof typeof DidSchemaContextEnum];
 
-/**
- * @type DidSchemaServiceInner
- * 
- * @export
- */
-export type DidSchemaServiceInner = BatterypassApiService | HandleDidService;
-/**
- * 
- * @export
- * @interface HandleDidService
- */
-export interface HandleDidService {
-    /**
-     * 
-     * @type {string}
-     * @memberof HandleDidService
-     */
-    id: string;
-    /**
-     * 
-     * @type {any}
-     * @memberof HandleDidService
-     */
-    type: any | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof HandleDidService
-     */
-    serviceEndpoint: string;
-}
 /**
  * Cryptographic proof that makes the subject verifiable.
  * @export
@@ -547,6 +491,31 @@ export const RevokeVcRecord201ResponseMessageEnum = {
 export type RevokeVcRecord201ResponseMessageEnum = typeof RevokeVcRecord201ResponseMessageEnum[keyof typeof RevokeVcRecord201ResponseMessageEnum];
 
 /**
+ * Represents a service associated with the DID subject, such as a metadata or data access point.
+ * @export
+ * @interface ServiceEndpoint
+ */
+export interface ServiceEndpoint {
+    /**
+     * Identifier for the service endpoint, typically a DID fragment.
+     * @type {string}
+     * @memberof ServiceEndpoint
+     */
+    id: string;
+    /**
+     * Type or category of the service, e.g., 'BatteryDataService'.
+     * @type {string}
+     * @memberof ServiceEndpoint
+     */
+    type: string;
+    /**
+     * The actual service endpoint, which can be a URL.
+     * @type {string}
+     * @memberof ServiceEndpoint
+     */
+    serviceEndpoint: string;
+}
+/**
  * Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.
  * @export
  * @interface VcRecordSchema
@@ -578,31 +547,31 @@ export interface VcRecordSchema {
     expirationDate?: string;
 }
 /**
- * 
+ * A method by which a DID subject can be authenticated, typically using cryptographic keys.
  * @export
  * @interface VerificationMethod
  */
 export interface VerificationMethod {
     /**
-     * 
+     * Identifier for the verification method, typically a DID fragment.
      * @type {string}
      * @memberof VerificationMethod
      */
     id: string;
     /**
-     * 
+     * Type of the verification method, e.g., 'Ed25519VerificationKey2020'.
      * @type {string}
      * @memberof VerificationMethod
      */
     type: string;
     /**
-     * 
+     * DID that has the ability to make changes to this DID-Document.
      * @type {string}
      * @memberof VerificationMethod
      */
     controller: string;
     /**
-     * 
+     * The public key encoded in multibase format.
      * @type {string}
      * @memberof VerificationMethod
      */
