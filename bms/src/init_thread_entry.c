@@ -38,6 +38,11 @@ void send_and_generate_signing_key_pair()
         APP_ERR_PRINT("\r\n** mbedtls_platform_setup API FAILED ** \r\n");
         APP_ERR_TRAP(mbed_ret_val);
     }
+    // Initialize littlefs
+    if (FSP_SUCCESS != littlefs_init())
+    {
+        APP_ERR_PRINT("\r\n** littlefs operation failed. ** \r\n");
+    }
     // Initialize crypto library
     status = psa_crypto_init();
     if (PSA_SUCCESS != status)
@@ -46,10 +51,6 @@ void send_and_generate_signing_key_pair()
         /* De-initialize the platform.*/
         mbedtls_platform_teardown(&ctx_mbedtls);
         APP_ERR_TRAP(status);
-    }
-    if (FSP_SUCCESS != littlefs_init())
-    {
-        APP_ERR_PRINT("\r\n** littlefs operation failed. ** \r\n");
     }
 	status = psa_open_key(SIGNING_KEY_ID, &signing_key_handle);
 	if (PSA_SUCCESS == status)
