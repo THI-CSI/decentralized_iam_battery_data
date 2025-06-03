@@ -19,7 +19,7 @@
 /* SEGGER RTT and error related headers */
 #include "SEGGER_RTT/SEGGER_RTT.h"
 /* json header files */
-#include "c_json/cJSON.h"
+#include "cJSON.h"
 #include "core_json.h"
 
 
