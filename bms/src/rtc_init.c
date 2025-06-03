@@ -15,6 +15,12 @@ static rtc_time_t g_set_time =  {
 
 static void rtc_date_time_conversion(rtc_time_t * time, unsigned char read_buffer[]);
 
+/*******************************************************************************************************************//**
+ * @brief        Initializes the RTC module.
+ * @param[in]    None
+ * @retval       FSP_SUCCESS                 RTC module opened successfully.
+ * @retval       Other error codes           RTC module failed to open.
+ **********************************************************************************************************************/
 fsp_err_t rtc_init(void)
 {
     fsp_err_t err = FSP_SUCCESS;
@@ -26,10 +32,16 @@ fsp_err_t rtc_init(void)
     return err;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Sets the calendar time provided by the user.
+ * @param[in]    None
+ * @retval       FSP_SUCCESS                  Calendar time set successfully.
+ * @retval       Other error codes            Failed to set calendar time.
+ **********************************************************************************************************************/
 fsp_err_t set_rtc_calendar_time(void)
 {
     fsp_err_t err = FSP_SUCCESS;
-    unsigned char read_time[25] = "23:05:2025 17:00:00";
+    unsigned char read_time[25] = "03:06:2025 16:00:00";
     rtc_date_time_conversion(&g_set_time, &read_time[0]);
 
     // Set the time
@@ -42,6 +54,12 @@ fsp_err_t set_rtc_calendar_time(void)
     return err;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Modifies the user input and updates the RTC date and time.
+ * @param[in]    time                    Pointer to the date and time structure to be updated.
+ * @param[in]    read_buffer             Buffer containing the user-provided time values.
+ * @retval       None
+ **********************************************************************************************************************/
 static void rtc_date_time_conversion(rtc_time_t * time, unsigned char read_buffer[])
 {
     time->tm_mday = (((read_buffer[0] - ASCII_ZERO) * PLACE_VALUE_TEN) + (read_buffer[1] - ASCII_ZERO));
@@ -54,6 +72,12 @@ static void rtc_date_time_conversion(rtc_time_t * time, unsigned char read_buffe
     time->tm_sec = (((read_buffer[17] - ASCII_ZERO) * PLACE_VALUE_TEN )+ (read_buffer[18] - ASCII_ZERO));
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Sets a recurring calendar alarm for the 20th day of each month.
+ * @param[in]    None
+ * @retval       FSP_SUCCESS                  Calendar alarm set successfully.
+ * @retval       Other error codes            Failed to set calendar alarm.
+ **********************************************************************************************************************/
 fsp_err_t set_rtc_calendar_alarm(void)
 {
     fsp_err_t err = FSP_SUCCESS;
@@ -86,6 +110,12 @@ fsp_err_t set_rtc_calendar_alarm(void)
     return err;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Retrieves the current RTC time.
+ * @param[in]    None
+ * @retval       FSP_SUCCESS                  Current RTC time retrieved successfully.
+ * @retval       Other error codes            Failed to retrieve current RTC time.
+ **********************************************************************************************************************/
 void get_rtc_calendar_time(uint8_t *timestamp_bytes)
 {
     char timestamp_string[20] = {RESET_VALUE};
@@ -111,12 +141,22 @@ void get_rtc_calendar_time(uint8_t *timestamp_bytes)
     memcpy(timestamp_bytes, timestamp_string, 19);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Converts the given date into a user-readable format.
+ * @param[in]    time                    Pointer to the date structure to be formatted.
+ * @retval       None
+ **********************************************************************************************************************/
 void rtc_date_readability_update(rtc_time_t * time)
 {
     time->tm_mon  +=  MON_ADJUST_VALUE;
     time->tm_year +=  YEAR_ADJUST_VALUE;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Closes the RTC module before the project enters an error trap.
+ * @param[in]    None
+ * @retval       None
+ **********************************************************************************************************************/
 void rtc_deinit(void)
 {
     fsp_err_t err = FSP_SUCCESS;

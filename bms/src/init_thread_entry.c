@@ -21,9 +21,9 @@ void init_thread_entry(void *pvParameters)
 }
 
 /*******************************************************************************************************************//**
- *  @brief       Generate bms_signing_key_pair and register with blockchain.
- *  @param[IN]   None
- *  @retval      None
+ * @brief        Generates a BMS signing key pair and registers it on the blockchain.
+ * @param[in]    None
+ * @retval       None
  **********************************************************************************************************************/
 void send_and_generate_signing_key_pair()
 {
@@ -98,6 +98,14 @@ void send_and_generate_signing_key_pair()
     mbedtls_platform_teardown(&ctx_mbedtls);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        DER encodes the BMS signing public key.
+ * @param[in]    sign_pub_key             Buffer containing the BMS signing public key.
+ * @param[in]    sign_pub_key_length      Length of the BMS signing public key in bytes.
+ * @param[out]   sign_pub_key_der         Buffer to store the DER-encoded BMS signing public key.
+ * @param[out]   sign_pub_key_der_length  Length of the DER-encoded BMS signing public key in bytes.
+ * @retval       None
+ **********************************************************************************************************************/
 void der_encoding_init(uint8_t *sign_pub_key, size_t sign_pub_key_length, unsigned char **sign_pub_key_der, size_t *sign_pub_key_der_length)
 {
     unsigned char sign_pub_key_der_encoded[ECC_256_PUB_DER_MAX_BUFFER_SIZE] = {RESET_VALUE};
@@ -121,6 +129,14 @@ void der_encoding_init(uint8_t *sign_pub_key, size_t sign_pub_key_length, unsign
     mbedtls_pk_free(&ctx_pk);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Submits the Base64-encoded BMS signing public key (DER format) to the network task.
+ * @param[in]    endpoint                           Buffer containing the blockchain endpoint.
+ * @param[in]    endpoint_length                    Length of the endpoint in bytes.
+ * @param[in]    sign_public_key_der_base64         Buffer containing the Base64-encoded DER-formatted BMS signing public key.
+ * @param[in]    sign_public_key_der_base64_length  Length of the Base64-encoded key in bytes.
+ * @retval       None
+ **********************************************************************************************************************/
 void ethernet_send_init(char *endpoint, size_t endpoint_length, unsigned char* sign_public_key_der_base64, size_t sign_public_key_der_base64_length)
 {
     size_t xBytesSentEndpoint = RESET_VALUE;
@@ -134,7 +150,7 @@ void ethernet_send_init(char *endpoint, size_t endpoint_length, unsigned char* s
 
 /*******************************************************************************************************************//**
  *  @brief       Initialize the RTC.
- *  @param[IN]   None
+ *  @param[in]   None
  *  @retval      None
  **********************************************************************************************************************/
 void initialize_rtc()
@@ -164,7 +180,7 @@ void initialize_rtc()
 
 /*******************************************************************************************************************//**
  *  @brief       Initialize Littlefs operation.
- *  @param[IN]   None
+ *  @param[in]   None
  *  @retval      FSP_SUCCESS or any other possible error code
  **********************************************************************************************************************/
 fsp_err_t littlefs_init(void)
@@ -197,7 +213,7 @@ fsp_err_t littlefs_init(void)
 
 /*******************************************************************************************************************//**
  *  @brief       De-Initialize the Littlefs.
- *  @param[IN]   None
+ *  @param[in]   None
  *  @retval      None
  **********************************************************************************************************************/
 void deinit_littlefs(void)

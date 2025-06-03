@@ -39,7 +39,7 @@ void bms_cloud_transaction_entry(void *pvParameters)
             	message_context  *message_ctx = (message_context *)pvPortCalloc(1, sizeof(message_context));
                 final_message_struct *final_message = (final_message_struct *)pvPortCalloc(1, sizeof(final_message_struct));
                 // Initialize message_ctx
-                prepare_message_ctx(i, encryption_ctx, message_ctx, final_message);
+                prepare_final_message_ctx(i, encryption_ctx, message_ctx, final_message);
                 // Send message_ctx to did_document[i]->endpoint
                 ethernet_send(encryption_ctx->did_documents[i]->endpoint, encryption_ctx->did_documents[i]->endpoint_length, final_message);
                 // Free resources
@@ -53,6 +53,12 @@ void bms_cloud_transaction_entry(void *pvParameters)
     }
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Retrieves DID documents of cloud endpoints via the network task and extracts relevant data into 
+                 DID document structures.
+ * @param[out]   encryption_ctx     Buffer to store the extracted encryption context structure.
+ * @retval       None
+ **********************************************************************************************************************/
 uint8_t fetch_did_documents(encryption_context *encryption_ctx)
 {
     uint8_t number_of_endpoints = RESET_VALUE; // = amount of stored VCs
@@ -94,6 +100,11 @@ uint8_t fetch_did_documents(encryption_context *encryption_ctx)
     return number_of_endpoints;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Simulates a dynamic battery data query and stores the results in a list of JSON paths.
+ * @param[out]   encryption_ctx     Buffer containing the encryption context structure.
+ * @retval       None
+ **********************************************************************************************************************/
 void simulate_battery_data_query(encryption_context *encryption_ctx)
 {
     char *battery_data_string = (char *)pvPortCalloc(MAX_MODFIED_DATA_BUFFER, sizeof(char));
@@ -112,7 +123,15 @@ int get_number_of_full_battery_cycles(void)
     return number_of_full_battery_cycles;
 }
 
-void prepare_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
+/*******************************************************************************************************************//**
+ * @brief        Prepares the final_message structure to be passed to the network task.
+ * @param[in]    recipient_counter      Index of the DID document for which the message is being created.
+ * @param[in]    encryption_ctx         Buffer containing the encryption context structure.
+ * @param[in]    message_ctx            Buffer containing the message context structure.
+ * @param[out]   final_message_struct   Buffer to store the prepared final_message structure.
+ * @retval       None
+ **********************************************************************************************************************/
+void prepare_final_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
 {
    psa_status_t status = (psa_status_t)RESET_VALUE;
    int mbed_ret_val = RESET_VALUE;
@@ -164,6 +183,12 @@ psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *en
     return status;
 }
 
+ /*******************************************************************************************************************//**
+ * @brief        Generates an ephemeral key pair for shared secret generation.
+ * @param[out]   message_ctx            Buffer containing the encryption context structure.
+ * @param[out]   ephemeral_key_handle   Buffer containing the ephemeral key handle.
+ * @retval       PSA_SUCCESS or other error codes indicating the result of the operation.
+ **********************************************************************************************************************/
 psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_handle_t *ephermal_key_handle)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
@@ -192,6 +217,14 @@ psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_ha
     return status;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        DER encodes a public key.
+ * @param[in]    ecc_pub_key                    Buffer containing the public key.
+ * @param[in]    ecc_pub_key_length             Length of the public key in bytes.
+ * @param[out]   der_encoded_key_buffer         Buffer to store the DER-encoded public key.
+ * @param[out]   der_encoded_key_buffer_length  Length of the DER-encoded public key in bytes.
+ * @retval       None
+ **********************************************************************************************************************/
 void der_encoding(uint8_t *ecc_pub_key, size_t ecc_pub_key_length, uint8_t **der_encoded_key_buffer, size_t *der_encoded_key_buffer_length)
 {
     unsigned char ecc_pub_key_der_encoded[ECC_256_PUB_DER_MAX_BUFFER_SIZE] = {RESET_VALUE};
@@ -217,6 +250,13 @@ void der_encoding(uint8_t *ecc_pub_key, size_t ecc_pub_key_length, uint8_t **der
     mbedtls_pk_free(&ctx_pk);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        DER decodes a public key.
+ * @param[in]    ecc_pub_key_der            Buffer containing the DER-encoded public key.
+ * @param[in]    ecc_pub_key_der_length     Length of the DER-encoded public key in bytes.
+ * @param[out]   raw_key_buffer             Buffer to store the decoded raw public key.
+ * @retval       None
+ **********************************************************************************************************************/
 void der_decoding(uint8_t *ecc_pub_key_der, size_t ecc_pub_key_der_length, uint8_t *raw_key_buffer)
 {
     mbedtls_pk_context ctx_pk;
@@ -237,6 +277,14 @@ void der_decoding(uint8_t *ecc_pub_key_der, size_t ecc_pub_key_der_length, uint8
     mbedtls_pk_free(&ctx_pk);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Generates a shared secret using ECDH and derives a symmetric key from it using HKDF (SHA-256).
+ * @param[out]   message_ctx            Buffer containing the encryption context structure.
+ * @param[in,out] encryption_ctx        Buffer containing the encryption context structure.
+ * @param[in]    recipient_counter      Index of the DID document for which the key is derived.
+ * @param[in]    ephemeral_key_handle   Buffer containing the ephemeral key handle.
+ * @retval       PSA_SUCCESS or other error codes indicating the result of the operation.
+ **********************************************************************************************************************/  
 psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephermal_key_handle)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
@@ -281,6 +329,12 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     return status;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Encrypts dynamic battery data using AES-GCM 256.
+ * @param[in]    encryption_ctx      Buffer containing the encryption context structure.
+ * @param[out]   message_ctx         Buffer containing the message context structure.
+ * @retval       PSA_SUCCESS or other error codes indicating the result of the encryption.
+ **********************************************************************************************************************/
 psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_context *message_ctx)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
@@ -309,7 +363,12 @@ psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_co
     return status;
 }
 
-
+/*******************************************************************************************************************//**
+ * @brief        Signs the message using ECDSA (SHA-256) and prepares the final_message structure.
+ * @param[in]    message_ctx     Buffer containing the message context structure.
+ * @param[out]   final_message   Buffer to store the prepared final_message structure.
+ * @retval       PSA_SUCCESS or other error codes indicating the result of the operation.
+ **********************************************************************************************************************/
 psa_status_t generate_signed_json_message(message_context *message_ctx, final_message_struct *final_message)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
@@ -320,7 +379,7 @@ psa_status_t generate_signed_json_message(message_context *message_ctx, final_me
     size_t concatenated_message_bytes_hash_length = RESET_VALUE;
     uint8_t signature[PSA_SIGNATURE_MAX_SIZE] = {RESET_VALUE};
     size_t signature_length = RESET_VALUE;
-    cJSON *json_message = cJSON_CreateObject();
+    cJSON *json_message = cJSON_CreateObject();x
 
     // Sign hash of message_ctx
     status = psa_open_key(SIGNING_KEY_ID, &signing_key_handle);
@@ -338,6 +397,15 @@ psa_status_t generate_signed_json_message(message_context *message_ctx, final_me
     return status;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Base64-encodes values from the message_context, generates the JSON message, and produces the 
+                 concatenated message bytes to hash.
+ * @param[in]    message_ctx                         Buffer containing the message context structure.
+ * @param[out]   concatenated_message_bytes          Buffer to store the concatenated message bytes.
+ * @param[out]   concatenated_message_bytes_length   Length of the concatenated message in bytes.
+ * @param[out]   message_json                        Buffer containing the JSON representation of the message.
+ * @retval       None
+ **********************************************************************************************************************/
 void create_message_string(message_context *message_ctx, uint8_t **concatenated_message_bytes, size_t *concatenated_message_bytes_length, cJSON *message_json)
 {
     CHECK_JSON_STATUS(message_json, message_json);
@@ -400,6 +468,14 @@ void create_message_string(message_context *message_ctx, uint8_t **concatenated_
     memcpy(*concatenated_message_bytes, concatenated_message_string, *concatenated_message_bytes_length);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Performs SHA-256 hashing on the given message bytes for ECC operations.
+ * @param[in]    concatenated_message_bytes                 Buffer containing the message bytes to hash.
+ * @param[in]    concatenated_message_bytes_length          Length of the message in bytes.
+ * @param[out]   concatenated_message_bytes_hash            Buffer to store the resulting hash.
+ * @param[out]   concatenated_message_bytes_hash_length     Length of the hash in bytes.
+ * @retval       PSA_SUCCESS or other error codes indicating the result of the hashing operation.
+ **********************************************************************************************************************/
 psa_status_t ecc_hashing_operation(uint8_t *concatenated_message_bytes, size_t concatenated_message_bytes_length, uint8_t *concatenated_message_bytes_hash, size_t *concatenated_message_bytes_hash_length)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
@@ -416,6 +492,14 @@ psa_status_t ecc_hashing_operation(uint8_t *concatenated_message_bytes, size_t c
     return status;
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Populates the final_message structure by adding the Base64-encoded signature.
+ * @param[in]    message_json         Buffer containing the JSON representation of the message.
+ * @param[in]    signature            Buffer containing the message hash signature.
+ * @param[in]    signature_length     Length of the signature in bytes.
+ * @param[out]   final_message        Buffer to store the populated final_message structure.
+ * @retval       None
+ **********************************************************************************************************************/
 void generate_final_signed_json_message(cJSON* json_message, uint8_t *signature, size_t signature_length, final_message_struct *final_message)
 {
     // Base64 encoding of signature and adding to message_json
@@ -434,6 +518,13 @@ void generate_final_signed_json_message(cJSON* json_message, uint8_t *signature,
     cJSON_Delete(json_message);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Sends the message bytes as input to the network task.
+ * @param[in]    endpoint           Buffer containing the cloud endpoint to which the data will be sent.
+ * @param[in]    endpoint_length    Length of the endpoint in bytes.
+ * @param[in]    final_message      Buffer containing the final_message structure to be sent.
+ * @retval       None
+ **********************************************************************************************************************/
 void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct *final_message)
 {
     size_t xBytesSentEndpoint = RESET_VALUE;
@@ -445,6 +536,14 @@ void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct 
     } while (xBytesSentMessage > 0);
 }
 
+/*******************************************************************************************************************//**
+ * @brief        Frees resources from memory.
+ * @param[in]    recipient_counter      Index of the DID document.
+ * @param[in]    encryption_ctx         Buffer containing the encryption context structure.
+ * @param[in]    message_ctx            Buffer containing the message context structure.
+ * @param[in]    final_message_struct   Buffer containing the final_message structure.
+ * @retval       None
+ **********************************************************************************************************************/
 void free_contexts(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context  *message_ctx, final_message_struct *final_message)
 {
     // Free encryption_context

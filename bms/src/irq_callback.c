@@ -1,5 +1,10 @@
 #include "common_utils.h"
 
+/*******************************************************************************************************************//**
+ *  @brief       Interrupt callback routine.
+ *  @param[in]   p_args     Callback function parameter data.
+ *  @retval      None
+ **********************************************************************************************************************/
 void irq_callback(rtc_callback_args_t *p_args)
 {
     if(RTC_EVENT_ALARM_IRQ == p_args->event)
