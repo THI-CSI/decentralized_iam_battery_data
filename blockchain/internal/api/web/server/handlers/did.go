@@ -5,7 +5,9 @@ import (
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"log/slog"
+	"net/http"
 	"net/url"
 )
 
@@ -30,6 +32,12 @@ func GetDIDs(service services.DidService) fiber.Handler {
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)
 	}
+}
+
+// GetAllDids handles GET /api/v1/dids
+func (s *Server) GetAllDids(ctx echo.Context) error {
+	// TODO: return all DIDs
+	return ctx.JSON(http.StatusOK, []string{})
 }
 
 // GetDID retrieves a DID from the blockchain
@@ -66,6 +74,12 @@ func GetDID(service services.DidService) fiber.Handler {
 	}
 }
 
+// GetDidById handles GET /api/v1/dids/{did}
+func (s *Server) GetDidById(ctx echo.Context, did string) error {
+	// TODO: fetch DID by ID
+	return ctx.JSON(http.StatusOK, map[string]string{"did": did})
+}
+
 // CreateDID creates a DID on the blockchain
 //
 //	@Summary		Create a new DID
@@ -94,6 +108,12 @@ func CreateDID(service services.DidService) fiber.Handler {
 
 		return utils.WriteResponse(c, fiber.StatusCreated, result)
 	}
+}
+
+// CreateOrModifyDid handles POST /api/v1/dids/createormodify
+func (s *Server) CreateOrModifyDid(ctx echo.Context) error {
+	// TODO: parse input and create/modify DID
+	return ctx.JSON(http.StatusCreated, map[string]string{"message": "DID created or modified"})
 }
 
 // RevokeDid revokes a DID on the blockchain and creates a new transaction
@@ -127,4 +147,10 @@ func RevokeDid(service services.DidService) fiber.Handler {
 
 		return c.SendStatus(fiber.StatusOK)
 	}
+}
+
+// RevokeDid handles POST /api/v1/dids/revoke
+func (s *Server) RevokeDid(ctx echo.Context) error {
+	// TODO: parse input and revoke DID
+	return ctx.JSON(http.StatusOK, map[string]string{"message": "DID revoked"})
 }

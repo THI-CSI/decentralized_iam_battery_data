@@ -6,7 +6,9 @@ import (
 	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
 	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 	"log/slog"
+	"net/http"
 )
 
 // GetVC retrieves a VC from the blockchain
@@ -77,4 +79,22 @@ func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler 
 
 		return utils.WriteResponse(c, fiber.StatusCreated, result)
 	}
+}
+
+// CreateVcRecord handles POST /api/v1/vc/create
+func (s *Server) CreateVcRecord(ctx echo.Context) error {
+	// TODO: parse and create VC
+	return ctx.JSON(http.StatusCreated, map[string]string{"message": "VC created"})
+}
+
+// RevokeVcRecord handles POST /api/v1/vc/revoke
+func (s *Server) RevokeVcRecord(ctx echo.Context) error {
+	// TODO: parse and revoke VC
+	return ctx.JSON(http.StatusOK, map[string]string{"message": "VC revoked"})
+}
+
+// VerifyVcRecord handles POST /api/v1/vc/verify
+func (s *Server) VerifyVcRecord(ctx echo.Context) error {
+	// TODO: parse and verify VC
+	return ctx.JSON(http.StatusOK, map[string]bool{"valid": true})
 }

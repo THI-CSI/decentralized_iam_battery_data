@@ -4,7 +4,7 @@ set -e
 
 WORKINGDIR="./internal/api/web/"
 BUNDLED_SPEC="./internal/api/web/openapi.bundled.yaml"
-OUTPUT_DIR="./internal/api/web"
+OUTPUT_DIR="./internal/api/web/server"
 PACKAGE_NAME="web"
 REDOCLY="../../../node_modules/.bin/redocly"
 

@@ -4,11 +4,17 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
+	"github.com/labstack/echo/v4"
 	"log/slog"
+	"net/http"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+type Server struct {
+	// Add dependencies like DB, config, logger here
+}
 
 // GetBlocks returns all blocks of the blockchain
 //
@@ -32,6 +38,12 @@ func GetBlocks(service services.BlockService) fiber.Handler {
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)
 	}
+}
+
+// GetAllBlocks handles GET /api/v1/blocks
+func (s *Server) GetAllBlocks(ctx echo.Context) error {
+	// TODO: implement business logic
+	return ctx.JSON(http.StatusOK, map[string]string{"message": "GetAllBlocks not implemented"})
 }
 
 // GetBlock returns a single block of the blockchain specified by the id
@@ -61,4 +73,10 @@ func GetBlock(service services.BlockService) fiber.Handler {
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)
 	}
+}
+
+// GetBlockById handles GET /api/v1/blocks/{blockId}
+func (s *Server) GetBlockById(ctx echo.Context, blockId int) error {
+	// TODO: fetch block by blockId
+	return ctx.JSON(http.StatusOK, map[string]interface{}{"blockId": blockId})
 }

@@ -4,7 +4,9 @@ import (
 	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
+	"github.com/labstack/echo/v4"
 	"log/slog"
+	"net/http"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,4 +39,10 @@ func GetTransactions(service services.TransactionService) fiber.Handler {
 
 		return utils.WriteResponse(c, fiber.StatusOK, result)
 	}
+}
+
+// GetBlockTransactions handles GET /api/v1/blocks/{blockId}/transactions
+func (s *Server) GetBlockTransactions(ctx echo.Context, blockId int) error {
+	// TODO: fetch transactions for blockId
+	return ctx.JSON(http.StatusOK, map[string]interface{}{"blockId": blockId, "transactions": []string{}})
 }
