@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  api-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-service
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    environment:
+      PASSPHRASE: "secret"
+    volumes:
+      - ./data:/app/data
+
+  streamlit-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile-ui
+    container_name: streamlit-ui
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./streamlit_cache:/home/app/.streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      API_BASE_URL: "http://api-service:8000"
+    depends_on:
+      - api-service
