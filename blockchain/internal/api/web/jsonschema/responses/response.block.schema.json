@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "response.block",
+  "type": "object",
+  "required": ["Index", "Timestamp", "Hash", "PreviousBlockHash", "Transactions", "MerkleRoot"],
+  "additionalProperties": false,
+  "properties": {
+    "Index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "Timestamp": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/DateTime" },
+    "Hash": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"},
+    "PreviousBlockHash": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"},
+    "Transactions": { "$ref": "./response.transactions.schema.json" }
+  },
+  "MerkleRoot": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"}
+}

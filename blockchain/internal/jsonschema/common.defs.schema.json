@@ -51,10 +51,10 @@
       "pattern": "^did:batterypass:(eu|oem|cloud|bms|service)\\.[a-zA-Z0-9.\\-]+$",
       "description": "DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier"
     },
-    "vcHash": {
+    "256Hash": {
       "type": "string",
       "pattern": "^[A-Fa-f0-9]{64}$",
-      "description": "A SHA-256 hash of the complete VC in hexadecimal format."
+      "description": "A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format."
     }
   }
 }

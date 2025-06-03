@@ -1,0 +1,296 @@
+openapi: 3.1.0
+info:
+  title: Blockchain API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8443
+    description: Local development server
+
+tags:
+  - name: Blocks
+  - name: VC
+  - name: DIDs
+
+paths:
+  /api/v1/blocks:
+    get:
+      tags: [Blocks]
+      summary: Get all blocks of the blockchain
+      operationId: getAllBlocks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.blocks.schema.json'
+              examples:
+                default:
+                  value: {}
+
+  /api/v1/blocks/{blockId}:
+    get:
+      tags: [Blocks]
+      summary: Get a block of the blockchain by ID
+      operationId: getBlockById
+      parameters:
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.block.schema.json'
+              examples:
+                default:
+                  value: {}
+
+  /api/v1/blocks/{blockId}/transactions:
+    get:
+      tags: [Blocks]
+      summary: Get all transactions of a specific block
+      operationId: getBlockTransactions
+      parameters:
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.transactions.schema.json'
+              examples:
+                default:
+                  value: {}
+
+  /api/v1/vc/create:
+    post:
+      tags: [VC]
+      summary: Create a VC Record
+      operationId: createVcRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vc.create.schema.json'
+            examples:
+              default:
+                value: {}
+      responses:
+        '201':
+          description: VC Record written successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    const: "VC Record written"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "Missing required field: id"
+
+  /api/v1/vc/revoke:
+    post:
+      tags: [VC]
+      summary: Revoke a VC Record
+      operationId: revokeVcRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vc.revoke.schema.json'
+            examples:
+              default:
+                value: {}
+      responses:
+        '201':
+          description: VC Record revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    const: "VC Record revoked"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "Missing required field: id"
+
+  /api/v1/vc/verify:
+    post:
+      tags: [VC]
+      summary: Verify a VC Record
+      operationId: verifyVcRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vc.verify.schema.json'
+            examples:
+              default:
+                value: {}
+      responses:
+        '201':
+          description: VC Record successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.vc.verify.schema.json'
+              examples:
+                default:
+                  value: {}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "Missing required field: id"
+
+  /api/v1/dids:
+    get:
+      tags: [DIDs]
+      summary: Get all DIDs from the blockchain
+      operationId: getAllDids
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.dids.schema.json'
+              examples:
+                default:
+                  value: {}
+
+  /api/v1/dids/{did}:
+    get:
+      tags: [DIDs]
+      summary: Get a specific DID Document by its DID
+      operationId: getDidById
+      parameters:
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.did.schema.json'
+              examples:
+                default:
+                  value: {}
+
+  /api/v1/dids/createormodify:
+    post:
+      tags: [DIDs]
+      summary: Create or modify a DID document
+      operationId: createOrModifyDid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.did.createormodify.schema.json'
+            examples:
+              default:
+                value: {}
+      responses:
+        '201':
+          description: DID created or modified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    enum: ["DID created", "DID modified"]
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "Missing required field: id"
+
+  /api/v1/dids/revoke:
+    post:
+      tags: [DIDs]
+      summary: Revoke a DID document
+      operationId: revokeDid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.did.revoke.schema.json'
+            examples:
+              default:
+                value: {}
+      responses:
+        '201':
+          description: DID revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    const: "DID revoked"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "Missing required field: id"

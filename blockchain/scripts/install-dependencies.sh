@@ -13,10 +13,15 @@ $PIP install --upgrade pip
 go install github.com/swaggo/swag/cmd/swag@latest
 go get github.com/multiformats/go-multibase@latest
 go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+go get github.com/labstack/echo/v4
+go get github.com/oapi-codegen/runtime
+
 # NPM installs
 npm install --save-dev quicktype@23.2.4 # flag makes sure its in the projects devDependencies not dependencies
 npm install --save-dev json-schema-resolver
 npm install --save-dev typedoc
+npm install --save-dev @redocly/cli # openapi cli for doc generateion and linting
 npm install --save-dev @types/react @types/react-dom @tanstack/react-router @radix-ui/react-slot @radix-ui/react-navigation-menu
 npm install --save-dev class-variance-authority
 npm install --save-dev lucide-react

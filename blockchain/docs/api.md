@@ -51,7 +51,7 @@ http GET http://localhost:8443/api/v1/dids/did:batterypass:896ad506-9843-48d3-b5
 #### Create a new DID
 The `POST` endpoint `/dids` can be used to create a new DID on the blockchain:
 ```shell
-http POST localhost:8443/api/v1/dids < docs/api-examples/bms-example.json 
+http POST localhost:8443/jsonschema/v1/dids < docs/jsonschema-examples/bms-example.json 
 ```
 
 #### Revoke a DID
@@ -65,12 +65,12 @@ http DELETE http://localhost:8443/api/v1/dids/did:batterypass:896ad506-9843-48d3
 #### Create a new VC
 The `POST` endpoint `/dids/<did>/vc` can be used to create a new VC record on the blockchain:
 ```shell
-http POST localhost:8443/api/v1/dids/did:batterypass:896ad506-9843-48d3-b599-be45fca2bb3e/vc < docs/api-examples/vc-example.json
+http POST localhost:8443/jsonschema/v1/dids/did:batterypass:896ad506-9843-48d3-b599-be45fca2bb3e/vc < docs/jsonschema-examples/vc-example.json
 ```
 The DID specified in the API URL must be the same as the Issuer DID in the verifiable credential.
 
 #### Get a VC Record
 The endpoint `/dids/<did>/vc/<urn>` can be used to retrieve the specified VC record on the blockchain:
 ```shell
-http GET localhost:8443/api/v1/vc/urn:uuid:cc4e69d7-b7f7-4155-ac8b-5af63df4472a
+http GET localhost:8443/jsonschema/v1/vc/urn:uuid:cc4e69d7-b7f7-4155-ac8b-5af63df4472a
 ```

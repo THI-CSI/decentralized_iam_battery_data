@@ -33,6 +33,7 @@ DELETE_FOLDER = [
 
 SCHEMA_DIR = "./internal/jsonschema"
 QUICKTYPE = "./node_modules/.bin/quicktype"
+REDOCLY = "./node_modules/.bin/redocly"
 TYPEDOC = "./node_modules/.bin/typedoc"
 SCHEMA_RESOLVER = "./node_modules/.bin/json-schema-resolver"
 DOCS = "./docs"
@@ -139,12 +140,11 @@ def main():
         run_command(["mkdir", "-p", DOCS])
         run_command(
             [
-                "swag",
-                "init",
-                "-g",
-                "./internal/api/web/web.go",
-                "-o",
-                f"{DOCS}/swagger/",
+                REDOCLY,
+                "build-docs",
+                "./internal/api/web/openapi.yaml",
+                "--output",
+                f"{DOCS}/openapi.html",
             ]
         )
         run_command(["gomarkdoc", "./...", "-o", DOCS + "/sourcecode/go.md"])
@@ -166,6 +166,7 @@ def main():
 
     elif args.command == "generate":
         if os.path.exists("./node_modules"):
+            run_command(["bash", "./scripts/generate-api-go.sh"])
             run_command(
                 [
                     QUICKTYPE,
@@ -192,20 +193,6 @@ def main():
                     "core",
                     "-o",
                     CORETYPES + "/vc.record.types.go",
-                ]
-            )
-            run_command(
-                [
-                    QUICKTYPE,
-                    "-s",
-                    "schema",
-                    SCHEMA_DIR + "/api/requests/request.vc.create.schema.json",
-                    "--top-level",
-                    "VCRequest",
-                    "--package",
-                    "api",
-                    "-o",
-                    APITYPES + "/request.vc.create.types.go",
                 ]
             )
         else:

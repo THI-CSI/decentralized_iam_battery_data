@@ -8,7 +8,7 @@
   "additionalProperties": false,
   "properties": {
     "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
-    "vcHash": { "$ref": "common.defs.schema.json#/definitions/vcHash"},
+    "vcHash": { "$ref": "common.defs.schema.json#/definitions/256Hash"},
     "timestamp": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" }
   }
