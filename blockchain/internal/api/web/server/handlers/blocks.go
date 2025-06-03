@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"blockchain/internal/api/web/server/domain"
 	"blockchain/internal/api/web/server/services"
 	"blockchain/internal/api/web/server/utils"
 	"github.com/labstack/echo/v4"

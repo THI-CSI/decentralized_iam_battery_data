@@ -10,7 +10,7 @@ servers:
   - url: http://localhost:8443
     description: Local development server
 
-security: []
+security: [ ]
 
 tags:
   - name: Blocks
@@ -23,7 +23,7 @@ tags:
 paths:
   /api/v1/blocks:
     get:
-      tags: [Blocks]
+      tags: [ Blocks ]
       summary: Get all blocks of the blockchain
       operationId: getAllBlocks
       responses:
@@ -33,13 +33,15 @@ paths:
             application/json:
               schema:
                 $ref: './jsonschema/responses/response.blocks.schema.json'
-              examples:
-                default:
-                  value: {}
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/blocks/{blockId}:
     get:
-      tags: [Blocks]
+      tags: [ Blocks ]
       summary: Get a block of the blockchain by ID
       operationId: getBlockById
       parameters:
@@ -55,13 +57,15 @@ paths:
             application/json:
               schema:
                 $ref: './jsonschema/responses/response.block.schema.json'
-              examples:
-                default:
-                  value: {}
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/blocks/{blockId}/transactions:
     get:
-      tags: [Blocks]
+      tags: [ Blocks ]
       summary: Get all transactions of a specific block
       operationId: getBlockTransactions
       parameters:
@@ -77,13 +81,15 @@ paths:
             application/json:
               schema:
                 $ref: './jsonschema/responses/response.transactions.schema.json'
-              examples:
-                default:
-                  value: {}
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/vc/create:
     post:
-      tags: [VC]
+      tags: [ VC ]
       summary: Create a VC Record
       operationId: createVcRecord
       requestBody:
@@ -92,9 +98,6 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.vc.create.schema.json'
-            examples:
-              default:
-                value: {}
       responses:
         '201':
           description: VC Record written successfully
@@ -107,20 +110,14 @@ paths:
                     type: string
                     const: "VC Record written"
         '400':
-          description: Bad request
+          description: Client Errors
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                example:
-                  error: "Missing required field: id"
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/vc/revoke:
     post:
-      tags: [VC]
+      tags: [ VC ]
       summary: Revoke a VC Record
       operationId: revokeVcRecord
       requestBody:
@@ -129,9 +126,6 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.vc.revoke.schema.json'
-            examples:
-              default:
-                value: {}
       responses:
         '201':
           description: VC Record revoked successfully
@@ -157,7 +151,7 @@ paths:
 
   /api/v1/vc/verify:
     post:
-      tags: [VC]
+      tags: [ VC ]
       summary: Verify a VC Record
       operationId: verifyVcRecord
       requestBody:
@@ -166,9 +160,6 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.vc.verify.schema.json'
-            examples:
-              default:
-                value: {}
       responses:
         '201':
           description: VC Record successfully verified
@@ -176,31 +167,15 @@ paths:
             application/json:
               schema:
                 $ref: './jsonschema/responses/response.vc.verify.schema.json'
-              examples:
-                default:
-                  value: {}
-        '404':
-          description: No VC found for the provided hash, or it has been revoked.
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "There is no VC"
         '400':
-          description: Bad request
+          description: Client Errors
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                example:
-                  error: "Missing required field: id"
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids:
     get:
-      tags: [DIDs]
+      tags: [ DIDs ]
       summary: Get all DIDs from the blockchain
       operationId: getAllDids
       responses:
@@ -210,13 +185,15 @@ paths:
             application/json:
               schema:
                 $ref: './jsonschema/responses/response.dids.schema.json'
-              examples:
-                default:
-                  value: {}
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids/{did}:
     get:
-      tags: [DIDs]
+      tags: [ DIDs ]
       summary: Get a specific DID Document by its DID
       operationId: getDidById
       parameters:
@@ -234,13 +211,15 @@ paths:
             application/json:
               schema:
                 $ref: './jsonschema/responses/response.did.schema.json'
-              examples:
-                default:
-                  value: {}
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids/createormodify:
     post:
-      tags: [DIDs]
+      tags: [ DIDs ]
       summary: Create or modify a DID document
       operationId: createOrModifyDid
       requestBody:
@@ -249,9 +228,6 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.did.createormodify.schema.json'
-            examples:
-              default:
-                value: {}
       responses:
         '201':
           description: DID created or modified successfully
@@ -262,22 +238,16 @@ paths:
                 properties:
                   message:
                     type: string
-                    enum: ["DID created", "DID modified"]
+                    enum: [ "DID created", "DID modified" ]
         '400':
-          description: Bad request
+          description: Client Errors
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                example:
-                  error: "Missing required field: id"
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids/revoke:
     post:
-      tags: [DIDs]
+      tags: [ DIDs ]
       summary: Revoke a DID document
       operationId: revokeDid
       requestBody:
@@ -286,9 +256,6 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.did.revoke.schema.json'
-            examples:
-              default:
-                value: {}
       responses:
         '201':
           description: DID revoked successfully
@@ -301,13 +268,7 @@ paths:
                     type: string
                     const: "DID revoked"
         '400':
-          description: Bad request
+          description: Client Errors
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                example:
-                  error: "Missing required field: id"
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }

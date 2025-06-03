@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"blockchain/internal/api/web/server/domain"
 	"crypto/ed25519"
 	"encoding/base64"
 	"errors"

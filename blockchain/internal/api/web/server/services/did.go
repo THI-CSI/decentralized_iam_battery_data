@@ -1,8 +1,6 @@
 package services
 
 import (
-	"blockchain/internal/api/web/server/domain"
-	_ "blockchain/internal/api/web/server/domain"
 	"blockchain/internal/core"
 	coreTypes "blockchain/internal/core/types"
 	"context"
@@ -15,7 +13,7 @@ import (
 type DidService interface {
 	GetDIDs(ctx context.Context) (*[]coreTypes.Did, error)
 	GetDID(userContext context.Context, did string) (*coreTypes.Did, error)
-	CreateDID(userContext context.Context, create *domain.CreateDid) (*coreTypes.Did, error)
+	CreateOrModifyDID(userContext context.Context, create *domain.CreateDid) (*coreTypes.Did, error)
 	RevokeDid(userContext context.Context, did string) error
 }
 

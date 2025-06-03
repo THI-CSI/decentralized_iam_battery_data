@@ -4,7 +4,7 @@ set -e
 
 SPEC="./internal/api/web/openapi.yaml"
 BUNDLED_SPEC="./internal/api/web/openapi.bundled.yaml"
-OUTPUT_DIR="./internal/api/web/server"
+OUTPUT_DIR="./internal/api/web/server/models"
 PACKAGE_NAME="models"
 
 echo "Bundling OpenAPI spec with Redocly..."
