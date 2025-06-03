@@ -34,7 +34,7 @@ def error_response(status_code: int, message: str):
     )
 
 def get_db():
-    db = TinyDB("db.json")
+    db = TinyDB("data/db.json")
     try:
         yield db
     finally:
