@@ -23,12 +23,14 @@ DELETE_FOLDER = [
     "node_modules",
     "./docs/schema",
     "./docs/sourcecode",
-    "./docs/swagger",
+    "./docs/openapi.html",
     "package.json",
     "package-lock.json",
     "schema_doc.css",
     "schema_doc.min.js",
     "package.json",
+    "./internal/api/web/openapi.bundled.yaml"
+    "openapitools.json"
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
@@ -167,6 +169,7 @@ def main():
     elif args.command == "generate":
         if os.path.exists("./node_modules"):
             run_command(["bash", "./scripts/generate-api-go.sh"])
+            run_command(["bash", "./scripts/generate-api-typescript.sh"])
             run_command(
                 [
                     QUICKTYPE,

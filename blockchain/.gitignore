@@ -13,3 +13,4 @@ frontend/node_modules
 .idea
 blockchain-demo.json
 internal/api/web/openapi.bundled.yaml
+openapitools.json

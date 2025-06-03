@@ -1,6 +1,6 @@
 apis/BlocksApi.ts
 apis/DIDsApi.ts
-apis/VCsApi.ts
+apis/VCApi.ts
 apis/index.ts
 index.ts
 models/index.ts

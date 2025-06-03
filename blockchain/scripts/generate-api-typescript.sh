@@ -2,8 +2,8 @@
 
 set -e
 
-PROJECT_ROOT=$(dirname "$(dirname \""$0"\")")
-SPEC="${PROJECT_ROOT}/docs/swagger/swagger.json"
+PROJECT_ROOT=$(dirname "$(dirname "$0")")
+SPEC="${PROJECT_ROOT}/internal/api/web/openapi.bundled.yaml"
 GENERATED="${PROJECT_ROOT}/frontend/src/api/generated"
 CONFIG="${GENERATED}/config.json"
 TMP="${PROJECT_ROOT}/tmp"
@@ -15,7 +15,7 @@ mv "${GENERATED}/config.json" "${GENERATED}/.openapi-generator-ignore" "${GENERA
 rm -rf "$GENERATED"
 mkdir -p "$GENERATED"
 mv "${TMP}/config.json" "${TMP}/.openapi-generator-ignore" "${TMP}/.openapi-generator" "${TMP}/README.md" "${GENERATED}"
-
+echo "so far so good"
 npx @openapitools/openapi-generator-cli generate -g typescript-fetch -i "${SPEC}" -o "${GENERATED}" -c "${CONFIG}"
 
 npx prettier --write "${SPEC}"

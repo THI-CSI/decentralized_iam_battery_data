@@ -28,5 +28,6 @@ npm install --save-dev lucide-react
 npm install --save-dev tailwind-merge
 npm install --save-dev web-vitals
 npm install --save-dev typedoc typedoc-plugin-markdown
+npm install --save-dev prettier
 # PIP installs
 $PIP install json-schema-for-humans
