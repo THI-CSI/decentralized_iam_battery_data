@@ -42,7 +42,7 @@ func GetTransactions(service services.TransactionService) fiber.Handler {
 }
 
 // GetBlockTransactions handles GET /api/v1/blocks/{blockId}/transactions
-func (s *Server) GetBlockTransactions(ctx echo.Context, blockId int) error {
+func (s *MyServer) GetBlockTransactions(ctx echo.Context, blockId int) error {
 	// TODO: fetch transactions for blockId
 	return ctx.JSON(http.StatusOK, map[string]interface{}{"blockId": blockId, "transactions": []string{}})
 }

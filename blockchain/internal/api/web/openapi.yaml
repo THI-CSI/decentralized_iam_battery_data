@@ -179,6 +179,13 @@ paths:
               examples:
                 default:
                   value: {}
+        '404':
+          description: No VC found for the provided hash, or it has been revoked.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "There is no VC"
         '400':
           description: Bad request
           content:
@@ -218,6 +225,8 @@ paths:
           required: true
           schema:
             type: string
+            description: DID of the requested DID document
+            pattern: "^did:batterypass:(eu|oem|cloud|bms|service)\\.[a-zA-Z0-9.\\-]+$"
       responses:
         '200':
           description: OK

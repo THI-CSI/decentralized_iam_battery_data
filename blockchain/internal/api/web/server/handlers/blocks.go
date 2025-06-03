@@ -12,8 +12,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type Server struct {
-	// Add dependencies like DB, config, logger here
+type MyServer struct {
+	DidService         services.DidService
+	BlockService       services.BlockService
+	TransactionService services.TransactionService
+	VCService          services.VCService
 }
 
 // GetBlocks returns all blocks of the blockchain
@@ -41,7 +44,7 @@ func GetBlocks(service services.BlockService) fiber.Handler {
 }
 
 // GetAllBlocks handles GET /api/v1/blocks
-func (s *Server) GetAllBlocks(ctx echo.Context) error {
+func (s *MyServer) GetAllBlocks(ctx echo.Context) error {
 	// TODO: implement business logic
 	return ctx.JSON(http.StatusOK, map[string]string{"message": "GetAllBlocks not implemented"})
 }
@@ -76,7 +79,7 @@ func GetBlock(service services.BlockService) fiber.Handler {
 }
 
 // GetBlockById handles GET /api/v1/blocks/{blockId}
-func (s *Server) GetBlockById(ctx echo.Context, blockId int) error {
+func (s *MyServer) GetBlockById(ctx echo.Context, blockId int) error {
 	// TODO: fetch block by blockId
 	return ctx.JSON(http.StatusOK, map[string]interface{}{"blockId": blockId})
 }

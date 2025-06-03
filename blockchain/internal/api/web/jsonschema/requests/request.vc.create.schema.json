@@ -18,7 +18,7 @@
       "required": ["id", "vcHash"],
       "properties": {
         "id": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/URI"},
-        "256Hash": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"},
+        "vcHash": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"},
         "expirationDate": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/DateTime"}
       }
     }

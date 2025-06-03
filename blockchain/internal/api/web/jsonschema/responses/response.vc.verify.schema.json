@@ -1,14 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "response.vc.verify",
-  "required": ["issuerDID", "holderDID", "VCRecord"],
+  "required": ["issuerDID", "holderDID"],
   "additionalProperties": false,
   "properties": {
     "issuerDID": { "$ref": "../../../../jsonschema/did.schema.json"},
-    "holderDID": { "$ref": "../../../../jsonschema/did.schema.json"},
-    "VCRecord": {
-      "type": "boolean",
-      "description": "Indicates weather the transmitted VC Record is valid."
-    }
+    "holderDID": { "$ref": "../../../../jsonschema/did.schema.json"}
   }
 }

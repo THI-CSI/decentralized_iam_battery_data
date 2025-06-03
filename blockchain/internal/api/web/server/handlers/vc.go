@@ -82,19 +82,19 @@ func CreateVC(service services.VCService, chain *core.Blockchain) fiber.Handler 
 }
 
 // CreateVcRecord handles POST /api/v1/vc/create
-func (s *Server) CreateVcRecord(ctx echo.Context) error {
+func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
 	// TODO: parse and create VC
 	return ctx.JSON(http.StatusCreated, map[string]string{"message": "VC created"})
 }
 
 // RevokeVcRecord handles POST /api/v1/vc/revoke
-func (s *Server) RevokeVcRecord(ctx echo.Context) error {
+func (s *MyServer) RevokeVcRecord(ctx echo.Context) error {
 	// TODO: parse and revoke VC
 	return ctx.JSON(http.StatusOK, map[string]string{"message": "VC revoked"})
 }
 
 // VerifyVcRecord handles POST /api/v1/vc/verify
-func (s *Server) VerifyVcRecord(ctx echo.Context) error {
+func (s *MyServer) VerifyVcRecord(ctx echo.Context) error {
 	// TODO: parse and verify VC
 	return ctx.JSON(http.StatusOK, map[string]bool{"valid": true})
 }
