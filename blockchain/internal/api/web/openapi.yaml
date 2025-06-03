@@ -2,15 +2,23 @@ openapi: 3.1.0
 info:
   title: Blockchain API
   version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/THI-CSI/decentralized_iam_battery_data?tab=MIT-1-ov-file
 
 servers:
   - url: http://localhost:8443
     description: Local development server
 
+security: []
+
 tags:
   - name: Blocks
+    description: "Endpoints handling Block and Transaction data."
   - name: VC
+    description: "Endpoints handling Verifiable Credentials."
   - name: DIDs
+    description: "Endpoints handling DID documents."
 
 paths:
   /api/v1/blocks:

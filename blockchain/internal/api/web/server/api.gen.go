@@ -182,6 +182,9 @@ type ResponseBlockSchema struct {
 	Hash  N256Hash `json:"Hash"`
 	Index int      `json:"Index"`
 
+	// MerkleRoot A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+	MerkleRoot N256Hash `json:"MerkleRoot"`
+
 	// PreviousBlockHash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
 	PreviousBlockHash N256Hash `json:"PreviousBlockHash"`
 	Timestamp         DateTime `json:"Timestamp"`

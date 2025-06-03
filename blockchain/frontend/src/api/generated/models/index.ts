@@ -462,6 +462,12 @@ export interface ResponseBlockSchema {
      * @memberof ResponseBlockSchema
      */
     Transactions: Array<ResponseTransactionsSchemaInner>;
+    /**
+     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+     * @type {string}
+     * @memberof ResponseBlockSchema
+     */
+    MerkleRoot: string;
 }
 /**
  * @type ResponseTransactionsSchemaInner

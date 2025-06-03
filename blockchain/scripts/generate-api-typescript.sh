@@ -15,7 +15,7 @@ mv "${GENERATED}/config.json" "${GENERATED}/.openapi-generator-ignore" "${GENERA
 rm -rf "$GENERATED"
 mkdir -p "$GENERATED"
 mv "${TMP}/config.json" "${TMP}/.openapi-generator-ignore" "${TMP}/.openapi-generator" "${TMP}/README.md" "${GENERATED}"
-echo "so far so good"
+
 npx @openapitools/openapi-generator-cli generate -g typescript-fetch -i "${SPEC}" -o "${GENERATED}" -c "${CONFIG}"
 
 npx prettier --write "${SPEC}"

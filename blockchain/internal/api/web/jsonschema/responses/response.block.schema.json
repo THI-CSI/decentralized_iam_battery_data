@@ -12,7 +12,7 @@
     "Timestamp": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/DateTime" },
     "Hash": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"},
     "PreviousBlockHash": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"},
-    "Transactions": { "$ref": "./response.transactions.schema.json" }
-  },
-  "MerkleRoot": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"}
+    "Transactions": { "$ref": "./response.transactions.schema.json" },
+    "MerkleRoot": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/256Hash"}
+  }
 }
