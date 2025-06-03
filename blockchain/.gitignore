@@ -5,7 +5,7 @@ package-lock.json
 node_modules/
 .venv/
 docs/swagger
-docs/go.md
+docs/sourcecode/
 docs/schema
 schema_doc.css
 schema_doc.min.js

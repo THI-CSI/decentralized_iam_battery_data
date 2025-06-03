@@ -44,6 +44,7 @@ func ParseAndValidateStruct[T any](c *fiber.Ctx) (*T, error) {
 	return &payload, nil
 }
 
+// IsDidValid Checks if the DID starts with "did:batterypass:" and conforms to the specified format.
 func IsDidValid(did string) bool {
 	if !strings.HasPrefix(did, "did:batterypass:") {
 		return false
@@ -52,6 +53,7 @@ func IsDidValid(did string) bool {
 	return matched
 }
 
+// IsUrnValid Validates if the input string is a valid URN according to the UUID pattern.
 func IsUrnValid(urn string) bool {
 	matched, _ := regexp.MatchString(`^urn:uuid:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$`, urn)
 	return matched

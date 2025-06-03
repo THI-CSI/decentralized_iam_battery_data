@@ -11,7 +11,14 @@ import {
 } from "./ui/navigation-menu";
 
 /**
- * The header layout for the application
+ * The main navigation header for the application.
+ *
+ * @remarks
+ * - Stays sticky at the top of the viewport.
+ * - Includes branding, route links, and schema doc shortcuts.
+ * - Uses a conditional "Back" button depending on route context.
+ *
+ * @returns JSX for the application header.
  */
 export default function HeaderLayout() {
     const navigate = useNavigate();
@@ -36,7 +43,7 @@ export default function HeaderLayout() {
                                     Docs
                                 </NavigationMenuTrigger>
                                 <NavigationMenuContent>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
                                             to={"/docs/$schema_name"}
@@ -45,7 +52,7 @@ export default function HeaderLayout() {
                                             DID
                                         </Link>
                                     </NavigationMenuLink>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
                                             to={"/docs/$schema_name"}
@@ -54,7 +61,7 @@ export default function HeaderLayout() {
                                             VC Records
                                         </Link>
                                     </NavigationMenuLink>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
                                             to={"/docs/$schema_name"}
@@ -66,14 +73,14 @@ export default function HeaderLayout() {
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link to={"/blocks"}>
-                                    <NavigationMenuLink>Blocks</NavigationMenuLink>
-                                </Link>
+                                <NavigationMenuLink asChild>
+                                    <Link to={"/blocks"}>Blocks</Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link to={"/dids"}>
-                                    <NavigationMenuLink>Dids</NavigationMenuLink>
-                                </Link>
+                                <NavigationMenuLink asChild>
+                                    <Link to={"/dids"}>Dids</Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                         </NavigationMenuList>
                     </NavigationMenu>

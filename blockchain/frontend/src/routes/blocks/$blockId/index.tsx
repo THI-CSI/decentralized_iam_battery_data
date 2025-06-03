@@ -3,7 +3,14 @@ import { Api } from "@/api/api.tsx";
 import BlockCard from "@/components/block-card.tsx";
 
 /**
- * The overview over a single block of the application
+ * Displays detailed information for a single block, including all transactions.
+ *
+ * @remarks
+ * - Uses route loader to fetch both the block metadata and associated transactions.
+ * - Renders the block info via {@link BlockCard}.
+ * - Transactions are shown in raw JSON format using `<pre>`.
+ *
+ * @returns A detailed view of a blockchain block.
  */
 export default function SingleBlockOverview() {
     const { block, transaction } = Route.useLoaderData();
@@ -29,6 +36,14 @@ export default function SingleBlockOverview() {
     );
 }
 
+/**
+ * Route definition for `/blocks/$blockId/`.
+ *
+ * @remarks
+ * - Parses the `blockId` from route params.
+ * - Fetches both the block details and associated transactions in parallel.
+ * - Logs any errors to the console but does not prevent rendering.
+ */
 export const Route = createFileRoute("/blocks/$blockId/")({
     component: SingleBlockOverview,
 

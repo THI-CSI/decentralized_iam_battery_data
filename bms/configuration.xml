@@ -742,6 +742,57 @@
       <property id="config.driver.rtc.param_checking_enable" value="config.driver.rtc.param_checking_enable.bsp"/>
       <property id="config.driver.rtc.open_set_source_clock" value="config.driver.rtc.open_set_source_clock.enabled"/>
     </config>
+    <config id="config.aws.freertosplus.freertosplus_tcp">
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_DEBUG_PRINTF" value="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_DEBUG_PRINTF.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIPv4_BACKWARD_COMPATIBLE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigIPv4_BACKWARD_COMPATIBLE.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_IPv6" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_IPv6.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_PRINTF" value="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_PRINTF.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigBYTE_ORDER" value="config.aws.freertosplus.freertosplus_tcp.ipconfigBYTE_ORDER.pdFREERTOS_LITTLE_ENDIAN"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME" value="2000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME" value="2000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS_CACHE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS_CACHE.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDNS_REQUEST_ATTEMPTS" value="5"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_PRIORITY" value="configMAX_PRIORITIES - 1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_STACK_SIZE_WORDS" value="configMINIMAL_STACK_SIZE * 10"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS" value="15000 / portTICK_PERIOD_MS"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_REGISTER_HOSTNAME" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_REGISTER_HOSTNAME.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_USES_UNICAST" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_USES_UNICAST.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP_HOOK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP_HOOK.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigMAXIMUM_DISCOVER_TX_PERIOD" value="120000 / portTICK_PERIOD_MS"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigARP_CACHE_ENTRIES" value="6"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigMAX_ARP_RETRANSMISSIONS" value="5"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigMAX_ARP_AGE" value="150"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigINCLUDE_FULL_INET_ADDR" value="config.aws.freertosplus.freertosplus_tcp.ipconfigINCLUDE_FULL_INET_ADDR.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS" value="16"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigEVENT_QUEUE_LENGTH" value="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND" value="config.aws.freertosplus.freertosplus_tcp.ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUDP_TIME_TO_LIVE" value="128"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_TIME_TO_LIVE" value="128"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_TCP" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_TCP.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_TCP_WIN" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_TCP_WIN.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigNETWORK_MTU" value="1500"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigREPLY_TO_INCOMING_PINGS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigREPLY_TO_INCOMING_PINGS.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_OUTGOING_PINGS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_OUTGOING_PINGS.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_SELECT_FUNCTION" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_SELECT_FUNCTION.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigFILTER_OUT_NON_ETHERNET_II_FRAMES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigFILTER_OUT_NON_ETHERNET_II_FRAMES.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigPACKET_FILLER_SIZE" value="2"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_WIN_SEG_COUNT" value="240"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_RX_BUFFER_LENGTH" value="3000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_TX_BUFFER_LENGTH" value="3000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_KEEP_ALIVE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_KEEP_ALIVE.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_KEEP_ALIVE_INTERVAL" value="120"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCKET_HAS_USER_SEMAPHORE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCKET_HAS_USER_SEMAPHORE.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCKET_HAS_USER_WAKE_CALLBACK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCKET_HAS_USER_WAKE_CALLBACK.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_CALLBACKS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_CALLBACKS.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_TX_DRIVER" value="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_TX_DRIVER.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_RX_DRIVER" value="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_RX_DRIVER.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_LINKED_RX_MESSAGES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_LINKED_RX_MESSAGES.0"/>
+    </config>
   </raModuleConfiguration>
   <raPinConfiguration>
     <symbolicName propertyId="p000.symbolic_name" value="MIKROBUS_AN_ARDUINO_A0"/>

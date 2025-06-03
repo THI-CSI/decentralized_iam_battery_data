@@ -41,7 +41,7 @@ func CreateTrustAnchor() {
 
 	rawJSON := fmt.Sprintf(`{
   "id": "did:batterypass.eu",
-  "publicKey": {
+  "verificationMethod": {
     "id": "did:batterypass.eu#root-key",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass.eu",

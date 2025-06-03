@@ -144,6 +144,7 @@ func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
 	return VCAbsent
 }
 
+// FindDID
 func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 	var didResponse core.Did
 	for i := len(*chain) - 1; i >= 0; i-- {

@@ -3,7 +3,14 @@ import { Api } from "@/api/api.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 
 /**
- * The overview over a single Did
+ * Component that displays a detailed overview of a single DID (Decentralized Identifier).
+ *
+ * @remarks
+ * - Pulls route param `didId` to fetch and display DID data from the backend.
+ * - Renders verification method and associated service entries in tables.
+ * - Displays each service as its own table block.
+ *
+ * @returns A detailed view for a single DID.
  */
 export default function SingleDidOverview() {
     const data = Route.useLoaderData();
@@ -77,6 +84,14 @@ export default function SingleDidOverview() {
     );
 }
 
+/**
+ * Route definition for `/dids/$didId/`.
+ *
+ * @remarks
+ * - Uses a dynamic route param to load a specific DID’s details.
+ * - Loads data using `Api.did.getSingle()`.
+ * - Logs errors to console; doesn’t throw or handle failures gracefully.
+ */
 export const Route = createFileRoute("/dids/$didId/")({
     component: SingleDidOverview,
     loader: async ({ params }) => {

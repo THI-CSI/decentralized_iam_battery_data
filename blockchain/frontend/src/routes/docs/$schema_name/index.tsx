@@ -6,7 +6,15 @@ import { createFileRoute } from "@tanstack/react-router";
 export type DocsIframeProps = {};
 
 /**
- * The docs iframe for the schemas
+ * Route component that renders an iframe to display schema documentation.
+ *
+ * @remarks
+ * Extracts the `schema_name` param from the URL and embeds the relevant
+ * schema documentation using an iframe. This is useful for server-hosted
+ * static docs or Swagger/OpenAPI UI served from a backend.
+ *
+ * @param _props - Props for the component (currently unused)
+ * @returns A full-size iframe rendering the schema docs for the given schema name
  */
 export default function DocsIframe(_props: DocsIframeProps) {
     const { schema_name } = Route.useParams();
