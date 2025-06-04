@@ -4,6 +4,8 @@ click==8.1.8
 fastapi==0.115.12
 h11==0.16.0
 idna==3.10
+jsonschema==4.24.0
+jsonschema-specifications==2025.4.1
 pycryptodome==3.22.0
 pydantic==2.11.3
 pydantic_core==2.33.1
