@@ -35,7 +35,7 @@ Documentation is done here in GitHub, but quick notes can be found in [our Hedge
 We are using **HTTP** as communication protocol.
 
 
-# BatteryPass Schemas
+## BatteryPass Schemas
 
 `decentralized_iam_battery_data/cloud/BatteryPassDataModel` contains JSON Schemas from the [BatteryPass Data Model](https://github.com/batterypass/BatteryPassDataModel).
 
