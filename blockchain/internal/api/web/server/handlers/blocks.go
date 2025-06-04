@@ -11,13 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type MyServer struct {
-	DidService         services.DidService
-	BlockService       services.BlockService
-	TransactionService services.TransactionService
-	VCService          services.VCService
-}
-
 // GetBlocks returns all blocks of the blockchain
 //
 //	@Summary		Get all blocks

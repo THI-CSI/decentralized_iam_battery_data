@@ -15,18 +15,12 @@ const TransactionThreshold = 2
 // Block represents a unit in the blockchain containing a set of Transactions.
 // Each block is cryptographically linked to the previous one.
 type Block struct {
-	// Index is the position of the block in the chain.
-	Index int
-	// Timestamp is when the block was created.
-	Timestamp string
-	// Hash is the cryptographic hash of this block.
-	Hash string
-	// PreviousBlockHash is the hash of the prior block.
-	PreviousBlockHash string
-	// Transactions hold all transactions in this block.
-	Transactions []json.RawMessage
-	// MerkleRoot holds the fingerprint of the whole merkle tree
-	MerkleRoot string
+	Index             int               `json:"Index"`
+	Timestamp         string            `json:"Timestamp"`
+	Hash              string            `json:"Hash"`
+	PreviousBlockHash string            `json:"PreviousBlockHash"`
+	Transactions      []json.RawMessage `json:"Transactions"` // Use json.RawMessage for raw JSON transactions
+	MerkleRoot        string            `json:"MerkleRoot"`
 }
 
 // Returns a more readable string representation of the block structure
@@ -61,9 +55,9 @@ func CalculateBlockHash(block Block) string {
 func GenerateGenesisBlock() Block {
 	var block Block
 
-    if err := CreateTrustAnchor(); err != nil {
-        fmt.Println("CreateTrustAnchor method failed: ", err)
-    }
+	if err := CreateTrustAnchor(); err != nil {
+		fmt.Println("CreateTrustAnchor method failed: ", err)
+	}
 
 	block.Index = 0
 	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")

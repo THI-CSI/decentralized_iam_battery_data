@@ -225,6 +225,24 @@ type ResponseDidsSchema = []DidSchema
 
 // ResponseErrorSchema A standard error response structure for HTTP APIs.
 type ResponseErrorSchema struct {
+	// Details Optional detailed information about the error, typically for validation failures.
+	Details *[]struct {
+		// Context The JSON pointer to the location within the data structure where the error occurred (e.g., '/items/0/properties/amount').
+		Context *string `json:"context,omitempty"`
+
+		// Description A specific description of the validation error.
+		Description string `json:"description"`
+
+		// Field The specific field or path in the request/response that caused the error (e.g., 'name', '/address/street').
+		Field string `json:"field"`
+
+		// Type The type of validation rule that failed (e.g., 'pattern', 'required', 'minimum').
+		Type *string `json:"type,omitempty"`
+
+		// Value The problematic value that caused the validation error, formatted as a string.
+		Value *string `json:"value,omitempty"`
+	} `json:"details,omitempty"`
+
 	// Message A human-readable error message.
 	Message string `json:"message"`
 }
