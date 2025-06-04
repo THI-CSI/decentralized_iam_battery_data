@@ -1,0 +1,12 @@
+annotated-types==0.7.0
+
+
+pycryptodome==3.22.0
+
+python-dotenv==1.1.0
+requests==2.32.3
+setuptools==78.1.1
+multiformats
+
+# License?
+pyld
