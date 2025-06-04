@@ -44,6 +44,10 @@ def get_db():
 def get_private_key():
     return load_private_key(os.getenv("PASSPHRASE", "secret"))
 
+def get_public_key():
+    private_key = get_private_key()
+    return private_key.public_key().export_key(format="PEM").encode("utf-8")
+
 def set_nested_value(doc, path_keys, new_value):
     current_level = doc
     for key in path_keys[:-1]:
@@ -52,7 +56,7 @@ def set_nested_value(doc, path_keys, new_value):
 
 @app.get("/")
 def read_root():
-    return {"message": "API is working"}
+    return {"message": "API is working", "public_key": get_public_key()}
 
 @app.get("/batterypass/{did}", summary="Get a battery pass entry by DID")
 async def read_item(
