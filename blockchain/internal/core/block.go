@@ -19,7 +19,7 @@ type Block struct {
 	Timestamp         string            `json:"Timestamp"`
 	Hash              string            `json:"Hash"`
 	PreviousBlockHash string            `json:"PreviousBlockHash"`
-	Transactions      []json.RawMessage `json:"Transactions"` // Use json.RawMessage for raw JSON transactions
+	Transactions      []json.RawMessage `json:"Transactions"`
 	MerkleRoot        string            `json:"MerkleRoot"`
 }
 
