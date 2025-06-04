@@ -7,7 +7,7 @@ import requests
 
 from Crypto.Protocol import HPKE
 from Crypto.PublicKey import ECC
-from typing import Dict, Any
+from typing import Dict, Any, Union, Tuple, Literal
 from Crypto.Hash import SHA3_256
 
 
@@ -90,7 +90,7 @@ def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
     :return: A tuple containing (URI, Issuer ID, Holder ID).
     """
 
-    # Get all necessary data from the verifiable credential
+    # Get all necessary data from the verifiable credential.
     uri = vc.get("id")
     issuer = vc.get("issuer")
     subject = vc.get("credentialSubject")
@@ -104,23 +104,23 @@ def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
     else:
         holder = None
 
-    # Check if all data is present, if not raise a ValueError
+    # Check if all data is present, if not, raise a ValueError.
     if uri is None or issuer is None or holder is None:
         raise ValueError("Invalid Verifiable Credential")
 
     return uri, issuer, holder
 
 
-def verify_vc(vc_json_object: json) -> bool:
+def verify_vc(vc_json_object: json) -> Union[Tuple[Literal[True], dict], Tuple[Literal[False], str]]:
     """
     This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
     creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
     """
 
-    # Extract the uri, issuer and holder
+    # Extract the uri, issuer and holder.
     uri, issuer, holder = extract_vc_info(vc_json_object)
 
-    # To generate the Hash, we must first serialize the Object
+    # To generate the Hash, we must first serialize the Object.
     serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
 
     # Create the SHA3-256bit Hash
@@ -129,21 +129,30 @@ def verify_vc(vc_json_object: json) -> bool:
     # devbod: TODO: Should we use hexdigest()?
     # vc_digest = vc_hash.hexdigest()
 
-    # Now we need to send the Data to the Blockchain
-    # First we create the Datastructures we send
+    # Now we need to send the Data to the Blockchain.
+    # First, we create the Datastructures we send.
     data = {
-        "uri": uri,
-        "issuer": issuer,
-        "holder": holder,
-        "hash": vc_hash
+        "issuerDID": issuer,
+        "holderDID": holder,
+        "id": uri,
+        "vcHash": vc_hash
     }
 
-    # Then we send the Data to the Blockchain
-    response = requests.post(os.getenv("BLOCKCHAIN_URL", "http://localhost:8443"), json=data)
+    # Then we send the Data to the Blockchain.
+    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=data)
 
-    # If the response is 200, we can assume the VC is valid
-    if response.status_code == 200:
-        return True
-    # If not, we can assume the VC is invalid. We should check for reasons in the future
+    response_dict = response.json()
+    response_status_code = response.status_code
+
+    # If the response is 200, the VC is valid.
+    if response_status_code == 200:
+        return True, response_dict
+    # Status code 404 means the VC has not been found or revoked.
+    elif response_status_code == 404:
+        return False, f"VC has been revoked or not found, status code {response_status_code}"
+    # Status code 400 means the input was invalid/incorrect.
+    elif response_status_code == 400:
+        return False, f"Input is incorrect, status code {response_status_code}"
+    # If we have a whole different status code, we have an unknown error.
     else:
-        return False
+        return False, f"Unknown status code {response.status_code}"
