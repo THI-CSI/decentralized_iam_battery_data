@@ -29,7 +29,5 @@ func (s *transactionService) GetTransactions(ctx context.Context, blockId int) (
 		return nil, fmt.Errorf("block %d not found", blockId)
 	}
 
-	transactionResponse := block.Transactions
-
-	return &transactionResponse, nil
+	return &block.Transactions, nil
 }

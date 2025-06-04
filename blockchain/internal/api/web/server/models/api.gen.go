@@ -178,11 +178,11 @@ type RequestVcCreateSchemaProofType string
 
 // RequestVcRevokeSchema defines model for request.vc.revoke.schema.
 type RequestVcRevokeSchema struct {
-	// N256Hash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-	N256Hash *N256Hash `json:"256Hash,omitempty"`
-
 	// Id An identifier in uri format for Verifiable Credentials
 	Id URI `json:"id"`
+
+	// VcHash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+	VcHash N256Hash `json:"vcHash"`
 }
 
 // RequestVcVerifySchema defines model for request.vc.verify.schema.

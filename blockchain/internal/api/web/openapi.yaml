@@ -38,6 +38,11 @@ paths:
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/blocks/{blockId}:
     get:
@@ -62,6 +67,11 @@ paths:
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/blocks/{blockId}/transactions:
     get:
@@ -83,6 +93,11 @@ paths:
                 $ref: './jsonschema/responses/response.transactions.schema.json'
         '400':
           description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
@@ -114,6 +129,11 @@ paths:
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/vc/revoke:
     post:
@@ -138,16 +158,15 @@ paths:
                     type: string
                     const: "VC Record revoked"
         '400':
-          description: Bad request
+          description: Client Errors
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                example:
-                  error: "Missing required field: id"
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/vc/verify:
     post:
@@ -172,6 +191,11 @@ paths:
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids:
     get:
@@ -187,6 +211,11 @@ paths:
                 $ref: './jsonschema/responses/response.dids.schema.json'
         '400':
           description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
@@ -213,6 +242,11 @@ paths:
                 $ref: './jsonschema/responses/response.did.schema.json'
         '400':
           description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
@@ -244,6 +278,11 @@ paths:
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids/revoke:
     post:
@@ -269,6 +308,11 @@ paths:
                     const: "DID revoked"
         '400':
           description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
           content:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
