@@ -247,6 +247,12 @@ type ResponseErrorSchema struct {
 	Message string `json:"message"`
 }
 
+// ResponseOkSchema A standard OK response structure for HTTP APIs.
+type ResponseOkSchema struct {
+	// Message A human-readable confirmation message.
+	Message string `json:"message"`
+}
+
 // ResponseTransactionsSchema An array holding transactions contained in a block (DID Documents, VC Records)
 type ResponseTransactionsSchema = []ResponseTransactionsSchema_Item
 

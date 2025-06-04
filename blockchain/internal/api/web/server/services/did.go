@@ -1,10 +1,12 @@
 package services
 
 import (
+	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/core"
 	coreTypes "blockchain/internal/core/types"
 	"context"
 	"encoding/json"
+	"log"
 	"strings"
 )
 
@@ -13,8 +15,9 @@ import (
 type DidService interface {
 	GetDIDs(ctx context.Context) (*[]coreTypes.Did, error)
 	GetDID(userContext context.Context, did string) (*coreTypes.Did, error)
-	CreateOrModifyDID(userContext context.Context, create *domain.CreateDid) (*coreTypes.Did, error)
+	CreateOrModifyDID(userContext context.Context, create *models.DidSchema) error
 	RevokeDid(userContext context.Context, did string) error
+	GetPublicKey(did string) (string, error)
 }
 
 // didService is a concrete implementation of the DidService interface.
@@ -49,38 +52,48 @@ func (s *didService) GetDIDs(ctx context.Context) (*[]coreTypes.Did, error) {
 
 // GetDID returns a single DID
 func (s *didService) GetDID(userContext context.Context, did string) (*coreTypes.Did, error) {
-	return s.chain.FindDID(did)
+	didDoc, err := s.chain.FindDID(did)
+	if err != nil {
+		log.Printf("Error finding DID: %s", err)
+		return nil, err
+	}
+	return didDoc, nil
 }
 
-// CreateDID appends a new DID to the blockcahin
-func (s *didService) CreateDID(userContext context.Context, createDid *domain.CreateDid) (*coreTypes.Did, error) {
-	did := domain.ConvertRequestToDid(createDid)
+// CreateOrModifyDID appends a new DID or a modification to the blockchain
+func (s *didService) CreateOrModifyDID(userContext context.Context, createDid *models.DidSchema) error {
+	// Transform from api types to core types - Works because of equal JSON tags
+	var err error
+	jsonBytes, err := json.Marshal(createDid)
+	if err != nil {
+		log.Printf("Internal Server Error: %s", err)
+		return err
+	}
+	did, err := coreTypes.UnmarshalDid(jsonBytes)
+	if err != nil {
+		log.Printf("Internal Server Error: %s", err)
+		return err
+	}
 
 	// Create Transaction
 	if err := s.chain.AppendDid(&did); err != nil {
-		return nil, err
+		log.Printf("Internal Server Error: %s", err)
+		return err
 	}
-
-	return &did, nil
+	return nil
 }
 
 // RevokeDid revokes an existing DID on the blockchain
 func (s *didService) RevokeDid(userContext context.Context, didId string) error {
-	did, err := s.chain.FindDID(didId)
-	if err != nil {
-		return domain.NotFoundError(err.Error())
-	}
-
-	did.Revoked = true
-	if err := s.chain.AppendDid(did); err != nil {
-		return domain.BadRequestError(err.Error())
+	if err := s.chain.RevokeDID(didId); err != nil {
+		log.Printf("Error revoking DID: %s", err)
+		return err
 	}
 
 	return nil
 }
 
 // containsDid checks if a DID is in a list of DIDs
-//
 // true if the list contains this DID already
 // false if the list does not contain this DID
 func containsDid(didList []coreTypes.Did, didId string) bool {
@@ -90,4 +103,14 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 		}
 	}
 	return false
+}
+
+func (s *didService) GetPublicKey(did string) (string, error) {
+	didDoc, err := s.chain.FindDID(did)
+	if err != nil {
+		log.Printf("Error finding DID: %s", err)
+		return "", err
+	}
+
+	return didDoc.VerificationMethod.PublicKeyMultibase, nil
 }

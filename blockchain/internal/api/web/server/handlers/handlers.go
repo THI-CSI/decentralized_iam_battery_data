@@ -3,8 +3,12 @@ package handlers
 import (
 	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/api/web/server/services"
+	"blockchain/internal/api/web/server/utils"
+	"bytes"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/lestrrat-go/jwx/v3/jwa"
+	"github.com/lestrrat-go/jwx/v3/jws"
 	"log"
 	"net/http"
 	"os"
@@ -206,7 +210,7 @@ func (s *MyServer) validateIncomingRequest(ctx echo.Context, data interface{}, s
 			}
 			validationDetails = append(validationDetails, detail)
 		}
-		log.Printf("Bad Request: %s did NOT conform to schema! Errors: %v", validationDetails)
+		log.Printf("Bad Request: NOT conform to schema! Errors: %v", validationDetails)
 
 		msg := "Invalid request payload"
 		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{
@@ -272,4 +276,41 @@ func (s *MyServer) validateOutgoingResponse(ctx echo.Context, data interface{}, 
 	}
 
 	return nil // Validation successful
+}
+
+// verifyProof verifies a JWS signature against a DID's public key.
+// The controller parameter should be the DID of whoever created the JWS.
+// Currently, not accounting for the challenge provided in proof (challenge response not implemented).
+func (s *MyServer) verifyProof(rawBody []byte, requestBody interface{}, jwsString string, signerDid string) error {
+	rawPayload, err := utils.PayloadProjection(rawBody, requestBody)
+
+	parsedJWS, err := jws.Parse([]byte(jwsString))
+	if err != nil {
+		return fmt.Errorf("failed to parse JWS: %w", err)
+	}
+
+	// Ensure there's at least one signature
+	if len(parsedJWS.Signatures()) == 0 {
+		return fmt.Errorf("JWS contains no signatures")
+	}
+
+	payload := parsedJWS.Payload()
+	if !bytes.Equal(payload, rawPayload) {
+		return fmt.Errorf("JWS payload ('%s') does not match expected rawBody ('%s')", string(payload), rawBody)
+	}
+
+	// `jws.Verify` takes the signed content and the public key.
+	// The `jws.Parse` already verified the structure. Now we verify the cryptographic signature.
+	// `jws.Verify` performs the cryptographic verification of the signature against the payload and headers.
+	// It typically returns the payload if verification succeeds, or an error.
+	publicKey, err := s.DidService.GetPublicKey(signerDid)
+	if err != nil {
+		return err
+	}
+	_, err = jws.Verify([]byte(jwsString), jws.WithKey(jwa.ES256(), publicKey))
+	if err != nil {
+		return fmt.Errorf("JWS signature verification failed: %w", err)
+	}
+
+	return nil // Verification successful
 }

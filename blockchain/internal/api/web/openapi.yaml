@@ -114,16 +114,12 @@ paths:
             schema:
               $ref: './jsonschema/requests/request.vc.create.schema.json'
       responses:
-        '201':
-          description: VC Record written successfully
+        '200':
+          description: VC created successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    const: "VC Record written"
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
         '400':
           description: Client Errors
           content:
@@ -147,16 +143,12 @@ paths:
             schema:
               $ref: './jsonschema/requests/request.vc.revoke.schema.json'
       responses:
-        '201':
+        '200':
           description: VC Record revoked successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    const: "VC Record revoked"
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
         '400':
           description: Client Errors
           content:
@@ -180,7 +172,7 @@ paths:
             schema:
               $ref: './jsonschema/requests/request.vc.verify.schema.json'
       responses:
-        '201':
+        '200':
           description: VC Record successfully verified
           content:
             application/json:
@@ -263,16 +255,12 @@ paths:
             schema:
               $ref: './jsonschema/requests/request.did.createormodify.schema.json'
       responses:
-        '201':
+        '200':
           description: DID created or modified successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    enum: [ "DID created", "DID modified" ]
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
         '400':
           description: Client Errors
           content:
@@ -296,16 +284,12 @@ paths:
             schema:
               $ref: './jsonschema/requests/request.did.revoke.schema.json'
       responses:
-        '201':
+        '200':
           description: DID revoked successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    const: "DID revoked"
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
         '400':
           description: Client Errors
           content:

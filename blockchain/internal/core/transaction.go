@@ -89,6 +89,30 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 	return nil
 }
 
+func (chain *Blockchain) RevokeDID(did string) error {
+	didState := chain.VerifyDID(did)
+	if didState == DidPending {
+		return errors.New("DID is on the list of pending transactions try again later.")
+	}
+	if didState == DidRevoked {
+		return errors.New("DID is already revoked")
+	}
+	if didState == DidAbsent {
+		return errors.New("DID does not exist")
+	}
+	didDoc, err := chain.FindDID(did)
+	if err != nil {
+		return err
+	}
+	didDoc.Revoked = true
+	rawJson, err := didDoc.Marshal()
+	if err != nil {
+		return err
+	}
+	PendingTransactions = append(PendingTransactions, rawJson)
+	return nil
+}
+
 func (chain *Blockchain) AppendVcRecords(vcRecords *core.VCRecord) error {
 	vcState := chain.VerifyVCRecord(vcRecords.ID, vcRecords.VcHash)
 	if vcState == VCPending {
