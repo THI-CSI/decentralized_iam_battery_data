@@ -2,17 +2,20 @@ import http, requests
 import time
 from requests import Timeout, RequestException
 
-# Hardcoded API URLs
-CLOUD_API_URL = 'http://127.0.0.1:8000/batterypass/'
-BLOCKCHAIN_API_URL = 'http://localhost:8080/api/dids/'
 
-def get_data(did):
+'''
+Usage examples:
+    post_data(CLOUD_API_URL, data) # for posting data
+    get_data(BLOCKCHAIN_API_URL + bms_did_id) # for getting data
+'''
+
+def get_data(api_url):
     params=None
     retries = 0
     # Send the GET request
     while retries < 3:
         try:
-            response = requests.get(BLOCKCHAIN_API_URL + did, params=params)
+            response = requests.get(api_url, params=params)
 
             if response.status_code == 200:
                 print(f'Success:', response.json())
@@ -37,12 +40,12 @@ def get_data(did):
     print(f'Max retries exceeded')
     return None  # Max retries exceeded
 
-def post_data(data):
+def post_data(api_url, data):
     retries = 0
     # Send the POST request with JSON data
     while retries < 3:
         try:
-            response = requests.post(CLOUD_API_URL, json=data)
+            response = requests.post(api_url, json=data, headers={'Content-Type': 'application/json'})
 
             if response.status_code == 200:
                 print(f'Success:', response.json())
