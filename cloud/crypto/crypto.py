@@ -99,6 +99,7 @@ def generate_keys(password: str) -> None:
         export_private_key(key, password, keys_dir / "key.pem")
         logging.info(f"Generated {keys_dir / "key.pem"}")
         register_key(key.public_key())
+        export_public_key(key, keys_dir)
 
 
 def export_private_key(key: ECC.EccKey, passphrase: str, key_path: pathlib.Path) -> None:
@@ -112,6 +113,12 @@ def export_private_key(key: ECC.EccKey, passphrase: str, key_path: pathlib.Path)
         f.write(private_key_pem)
     key_path.chmod(0o600)
 
+def export_public_key(key: ECC.EccKey, keys_dir: pathlib.Path) -> str:
+    public_key_pem = key.public_key().export_key(format="PEM")
+    public_key_path = keys_dir / "public_key.pem"
+    with open(public_key_path, "w") as f:
+        f.write(public_key_pem)
+    return public_key_path.read_text()
 
 def load_private_key(passphrase: str) -> ECC.EccKey:
     pem_file = pathlib.Path(__file__).parent / "keys" / "key.pem"
