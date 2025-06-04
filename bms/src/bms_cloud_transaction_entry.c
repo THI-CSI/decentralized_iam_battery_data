@@ -62,22 +62,21 @@ void bms_cloud_transaction_entry(void *pvParameters)
 uint8_t fetch_did_documents(encryption_context *encryption_ctx)
 {
     uint8_t number_of_endpoints = RESET_VALUE; // = amount of stored VCs
+    size_t xReceivedBytes0 = RESET_VALUE;
+    xSemaphoreGive(crypto_net_sem);
+    do
+    {
+        xReceivedBytes0 = xMessageBufferReceive(net_crypto_message_buffer, (void *)&number_of_endpoints, sizeof(uint8_t), pdMS_TO_TICKS(1000));
+    } while(xReceivedBytes0 == 0);
     encryption_ctx->did_documents = (did_document **)pvPortCalloc(number_of_endpoints, sizeof(did_document *));
     for (uint8_t i = 0; i < number_of_endpoints; i++)
     {
         encryption_ctx->did_documents[i] = (did_document *)pvPortCalloc(1, sizeof(did_document));
         encryption_ctx->did_documents[i]->endpoint = (char *)pvPortCalloc(ENDPOINT_MAX_BUFFER_SIZE, sizeof(char));
         encryption_ctx->did_documents[i]->public_key_der_encoded = (uint8_t *)pvPortCalloc(ECC_256_PUB_DER_MAX_BUFFER_SIZE, sizeof(uint8_t));
-        size_t xReceivedBytes0 = RESET_VALUE;
         size_t xReceivedBytes1 = RESET_VALUE;
         char cReceivedString[1024];
         memset(cReceivedString, RESET_VALUE, sizeof(cReceivedString));
-        xSemaphoreGive(crypto_net_sem);
-        do
-        {
-            xReceivedBytes0 = xMessageBufferReceive(net_crypto_message_buffer, (void *)&number_of_endpoints, sizeof(uint8_t), pdMS_TO_TICKS(1000));
-
-        } while(xReceivedBytes0 == 0);
         do
         {
             xReceivedBytes1 = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
