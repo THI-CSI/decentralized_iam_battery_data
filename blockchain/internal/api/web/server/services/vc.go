@@ -88,7 +88,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 
 // RevokeVCRecord revokes a VC record based on its identifier and hash
 func (v *vcService) RevokeVCRecord(ctx context.Context, vcId string) error {
-	// TODO: implement
+	// TODO: implement - may require changes to the revoke method in core.transactions
 	return nil
 }
 
