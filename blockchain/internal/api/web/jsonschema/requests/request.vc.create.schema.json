@@ -1,11 +1,5 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "request.vc.create",
-  "type": "object",
-  "required": ["proof", "payload"],
-  "additionalProperties": false,
-  "properties": {
-    "proof": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/Proof"},
-    "payload": { "$ref": "../../../../jsonschema/vc.schema.json"}
-  }
+  "$ref": "../../../../jsonschema/vc.schema.json"
 }

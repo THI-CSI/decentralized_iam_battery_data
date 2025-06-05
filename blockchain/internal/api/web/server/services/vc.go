@@ -10,15 +10,15 @@ import (
 	"log"
 )
 
-// TODO: The original vc.schema.json in core is breaking the code generator (Likely requires a jsosnchema per VC type - 3 in total - and then have a oneOf condition in request.vc.create.schema.json)
+// TODO: The original vc.schema.json in core is breaking the code generator leading to type VcSchema = interface{} (Likely requires a jsosnchema per VC type - 3 in total - and then have a oneOf condition in request.vc.create.schema.json)
 
 // VCService defines the interface for creating and returning vcs of the blockchain
 type VCService interface {
 	GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VCRecord, error)
 	GetVCRecords(ctx context.Context) (*[]coreTypes.VCRecord, error)
-	CreateVCRecord(userContext context.Context, createVcRecord *models.VCSchema) error
+	CreateVCRecord(userContext context.Context, createVcRecord *models.VcSchema) error
 	RevokeVCRecord(ctx context.Context, vcId string) error
-	VerifyRequestCreate(requestBody models.RequestVcCreateSchema) error
+	VerifyRequestCreate(requestBody models.VcSchema) error
 	VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error
 }
 
@@ -103,7 +103,7 @@ func containsVcRecord(vcRecordList []coreTypes.VCRecord, vcId string) bool {
 	}
 	return false
 }
-func (v *vcService) VerifyRequestCreate(requestBody models.RequestVcCreateSchema) error {
+func (v *vcService) VerifyRequestCreate(requestBody models.VcSchema) error {
 	// TODO: implement (JWS contains the signed content - can be parsed from JWS token and compared to payload)
 	return nil
 }

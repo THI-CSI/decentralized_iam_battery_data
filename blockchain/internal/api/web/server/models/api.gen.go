@@ -153,15 +153,6 @@ type RequestDidRevokeSchema struct {
 	Proof Proof `json:"proof"`
 }
 
-// RequestVcCreateSchema defines model for request.vc.create.schema.
-type RequestVcCreateSchema struct {
-	// Payload Schema for verifying claims of a holder with verifier proof.
-	Payload VcSchema `json:"payload"`
-
-	// Proof Cryptographic proof that makes the subject verifiable.
-	Proof Proof `json:"proof"`
-}
-
 // RequestVcRevokeSchema defines model for request.vc.revoke.schema.
 type RequestVcRevokeSchema struct {
 	// Payload An identifier in uri format for Verifiable Credentials
@@ -302,7 +293,7 @@ type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
 type RevokeDidJSONRequestBody = RequestDidRevokeSchema
 
 // CreateVcRecordJSONRequestBody defines body for CreateVcRecord for application/json ContentType.
-type CreateVcRecordJSONRequestBody = RequestVcCreateSchema
+type CreateVcRecordJSONRequestBody = VcSchema
 
 // RevokeVcRecordJSONRequestBody defines body for RevokeVcRecord for application/json ContentType.
 type RevokeVcRecordJSONRequestBody = RequestVcRevokeSchema
