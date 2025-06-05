@@ -23,7 +23,7 @@ func (s *MyServer) GetAllVCs(ctx echo.Context) error {
 }
 
 // GetVcById handles GET /api/v1/vcs/{vcUri}
-func (s *MyServer) GetVcById(ctx echo.Context, did string) error {
+func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 	result, err := s.VCService.GetVCRecord(ctx.Request().Context(), did)
 	if err != nil {
 		log.Printf("Bad Request: %v", err)

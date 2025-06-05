@@ -13,6 +13,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/getkin/kin-openapi v0.127.0 // indirect
@@ -29,6 +30,9 @@ require (
 	github.com/labstack/echo/v4 v4.13.4 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/lestrrat-go/blackmagic v1.0.3 // indirect
+	github.com/lestrrat-go/httpcc v1.0.1 // indirect
+	github.com/lestrrat-go/httprc/v3 v3.0.0-beta2 // indirect
 	github.com/lestrrat-go/jwx/v3 v3.0.2 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
@@ -62,6 +66,7 @@ require (
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
