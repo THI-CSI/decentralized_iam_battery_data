@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"blockchain/internal/api/web/server/models"
-	"bytes"
 	"github.com/labstack/echo/v4"
-	"io"
 	"log"
 	"net/http"
 )
@@ -41,19 +39,12 @@ func (s *MyServer) GetDidById(ctx echo.Context, did string) error {
 
 // CreateOrModifyDid handles POST /api/v1/dids/createormodify
 func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
-	rawBody, err := io.ReadAll(ctx.Request().Body)
-	ctx.Request().Body = io.NopCloser(bytes.NewBuffer(rawBody))
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: "Failed to read the raw request body"})
-	}
-	ctx.Request().Body = io.NopCloser(bytes.NewBuffer(rawBody))
-
 	var requestBody models.CreateOrModifyDidJSONRequestBody
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}
 
-	err = s.verifyProof(rawBody, requestBody, requestBody.Proof.Jws, requestBody.Payload.VerificationMethod.Controller)
+	err := s.DidService.VerifyRequestCreateOrModify(requestBody)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}
@@ -69,19 +60,12 @@ func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
 
 // RevokeDid handles POST /api/v1/dids/revoke
 func (s *MyServer) RevokeDid(ctx echo.Context) error {
-	rawBody, err := io.ReadAll(ctx.Request().Body)
-	ctx.Request().Body = io.NopCloser(bytes.NewBuffer(rawBody))
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: "Failed to read the raw request body"})
-	}
-	ctx.Request().Body = io.NopCloser(bytes.NewBuffer(rawBody))
-
 	var requestBody models.RevokeDidJSONRequestBody
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}
 
-	err = s.verifyProof(rawBody, requestBody, requestBody.Proof.Jws, requestBody.Payload)
+	err := s.DidService.VerifyRequestRevoke(requestBody)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}

@@ -57,6 +57,7 @@ func CreateServer(chain *core.Blockchain) {
 	blockService := services.NewBlockService(chain)
 	transactionService := services.NewTransactionService(chain)
 	vcService := services.NewVCService(chain)
+	vpService := services.NewVPService(chain)
 
 	// Create an instance of your server implementation
 	myServer, err := handlers.NewMyServer(
@@ -64,6 +65,7 @@ func CreateServer(chain *core.Blockchain) {
 		blockService,
 		transactionService,
 		vcService,
+		vpService,
 	)
 	if err != nil {
 		// If schema loading or any other server initialization fails, log and exit.

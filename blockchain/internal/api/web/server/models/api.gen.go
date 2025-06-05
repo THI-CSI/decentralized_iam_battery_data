@@ -11,6 +11,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // Defines values for ProofType.
@@ -18,29 +19,43 @@ const (
 	ProofTypeEcdsaSecp256r1Signature2019 ProofType = "EcdsaSecp256r1Signature2019"
 )
 
+// Defines values for ServiceAccessAccessLevel.
+const (
+	Read  ServiceAccessAccessLevel = "read"
+	Write ServiceAccessAccessLevel = "write"
+)
+
 // Defines values for DidSchemaContext.
 const (
-	Httplocalhost8443docsdidSchemaHtml DidSchemaContext = "http://localhost:8443/docs/did.schema.html"
-	HttpswwwW3Org2018credentialsv1     DidSchemaContext = "https://www.w3.org/2018/credentials/v1"
+	DidSchemaContextHttplocalhost8443docsdidSchemaHtml DidSchemaContext = "http://localhost:8443/docs/did.schema.html"
+	DidSchemaContextHttpswwwW3Org2018credentialsv1     DidSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for RequestDidCreateormodifySchemaProofType.
+// Defines values for VpSchemaContext.
 const (
-	RequestDidCreateormodifySchemaProofTypeEcdsaSecp256r1Signature2019 RequestDidCreateormodifySchemaProofType = "EcdsaSecp256r1Signature2019"
+	VpSchemaContextHttplocalhost8443docsvpSchemaHtml VpSchemaContext = "http://localhost:8443/docs/vp.schema.html"
+	VpSchemaContextHttpswwwW3Org2018credentialsv1    VpSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for RequestDidRevokeSchemaProofType.
+// Defines values for VpSchemaProofType.
 const (
-	RequestDidRevokeSchemaProofTypeEcdsaSecp256r1Signature2019 RequestDidRevokeSchemaProofType = "EcdsaSecp256r1Signature2019"
-)
-
-// Defines values for RequestVcCreateSchemaProofType.
-const (
-	RequestVcCreateSchemaProofTypeEcdsaSecp256r1Signature2019 RequestVcCreateSchemaProofType = "EcdsaSecp256r1Signature2019"
+	VpSchemaProofTypeEcdsaSecp256r1Signature2019 VpSchemaProofType = "EcdsaSecp256r1Signature2019"
 )
 
 // N256Hash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
 type N256Hash = string
+
+// BMSProduction defines model for BMSProduction.
+type BMSProduction struct {
+	// BmsDid DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+	BmsDid DID `json:"bmsDid"`
+
+	// Id An identifier in uri format for Verifiable Credentials
+	Id        URI                `json:"id"`
+	LotNumber string             `json:"lotNumber"`
+	Timestamp openapi_types.Date `json:"timestamp"`
+	Type      interface{}        `json:"type"`
+}
 
 // DID DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
 type DID = string
@@ -65,6 +80,23 @@ type Proof struct {
 
 // ProofType defines model for Proof.Type.
 type ProofType string
+
+// ServiceAccess defines model for ServiceAccess.
+type ServiceAccess struct {
+	AccessLevel []ServiceAccessAccessLevel `json:"accessLevel"`
+
+	// BmsDid DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+	BmsDid DID `json:"bmsDid"`
+
+	// Id An identifier in uri format for Verifiable Credentials
+	Id         URI         `json:"id"`
+	Type       interface{} `json:"type"`
+	ValidFrom  DateTime    `json:"validFrom"`
+	ValidUntil DateTime    `json:"validUntil"`
+}
+
+// ServiceAccessAccessLevel defines model for ServiceAccess.AccessLevel.
+type ServiceAccessAccessLevel string
 
 // ServiceEndpoint Represents a service associated with the DID subject, such as a metadata or data access point.
 type ServiceEndpoint struct {
@@ -107,82 +139,36 @@ type DidSchemaContext string
 type RequestDidCreateormodifySchema struct {
 	// Payload Minimal on-chain DID record with a revocation tag.
 	Payload DidSchema `json:"payload"`
-	Proof   struct {
-		// Challenge Optional challenge to prevent replay attacks.
-		Challenge string    `json:"challenge"`
-		Created   time.Time `json:"created"`
 
-		// Jws The actual signature in JSON Web Signature format
-		Jws          string                                  `json:"jws"`
-		ProofPurpose string                                  `json:"proofPurpose"`
-		Type         RequestDidCreateormodifySchemaProofType `json:"type"`
-
-		// VerificationMethod Reference to the key used to create the proof.
-		VerificationMethod string `json:"verificationMethod"`
-	} `json:"proof"`
+	// Proof Cryptographic proof that makes the subject verifiable.
+	Proof Proof `json:"proof"`
 }
-
-// RequestDidCreateormodifySchemaProofType defines model for RequestDidCreateormodifySchema.Proof.Type.
-type RequestDidCreateormodifySchemaProofType string
 
 // RequestDidRevokeSchema defines model for request.did.revoke.schema.
 type RequestDidRevokeSchema struct {
 	// Payload DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
 	Payload DID `json:"payload"`
-	Proof   struct {
-		// Challenge Optional challenge to prevent replay attacks.
-		Challenge string    `json:"challenge"`
-		Created   time.Time `json:"created"`
 
-		// Jws The actual signature in JSON Web Signature format
-		Jws          string                          `json:"jws"`
-		ProofPurpose string                          `json:"proofPurpose"`
-		Type         RequestDidRevokeSchemaProofType `json:"type"`
-
-		// VerificationMethod Reference to the key used to create the proof.
-		VerificationMethod string `json:"verificationMethod"`
-	} `json:"proof"`
+	// Proof Cryptographic proof that makes the subject verifiable.
+	Proof Proof `json:"proof"`
 }
-
-// RequestDidRevokeSchemaProofType defines model for RequestDidRevokeSchema.Proof.Type.
-type RequestDidRevokeSchemaProofType string
 
 // RequestVcCreateSchema defines model for request.vc.create.schema.
 type RequestVcCreateSchema struct {
-	Payload struct {
-		ExpirationDate *DateTime `json:"expirationDate,omitempty"`
+	// Payload Schema for verifying claims of a holder with verifier proof.
+	Payload VcSchema `json:"payload"`
 
-		// Id An identifier in uri format for Verifiable Credentials
-		Id URI `json:"id"`
-
-		// VcHash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-		VcHash N256Hash `json:"vcHash"`
-	} `json:"payload"`
-	Proof struct {
-		// Challenge Optional challenge to prevent replay attacks.
-		Challenge string    `json:"challenge"`
-		Created   time.Time `json:"created"`
-
-		// Jws The actual signature in JSON Web Signature format
-		Jws          string                         `json:"jws"`
-		ProofPurpose string                         `json:"proofPurpose"`
-		Type         RequestVcCreateSchemaProofType `json:"type"`
-
-		// VerificationMethod Reference to the key used to create the proof.
-		VerificationMethod string `json:"verificationMethod"`
-	} `json:"proof"`
+	// Proof Cryptographic proof that makes the subject verifiable.
+	Proof Proof `json:"proof"`
 }
-
-// RequestVcCreateSchemaProofType defines model for RequestVcCreateSchema.Proof.Type.
-type RequestVcCreateSchemaProofType string
 
 // RequestVcRevokeSchema defines model for request.vc.revoke.schema.
 type RequestVcRevokeSchema struct {
-	// Id An identifier in uri format for Verifiable Credentials
-	Id URI `json:"id"`
+	// Payload An identifier in uri format for Verifiable Credentials
+	Payload URI `json:"payload"`
 
-	// VcHash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-	VcHash N256Hash `json:"vcHash"`
+	// Proof Cryptographic proof that makes the subject verifiable.
+	Proof Proof `json:"proof"`
 }
 
 // ResponseBlockSchema defines model for response.block.schema.
@@ -261,6 +247,9 @@ type VcRecordSchema struct {
 	VcHash N256Hash `json:"vcHash"`
 }
 
+// VcSchema defines model for vc.schema.
+type VcSchema = interface{}
+
 // VerificationMethod A method by which a DID subject can be authenticated, typically using cryptographic keys.
 type VerificationMethod struct {
 	// Controller DID that has the ability to make changes to this DID-Document.
@@ -276,6 +265,36 @@ type VerificationMethod struct {
 	Type string `json:"type"`
 }
 
+// VpSchema Schema for verifying presentations of VCs with holder proof.
+type VpSchema struct {
+	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
+	Context []VpSchemaContext `json:"@context"`
+
+	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+	Holder DID `json:"holder"`
+	Proof  struct {
+		// Challenge Optional challenge to prevent replay attacks.
+		Challenge string    `json:"challenge"`
+		Created   time.Time `json:"created"`
+
+		// Jws The actual signature in JSON Web Signature format
+		Jws          string            `json:"jws"`
+		ProofPurpose string            `json:"proofPurpose"`
+		Type         VpSchemaProofType `json:"type"`
+
+		// VerificationMethod Reference to the key used to create the proof.
+		VerificationMethod string `json:"verificationMethod"`
+	} `json:"proof"`
+	Type                 []string   `json:"type"`
+	VerifiableCredential []VcSchema `json:"verifiableCredential"`
+}
+
+// VpSchemaContext defines model for VpSchema.Context.
+type VpSchemaContext string
+
+// VpSchemaProofType defines model for VpSchema.Proof.Type.
+type VpSchemaProofType string
+
 // CreateOrModifyDidJSONRequestBody defines body for CreateOrModifyDid for application/json ContentType.
 type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
 
@@ -287,6 +306,9 @@ type CreateVcRecordJSONRequestBody = RequestVcCreateSchema
 
 // RevokeVcRecordJSONRequestBody defines body for RevokeVcRecord for application/json ContentType.
 type RevokeVcRecordJSONRequestBody = RequestVcRevokeSchema
+
+// VerifyVpJSONRequestBody defines body for VerifyVp for application/json ContentType.
+type VerifyVpJSONRequestBody = VpSchema
 
 // AsDidSchema returns the union data inside the ResponseTransactionsSchema_Item as a DidSchema
 func (t ResponseTransactionsSchema_Item) AsDidSchema() (DidSchema, error) {
@@ -375,7 +397,7 @@ type ServerInterface interface {
 	GetDidById(ctx echo.Context, did string) error
 	// Get a all VC Records
 	// (GET /api/v1/vcs)
-	GetAllVCs(ctx echo.Context) error
+	GetAllVcRecords(ctx echo.Context) error
 	// Create a VC Record
 	// (POST /api/v1/vcs/create)
 	CreateVcRecord(ctx echo.Context) error
@@ -385,6 +407,9 @@ type ServerInterface interface {
 	// Get a specific VC Record by URI
 	// (GET /api/v1/vcs/{vcUri})
 	GetVcRecordById(ctx echo.Context, vcUri string) error
+	// Verify a VC Record
+	// (POST /api/v1/vps/verify)
+	VerifyVp(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -476,12 +501,12 @@ func (w *ServerInterfaceWrapper) GetDidById(ctx echo.Context) error {
 	return err
 }
 
-// GetAllVCs converts echo context to params.
-func (w *ServerInterfaceWrapper) GetAllVCs(ctx echo.Context) error {
+// GetAllVcRecords converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAllVcRecords(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetAllVCs(ctx)
+	err = w.Handler.GetAllVcRecords(ctx)
 	return err
 }
 
@@ -516,6 +541,15 @@ func (w *ServerInterfaceWrapper) GetVcRecordById(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetVcRecordById(ctx, vcUri)
+	return err
+}
+
+// VerifyVp converts echo context to params.
+func (w *ServerInterfaceWrapper) VerifyVp(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.VerifyVp(ctx)
 	return err
 }
 
@@ -554,9 +588,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/api/v1/dids/createormodify", wrapper.CreateOrModifyDid)
 	router.POST(baseURL+"/api/v1/dids/revoke", wrapper.RevokeDid)
 	router.GET(baseURL+"/api/v1/dids/:did", wrapper.GetDidById)
-	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVCs)
+	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVcRecords)
 	router.POST(baseURL+"/api/v1/vcs/create", wrapper.CreateVcRecord)
 	router.POST(baseURL+"/api/v1/vcs/revoke", wrapper.RevokeVcRecord)
 	router.GET(baseURL+"/api/v1/vcs/:vcUri", wrapper.GetVcRecordById)
+	router.POST(baseURL+"/api/v1/vps/verify", wrapper.VerifyVp)
 
 }

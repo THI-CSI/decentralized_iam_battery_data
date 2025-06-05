@@ -8,7 +8,7 @@ import (
 )
 
 // GetAllVCs handles GET /api/v1/vcs
-func (s *MyServer) GetAllVCs(ctx echo.Context) error {
+func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 	result, err := s.VCService.GetVCRecords(ctx.Request().Context())
 	if err != nil {
 		log.Printf("Bad Request: %v", err)
@@ -39,12 +39,42 @@ func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 
 // CreateVcRecord handles POST /api/v1/vcs/create
 func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
-	// TODO: implement once service logic is set
-	return ctx.JSON(http.StatusCreated, map[string]string{"message": "VC created"})
+	var requestBody models.CreateVcRecordJSONRequestBody
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	err := s.VCService.VerifyRequestCreate(requestBody)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	err = s.VCService.CreateVCRecord(ctx.Request().Context(), &requestBody.Payload)
+	if err != nil {
+		log.Printf("Error creating VC: %s", err)
+		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC created"})
 }
 
 // RevokeVcRecord handles POST /api/v1/vcs/revoke
 func (s *MyServer) RevokeVcRecord(ctx echo.Context) error {
-	// TODO: implement once service logic is set
-	return ctx.JSON(http.StatusOK, map[string]string{"message": "VC revoked"})
+	var requestBody models.RevokeVcRecordJSONRequestBody
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcRevokeSchema); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	err := s.VCService.VerifyRequestRevoke(requestBody)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	err = s.VCService.RevokeVCRecord(ctx.Request().Context(), requestBody.Payload)
+	if err != nil {
+		log.Printf("Error revoking VC: %s", err)
+		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC revoked"})
 }

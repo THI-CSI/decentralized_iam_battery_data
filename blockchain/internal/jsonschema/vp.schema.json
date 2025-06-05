@@ -30,11 +30,13 @@
     },
     "type": {
       "type": "array",
-      "items": [
-        { "const": "VerifiablePresentation" }
-      ],
+      "items": {
+        "type": "string"
+      },
       "minItems": 1,
-      "maxItems": 1
+      "contains": {
+        "const": "VerifiablePresentation"
+      }
     },
     "verifiableCredential": {
       "type": "array",

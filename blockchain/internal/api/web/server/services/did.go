@@ -18,6 +18,8 @@ type DidService interface {
 	CreateOrModifyDID(userContext context.Context, create *models.DidSchema) error
 	RevokeDid(userContext context.Context, did string) error
 	GetPublicKey(did string) (string, error)
+	VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error
+	VerifyRequestRevoke(requestBody models.RequestDidRevokeSchema) error
 }
 
 // didService is a concrete implementation of the DidService interface.
@@ -105,6 +107,7 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 	return false
 }
 
+// GetPublicKey fetches a public key from a did doc geven a did
 func (s *didService) GetPublicKey(did string) (string, error) {
 	didDoc, err := s.chain.FindDID(did)
 	if err != nil {
@@ -113,4 +116,14 @@ func (s *didService) GetPublicKey(did string) (string, error) {
 	}
 
 	return didDoc.VerificationMethod.PublicKeyMultibase, nil
+}
+
+func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error {
+	// TODO: implement (JWS contains the signed content - can be parsed from JWS token in proof and compared to payload)
+	return nil
+}
+
+func (s *didService) VerifyRequestRevoke(requestBody models.RequestDidRevokeSchema) error {
+	// TODO: implement (JWS contains the signed content - can be parsed from JWS token in proof and compared to payload)
+	return nil
 }

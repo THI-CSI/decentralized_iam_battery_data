@@ -5,14 +5,7 @@
   "required": ["proof", "payload"],
   "additionalProperties": false,
   "properties": {
-    "proof": {
-      "allOf": [
-        { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/Proof"},
-        {
-          "required": ["challenge"]
-        }
-      ]
-    },
+    "proof": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/Proof"},
     "payload": { "$ref": "../../../../jsonschema/did.schema.json"}
   }
 }

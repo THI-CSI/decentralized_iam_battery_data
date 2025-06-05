@@ -1,6 +1,7 @@
 package services
 
 import (
+	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
 	coreTypes "blockchain/internal/core/types"
@@ -9,15 +10,16 @@ import (
 	"log"
 )
 
-// TODO: Change jsonschemas of create & revoke endpoint to match new infrastructure then adjust handler & service accordingly
-// TODO: Add handler & service for vps +  adjust ref schemas in endpoint definition in openapi.yaml (POST /api/v1/vps/verify) + response & request schema & load the new schemas in handlers.go
+// TODO: The original vc.schema.json in core is breaking the code generator (Likely requires a jsosnchema per VC type - 3 in total - and then have a oneOf condition in request.vc.create.schema.json)
 
 // VCService defines the interface for creating and returning vcs of the blockchain
 type VCService interface {
 	GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VCRecord, error)
 	GetVCRecords(ctx context.Context) (*[]coreTypes.VCRecord, error)
-	//CreateVCRecord(userContext context.Context, createVcRecord *models.VCSchema) error
-	RevokeVCRecord(ctx context.Context, vcId string, vcHash string) error
+	CreateVCRecord(userContext context.Context, createVcRecord *models.VCSchema) error
+	RevokeVCRecord(ctx context.Context, vcId string) error
+	VerifyRequestCreate(requestBody models.RequestVcCreateSchema) error
+	VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error
 }
 
 // vcService is a concrete implementation of the VCService interface.
@@ -60,47 +62,53 @@ func (v *vcService) GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VC
 	return vcRecord, nil
 }
 
-//// CreateVCRecord creates a new VC record on the blockchain based on the provided VC
-//func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *models.VcRecordSchema) error {
-//
-//	// Transform from api types to core types - Works because of equal JSON tags
-//	var err error
-//	jsonBytes, err := json.Marshal(createVcRecord)
-//	if err != nil {
-//		log.Printf("Internal Server Error: %s", err)
-//		return err
-//	}
-//	vcRecord, err := coreTypes.UnmarshalVCRecord(jsonBytes)
-//	if err != nil {
-//		log.Printf("Internal Server Error: %s", err)
-//		return err
-//	}
-//
-//	// Create Transaction
-//	if err := v.chain.AppendVcRecord(&vcRecord); err != nil {
-//		log.Printf("Internal Server Error: %s", err)
-//		return err
-//	}
-//	return nil
-//}
+// CreateVCRecord creates a new VC record on the blockchain based on the provided VC
+func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *models.VcSchema) error {
 
-// RevokeVCRecord revokes a VC record based on its identifier and hash
-func (v *vcService) RevokeVCRecord(ctx context.Context, vcId string, vcHash string) error {
-	if err := v.chain.RevokeVcRecord(vcId, vcHash); err != nil {
-		log.Printf("Error revoking DID: %s", err)
+	// Transform from api types to core types - Works because of equal JSON tags
+	var err error
+	jsonBytes, err := json.Marshal(createVcRecord)
+	if err != nil {
+		log.Printf("Internal Server Error: %s", err)
+		return err
+	}
+	vcRecord, err := coreTypes.UnmarshalVCRecord(jsonBytes)
+	if err != nil {
+		log.Printf("Internal Server Error: %s", err)
+		return err
+	}
+
+	// Create Transaction
+	if err := v.chain.AppendVcRecord(&vcRecord); err != nil {
+		log.Printf("Internal Server Error: %s", err)
 		return err
 	}
 	return nil
 }
 
-// containsDid checks if a DID is in a list of DIDs
-// true if the list contains this DID already
-// false if the list does not contain this DID
-func containsVcRecord(didList []coreTypes.VCRecord, vcId string) bool {
-	for _, did := range didList {
-		if did.ID == vcId {
+// RevokeVCRecord revokes a VC record based on its identifier and hash
+func (v *vcService) RevokeVCRecord(ctx context.Context, vcId string) error {
+	// TODO: implement
+	return nil
+}
+
+// containsVcRecord checks if a VC Record is in a list of VC Records
+// true if the list contains this Record already
+// false if the list does not contain this Record
+func containsVcRecord(vcRecordList []coreTypes.VCRecord, vcId string) bool {
+	for _, vcRecord := range vcRecordList {
+		if vcRecord.ID == vcId {
 			return true
 		}
 	}
 	return false
+}
+func (v *vcService) VerifyRequestCreate(requestBody models.RequestVcCreateSchema) error {
+	// TODO: implement (JWS contains the signed content - can be parsed from JWS token and compared to payload)
+	return nil
+}
+
+func (v *vcService) VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error {
+	// TODO: implement (JWS contains the signed content - can be parsed from JWS token and compared to payload)
+	return nil
 }

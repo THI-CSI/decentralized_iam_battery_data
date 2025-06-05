@@ -3,12 +3,8 @@ package handlers
 import (
 	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/api/web/server/services"
-	"blockchain/internal/api/web/server/utils"
-	"bytes"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/lestrrat-go/jwx/v3/jwa"
-	"github.com/lestrrat-go/jwx/v3/jws"
 	"log"
 	"net/http"
 	"os"
@@ -25,6 +21,7 @@ type MyServer struct {
 	BlockService       services.BlockService
 	TransactionService services.TransactionService
 	VCService          services.VCService
+	VPService          services.VPService
 
 	// Compiled JSON Schemas (loaded once at startup)
 	responseTransactionsSchema *gojsonschema.Schema
@@ -40,7 +37,7 @@ type MyServer struct {
 	requestDidRevokeSchema         *gojsonschema.Schema
 	requestVcCreateSchema          *gojsonschema.Schema
 	requestVcRevokeSchema          *gojsonschema.Schema
-	requestVcVerifySchema          *gojsonschema.Schema
+	requestVpVerifySchema          *gojsonschema.Schema
 }
 
 // NewMyServer is the constructor for MyServer.
@@ -50,12 +47,14 @@ func NewMyServer(
 	blockSvc services.BlockService,
 	txSvc services.TransactionService,
 	vcSvc services.VCService,
+	vpSvc services.VPService,
 ) (*MyServer, error) {
 	s := &MyServer{
 		DidService:         didSvc,
 		BlockService:       blockSvc,
 		TransactionService: txSvc,
 		VCService:          vcSvc,
+		VPService:          vpSvc,
 	}
 
 	// --- Schema Loading and Compilation ---
@@ -144,7 +143,7 @@ func NewMyServer(
 		return nil, fmt.Errorf("failed to load responseVcsSchema: %w", err)
 	}
 
-	s.responseVcVerifySchema, err = loadSchema(apiWebSchemasPath, "responses/response.vc.verify.schema.json")
+	s.responseVcVerifySchema, err = loadSchema(apiWebSchemasPath, "responses/request.vp.verify.schema.json")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load responseVcVerifySchema: %w", err)
 	}
@@ -170,9 +169,9 @@ func NewMyServer(
 		return nil, fmt.Errorf("failed to load requestVcRevokeSchema: %w", err)
 	}
 
-	s.requestVcVerifySchema, err = loadSchema(apiWebSchemasPath, "requests/request.vc.verify.schema.json")
+	s.requestVpVerifySchema, err = loadSchema(apiWebSchemasPath, "requests/request.vp.verify.schema.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load requestVcVerifySchema: %w", err)
+		return nil, fmt.Errorf("failed to load requestVpVerifySchema: %w", err)
 	}
 
 	log.Println("All JSON schemas loaded and compiled successfully.")
@@ -187,7 +186,7 @@ func (s *MyServer) validateIncomingRequest(ctx echo.Context, data interface{}, s
 
 	validationResult, validateErr := schema.Validate(documentLoader)
 	if validateErr != nil {
-		log.Printf("Internal error during %s schema validation: %v", validateErr)
+		log.Printf(`Internal error during schema validation: %v`, validateErr)
 		msg := "Internal server error during request validation process"
 		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: msg}) // Message is string
 	}
@@ -288,41 +287,4 @@ func (s *MyServer) validateOutgoingResponse(ctx echo.Context, data interface{}, 
 	}
 
 	return nil // Validation successful
-}
-
-// verifyProof verifies a JWS signature against a DID's public key.
-// The controller parameter should be the DID of whoever created the JWS.
-// Currently, not accounting for the challenge provided in proof (challenge response not implemented).
-func (s *MyServer) verifyProof(rawBody []byte, requestBody interface{}, jwsString string, signerDid string) error {
-	rawPayload, err := utils.PayloadProjection(rawBody, requestBody)
-
-	parsedJWS, err := jws.Parse([]byte(jwsString))
-	if err != nil {
-		return fmt.Errorf("failed to parse JWS: %w", err)
-	}
-
-	// Ensure there's at least one signature
-	if len(parsedJWS.Signatures()) == 0 {
-		return fmt.Errorf("JWS contains no signatures")
-	}
-
-	payload := parsedJWS.Payload()
-	if !bytes.Equal(payload, rawPayload) {
-		return fmt.Errorf("JWS payload ('%s') does not match expected rawBody ('%s')", string(payload), rawBody)
-	}
-
-	// `jws.Verify` takes the signed content and the public key.
-	// The `jws.Parse` already verified the structure. Now we verify the cryptographic signature.
-	// `jws.Verify` performs the cryptographic verification of the signature against the payload and headers.
-	// It typically returns the payload if verification succeeds, or an error.
-	publicKey, err := s.DidService.GetPublicKey(signerDid)
-	if err != nil {
-		return err
-	}
-	_, err = jws.Verify([]byte(jwsString), jws.WithKey(jwa.ES256(), publicKey))
-	if err != nil {
-		return fmt.Errorf("JWS signature verification failed: %w", err)
-	}
-
-	return nil // Verification successful
 }
