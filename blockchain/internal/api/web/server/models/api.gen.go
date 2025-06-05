@@ -185,21 +185,6 @@ type RequestVcRevokeSchema struct {
 	VcHash N256Hash `json:"vcHash"`
 }
 
-// RequestVcVerifySchema defines model for request.vc.verify.schema.
-type RequestVcVerifySchema struct {
-	// HolderDID DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	HolderDID DID `json:"holderDID"`
-
-	// Id An identifier in uri format for Verifiable Credentials
-	Id URI `json:"id"`
-
-	// IssuerDID DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	IssuerDID DID `json:"issuerDID"`
-
-	// VcHash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-	VcHash *N256Hash `json:"vcHash,omitempty"`
-}
-
 // ResponseBlockSchema defines model for response.block.schema.
 type ResponseBlockSchema struct {
 	// Hash A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
@@ -261,14 +246,8 @@ type ResponseTransactionsSchema_Item struct {
 	union json.RawMessage
 }
 
-// ResponseVcVerifySchema defines model for response.vc.verify.schema.
-type ResponseVcVerifySchema struct {
-	// HolderDID Minimal on-chain DID record with a revocation tag.
-	HolderDID DidSchema `json:"holderDID"`
-
-	// IssuerDID Minimal on-chain DID record with a revocation tag.
-	IssuerDID DidSchema `json:"issuerDID"`
-}
+// ResponseVcsSchema An array holding all VC Records in the blockchain
+type ResponseVcsSchema = []VcRecordSchema
 
 // VcRecordSchema Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.
 type VcRecordSchema struct {
@@ -308,9 +287,6 @@ type CreateVcRecordJSONRequestBody = RequestVcCreateSchema
 
 // RevokeVcRecordJSONRequestBody defines body for RevokeVcRecord for application/json ContentType.
 type RevokeVcRecordJSONRequestBody = RequestVcRevokeSchema
-
-// VerifyVcRecordJSONRequestBody defines body for VerifyVcRecord for application/json ContentType.
-type VerifyVcRecordJSONRequestBody = RequestVcVerifySchema
 
 // AsDidSchema returns the union data inside the ResponseTransactionsSchema_Item as a DidSchema
 func (t ResponseTransactionsSchema_Item) AsDidSchema() (DidSchema, error) {
@@ -397,15 +373,18 @@ type ServerInterface interface {
 	// Get a specific DID Document by its DID
 	// (GET /api/v1/dids/{did})
 	GetDidById(ctx echo.Context, did string) error
+	// Get a all VC Records
+	// (GET /api/v1/vcs)
+	GetAllVCs(ctx echo.Context) error
 	// Create a VC Record
-	// (POST /api/v1/vc/create)
+	// (POST /api/v1/vcs/create)
 	CreateVcRecord(ctx echo.Context) error
 	// Revoke a VC Record
-	// (POST /api/v1/vc/revoke)
+	// (POST /api/v1/vcs/revoke)
 	RevokeVcRecord(ctx echo.Context) error
-	// Verify a VC Record
-	// (POST /api/v1/vc/verify)
-	VerifyVcRecord(ctx echo.Context) error
+	// Get a specific VC Record by URI
+	// (GET /api/v1/vcs/{vcUri})
+	GetVcRecordById(ctx echo.Context, vcUri string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -497,6 +476,15 @@ func (w *ServerInterfaceWrapper) GetDidById(ctx echo.Context) error {
 	return err
 }
 
+// GetAllVCs converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAllVCs(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetAllVCs(ctx)
+	return err
+}
+
 // CreateVcRecord converts echo context to params.
 func (w *ServerInterfaceWrapper) CreateVcRecord(ctx echo.Context) error {
 	var err error
@@ -515,12 +503,19 @@ func (w *ServerInterfaceWrapper) RevokeVcRecord(ctx echo.Context) error {
 	return err
 }
 
-// VerifyVcRecord converts echo context to params.
-func (w *ServerInterfaceWrapper) VerifyVcRecord(ctx echo.Context) error {
+// GetVcRecordById converts echo context to params.
+func (w *ServerInterfaceWrapper) GetVcRecordById(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "vcUri" -------------
+	var vcUri string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "vcUri", ctx.Param("vcUri"), &vcUri, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter vcUri: %s", err))
+	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.VerifyVcRecord(ctx)
+	err = w.Handler.GetVcRecordById(ctx, vcUri)
 	return err
 }
 
@@ -559,8 +554,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/api/v1/dids/createormodify", wrapper.CreateOrModifyDid)
 	router.POST(baseURL+"/api/v1/dids/revoke", wrapper.RevokeDid)
 	router.GET(baseURL+"/api/v1/dids/:did", wrapper.GetDidById)
-	router.POST(baseURL+"/api/v1/vc/create", wrapper.CreateVcRecord)
-	router.POST(baseURL+"/api/v1/vc/revoke", wrapper.RevokeVcRecord)
-	router.POST(baseURL+"/api/v1/vc/verify", wrapper.VerifyVcRecord)
+	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVCs)
+	router.POST(baseURL+"/api/v1/vcs/create", wrapper.CreateVcRecord)
+	router.POST(baseURL+"/api/v1/vcs/revoke", wrapper.RevokeVcRecord)
+	router.GET(baseURL+"/api/v1/vcs/:vcUri", wrapper.GetVcRecordById)
 
 }

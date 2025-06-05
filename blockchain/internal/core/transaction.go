@@ -66,6 +66,7 @@ func CreateTrustAnchor() error {
 	return nil
 }
 
+// AppendDid Checks a given did and adds it or calls ModifyDid
 func (chain *Blockchain) AppendDid(did *core.Did) error {
 	didState := chain.VerifyDID(did.ID)
 	if didState == DidPending {
@@ -75,7 +76,7 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 		return errors.New("DID is already revoked")
 	}
 	if didState == DidValid && !did.Revoked {
-		return errors.New("DID already exists")
+		chain.ModifyDid(did)
 	}
 
 	did.Timestamp = time.Now()
@@ -89,7 +90,23 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 	return nil
 }
 
-func (chain *Blockchain) RevokeDID(did string) error {
+// ModifyDid Checks that the identifier hasn't been manipulated and appends the modified DID doc
+func (chain *Blockchain) ModifyDid(did *core.Did) error {
+	didOld, _ := chain.FindDID(did.ID)
+	if didOld.ID != did.ID {
+		return errors.New("New DID does not match existing DID")
+	}
+	did.Timestamp = time.Now()
+	rawJson, err := did.Marshal()
+	if err != nil {
+		return err
+	}
+	PendingTransactions = append(PendingTransactions, rawJson)
+	return nil
+}
+
+// RevokeDid revokes a given did if its saved in the blockchain and not yet revoked
+func (chain *Blockchain) RevokeDid(did string) error {
 	didState := chain.VerifyDID(did)
 	if didState == DidPending {
 		return errors.New("DID is on the list of pending transactions try again later.")
@@ -113,7 +130,34 @@ func (chain *Blockchain) RevokeDID(did string) error {
 	return nil
 }
 
-func (chain *Blockchain) AppendVcRecords(vcRecords *core.VCRecord) error {
+func (chain *Blockchain) RevokeVcRecord(vcUri string, vcHash string) error {
+	vcRecordState := chain.VerifyVCRecord(vcUri, vcHash)
+	if vcRecordState == VCPending {
+		return errors.New("VC record is on the list of pending transactions try again later.")
+	}
+	if vcRecordState == VCExpired {
+		return errors.New("VC is already expired")
+	}
+	if vcRecordState == VCAbsent {
+		return errors.New("DID does not exist")
+	}
+
+	vcRecord, err := chain.FindVCRecord(vcUri)
+	if err != nil {
+		return err
+	}
+	now := time.Now()
+	vcRecord.ExpirationDate = &now
+	rawJson, err := vcRecord.Marshal()
+	if err != nil {
+		return err
+	}
+	PendingTransactions = append(PendingTransactions, rawJson)
+	return nil
+}
+
+// AppendVcRecord Checks a given vc record and adds it
+func (chain *Blockchain) AppendVcRecord(vcRecords *core.VCRecord) error {
 	vcState := chain.VerifyVCRecord(vcRecords.ID, vcRecords.VcHash)
 	if vcState == VCPending {
 		return errors.New("VC Record is on the list of pending transactions and will be added to the blockchain soon")

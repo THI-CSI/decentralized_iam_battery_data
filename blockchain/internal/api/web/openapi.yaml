@@ -102,7 +102,60 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vc/create:
+  /api/v1/vcs:
+    get:
+      tags: [ VC ]
+      summary: Get a all VC Records
+      operationId: getAllVCs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.vcs.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vcs/{vcUri}:
+    get:
+      tags: [ VC ]
+      summary: Get a specific VC Record by URI
+      operationId: getVcRecordById
+      parameters:
+        - name: vcUri
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uri
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.vc.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vcs/create:
     post:
       tags: [ VC ]
       summary: Create a VC Record
@@ -131,7 +184,7 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vc/revoke:
+  /api/v1/vcs/revoke:
     post:
       tags: [ VC ]
       summary: Revoke a VC Record
@@ -160,34 +213,34 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vc/verify:
-    post:
-      tags: [ VC ]
-      summary: Verify a VC Record
-      operationId: verifyVcRecord
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './jsonschema/requests/request.vc.verify.schema.json'
-      responses:
-        '200':
-          description: VC Record successfully verified
-          content:
-            application/json:
-              schema:
-                $ref: './jsonschema/responses/response.vc.verify.schema.json'
-        '400':
-          description: Client Errors
-          content:
-            application/json:
-              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
-        '500':
-          description: Server Errors
-          content:
-            application/json:
-              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+#  /api/v1/vps/verify:
+#    post:
+#      tags: [ VC ]
+#      summary: Verify a VC Record
+#      operationId: verifyVcRecord
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: './jsonschema/requests/request.vp.verify.schema.json'
+#      responses:
+#        '200':
+#          description: VC Record successfully verified
+#          content:
+#            application/json:
+#              schema:
+#                $ref: './jsonschema/responses/response.vp.verify.schema.json'
+#        '400':
+#          description: Client Errors
+#          content:
+#            application/json:
+#              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+#        '500':
+#          description: Server Errors
+#          content:
+#            application/json:
+#              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/dids:
     get:

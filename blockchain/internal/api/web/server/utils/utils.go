@@ -11,7 +11,7 @@ import (
 // It uses tags (e.g., `validate:"required"`) defined in struct fields.
 var Validate = validator.New()
 
-// IsDidValid Checks if the DID starts with "did:batterypass:" and conforms to the specified format.
+// IsDidValid Checks if the DID conforms to the specified format.
 func IsDidValid(did string) bool {
 	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem|cloud|bms|service)\\.[a-zA-Z0-9.\\-]+$`, did)
 	return matched

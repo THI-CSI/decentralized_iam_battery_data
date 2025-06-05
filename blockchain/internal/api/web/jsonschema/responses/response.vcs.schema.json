@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "response.vcs",
+  "type": "array",
+  "description": "An array holding all VC Records in the blockchain",
+  "minItems": 1,
+  "items": {
+    "$ref": "../../../../jsonschema/vc.record.schema.json"
+  }
+}

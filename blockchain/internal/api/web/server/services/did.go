@@ -2,12 +2,12 @@ package services
 
 import (
 	"blockchain/internal/api/web/server/models"
+	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
 	coreTypes "blockchain/internal/core/types"
 	"context"
 	"encoding/json"
 	"log"
-	"strings"
 )
 
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
@@ -42,7 +42,7 @@ func (s *didService) GetDIDs(ctx context.Context) (*[]coreTypes.Did, error) {
 			if err != nil {
 				return nil, err
 			}
-			if strings.HasPrefix(did.ID, "did:batterypass:") && !containsDid(dids, did.ID) {
+			if utils.IsDidValid(did.ID) && !containsDid(dids, did.ID) {
 				dids = append(dids, did)
 			}
 		}
@@ -85,7 +85,7 @@ func (s *didService) CreateOrModifyDID(userContext context.Context, createDid *m
 
 // RevokeDid revokes an existing DID on the blockchain
 func (s *didService) RevokeDid(userContext context.Context, didId string) error {
-	if err := s.chain.RevokeDID(didId); err != nil {
+	if err := s.chain.RevokeDid(didId); err != nil {
 		log.Printf("Error revoking DID: %s", err)
 		return err
 	}

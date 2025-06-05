@@ -32,6 +32,8 @@ type MyServer struct {
 	responseBlocksSchema       *gojsonschema.Schema
 	responseDidSchema          *gojsonschema.Schema
 	responseDidsSchema         *gojsonschema.Schema
+	responseVcSchema           *gojsonschema.Schema
+	responseVcsSchema          *gojsonschema.Schema
 	responseVcVerifySchema     *gojsonschema.Schema
 
 	requestDidCreateormodifySchema *gojsonschema.Schema
@@ -130,6 +132,16 @@ func NewMyServer(
 	s.responseDidsSchema, err = loadSchema(apiWebSchemasPath, "responses/response.dids.schema.json")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load responseDidsSchema: %w", err)
+	}
+
+	s.responseVcSchema, err = loadSchema(apiWebSchemasPath, "responses/response.vc.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load responseVcSchema: %w", err)
+	}
+
+	s.responseVcsSchema, err = loadSchema(apiWebSchemasPath, "responses/response.vcs.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load responseVcsSchema: %w", err)
 	}
 
 	s.responseVcVerifySchema, err = loadSchema(apiWebSchemasPath, "responses/response.vc.verify.schema.json")
