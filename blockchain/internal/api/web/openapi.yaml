@@ -155,34 +155,34 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vcs/create:
-    post:
-      tags: [ VC ]
-      summary: Create a VC Record
-      operationId: createVcRecord
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './jsonschema/requests/request.vc.create.schema.json'
-      responses:
-        '200':
-          description: VC created successfully
-          content:
-            application/json:
-              schema:
-                { $ref: './jsonschema/responses/response.ok.schema.json' }
-        '400':
-          description: Client Errors
-          content:
-            application/json:
-              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
-        '500':
-          description: Server Errors
-          content:
-            application/json:
-              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+#  /api/v1/vcs/create:
+#    post:
+#      tags: [ VC ]
+#      summary: Create a VC Record
+#      operationId: createVcRecord
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: './jsonschema/requests/request.vc.create.schema.json'
+#      responses:
+#        '200':
+#          description: VC created successfully
+#          content:
+#            application/json:
+#              schema:
+#                { $ref: './jsonschema/responses/response.ok.schema.json' }
+#        '400':
+#          description: Client Errors
+#          content:
+#            application/json:
+#              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+#        '500':
+#          description: Server Errors
+#          content:
+#            application/json:
+#              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
   /api/v1/vcs/revoke:
     post:

@@ -13,7 +13,7 @@ var Validate = validator.New()
 
 // IsDidValid Checks if the DID conforms to the specified format.
 func IsDidValid(did string) bool {
-	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem|cloud|bms|service)\\.[a-zA-Z0-9.\\-]+$`, did)
+	matched, _ := regexp.MatchString(`^did:batterypass:[a-zA-Z0-9.\-]+$`, did)
 	return matched
 }
 

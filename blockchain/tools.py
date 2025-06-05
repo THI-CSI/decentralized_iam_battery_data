@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import subprocess
+import signal
 
 DOCKER_COMMANDS = [
     "up",
@@ -43,6 +44,10 @@ CORETYPES = "./internal/core/types"
 APITYPES = "./internal/api/types"
 
 
+def signal_handler(_sig, _frame):
+    print("received interrupt signal")
+    sys.exit(1)
+
 def check_return_code(code):
     if code != 0:
         print(f"Command failed with code {code}", file=sys.stderr)
@@ -50,13 +55,8 @@ def check_return_code(code):
 
 
 def blockchain_cmd(unknown_args):
-    try:
-        process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
-        check_return_code(process.returncode)
-    except KeyboardInterrupt:
-        print(f"[{sys.argv[0]}]", "Interrupt received. Stopping application!")
-        sys.exit(0)
-
+    process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
+    check_return_code(process.returncode)
 
 def docker_compose_dev(command: str, unknown_args):
     process = subprocess.run(
@@ -112,6 +112,8 @@ def main():
     )
 
     args, unknown_args = parser.parse_known_args()
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     if args.command == "run":
         if args.blockchain_parser == "h" or args.blockchain_parser == "help":

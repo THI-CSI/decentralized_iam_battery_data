@@ -12,7 +12,7 @@ func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 	result, err := s.VCService.GetVCRecords(ctx.Request().Context())
 	if err != nil {
 		log.Printf("Bad Request: %v", err)
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := s.validateOutgoingResponse(ctx, *result, s.responseVcsSchema); err != nil {
@@ -26,8 +26,7 @@ func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 	result, err := s.VCService.GetVCRecord(ctx.Request().Context(), did)
 	if err != nil {
-		log.Printf("Bad Request: %v", err)
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := s.validateOutgoingResponse(ctx, *result, s.responseVcSchema); err != nil {
@@ -37,43 +36,51 @@ func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 	return ctx.JSON(http.StatusOK, result)
 }
 
-// CreateVcRecord handles POST /api/v1/vcs/create
-func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
-	var requestBody models.CreateVcRecordJSONRequestBody
-	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
-	}
-
-	err := s.VCService.VerifyRequestCreate(requestBody)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
-	}
-
-	err = s.VCService.CreateVCRecord(ctx.Request().Context(), &requestBody.Payload)
-	if err != nil {
-		log.Printf("Error creating VC: %s", err)
-		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
-	}
-
-	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC created"})
-}
+//// CreateVcRecord handles POST /api/v1/vcs/create
+//func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
+//	var requestBody models.CreateVcRecordJSONRequestBody
+//
+//if err := ctx.Bind(&requestBody); err != nil {
+//	return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+//}
+//
+//	if err := s.validateIncomingRequest(ctx, &requestBody, s.CreateVcRecordJSONRequestBody); err != nil {
+//		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+//	}
+//
+//	err := s.VCService.VerifyRequestCreate(requestBody)
+//	if err != nil {
+//		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+//	}
+//
+//	err = s.VCService.CreateVCRecord(ctx.Request().Context(), requestBody)
+//	if err != nil {
+//		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+//	}
+//
+//	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC created"})
+//}
 
 // RevokeVcRecord handles POST /api/v1/vcs/revoke
 func (s *MyServer) RevokeVcRecord(ctx echo.Context) error {
 	var requestBody models.RevokeVcRecordJSONRequestBody
+
+	if err := ctx.Bind(&requestBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcRevokeSchema); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err := s.VCService.VerifyRequestRevoke(requestBody)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.VCService.RevokeVCRecord(ctx.Request().Context(), requestBody.Payload)
 	if err != nil {
-		log.Printf("Error revoking VC: %s", err)
-		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC revoked"})

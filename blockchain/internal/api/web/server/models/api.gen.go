@@ -292,9 +292,6 @@ type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
 // RevokeDidJSONRequestBody defines body for RevokeDid for application/json ContentType.
 type RevokeDidJSONRequestBody = RequestDidRevokeSchema
 
-// CreateVcRecordJSONRequestBody defines body for CreateVcRecord for application/json ContentType.
-type CreateVcRecordJSONRequestBody = VcSchema
-
 // RevokeVcRecordJSONRequestBody defines body for RevokeVcRecord for application/json ContentType.
 type RevokeVcRecordJSONRequestBody = RequestVcRevokeSchema
 
@@ -389,9 +386,6 @@ type ServerInterface interface {
 	// Get a all VC Records
 	// (GET /api/v1/vcs)
 	GetAllVcRecords(ctx echo.Context) error
-	// Create a VC Record
-	// (POST /api/v1/vcs/create)
-	CreateVcRecord(ctx echo.Context) error
 	// Revoke a VC Record
 	// (POST /api/v1/vcs/revoke)
 	RevokeVcRecord(ctx echo.Context) error
@@ -501,15 +495,6 @@ func (w *ServerInterfaceWrapper) GetAllVcRecords(ctx echo.Context) error {
 	return err
 }
 
-// CreateVcRecord converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateVcRecord(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreateVcRecord(ctx)
-	return err
-}
-
 // RevokeVcRecord converts echo context to params.
 func (w *ServerInterfaceWrapper) RevokeVcRecord(ctx echo.Context) error {
 	var err error
@@ -580,7 +565,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/api/v1/dids/revoke", wrapper.RevokeDid)
 	router.GET(baseURL+"/api/v1/dids/:did", wrapper.GetDidById)
 	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVcRecords)
-	router.POST(baseURL+"/api/v1/vcs/create", wrapper.CreateVcRecord)
 	router.POST(baseURL+"/api/v1/vcs/revoke", wrapper.RevokeVcRecord)
 	router.GET(baseURL+"/api/v1/vcs/:vcUri", wrapper.GetVcRecordById)
 	router.POST(baseURL+"/api/v1/vps/verify", wrapper.VerifyVp)

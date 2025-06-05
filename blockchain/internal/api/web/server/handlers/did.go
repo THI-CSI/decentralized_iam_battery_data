@@ -10,9 +10,10 @@ import (
 // GetAllDids handles GET /api/v1/dids
 func (s *MyServer) GetAllDids(ctx echo.Context) error {
 	result, err := s.DidService.GetDIDs(ctx.Request().Context())
+
 	if err != nil {
 		log.Printf("Bad Request: %v", err)
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := s.validateOutgoingResponse(ctx, *result, s.responseDidsSchema); err != nil {
@@ -27,7 +28,7 @@ func (s *MyServer) GetDidById(ctx echo.Context, did string) error {
 	result, err := s.DidService.GetDID(ctx.Request().Context(), did)
 	if err != nil {
 		log.Printf("Bad Request: %v", err)
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := s.validateOutgoingResponse(ctx, *result, s.responseDidSchema); err != nil {
@@ -40,19 +41,23 @@ func (s *MyServer) GetDidById(ctx echo.Context, did string) error {
 // CreateOrModifyDid handles POST /api/v1/dids/createormodify
 func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
 	var requestBody models.CreateOrModifyDidJSONRequestBody
+
+	if err := ctx.Bind(&requestBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return err
 	}
 
 	err := s.DidService.VerifyRequestCreateOrModify(requestBody)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.DidService.CreateOrModifyDID(ctx.Request().Context(), &requestBody.Payload)
 	if err != nil {
-		log.Printf("Error creating or modifying DID: %s", err)
-		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID created"})
@@ -61,19 +66,23 @@ func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
 // RevokeDid handles POST /api/v1/dids/revoke
 func (s *MyServer) RevokeDid(ctx echo.Context) error {
 	var requestBody models.RevokeDidJSONRequestBody
-	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+
+	if err := ctx.Bind(&requestBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidRevokeSchema); err != nil {
+		return err
 	}
 
 	err := s.DidService.VerifyRequestRevoke(requestBody)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.DidService.RevokeDid(ctx.Request().Context(), requestBody.Payload)
 	if err != nil {
-		log.Printf("Error revoking DID: %s", err)
-		return ctx.JSON(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID revoked"})

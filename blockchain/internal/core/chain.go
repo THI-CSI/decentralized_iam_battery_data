@@ -152,7 +152,6 @@ func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &didResponse)
 			if err != nil {
-				// TODO Check if the way of unmarshal only DIDs works as expected
 				continue
 			}
 			if didResponse.ID == did {
@@ -170,7 +169,6 @@ func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &vcRecordResponse)
 			if err != nil {
-				// TODO Check if the way of unmarshal only VCs works as expected
 				continue
 			}
 			if vcRecordResponse.ID == urn {

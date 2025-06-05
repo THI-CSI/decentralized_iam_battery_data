@@ -1,0 +1,37 @@
+{
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-08-01T09:00:00Z",
+    "verificationMethod": "did:batterypass:service.tuv-sued-42#device-key",
+    "challenge": "c82f7883-42a1-4b78-9c2e-d8d5321af9f8",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
+  },
+  "payload": {
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "http://localhost:8443/docs/did.schema.html"
+    ],
+    "id": "did:batterypass:bms.identifier",
+    "verificationMethod": {
+      "id": "did:batterypass:bms.identifier#key-1",
+      "type": "JsonWebKey2020",
+      "controller": "did:batterypass:oem.VW",
+      "publicKeyMultibase": "z6Mkpz2xw9M3JMfqk3m7JRXetPL4Wwutb6X6bojq2nMid8Kd"
+    },
+    "service": [
+      {
+        "id": "did:batterypass:bms.identifier#batterypassApi-prod1",
+        "type": "BatteryPassAPI",
+        "serviceEndpoint": "https://cloud-endpoint-prod1.example.com"
+      },
+      {
+        "id": "did:batterypass:bms.identifier#batterypassApi-test1",
+        "type": "BatteryPassApi",
+        "serviceEndpoint": "https://cloud-endpoint-test1.example.com"
+      }
+    ],
+    "timestamp": "2025-04-10T12:00:00Z",
+    "revoked": false
+  }
+}

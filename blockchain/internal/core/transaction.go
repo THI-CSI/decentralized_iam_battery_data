@@ -77,17 +77,18 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 	}
 	if didState == DidValid && !did.Revoked {
 		chain.ModifyDid(did)
+		return nil
+	} else {
+		did.Timestamp = time.Now()
+		rawJson, err := did.Marshal()
+		if err != nil {
+			return err
+		}
+
+		PendingTransactions = append(PendingTransactions, rawJson)
+
+		return nil
 	}
-
-	did.Timestamp = time.Now()
-	rawJson, err := did.Marshal()
-	if err != nil {
-		return err
-	}
-
-	PendingTransactions = append(PendingTransactions, rawJson)
-
-	return nil
 }
 
 // ModifyDid Checks that the identifier hasn't been manipulated and appends the modified DID doc
