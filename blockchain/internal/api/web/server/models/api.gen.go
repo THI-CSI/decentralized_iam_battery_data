@@ -672,7 +672,7 @@ type ServerInterface interface {
 	// Get a specific VC Record by URI
 	// (GET /api/v1/vcs/{vcUri})
 	GetVcRecordById(ctx echo.Context, vcUri string) error
-	// Verify a VC Record
+	// Verify a VP Record
 	// (POST /api/v1/vps/verify)
 	VerifyVp(ctx echo.Context) error
 }

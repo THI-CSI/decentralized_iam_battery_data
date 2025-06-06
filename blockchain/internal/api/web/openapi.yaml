@@ -168,6 +168,10 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.vc.create.schema.json'
+            examples:
+              vcCreateRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vc.create.1.json'
       responses:
         '200':
           description: VC created successfully
@@ -175,10 +179,6 @@ paths:
             application/json:
               schema:
                 { $ref: './jsonschema/responses/response.ok.schema.json' }
-              examples:
-                vcCreateRequest: # Give a unique name to this example
-                  summary: Example DID Creation Request, that should succeed
-                  externalValue: './jsonexample/requests/request.vc.create.1.json'
         '400':
           description: Client Errors
           content:
