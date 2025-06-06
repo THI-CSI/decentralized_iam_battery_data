@@ -307,6 +307,10 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.did.createormodify.schema.json'
+            examples:
+              didCreateOrModifyRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.did.createormodify.1.json'
       responses:
         '200':
           description: DID created or modified successfully

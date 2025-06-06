@@ -43,7 +43,7 @@ func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
 	var requestBody models.CreateOrModifyDidJSONRequestBody
 
 	if err := ctx.Bind(&requestBody); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}
 
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
@@ -52,12 +52,12 @@ func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
 
 	err := s.DidService.VerifyRequestCreateOrModify(requestBody)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}
 
 	err = s.DidService.CreateOrModifyDID(ctx.Request().Context(), &requestBody.Payload)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
 	}
 
 	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID created"})
