@@ -80,7 +80,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			log.Printf("Error marshalling proof: %v", err)
 			return err
 		}
-		err = json.Unmarshal(jsonBytes, vcRecord.Proof)
+		err = json.Unmarshal(jsonBytes, &vcRecord.Proof)
 		if err != nil {
 			log.Printf("Error unmarshalling proof: %v", err)
 			return err
@@ -100,7 +100,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			log.Printf("Error marshalling proof: %v", err)
 			return err
 		}
-		err = json.Unmarshal(jsonBytes, vcRecord.Proof)
+		err = json.Unmarshal(jsonBytes, &vcRecord.Proof)
 		if err != nil {
 			log.Printf("Error unmarshalling proof: %v", err)
 			return err
@@ -120,7 +120,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			log.Printf("Error marshalling proof: %v", err)
 			return err
 		}
-		err = json.Unmarshal(jsonBytes, vcRecord.Proof)
+		err = json.Unmarshal(jsonBytes, &vcRecord.Proof)
 		if err != nil {
 			log.Printf("Error unmarshalling proof: %v", err)
 			return err

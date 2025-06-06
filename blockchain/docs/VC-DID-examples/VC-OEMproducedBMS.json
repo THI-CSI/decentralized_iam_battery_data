@@ -11,6 +11,7 @@
   "issuer": "did:batterypass:bms.sn-987654321",
   "holder": "did:batterypass:oem.VW",
   "issuanceDate": "2025-06-10T12:01:00Z",
+  "expirationDate": "2026-06-10T12:01:00Z",
   "credentialSubject": {
     "id": "did:batterypass:oem.VW",
     "type": "BMSProduction",

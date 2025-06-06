@@ -17,6 +17,8 @@ tags:
     description: "Endpoints handling Block and Transaction data."
   - name: VC
     description: "Endpoints handling Verifiable Credentials."
+  - name: VP
+    description: "Endpoints handling Verifiable Presentations."
   - name: DIDs
     description: "Endpoints handling DID documents."
 
@@ -199,6 +201,10 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.vc.revoke.schema.json'
+            examples:
+              vcCreateRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vc.revoke.1.json'
       responses:
         '200':
           description: VC Record revoked successfully
@@ -219,8 +225,8 @@ paths:
 
   /api/v1/vps/verify:
     post:
-      tags: [ VC ]
-      summary: Verify a VC Record
+      tags: [ VP ]
+      summary: Verify a VP Record
       operationId: verifyVp
       requestBody:
         required: true
@@ -344,6 +350,10 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.did.revoke.schema.json'
+            examples:
+              vcCreateRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.did.revoke.eu.json'
       responses:
         '200':
           description: DID revoked successfully

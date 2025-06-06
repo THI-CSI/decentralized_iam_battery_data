@@ -5,7 +5,6 @@ import (
 	"blockchain/internal/api/web/server/handlers"
 	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/api/web/server/services"
-	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
 	"context"
 	"fmt"
@@ -53,7 +52,7 @@ func CreateServer(chain *core.Blockchain) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.HTTPErrorHandler = utils.CustomErrorHandler
+	//e.HTTPErrorHandler = utils.CustomErrorHandler
 
 	// Initialize all your services
 	didService := services.NewDidService(chain)
