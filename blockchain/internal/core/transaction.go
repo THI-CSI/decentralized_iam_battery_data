@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"os"
 	"time"
 )
@@ -131,7 +130,12 @@ func (chain *Blockchain) RevokeDid(did string) error {
 	return nil
 }
 
-func (chain *Blockchain) RevokeVcRecord(vcUri string, vcHash string) error {
+func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
+	vcRecord, err := chain.FindVCRecord(vcUri)
+	if err != nil {
+		return err
+	}
+	vcHash := vcRecord.VcHash
 	vcRecordState := chain.VerifyVCRecord(vcUri, vcHash)
 	if vcRecordState == VCPending {
 		return errors.New("VC record is on the list of pending transactions try again later.")
@@ -143,10 +147,6 @@ func (chain *Blockchain) RevokeVcRecord(vcUri string, vcHash string) error {
 		return errors.New("DID does not exist")
 	}
 
-	vcRecord, err := chain.FindVCRecord(vcUri)
-	if err != nil {
-		return err
-	}
 	now := time.Now()
 	vcRecord.ExpirationDate = &now
 	rawJson, err := vcRecord.Marshal()
@@ -222,9 +222,4 @@ func BuildMerkleRoot(txs []json.RawMessage) string {
 
 	// Root hash is the only hash left
 	return hashes[0]
-}
-
-func GenerateDid() string {
-	id := uuid.New()
-	return fmt.Sprintf("did:batterypass:%s", id.String())
 }

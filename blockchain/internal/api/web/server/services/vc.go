@@ -8,17 +8,16 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"time"
 )
-
-// TODO: The original vc.schema.json in core is breaking the code generator leading to type VcSchema = interface{} (Likely requires a jsosnchema per VC type - 3 in total - and then have a oneOf condition in request.vc.create.schema.json)
 
 // VCService defines the interface for creating and returning vcs of the blockchain
 type VCService interface {
 	GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VCRecord, error)
 	GetVCRecords(ctx context.Context) (*[]coreTypes.VCRecord, error)
-	CreateVCRecord(userContext context.Context, createVcRecord *models.VcSchema) error
+	CreateVCRecord(userContext context.Context, createVcRecord *models.RequestVcCreateSchema) error
 	RevokeVCRecord(ctx context.Context, vcId string) error
-	VerifyRequestCreate(requestBody models.VcSchema) error
+	VerifyRequestCreate(requestBody *models.RequestVcCreateSchema) error
 	VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error
 }
 
@@ -63,32 +62,85 @@ func (v *vcService) GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VC
 }
 
 // CreateVCRecord creates a new VC record on the blockchain based on the provided VC
-func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *models.VcSchema) error {
-
-	// Transform from api types to core types - Works because of equal JSON tags
-	var err error
-	jsonBytes, err := json.Marshal(createVcRecord)
+func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *models.RequestVcCreateSchema) error {
+	hashString, err := utils.Generate256HashHex(createVcRecord)
 	if err != nil {
-		log.Printf("Internal Server Error: %s", err)
-		return err
-	}
-	vcRecord, err := coreTypes.UnmarshalVCRecord(jsonBytes)
-	if err != nil {
-		log.Printf("Internal Server Error: %s", err)
+		log.Printf("Error generating hash: %v", err)
 		return err
 	}
 
-	// Create Transaction
-	if err := v.chain.AppendVcRecord(&vcRecord); err != nil {
-		log.Printf("Internal Server Error: %s", err)
-		return err
+	var vcRecord coreTypes.VCRecord
+	if vcBms, err := createVcRecord.AsVcBmsProducedSchema(); err == nil {
+		vcRecord.ID = vcBms.Id
+		vcRecord.Timestamp = time.Now()
+		vcRecord.ExpirationDate = &vcBms.ExpirationDate
+		vcRecord.VcHash = hashString
+		jsonBytes, err := json.Marshal(vcBms.Proof)
+		if err != nil {
+			log.Printf("Error marshalling proof: %v", err)
+			return err
+		}
+		err = json.Unmarshal(jsonBytes, vcRecord.Proof)
+		if err != nil {
+			log.Printf("Error unmarshalling proof: %v", err)
+			return err
+		}
+		err = v.chain.AppendVcRecord(&vcRecord)
+		if err != nil {
+			log.Printf("Error appending VC record: %v", err)
+			return err
+		}
+	} else if vcService, err := createVcRecord.AsVcServiceAccessSchema(); err == nil {
+		vcRecord.ID = vcService.Id
+		vcRecord.Timestamp = time.Now()
+		vcRecord.ExpirationDate = &vcService.ExpirationDate
+		vcRecord.VcHash = hashString
+		jsonBytes, err := json.Marshal(vcService.Proof)
+		if err != nil {
+			log.Printf("Error marshalling proof: %v", err)
+			return err
+		}
+		err = json.Unmarshal(jsonBytes, vcRecord.Proof)
+		if err != nil {
+			log.Printf("Error unmarshalling proof: %v", err)
+			return err
+		}
+		err = v.chain.AppendVcRecord(&vcRecord)
+		if err != nil {
+			log.Printf("Error appending VC record: %v", err)
+			return err
+		}
+	} else if vcCloud, err := createVcRecord.AsVcCloudInstanceSchema(); err == nil {
+		vcRecord.ID = vcCloud.Id
+		vcRecord.Timestamp = time.Now()
+		vcRecord.ExpirationDate = &vcCloud.ExpirationDate
+		vcRecord.VcHash = hashString
+		jsonBytes, err := json.Marshal(vcCloud.Proof)
+		if err != nil {
+			log.Printf("Error marshalling proof: %v", err)
+			return err
+		}
+		err = json.Unmarshal(jsonBytes, vcRecord.Proof)
+		if err != nil {
+			log.Printf("Error unmarshalling proof: %v", err)
+			return err
+		}
+		err = v.chain.AppendVcRecord(&vcRecord)
+		if err != nil {
+			log.Printf("Error appending VC record: %v", err)
+			return err
+		}
 	}
 	return nil
 }
 
 // RevokeVCRecord revokes a VC record based on its identifier and hash
 func (v *vcService) RevokeVCRecord(ctx context.Context, vcId string) error {
-	// TODO: implement - may require changes to the revoke method in core.transactions
+	if err := v.chain.RevokeVcRecord(vcId); err != nil {
+		log.Printf("Error revoking VC: %s", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -103,8 +155,16 @@ func containsVcRecord(vcRecordList []coreTypes.VCRecord, vcId string) bool {
 	}
 	return false
 }
-func (v *vcService) VerifyRequestCreate(requestBody models.VcSchema) error {
-	// TODO: implement (JWS contains the signed content - can be parsed from JWS token and compared to payload)
+func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchema) error {
+	//// TODO: implement (JWS contains the signed content - can be parsed from JWS token and compared to payload)
+	//if vcBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
+	//	return nil
+	//} else if vcService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
+	//	return nil
+	//} else if vcCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
+	//	return nil
+	//}
+	//return errors.New("Unrecognized or invalid VC type in request payload")
 	return nil
 }
 

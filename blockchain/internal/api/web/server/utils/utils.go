@@ -1,8 +1,9 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"github.com/go-playground/validator/v10"
 	"regexp"
 )
@@ -23,21 +24,12 @@ func IsUrnValid(urn string) bool {
 	return matched
 }
 
-// PayloadProjection projects the raw payload data from the rawBody
-func PayloadProjection(rawBody []byte, requestBody interface{}) ([]byte, error) {
-	if err := json.Unmarshal(rawBody, &requestBody); err != nil {
-		return nil, err
+// Generate256HashHex expects payload with json tags, marshalls it and then calculates a SHA-256 hash in hex format with that.
+func Generate256HashHex(payload interface{}) (string, error) {
+	jsonBytes, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
 	}
-
-	var tempMap map[string]json.RawMessage
-	if err := json.Unmarshal(rawBody, &tempMap); err != nil {
-		return nil, errors.New("Failed to parse raw body for payload extraction")
-	}
-
-	rawPayloadBytes, err := tempMap["payload"]
-	if err {
-		return nil, errors.New("Request body missing 'payload' field")
-	}
-
-	return rawPayloadBytes, nil
+	hashBytes := sha256.Sum256(jsonBytes)
+	return hex.EncodeToString(hashBytes[:]), nil
 }

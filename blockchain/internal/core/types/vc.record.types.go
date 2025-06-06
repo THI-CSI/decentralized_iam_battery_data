@@ -25,6 +25,32 @@ func (r *VCRecord) Marshal() ([]byte, error) {
 type VCRecord struct {
 	ExpirationDate *time.Time `json:"expirationDate,omitempty"`
 	ID             string     `json:"id"`
+	Proof          Proof      `json:"proof"`
 	Timestamp      time.Time  `json:"timestamp"`
 	VcHash         string     `json:"vcHash"`
 }
+
+// Cryptographic proof that makes the subject verifiable.
+type Proof struct {
+	// Optional challenge to prevent replay attacks.                 
+	Challenge                                           *string      `json:"challenge,omitempty"`
+	Created                                             time.Time    `json:"created"`
+	// The actual signature in JSON Web Signature format             
+	Jws                                                 string       `json:"jws"`
+	ProofPurpose                                        ProofPurpose `json:"proofPurpose"`
+	Type                                                Type         `json:"type"`
+	// Reference to the key used to create the proof.                
+	VerificationMethod                                  string       `json:"verificationMethod"`
+}
+
+type ProofPurpose string
+
+const (
+	Authentication ProofPurpose = "authentication"
+)
+
+type Type string
+
+const (
+	EcdsaSecp256R1Signature2019 Type = "EcdsaSecp256r1Signature2019"
+)

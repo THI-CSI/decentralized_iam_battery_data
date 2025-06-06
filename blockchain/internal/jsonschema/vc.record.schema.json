@@ -4,12 +4,13 @@
   "title": "Battery-Ecosystem Verifiable Credential Record",
   "description": "Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.",
   "type": "object",
-  "required": ["id", "vcHash", "timestamp"],
+  "required": ["id", "vcHash", "timestamp", "proof"],
   "additionalProperties": false,
   "properties": {
     "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
     "vcHash": { "$ref": "common.defs.schema.json#/definitions/256Hash"},
     "timestamp": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
-    "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" }
+    "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
+    "proof": { "$ref": "common.defs.schema.json#/definitions/Proof" }
   }
 }

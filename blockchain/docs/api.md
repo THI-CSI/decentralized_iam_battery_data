@@ -83,7 +83,7 @@ Each endpoint defintion in this yaml file looks like this:
 - The echo server will not start if you are missing a handler defined in the yaml.
 - One can comment out endpoints and regenerate `api.gen.go` to remove an endpoint
 ### request.did.createormodify.schema.json
-Each referenced schema looks like this. Using the core schemas as building blocks
+Each referenced schema looks like this. Using the core schemas as building blocks. When changing something in the core schemas make sure all properties have their type specified for the code generator. Also add title/description/summary to the properties for the docs generator. Lastly, avoid complex combinations of oneOf/allOf and if/then/else logic for any generator to work.
 ```json
 {  
   "$schema": "http://json-schema.org/draft-07/schema#",  

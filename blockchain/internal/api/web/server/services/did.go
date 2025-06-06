@@ -65,7 +65,7 @@ func (s *didService) GetDID(userContext context.Context, did string) (*coreTypes
 // CreateOrModifyDID appends a new DID or a modification to the blockchain
 func (s *didService) CreateOrModifyDID(userContext context.Context, createDid *models.DidSchema) error {
 	// Transform from api types to core types - Works because of equal JSON tags
-	var err error
+
 	jsonBytes, err := json.Marshal(createDid)
 	if err != nil {
 		log.Printf("Internal Server Error: %s", err)

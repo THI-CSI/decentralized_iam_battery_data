@@ -54,7 +54,7 @@
     "256Hash": {
       "type": "string",
       "pattern": "^[A-Fa-f0-9]{64}$",
-      "description": "A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format."
+      "description": "A SHA-256 hash of the complete VC in hexadecimal format."
     }
   }
 }

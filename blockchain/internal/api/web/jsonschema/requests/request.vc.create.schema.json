@@ -1,5 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "request.vc.create",
-  "$ref": "../../../../jsonschema/vc.schema.json"
+  "title": "Create Verifiable Credential Request",
+  "description": "Schema for creating a new Verifiable Credential, supporting different credential types.",
+  "oneOf": [
+    { "$ref": "../../../../jsonschema/vc.bmsProduced.schema.json" },
+    { "$ref": "../../../../jsonschema/vc.serviceAccess.schema.json" },
+    { "$ref": "../../../../jsonschema/vc.cloudInstance.schema.json" }
+  ]
 }
