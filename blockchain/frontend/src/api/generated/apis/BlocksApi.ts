@@ -16,6 +16,7 @@
 import * as runtime from '../runtime';
 import type {
   ResponseBlockSchema,
+  ResponseErrorSchema,
   ResponseTransactionsSchemaInner,
 } from '../models/index';
 

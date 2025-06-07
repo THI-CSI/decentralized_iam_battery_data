@@ -1,66 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * 
- * @export
- * @interface CreateOrModifyDid201Response
- */
-export interface CreateOrModifyDid201Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateOrModifyDid201Response
-     */
-    message?: CreateOrModifyDid201ResponseMessageEnum;
-}
-
-
-/**
- * @export
- */
-export const CreateOrModifyDid201ResponseMessageEnum = {
-    DID_created: 'DID created',
-    DID_modified: 'DID modified'
-} as const;
-export type CreateOrModifyDid201ResponseMessageEnum = typeof CreateOrModifyDid201ResponseMessageEnum[keyof typeof CreateOrModifyDid201ResponseMessageEnum];
-
-/**
- * 
- * @export
- * @interface CreateVcRecord201Response
- */
-export interface CreateVcRecord201Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateVcRecord201Response
-     */
-    message?: CreateVcRecord201ResponseMessageEnum;
-}
-
-
-/**
- * @export
- */
-export const CreateVcRecord201ResponseMessageEnum = {
-    VC_Record_written: 'VC Record written'
-} as const;
-export type CreateVcRecord201ResponseMessageEnum = typeof CreateVcRecord201ResponseMessageEnum[keyof typeof CreateVcRecord201ResponseMessageEnum];
-
-/**
- * 
- * @export
- * @interface CreateVcRecord400Response
- */
-export interface CreateVcRecord400Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateVcRecord400Response
-     */
-    error?: string;
-}
-/**
  * Minimal on-chain DID record with a revocation tag.
  * @export
  * @interface DidSchema
@@ -200,13 +140,12 @@ export interface RequestDidCreateormodifySchema {
  * @interface RequestDidRevokeSchema
  */
 export interface RequestDidRevokeSchema {
-    [key: string]: any | any;
     /**
      * 
-     * @type {RequestDidRevokeSchemaProof}
+     * @type {Proof}
      * @memberof RequestDidRevokeSchema
      */
-    proof: RequestDidRevokeSchemaProof;
+    proof: Proof;
     /**
      * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
      * @type {string}
@@ -215,111 +154,11 @@ export interface RequestDidRevokeSchema {
     payload: string;
 }
 /**
- * 
- * @export
- * @interface RequestDidRevokeSchemaProof
- */
-export interface RequestDidRevokeSchemaProof {
-    /**
-     * 
-     * @type {string}
-     * @memberof RequestDidRevokeSchemaProof
-     */
-    type: RequestDidRevokeSchemaProofTypeEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof RequestDidRevokeSchemaProof
-     */
-    created: string;
-    /**
-     * Reference to the key used to create the proof.
-     * @type {string}
-     * @memberof RequestDidRevokeSchemaProof
-     */
-    verificationMethod: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof RequestDidRevokeSchemaProof
-     */
-    proofPurpose: RequestDidRevokeSchemaProofProofPurposeEnum;
-    /**
-     * The actual signature in JSON Web Signature format
-     * @type {string}
-     * @memberof RequestDidRevokeSchemaProof
-     */
-    jws: string;
-    /**
-     * Optional challenge to prevent replay attacks.
-     * @type {string}
-     * @memberof RequestDidRevokeSchemaProof
-     */
-    challenge: string;
-}
-
-
-/**
+ * @type RequestVcCreateSchema
+ * Schema for creating a new Verifiable Credential, supporting different credential types.
  * @export
  */
-export const RequestDidRevokeSchemaProofTypeEnum = {
-    EcdsaSecp256r1Signature2019: 'EcdsaSecp256r1Signature2019'
-} as const;
-export type RequestDidRevokeSchemaProofTypeEnum = typeof RequestDidRevokeSchemaProofTypeEnum[keyof typeof RequestDidRevokeSchemaProofTypeEnum];
-
-/**
- * @export
- */
-export const RequestDidRevokeSchemaProofProofPurposeEnum = {
-    authentication: 'authentication'
-} as const;
-export type RequestDidRevokeSchemaProofProofPurposeEnum = typeof RequestDidRevokeSchemaProofProofPurposeEnum[keyof typeof RequestDidRevokeSchemaProofProofPurposeEnum];
-
-/**
- * 
- * @export
- * @interface RequestVcCreateSchema
- */
-export interface RequestVcCreateSchema {
-    [key: string]: any | any;
-    /**
-     * 
-     * @type {Proof}
-     * @memberof RequestVcCreateSchema
-     */
-    proof: Proof;
-    /**
-     * 
-     * @type {RequestVcCreateSchemaPayload}
-     * @memberof RequestVcCreateSchema
-     */
-    payload: RequestVcCreateSchemaPayload;
-}
-/**
- * 
- * @export
- * @interface RequestVcCreateSchemaPayload
- */
-export interface RequestVcCreateSchemaPayload {
-    /**
-     * An identifier in uri format for Verifiable Credentials
-     * @type {string}
-     * @memberof RequestVcCreateSchemaPayload
-     */
-    id: string;
-    /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-     * @type {string}
-     * @memberof RequestVcCreateSchemaPayload
-     */
-    _256Hash?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof RequestVcCreateSchemaPayload
-     */
-    expirationDate?: string;
-}
+export type RequestVcCreateSchema = VcBmsProducedSchema | VcCloudInstanceSchema | VcServiceAccessSchema;
 /**
  * 
  * @export
@@ -327,48 +166,17 @@ export interface RequestVcCreateSchemaPayload {
  */
 export interface RequestVcRevokeSchema {
     /**
+     * 
+     * @type {Proof}
+     * @memberof RequestVcRevokeSchema
+     */
+    proof: Proof;
+    /**
      * An identifier in uri format for Verifiable Credentials
      * @type {string}
      * @memberof RequestVcRevokeSchema
      */
-    id: string;
-    /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-     * @type {string}
-     * @memberof RequestVcRevokeSchema
-     */
-    _256Hash?: string;
-}
-/**
- * 
- * @export
- * @interface RequestVcVerifySchema
- */
-export interface RequestVcVerifySchema {
-    /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-     * @type {string}
-     * @memberof RequestVcVerifySchema
-     */
-    issuerDID: string;
-    /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-     * @type {string}
-     * @memberof RequestVcVerifySchema
-     */
-    holderDID: string;
-    /**
-     * An identifier in uri format for Verifiable Credentials
-     * @type {string}
-     * @memberof RequestVcVerifySchema
-     */
-    id: string;
-    /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
-     * @type {string}
-     * @memberof RequestVcVerifySchema
-     */
-    _256Hash: string;
+    payload: string;
 }
 /**
  * 
@@ -389,13 +197,13 @@ export interface ResponseBlockSchema {
      */
     Timestamp: string;
     /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+     * A SHA-256 hash of the complete VC in hexadecimal format.
      * @type {string}
      * @memberof ResponseBlockSchema
      */
     Hash: string;
     /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+     * A SHA-256 hash of the complete VC in hexadecimal format.
      * @type {string}
      * @memberof ResponseBlockSchema
      */
@@ -407,11 +215,80 @@ export interface ResponseBlockSchema {
      */
     Transactions: Array<ResponseTransactionsSchemaInner>;
     /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+     * A SHA-256 hash of the complete VC in hexadecimal format.
      * @type {string}
      * @memberof ResponseBlockSchema
      */
     MerkleRoot: string;
+}
+/**
+ * A standard error response structure for HTTP APIs.
+ * @export
+ * @interface ResponseErrorSchema
+ */
+export interface ResponseErrorSchema {
+    /**
+     * A human-readable error message.
+     * @type {string}
+     * @memberof ResponseErrorSchema
+     */
+    message: string;
+    /**
+     * Optional detailed information about the error, typically for validation failures.
+     * @type {Array<ResponseErrorSchemaDetailsInner>}
+     * @memberof ResponseErrorSchema
+     */
+    details?: Array<ResponseErrorSchemaDetailsInner>;
+}
+/**
+ * 
+ * @export
+ * @interface ResponseErrorSchemaDetailsInner
+ */
+export interface ResponseErrorSchemaDetailsInner {
+    /**
+     * The specific field or path in the request/response that caused the error (e.g., 'name', '/address/street').
+     * @type {string}
+     * @memberof ResponseErrorSchemaDetailsInner
+     */
+    field: string;
+    /**
+     * A specific description of the validation error.
+     * @type {string}
+     * @memberof ResponseErrorSchemaDetailsInner
+     */
+    description: string;
+    /**
+     * The type of validation rule that failed (e.g., 'pattern', 'required', 'minimum').
+     * @type {string}
+     * @memberof ResponseErrorSchemaDetailsInner
+     */
+    type?: string;
+    /**
+     * The problematic value that caused the validation error, formatted as a string.
+     * @type {string}
+     * @memberof ResponseErrorSchemaDetailsInner
+     */
+    value?: string;
+    /**
+     * The JSON pointer to the location within the data structure where the error occurred (e.g., '/items/0/properties/amount').
+     * @type {string}
+     * @memberof ResponseErrorSchemaDetailsInner
+     */
+    context?: string;
+}
+/**
+ * A standard OK response structure for HTTP APIs.
+ * @export
+ * @interface ResponseOkSchema
+ */
+export interface ResponseOkSchema {
+    /**
+     * A human-readable confirmation message.
+     * @type {string}
+     * @memberof ResponseOkSchema
+     */
+    message: string;
 }
 /**
  * @type ResponseTransactionsSchemaInner
@@ -419,77 +296,6 @@ export interface ResponseBlockSchema {
  * @export
  */
 export type ResponseTransactionsSchemaInner = DidSchema | VcRecordSchema;
-/**
- * 
- * @export
- * @interface ResponseVcVerifySchema
- */
-export interface ResponseVcVerifySchema {
-    /**
-     * 
-     * @type {DidSchema}
-     * @memberof ResponseVcVerifySchema
-     */
-    issuerDID: DidSchema;
-    /**
-     * 
-     * @type {DidSchema}
-     * @memberof ResponseVcVerifySchema
-     */
-    holderDID: DidSchema;
-    /**
-     * Indicates weather the transmitted VC Record is valid.
-     * @type {boolean}
-     * @memberof ResponseVcVerifySchema
-     */
-    VCRecord: boolean;
-}
-/**
- * 
- * @export
- * @interface RevokeDid201Response
- */
-export interface RevokeDid201Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof RevokeDid201Response
-     */
-    message?: RevokeDid201ResponseMessageEnum;
-}
-
-
-/**
- * @export
- */
-export const RevokeDid201ResponseMessageEnum = {
-    DID_revoked: 'DID revoked'
-} as const;
-export type RevokeDid201ResponseMessageEnum = typeof RevokeDid201ResponseMessageEnum[keyof typeof RevokeDid201ResponseMessageEnum];
-
-/**
- * 
- * @export
- * @interface RevokeVcRecord201Response
- */
-export interface RevokeVcRecord201Response {
-    /**
-     * 
-     * @type {string}
-     * @memberof RevokeVcRecord201Response
-     */
-    message?: RevokeVcRecord201ResponseMessageEnum;
-}
-
-
-/**
- * @export
- */
-export const RevokeVcRecord201ResponseMessageEnum = {
-    VC_Record_revoked: 'VC Record revoked'
-} as const;
-export type RevokeVcRecord201ResponseMessageEnum = typeof RevokeVcRecord201ResponseMessageEnum[keyof typeof RevokeVcRecord201ResponseMessageEnum];
-
 /**
  * Represents a service associated with the DID subject, such as a metadata or data access point.
  * @export
@@ -516,6 +322,220 @@ export interface ServiceEndpoint {
     serviceEndpoint: string;
 }
 /**
+ * Schema for verifying BMS Production claims.
+ * @export
+ * @interface VcBmsProducedSchema
+ */
+export interface VcBmsProducedSchema {
+    [key: string]: any | any;
+    /**
+     * Defines the JSON-LD context, providing meaning to terms used in the credential.
+     * @type {Set<string>}
+     * @memberof VcBmsProducedSchema
+     */
+    context: Set<VcBmsProducedSchemaContextEnum>;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcBmsProducedSchema
+     */
+    id: string;
+    /**
+     * 
+     * @type {Set<string>}
+     * @memberof VcBmsProducedSchema
+     */
+    type: Set<string>;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcBmsProducedSchema
+     */
+    issuer: string;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcBmsProducedSchema
+     */
+    holder: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcBmsProducedSchema
+     */
+    issuanceDate: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcBmsProducedSchema
+     */
+    expirationDate: string;
+    /**
+     * 
+     * @type {VcBmsProducedSchemaCredentialSubject}
+     * @memberof VcBmsProducedSchema
+     */
+    credentialSubject: VcBmsProducedSchemaCredentialSubject;
+    /**
+     * 
+     * @type {Proof}
+     * @memberof VcBmsProducedSchema
+     */
+    proof: Proof;
+}
+
+
+/**
+ * @export
+ */
+export const VcBmsProducedSchemaContextEnum = {
+    https___www_w3_org_2018_credentials_v1: 'https://www.w3.org/2018/credentials/v1',
+    http___localhost_8443_docs_vc_bmsProduction_schema_html: 'http://localhost:8443/docs/vc.bmsProduction.schema.html'
+} as const;
+export type VcBmsProducedSchemaContextEnum = typeof VcBmsProducedSchemaContextEnum[keyof typeof VcBmsProducedSchemaContextEnum];
+
+/**
+ * 
+ * @export
+ * @interface VcBmsProducedSchemaCredentialSubject
+ */
+export interface VcBmsProducedSchemaCredentialSubject {
+    /**
+     * An identifier in uri format for Verifiable Credentials
+     * @type {string}
+     * @memberof VcBmsProducedSchemaCredentialSubject
+     */
+    id: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcBmsProducedSchemaCredentialSubject
+     */
+    type: string;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcBmsProducedSchemaCredentialSubject
+     */
+    bmsDid: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcBmsProducedSchemaCredentialSubject
+     */
+    timestamp: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcBmsProducedSchemaCredentialSubject
+     */
+    lotNumber: string;
+}
+/**
+ * Schema for verifying which cloud instances a BMS should send its battery data to.
+ * @export
+ * @interface VcCloudInstanceSchema
+ */
+export interface VcCloudInstanceSchema {
+    [key: string]: any | any;
+    /**
+     * Defines the JSON-LD context, providing meaning to terms used in the credential.
+     * @type {Set<string>}
+     * @memberof VcCloudInstanceSchema
+     */
+    context: Set<VcCloudInstanceSchemaContextEnum>;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcCloudInstanceSchema
+     */
+    id: string;
+    /**
+     * 
+     * @type {Set<string>}
+     * @memberof VcCloudInstanceSchema
+     */
+    type: Set<string>;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcCloudInstanceSchema
+     */
+    issuer: string;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcCloudInstanceSchema
+     */
+    holder: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcCloudInstanceSchema
+     */
+    issuanceDate: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcCloudInstanceSchema
+     */
+    expirationDate: string;
+    /**
+     * 
+     * @type {VcCloudInstanceSchemaCredentialSubject}
+     * @memberof VcCloudInstanceSchema
+     */
+    credentialSubject: VcCloudInstanceSchemaCredentialSubject;
+    /**
+     * 
+     * @type {Proof}
+     * @memberof VcCloudInstanceSchema
+     */
+    proof: Proof;
+}
+
+
+/**
+ * @export
+ */
+export const VcCloudInstanceSchemaContextEnum = {
+    https___www_w3_org_2018_credentials_v1: 'https://www.w3.org/2018/credentials/v1',
+    http___localhost_8443_docs_vc_cloudInstance_schema_html: 'http://localhost:8443/docs/vc.cloudInstance.schema.html'
+} as const;
+export type VcCloudInstanceSchemaContextEnum = typeof VcCloudInstanceSchemaContextEnum[keyof typeof VcCloudInstanceSchemaContextEnum];
+
+/**
+ * 
+ * @export
+ * @interface VcCloudInstanceSchemaCredentialSubject
+ */
+export interface VcCloudInstanceSchemaCredentialSubject {
+    /**
+     * An identifier in uri format for Verifiable Credentials
+     * @type {string}
+     * @memberof VcCloudInstanceSchemaCredentialSubject
+     */
+    id: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcCloudInstanceSchemaCredentialSubject
+     */
+    type: string;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcCloudInstanceSchemaCredentialSubject
+     */
+    cloudDid: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcCloudInstanceSchemaCredentialSubject
+     */
+    timestamp: string;
+}
+/**
  * Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.
  * @export
  * @interface VcRecordSchema
@@ -528,7 +548,7 @@ export interface VcRecordSchema {
      */
     id: string;
     /**
-     * A SHA-256 or Keccak-256 hash of the complete VC in hexadecimal format.
+     * A SHA-256 hash of the complete VC in hexadecimal format.
      * @type {string}
      * @memberof VcRecordSchema
      */
@@ -545,7 +565,140 @@ export interface VcRecordSchema {
      * @memberof VcRecordSchema
      */
     expirationDate?: string;
+    /**
+     * 
+     * @type {Proof}
+     * @memberof VcRecordSchema
+     */
+    proof: Proof;
 }
+/**
+ * Schema for verifying Service Access claims.
+ * @export
+ * @interface VcServiceAccessSchema
+ */
+export interface VcServiceAccessSchema {
+    [key: string]: any | any;
+    /**
+     * Defines the JSON-LD context, providing meaning to terms used in the credential.
+     * @type {Set<string>}
+     * @memberof VcServiceAccessSchema
+     */
+    context: Set<VcServiceAccessSchemaContextEnum>;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcServiceAccessSchema
+     */
+    id: string;
+    /**
+     * 
+     * @type {Set<string>}
+     * @memberof VcServiceAccessSchema
+     */
+    type: Set<string>;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcServiceAccessSchema
+     */
+    issuer: string;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcServiceAccessSchema
+     */
+    holder: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcServiceAccessSchema
+     */
+    issuanceDate: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcServiceAccessSchema
+     */
+    expirationDate: string;
+    /**
+     * 
+     * @type {VcServiceAccessSchemaCredentialSubject}
+     * @memberof VcServiceAccessSchema
+     */
+    credentialSubject: VcServiceAccessSchemaCredentialSubject;
+    /**
+     * 
+     * @type {Proof}
+     * @memberof VcServiceAccessSchema
+     */
+    proof: Proof;
+}
+
+
+/**
+ * @export
+ */
+export const VcServiceAccessSchemaContextEnum = {
+    https___www_w3_org_2018_credentials_v1: 'https://www.w3.org/2018/credentials/v1',
+    http___localhost_8443_docs_vc_serviceAccess_schema_html: 'http://localhost:8443/docs/vc.serviceAccess.schema.html'
+} as const;
+export type VcServiceAccessSchemaContextEnum = typeof VcServiceAccessSchemaContextEnum[keyof typeof VcServiceAccessSchemaContextEnum];
+
+/**
+ * 
+ * @export
+ * @interface VcServiceAccessSchemaCredentialSubject
+ */
+export interface VcServiceAccessSchemaCredentialSubject {
+    /**
+     * An identifier in uri format for Verifiable Credentials
+     * @type {string}
+     * @memberof VcServiceAccessSchemaCredentialSubject
+     */
+    id: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcServiceAccessSchemaCredentialSubject
+     */
+    type: string;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VcServiceAccessSchemaCredentialSubject
+     */
+    bmsDid: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof VcServiceAccessSchemaCredentialSubject
+     */
+    accessLevel: Array<VcServiceAccessSchemaCredentialSubjectAccessLevelEnum>;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcServiceAccessSchemaCredentialSubject
+     */
+    validFrom: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof VcServiceAccessSchemaCredentialSubject
+     */
+    validUntil: string;
+}
+
+
+/**
+ * @export
+ */
+export const VcServiceAccessSchemaCredentialSubjectAccessLevelEnum = {
+    read: 'read',
+    write: 'write'
+} as const;
+export type VcServiceAccessSchemaCredentialSubjectAccessLevelEnum = typeof VcServiceAccessSchemaCredentialSubjectAccessLevelEnum[keyof typeof VcServiceAccessSchemaCredentialSubjectAccessLevelEnum];
+
 /**
  * A method by which a DID subject can be authenticated, typically using cryptographic keys.
  * @export
@@ -577,3 +730,57 @@ export interface VerificationMethod {
      */
     publicKeyMultibase: string;
 }
+/**
+ * Schema for verifying presentations of VCs with holder proof.
+ * @export
+ * @interface VpSchema
+ */
+export interface VpSchema {
+    /**
+     * Defines the JSON-LD context, providing meaning to terms used in the credential.
+     * @type {Set<string>}
+     * @memberof VpSchema
+     */
+    context: Set<VpSchemaContextEnum>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof VpSchema
+     */
+    type: Array<string>;
+    /**
+     * 
+     * @type {Array<VpSchemaVerifiableCredentialInner>}
+     * @memberof VpSchema
+     */
+    verifiableCredential: Array<VpSchemaVerifiableCredentialInner>;
+    /**
+     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * @type {string}
+     * @memberof VpSchema
+     */
+    holder: string;
+    /**
+     * 
+     * @type {Proof}
+     * @memberof VpSchema
+     */
+    proof: Proof;
+}
+
+
+/**
+ * @export
+ */
+export const VpSchemaContextEnum = {
+    https___www_w3_org_2018_credentials_v1: 'https://www.w3.org/2018/credentials/v1',
+    http___localhost_8443_docs_vp_schema_html: 'http://localhost:8443/docs/vp.schema.html'
+} as const;
+export type VpSchemaContextEnum = typeof VpSchemaContextEnum[keyof typeof VpSchemaContextEnum];
+
+/**
+ * @type VpSchemaVerifiableCredentialInner
+ * 
+ * @export
+ */
+export type VpSchemaVerifiableCredentialInner = VcBmsProducedSchema | VcCloudInstanceSchema | VcServiceAccessSchema;

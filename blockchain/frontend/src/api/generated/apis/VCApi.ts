@@ -15,25 +15,23 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateVcRecord201Response,
-  CreateVcRecord400Response,
   RequestVcCreateSchema,
   RequestVcRevokeSchema,
-  RequestVcVerifySchema,
-  ResponseVcVerifySchema,
-  RevokeVcRecord201Response,
+  ResponseErrorSchema,
+  ResponseOkSchema,
+  VcRecordSchema,
 } from '../models/index';
 
 export interface CreateVcRecordRequest {
     RequestVcCreateSchema: RequestVcCreateSchema;
 }
 
-export interface RevokeVcRecordRequest {
-    RequestVcRevokeSchema: RequestVcRevokeSchema;
+export interface GetVcRecordByIdRequest {
+    vcUri: string;
 }
 
-export interface VerifyVcRecordRequest {
-    RequestVcVerifySchema: RequestVcVerifySchema;
+export interface RevokeVcRecordRequest {
+    RequestVcRevokeSchema: RequestVcRevokeSchema;
 }
 
 /**
@@ -44,7 +42,7 @@ export class VCApi extends runtime.BaseAPI {
     /**
      * Create a VC Record
      */
-    async createVcRecordRaw(requestParameters: CreateVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateVcRecord201Response>> {
+    async createVcRecordRaw(requestParameters: CreateVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseOkSchema>> {
         if (requestParameters['RequestVcCreateSchema'] == null) {
             throw new runtime.RequiredError(
                 'RequestVcCreateSchema',
@@ -59,7 +57,7 @@ export class VCApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/v1/vc/create`,
+            path: `/api/v1/vcs/create`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -72,15 +70,74 @@ export class VCApi extends runtime.BaseAPI {
     /**
      * Create a VC Record
      */
-    async createVcRecord(requestParameters: CreateVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateVcRecord201Response> {
+    async createVcRecord(requestParameters: CreateVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseOkSchema> {
         const response = await this.createVcRecordRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Get a all VC Records
+     */
+    async getAllVcRecordsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<VcRecordSchema>>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/v1/vcs`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response);
+    }
+
+    /**
+     * Get a all VC Records
+     */
+    async getAllVcRecords(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<VcRecordSchema>> {
+        const response = await this.getAllVcRecordsRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Get a specific VC Record by URI
+     */
+    async getVcRecordByIdRaw(requestParameters: GetVcRecordByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<VcRecordSchema>> {
+        if (requestParameters['vcUri'] == null) {
+            throw new runtime.RequiredError(
+                'vcUri',
+                'Required parameter "vcUri" was null or undefined when calling getVcRecordById().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/v1/vcs/{vcUri}`.replace(`{${"vcUri"}}`, encodeURIComponent(String(requestParameters['vcUri']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response);
+    }
+
+    /**
+     * Get a specific VC Record by URI
+     */
+    async getVcRecordById(requestParameters: GetVcRecordByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<VcRecordSchema> {
+        const response = await this.getVcRecordByIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * Revoke a VC Record
      */
-    async revokeVcRecordRaw(requestParameters: RevokeVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RevokeVcRecord201Response>> {
+    async revokeVcRecordRaw(requestParameters: RevokeVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseOkSchema>> {
         if (requestParameters['RequestVcRevokeSchema'] == null) {
             throw new runtime.RequiredError(
                 'RequestVcRevokeSchema',
@@ -95,7 +152,7 @@ export class VCApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/v1/vc/revoke`,
+            path: `/api/v1/vcs/revoke`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -108,44 +165,8 @@ export class VCApi extends runtime.BaseAPI {
     /**
      * Revoke a VC Record
      */
-    async revokeVcRecord(requestParameters: RevokeVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RevokeVcRecord201Response> {
+    async revokeVcRecord(requestParameters: RevokeVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseOkSchema> {
         const response = await this.revokeVcRecordRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Verify a VC Record
-     */
-    async verifyVcRecordRaw(requestParameters: VerifyVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseVcVerifySchema>> {
-        if (requestParameters['RequestVcVerifySchema'] == null) {
-            throw new runtime.RequiredError(
-                'RequestVcVerifySchema',
-                'Required parameter "RequestVcVerifySchema" was null or undefined when calling verifyVcRecord().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/api/v1/vc/verify`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: requestParameters['RequestVcVerifySchema'],
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response);
-    }
-
-    /**
-     * Verify a VC Record
-     */
-    async verifyVcRecord(requestParameters: VerifyVcRecordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseVcVerifySchema> {
-        const response = await this.verifyVcRecordRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -15,12 +15,11 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateOrModifyDid201Response,
-  CreateVcRecord400Response,
   DidSchema,
   RequestDidCreateormodifySchema,
   RequestDidRevokeSchema,
-  RevokeDid201Response,
+  ResponseErrorSchema,
+  ResponseOkSchema,
 } from '../models/index';
 
 export interface CreateOrModifyDidRequest {
@@ -43,7 +42,7 @@ export class DIDsApi extends runtime.BaseAPI {
     /**
      * Create or modify a DID document
      */
-    async createOrModifyDidRaw(requestParameters: CreateOrModifyDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateOrModifyDid201Response>> {
+    async createOrModifyDidRaw(requestParameters: CreateOrModifyDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseOkSchema>> {
         if (requestParameters['RequestDidCreateormodifySchema'] == null) {
             throw new runtime.RequiredError(
                 'RequestDidCreateormodifySchema',
@@ -71,7 +70,7 @@ export class DIDsApi extends runtime.BaseAPI {
     /**
      * Create or modify a DID document
      */
-    async createOrModifyDid(requestParameters: CreateOrModifyDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateOrModifyDid201Response> {
+    async createOrModifyDid(requestParameters: CreateOrModifyDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseOkSchema> {
         const response = await this.createOrModifyDidRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -138,7 +137,7 @@ export class DIDsApi extends runtime.BaseAPI {
     /**
      * Revoke a DID document
      */
-    async revokeDidRaw(requestParameters: RevokeDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<RevokeDid201Response>> {
+    async revokeDidRaw(requestParameters: RevokeDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ResponseOkSchema>> {
         if (requestParameters['RequestDidRevokeSchema'] == null) {
             throw new runtime.RequiredError(
                 'RequestDidRevokeSchema',
@@ -166,7 +165,7 @@ export class DIDsApi extends runtime.BaseAPI {
     /**
      * Revoke a DID document
      */
-    async revokeDid(requestParameters: RevokeDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RevokeDid201Response> {
+    async revokeDid(requestParameters: RevokeDidRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResponseOkSchema> {
         const response = await this.revokeDidRaw(requestParameters, initOverrides);
         return await response.value();
     }
