@@ -71,6 +71,9 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 
 	var vcRecord coreTypes.VCRecord
 	if vcBms, err := createVcRecord.AsVcBmsProducedSchema(); err == nil {
+		if err := utils.VerfiyJWS(v.chain, vcBms.Proof.Jws, vcBms.Issuer); err != nil {
+			return err
+		}
 		vcRecord.ID = vcBms.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcBms.ExpirationDate
@@ -91,6 +94,9 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			return err
 		}
 	} else if vcService, err := createVcRecord.AsVcServiceAccessSchema(); err == nil {
+		if err := utils.VerfiyJWS(v.chain, vcService.Proof.Jws, vcService.Issuer); err != nil {
+			return err
+		}
 		vcRecord.ID = vcService.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcService.ExpirationDate
@@ -111,6 +117,9 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			return err
 		}
 	} else if vcCloud, err := createVcRecord.AsVcCloudInstanceSchema(); err == nil {
+		if err := utils.VerfiyJWS(v.chain, vcCloud.Proof.Jws, vcCloud.Issuer); err != nil {
+			return err
+		}
 		vcRecord.ID = vcCloud.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcCloud.ExpirationDate

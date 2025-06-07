@@ -1,10 +1,13 @@
 FROM golang:alpine AS builder
 
-RUN apk add --no-cache bash python3 py3-pip
+RUN apk add --no-cache bash python3 py3-pip nodejs npm
 
+
+# install dependencies
 RUN python3 -m venv /app/.venv \
  && /app/.venv/bin/pip install --upgrade pip \
  && /app/.venv/bin/pip install json-schema-for-humans
+RUN npm install --save-dev @redocly/cli --prefix /app
 
 # Set working directory
 WORKDIR /app
@@ -21,6 +24,10 @@ RUN chmod +x generate-did-vc-docs-html.sh
 # Generate HTML docs
 RUN /bin/bash "./generate-did-vc-docs-html.sh"
 
+# Generate Swagger Html file
+RUN ./node_modules/.bin/redocly build-docs ./internal/api/web/openapi.yaml --output ./docs/openapi.html
+
+# Build blockchain application
 RUN go build -o /blockchain ./cmd/main.go
 
 FROM alpine:latest
