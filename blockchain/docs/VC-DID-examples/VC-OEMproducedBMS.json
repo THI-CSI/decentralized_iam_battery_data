@@ -22,7 +22,7 @@
   "proof": {
     "type": "EcdsaSecp256r1Signature2019",
     "created": "2025-06-10T12:01:03Z",
-    "verificationMethod": "did:batterypass:bms.sn-987654321#device-key",
+    "verificationMethod": "did:batterypass:bms.sn-987654321#key-1",
     "proofPurpose": "authentication",
     "jws": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
   }

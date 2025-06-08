@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 )
 
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
@@ -105,17 +106,6 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 		}
 	}
 	return false
-}
-
-// GetPublicKey fetches a public key from a did doc geven a did
-func (s *didService) GetPublicKey(did string) (string, error) {
-	didDoc, err := s.chain.FindDID(did)
-	if err != nil {
-		log.Printf("Error finding DID: %s", err)
-		return "", err
-	}
-
-	return didDoc.VerificationMethod.PublicKeyMultibase, nil
 }
 
 func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error {

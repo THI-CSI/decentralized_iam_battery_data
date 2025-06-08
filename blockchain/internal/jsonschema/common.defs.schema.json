@@ -20,7 +20,7 @@
         },
         "verificationMethod": {
           "type": "string",
-          "pattern": "^did:batterypass:[a-zA-Z0-9.\\-#]+$",
+          "pattern": "^did:batterypass:(oem|eu|cloud|bms|service)(\\.[a-zA-Z0-9.\\-]+)?#key-1$",
           "description": "Reference to the key used to create the proof."
         },
         "proofPurpose": {
@@ -48,8 +48,33 @@
     },
     "DID": {
       "type": "string",
-      "pattern": "^did:batterypass:[a-zA-Z0-9.\\-]+$",
+      "pattern": "^did:batterypass:(oem|eu|cloud|bms|service)(\\.[a-zA-Z0-9.\\-]+)?$",
       "description": "DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier"
+    },
+    "DIDBMS": {
+      "type": "string",
+      "pattern": "^did:batterypass:bms.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific bms and then an identifier"
+    },
+    "DIDOEM": {
+      "type": "string",
+      "pattern": "^did:batterypass:bms.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific oem and then an identifier"
+    },
+    "DIDCLOUD": {
+      "type": "string",
+      "pattern": "^did:batterypass:bms.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific cloud and then an identifier"
+    },
+    "DIDEU": {
+      "type": "string",
+      "pattern": "^did:batterypass:eu$",
+      "description": "DID string with the DID method `batterypass` for the trust anchor eu"
+    },
+    "DIDSERVICE": {
+      "type": "string",
+      "pattern": "^did:batterypass:service.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific service and then an identifier"
     },
     "256Hash": {
       "type": "string",

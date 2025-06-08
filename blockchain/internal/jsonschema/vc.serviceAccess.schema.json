@@ -34,8 +34,8 @@
       "uniqueItems": true,
       "maxItems": 2
     },
-    "issuer": { "$ref": "common.defs.schema.json#/definitions/DID" },
-    "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
+    "issuer": { "$ref": "common.defs.schema.json#/definitions/DIDBMS" },
+    "holder": { "$ref": "common.defs.schema.json#/definitions/DIDSERVICE" },
     "issuanceDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "credentialSubject": {
@@ -48,7 +48,7 @@
           "type": "string",
           "const": "ServiceAccess"
         },
-        "bmsDid": { "$ref": "common.defs.schema.json#/definitions/DID" },
+        "bmsDid": { "$ref": "common.defs.schema.json#/definitions/DIDBMS" },
         "accessLevel": {
           "type": "array",
           "items": { "type": "string", "enum": ["read", "write"] }

@@ -36,8 +36,8 @@
       "minItems": 2,
       "maxItems": 2
     },
-    "issuer": { "$ref": "common.defs.schema.json#/definitions/DID" },
-    "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
+    "issuer": { "$ref": "common.defs.schema.json#/definitions/DIDOEM" },
+    "holder": { "$ref": "common.defs.schema.json#/definitions/DIDBMS" },
     "issuanceDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "credentialSubject": {
@@ -50,7 +50,7 @@
           "type": "string",
           "const": "CloudInstance"
         },
-        "cloudDid": { "$ref": "common.defs.schema.json#/definitions/DID" },
+        "cloudDid": { "$ref": "common.defs.schema.json#/definitions/DIDCLOUD" },
         "timestamp": { "$ref": "common.defs.schema.json#/definitions/DateTime" }
       }
     },

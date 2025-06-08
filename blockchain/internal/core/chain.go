@@ -179,6 +179,18 @@ func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
 	return nil, errors.New("VC record not found")
 }
 
+func (chain *Blockchain) GetPublicKey(didKeyFragment string) (string, error) {
+	parts := strings.Split(didKeyFragment, "#")
+	didDoc, err := chain.FindDID(parts[0])
+	if err != nil {
+		return "", err
+	}
+	if didDoc.VerificationMethod.ID != didKeyFragment {
+		return "", err
+	}
+	return didDoc.VerificationMethod.PublicKeyMultibase, nil
+}
+
 // Consensus Basic consensus mechanism, which checks, if enough transactions are pending
 func (chain *Blockchain) Consensus() bool {
 	return len(PendingTransactions) >= TransactionThreshold
