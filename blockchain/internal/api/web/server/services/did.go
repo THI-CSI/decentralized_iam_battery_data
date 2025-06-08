@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"strings"
 )
 
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
@@ -18,7 +17,6 @@ type DidService interface {
 	GetDID(userContext context.Context, did string) (*coreTypes.Did, error)
 	CreateOrModifyDID(userContext context.Context, create *models.DidSchema) error
 	RevokeDid(userContext context.Context, did string) error
-	GetPublicKey(did string) (string, error)
 	VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error
 	VerifyRequestRevoke(requestBody models.RequestDidRevokeSchema) error
 }

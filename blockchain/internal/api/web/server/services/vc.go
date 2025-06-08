@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -74,9 +75,6 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 
 	var vcRecord coreTypes.VCRecord
 	if vcBms, err := createVcRecord.AsVcBmsProducedSchema(); err == nil {
-		if err := utils.VerfiyJWS(v.chain, vcBms.Proof.Jws, vcBms.Issuer); err != nil {
-			return err
-		}
 		vcRecord.ID = vcBms.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcBms.ExpirationDate
@@ -97,9 +95,6 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			return err
 		}
 	} else if vcService, err := createVcRecord.AsVcServiceAccessSchema(); err == nil {
-		if err := utils.VerfiyJWS(v.chain, vcService.Proof.Jws, vcService.Issuer); err != nil {
-			return err
-		}
 		vcRecord.ID = vcService.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcService.ExpirationDate
@@ -120,9 +115,6 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			return err
 		}
 	} else if vcCloud, err := createVcRecord.AsVcCloudInstanceSchema(); err == nil {
-		if err := utils.VerfiyJWS(v.chain, vcCloud.Proof.Jws, vcCloud.Issuer); err != nil {
-			return err
-		}
 		vcRecord.ID = vcCloud.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcCloud.ExpirationDate
@@ -167,19 +159,59 @@ func containsVcRecord(vcRecordList []coreTypes.VCRecord, vcId string) bool {
 	}
 	return false
 }
+
 func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchema) error {
-	if erro := checkVCSemantics(requestBody); erro == nil {
-		if vcBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
-			vcBms
-			return nil
-		} else if vcService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
-			return nil
-		} else if vcCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
-			return nil
+	erro := checkVCSemantics(requestBody)
+	if erro == nil {
+		errro := errors.New("signed data differs from the payload")
+		if VCBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
+			verifiedBytes, err := utils.VerfiyJWS(v.chain, VCBms.Proof.Jws, VCBms.Proof.VerificationMethod)
+			if err != nil {
+				return err
+			}
+			var verified models.VcBmsProducedSchema
+			if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+				return err
+			}
+			VCBms.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+			if reflect.DeepEqual(VCBms, verified) {
+				return nil
+			} else {
+				return errro
+			}
+		} else if VCService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
+			verifiedBytes, err := utils.VerfiyJWS(v.chain, VCService.Proof.Jws, VCService.Proof.VerificationMethod)
+			if err != nil {
+				return err
+			}
+			var verified models.VcServiceAccessSchema
+			if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+				return err
+			}
+			VCService.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+			if reflect.DeepEqual(VCService, verified) {
+				return nil
+			} else {
+				return errro
+			}
+		} else if VCCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
+			verifiedBytes, err := utils.VerfiyJWS(v.chain, VCCloud.Proof.Jws, VCCloud.Proof.VerificationMethod)
+			if err != nil {
+				return err
+			}
+			var verified models.VcCloudInstanceSchema
+			if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+				return err
+			}
+			VCCloud.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+			if reflect.DeepEqual(VCCloud, verified) {
+				return nil
+			} else {
+				return errro
+			}
 		}
-	} else {
-		return erro
 	}
+	return erro
 }
 
 func (v *vcService) VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error {
