@@ -87,7 +87,7 @@ void send_and_generate_signing_key_pair()
         unsigned char sign_pub_key_der_base64[sign_pub_key_der_base64_size];
         mbedtls_base64_encode(sign_pub_key_der_base64, sign_pub_key_der_base64_size, &sign_pub_key_der_base64_bytes_written,
                               sign_pub_key_der, sign_pub_key_der_length);
-        ethernet_send_init("http://blockchain-endpoint", strlen("http://blockchain-endpoint"), sign_pub_key_der_base64, sign_pub_key_der_base64_bytes_written);
+        ethernet_send_init("http://oem-endpoint", strlen("http://oem-endpoint"), sign_pub_key_der_base64, sign_pub_key_der_base64_bytes_written);
          
         // Free memory
         vPortFree(sign_pub_key_der);
@@ -130,7 +130,7 @@ void der_encoding_init(uint8_t *sign_pub_key, size_t sign_pub_key_length, unsign
 }
 
 /*******************************************************************************************************************//**
- * @brief        Submits the Base64-encoded BMS signing public key (DER format) to the network task.
+ * @brief        Submits the Base64-encoded BMS signing public key (DER format) to the network task and retrieve DID.
  * @param[in]    endpoint                           Buffer containing the blockchain endpoint.
  * @param[in]    endpoint_length                    Length of the endpoint in bytes.
  * @param[in]    sign_public_key_der_base64         Buffer containing the Base64-encoded DER-formatted BMS signing public key.
@@ -139,13 +139,91 @@ void der_encoding_init(uint8_t *sign_pub_key, size_t sign_pub_key_length, unsign
  **********************************************************************************************************************/
 void ethernet_send_init(char *endpoint, size_t endpoint_length, unsigned char* sign_public_key_der_base64, size_t sign_public_key_der_base64_length)
 {
-    size_t xBytesSentEndpoint = RESET_VALUE;
-    size_t xBytesSentMessage = RESET_VALUE;
-    xBytesSentEndpoint = xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
-    do {
-        xBytesSentMessage = xMessageBufferSend(crypto_net_message_buffer, (void *)sign_public_key_der_base64, sign_public_key_der_base64_length,
-                                               pdMS_TO_TICKS(1000));
-    } while (xBytesSentMessage > 0);
+	size_t xReceivedBytes = RESET_VALUE;
+	char did[50];
+	memset(did, RESET_VALUE, sizeof(did));
+    xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    xMessageBufferSend(crypto_net_message_buffer, (void *)sign_public_key_der_base64, sign_public_key_der_base64_length,
+                       pdMS_TO_TICKS(1000));
+    do
+	{
+		xReceivedBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)did, sizeof(did), pdMS_TO_TICKS(1000));
+	} while(xReceivedBytes == 0);
+    write_did_to_data_flash(did, xReceivedBytes);
+}
+
+/*******************************************************************************************************************//**
+ * @brief This function is called to write the DID to the data flash.
+ * @param[IN]   did						Buffer with DID-string to write to data flash.
+ * @param[IN]	did_length				Length of the DID-string.
+ * @retval      FSP_SUCCESS             Upon successful FLash_HP data flash operations.
+ * @retval      Any Other Error code    Upon unsuccessful Flash_HP data flash operations.
+ **********************************************************************************************************************/
+void write_did_to_data_flash(char *did, size_t did_length)
+{
+	fsp_err_t err = FSP_SUCCESS;
+
+	/* Open Flash_HP */
+	err = R_FLASH_HP_Open(&g_flash1_ctrl, &g_flash1_cfg);
+	if (FSP_SUCCESS != err)
+	{
+		APP_PRINT("\r\n Flah_HP_Open API failed");
+		APP_ERR_TRAP(err);
+	}
+
+	/* Setup Default  Block 0 as Startup Setup Block */
+	err = R_FLASH_HP_StartUpAreaSelect(&g_flash1_ctrl, FLASH_STARTUP_AREA_BLOCK0, true);
+	if (err != FSP_SUCCESS)
+	{
+		APP_PRINT("\r\n Flah_HP_StartUpAreaSelect API failed");
+		APP_ERR_TRAP(err);
+	}
+
+	err = flash_hp_data_flash_operations(did, did_length);
+	if (FSP_SUCCESS != err)
+	{
+		flash_hp_deinit();
+		APP_ERR_TRAP(err);
+	}
+}
+
+fsp_err_t flash_hp_data_flash_operations(char *did, size_t did_length)
+{
+	fsp_err_t err = FSP_SUCCESS;
+	flash_result_t blank_check_result = FLASH_RESULT_BLANK;
+
+	/* Erase Block */
+	err = R_FLASH_HP_Erase(&g_flash1_ctrl, FLASH_HP_DF_BLOCK_1, BLOCK_NUM);
+	CHECK_FSP_SUCCESS(err, "\r\nErase API failed, Restart the Application");
+
+	/* Data flash blank check */
+	err = R_FLASH_HP_BlankCheck(&g_flash1_ctrl, FLASH_HP_DF_BLOCK_1, FLASH_HP_DF_BLOCK_SIZE, &blank_check_result);
+	CHECK_FSP_SUCCESS(err, "\r\nBlankCheck API failed, Restart the Application");
+
+	if (FLASH_RESULT_NOT_BLANK == blank_check_result)
+	{
+		CHECK_FSP_SUCCESS((fsp_err_t)FLASH_RESULT_NOT_BLANK, "\r\n BlankCheck is not blank,not to write the data. Restart the application");
+	}
+
+	/* Write data flash */
+	err = R_FLASH_HP_Write(&g_flash1_ctrl, (uint32_t) did, FLASH_HP_DF_BLOCK_1, did_length);
+	CHECK_FSP_SUCCESS(err, "\r\nWrite API failed, Restart the Application");
+
+	return err;
+}
+
+/*******************************************************************************************************************//**
+ * @brief       This functions de-initializes Flash_HP module.
+ **********************************************************************************************************************/
+void flash_hp_deinit(void)
+{
+    fsp_err_t err = FSP_SUCCESS;
+    err = R_FLASH_HP_Close(&g_flash1_ctrl);
+    if (FSP_SUCCESS != err)
+    {
+        APP_ERR_PRINT("\r\nClose API failed in BlankCheck API");
+    }
 }
 
 /*******************************************************************************************************************//**
