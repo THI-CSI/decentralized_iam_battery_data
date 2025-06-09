@@ -8,10 +8,6 @@
 #include "mbedtls/base64.h"
 #include "rtc_init.h"
 
-// Write DID in DF
-__attribute__((section(".data_flash")))
-const char did[30] = "did:example:123456789abcdefgh";
-
 // Platform context structure
 mbedtls_platform_context ctx = {RESET_VALUE};
 
@@ -21,11 +17,13 @@ void bms_cloud_transaction_entry(void *pvParameters)
 {
     FSP_PARAMETER_NOT_USED (pvParameters);
     // The rate at which the task waits on the Semaphore availability.
-    TickType_t Semphr_wait_ticks = pdMS_TO_TICKS (WAIT_TIME);
+    TickType_t Semphr_wait_ticks = pdMS_TO_TICKS(WAIT_TIME);
     for (;;)
     {
         if (pdPASS == xSemaphoreTake(bms_cloud_sem, Semphr_wait_ticks))
         {
+            char did[DID_LENGTH] = {RESET_VALUE};
+            memcpy(did, (uint8_t *) FLASH_HP_DF_BLOCK_1, DID_LENGTH);
             // Initialize encryption_context on heap
             encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
             // Request DID-docs and initialize encryption_ctx->did_documents
@@ -61,16 +59,12 @@ void bms_cloud_transaction_entry(void *pvParameters)
  **********************************************************************************************************************/
 uint8_t fetch_did_documents(encryption_context *encryption_ctx)
 {
-    uint8_t number_of_endpoints = RESET_VALUE; // = amount of stored VCs
+    uint8_t number_of_endpoints = number_of_vcs; // = amount of stored VCs
     size_t xReceivedBytes0 = RESET_VALUE;
-    xSemaphoreGive(crypto_net_sem);
-    do
-    {
-        xReceivedBytes0 = xMessageBufferReceive(net_crypto_message_buffer, (void *)&number_of_endpoints, sizeof(uint8_t), pdMS_TO_TICKS(1000));
-    } while(xReceivedBytes0 == 0);
     encryption_ctx->did_documents = (did_document **)pvPortCalloc(number_of_endpoints, sizeof(did_document *));
     for (uint8_t i = 0; i < number_of_endpoints; i++)
     {
+        xTaskNotifyGive(net_task);
         encryption_ctx->did_documents[i] = (did_document *)pvPortCalloc(1, sizeof(did_document));
         encryption_ctx->did_documents[i]->endpoint = (char *)pvPortCalloc(ENDPOINT_MAX_BUFFER_SIZE, sizeof(char));
         encryption_ctx->did_documents[i]->public_key_der_encoded = (uint8_t *)pvPortCalloc(ECC_256_PUB_DER_MAX_BUFFER_SIZE, sizeof(uint8_t));
@@ -165,12 +159,12 @@ void prepare_final_message_ctx(uint8_t recipient_counter, encryption_context *en
 psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
-    psa_key_handle_t ephermal_key_handle = (psa_key_handle_t)RESET_VALUE;
-    // Generate ephermal-keypair & export public part in DER-Format
-    status = generate_ephermal_key_pair(message_ctx, &ephermal_key_handle);
+    psa_key_handle_t ephemeral_key_handle = (psa_key_handle_t)RESET_VALUE;
+    // Generate ephemeral-keypair & export public part in DER-Format
+    status = generate_ephemeral_key_pair(message_ctx, &ephemeral_key_handle);
     CHECK_PSA_SUCCESS(status, "");
     // Derive encryption key - DHCP | HKDF(SHA2-256)
-    status = derive_encryption_key(message_ctx, encryption_ctx, recipient_counter, ephermal_key_handle);
+    status = derive_encryption_key(message_ctx, encryption_ctx, recipient_counter, ephemeral_key_handle);
     CHECK_PSA_SUCCESS(status, "");
     // Encrypt battery data - AES-GCM 256
     status = encrypt_battery_data(encryption_ctx, message_ctx);
@@ -188,7 +182,7 @@ psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *en
  * @param[out]   ephemeral_key_handle   Buffer containing the ephemeral key handle.
  * @retval       PSA_SUCCESS or other error codes indicating the result of the operation.
  **********************************************************************************************************************/
-psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_handle_t *ephermal_key_handle)
+psa_status_t generate_ephemeral_key_pair(message_context *message_ctx, psa_key_handle_t *ephemeral_key_handle)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
     psa_key_attributes_t ecc_attributes = PSA_KEY_ATTRIBUTES_INIT;
@@ -203,15 +197,15 @@ psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_ha
     psa_set_key_lifetime(&ecc_attributes, PSA_KEY_LIFETIME_VOLATILE);
 
     // Generate ECC P256R1 Key pair
-    status = psa_generate_key(&ecc_attributes, ephermal_key_handle);
+    status = psa_generate_key(&ecc_attributes, ephemeral_key_handle);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_key API FAILED ** \r\n")
 
     // Export public key
-    status = psa_export_public_key(*ephermal_key_handle, ecc_pub_key, ECC_256_PUB_MAX_BUFFER_SIZE, &ecc_pub_key_length);
+    status = psa_export_public_key(*ephemeral_key_handle, ecc_pub_key, ECC_256_PUB_MAX_BUFFER_SIZE, &ecc_pub_key_length);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_export_public_key API FAILED ** \r\n");
 
     // DER-encoding of public key
-    der_encoding(ecc_pub_key, ecc_pub_key_length, &message_ctx->der_encoded_ephermal_key, &message_ctx->der_encoded_ephermal_key_length);
+    der_encoding(ecc_pub_key, ecc_pub_key_length, &message_ctx->der_encoded_ephemeral_key, &message_ctx->der_encoded_ephemeral_key_length);
 
     return status;
 }
@@ -284,16 +278,16 @@ void der_decoding(uint8_t *ecc_pub_key_der, size_t ecc_pub_key_der_length, uint8
  * @param[in]    ephemeral_key_handle   Buffer containing the ephemeral key handle.
  * @retval       PSA_SUCCESS or other error codes indicating the result of the operation.
  **********************************************************************************************************************/  
-psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephermal_key_handle)
+psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephemeral_key_handle)
 {
     psa_status_t status = (psa_status_t)RESET_VALUE;
     psa_key_derivation_operation_t derivation_operation = PSA_KEY_DERIVATION_OPERATION_INIT;
     psa_key_attributes_t aes_attributes = PSA_KEY_ATTRIBUTES_INIT;
     did_document *did_doc = encryption_ctx->did_documents[recipient_counter];
-    size_t info_length = message_ctx->der_encoded_ephermal_key_length + did_doc->public_key_der_encoded_length;
+    size_t info_length = message_ctx->der_encoded_ephemeral_key_length + did_doc->public_key_der_encoded_length;
     uint8_t info[info_length];
-    memcpy(info, message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
-    memcpy(info + message_ctx->der_encoded_ephermal_key_length, did_doc->public_key_der_encoded, did_doc->public_key_der_encoded_length);
+    memcpy(info, message_ctx->der_encoded_ephemeral_key, message_ctx->der_encoded_ephemeral_key_length);
+    memcpy(info + message_ctx->der_encoded_ephemeral_key_length, did_doc->public_key_der_encoded, did_doc->public_key_der_encoded_length);
 
     // Set Key uses flags, key_algorithm, key_type, key_bits, key_lifetime
     psa_set_key_usage_flags(&aes_attributes, PSA_KEY_USAGE_ENCRYPT);
@@ -313,16 +307,16 @@ psa_status_t derive_encryption_key(message_context *message_ctx, encryption_cont
     CHECK_PSA_SUCCESS(status, "\r\n** psa_key_derivation_set_capacity API FAILED ** \r\n");
     status = psa_key_derivation_input_bytes(&derivation_operation, PSA_KEY_DERIVATION_INPUT_SALT, message_ctx->salt, SALT_LENGTH);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_bytes API FAILED ** \r\n", &derivation_operation);
-    status = psa_key_derivation_key_agreement(&derivation_operation, PSA_KEY_DERIVATION_INPUT_SECRET, ephermal_key_handle, did_doc->public_key, ECC_256_PUB_RAW_LENGTH);
+    status = psa_key_derivation_key_agreement(&derivation_operation, PSA_KEY_DERIVATION_INPUT_SECRET, ephemeral_key_handle, did_doc->public_key, ECC_256_PUB_RAW_LENGTH);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_key_agreement API FAILED ** \r\n", &derivation_operation);
     status = psa_key_derivation_input_bytes(&derivation_operation, PSA_KEY_DERIVATION_INPUT_INFO, info, info_length);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_input_bytes API FAILED ** \r\n", &derivation_operation);
     status = psa_key_derivation_output_key(&aes_attributes, &derivation_operation, &encryption_ctx->aes_key_handle);
     CHECK_PSA_SUCCESS_DERIVATION(status, "\r\n** psa_key_derivation_output_key API FAILED ** \r\n", &derivation_operation);
 
-    // Abort derivation_operation and destroy ephermal_key_pair
+    // Abort derivation_operation and destroy ephemeral_key_pair
     psa_key_derivation_abort(&derivation_operation);
-    status = psa_destroy_key(ephermal_key_handle);
+    status = psa_destroy_key(ephemeral_key_handle);
     CHECK_PSA_SUCCESS(status, "\r\n** psa_destroy_key API FAILED ** \r\n");
 
     return status;
@@ -378,7 +372,7 @@ psa_status_t generate_signed_json_message(message_context *message_ctx, final_me
     size_t concatenated_message_bytes_hash_length = RESET_VALUE;
     uint8_t signature[PSA_SIGNATURE_MAX_SIZE] = {RESET_VALUE};
     size_t signature_length = RESET_VALUE;
-    cJSON *json_message = cJSON_CreateObject();x
+    cJSON *json_message = cJSON_CreateObject();
 
     // Sign hash of message_ctx
     status = psa_open_key(SIGNING_KEY_ID, &signing_key_handle);
@@ -442,14 +436,14 @@ void create_message_string(message_context *message_ctx, uint8_t **concatenated_
     did_base64[did_base64_bytes_written] = '\0';
     cJSON_AddStringToObject(message_json, "did", (char *)did_base64);
 
-    // Base64 encoding of ephermal_public_key_der and adding to message_json
-    size_t ephermal_public_key_der_base64_size = (size_t) ((message_ctx->der_encoded_ephermal_key_length + 2) / 3) * 4 + 1;
-    size_t ephermal_publick_key_der_base64_bytes_written = RESET_VALUE;
-    unsigned char ephermal_public_key_der_base64[ephermal_public_key_der_base64_size];
-    mbedtls_base64_encode(ephermal_public_key_der_base64, ephermal_public_key_der_base64_size, &ephermal_publick_key_der_base64_bytes_written,
-                             (unsigned char *)message_ctx->der_encoded_ephermal_key, message_ctx->der_encoded_ephermal_key_length);
-    ephermal_public_key_der_base64[ephermal_publick_key_der_base64_bytes_written] = '\0';
-    cJSON_AddStringToObject(message_json, "ephermal_public_key", (char *)ephermal_public_key_der_base64);
+    // Base64 encoding of ephemeral_public_key_der and adding to message_json
+    size_t ephemeral_public_key_der_base64_size = (size_t) ((message_ctx->der_encoded_ephemeral_key_length + 2) / 3) * 4 + 1;
+    size_t ephemeral_publick_key_der_base64_bytes_written = RESET_VALUE;
+    unsigned char ephemeral_public_key_der_base64[ephemeral_public_key_der_base64_size];
+    mbedtls_base64_encode(ephemeral_public_key_der_base64, ephemeral_public_key_der_base64_size, &ephemeral_publick_key_der_base64_bytes_written,
+                             (unsigned char *)message_ctx->der_encoded_ephemeral_key, message_ctx->der_encoded_ephemeral_key_length);
+    ephemeral_public_key_der_base64[ephemeral_publick_key_der_base64_bytes_written] = '\0';
+    cJSON_AddStringToObject(message_json, "ephemeral_public_key", (char *)ephemeral_public_key_der_base64);
 
     // Get timestamp, base64 encoding of timestamp and adding to message_json
     get_rtc_calendar_time(message_ctx->timestamp_bytes);
@@ -526,13 +520,10 @@ void generate_final_signed_json_message(cJSON* json_message, uint8_t *signature,
  **********************************************************************************************************************/
 void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct *final_message)
 {
-    size_t xBytesSentEndpoint = RESET_VALUE;
-    size_t xBytesSentMessage = RESET_VALUE;
-    xBytesSentEndpoint = xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
-    do {
-        xBytesSentMessage = xMessageBufferSend(crypto_net_message_buffer, (void *)final_message->signed_message_bytes, final_message->signed_message_bytes_length,
+    xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    xMessageBufferSend(crypto_net_message_buffer, (void *)final_message->signed_message_bytes, final_message->signed_message_bytes_length,
                                                pdMS_TO_TICKS(1000));
-    } while (xBytesSentMessage > 0);
 }
 
 /*******************************************************************************************************************//**
@@ -553,7 +544,7 @@ void free_contexts(uint8_t recipient_counter, encryption_context *encryption_ctx
     
     // Free message_context
     vPortFree(message_ctx->battery_data_encrypted);
-    vPortFree(message_ctx->der_encoded_ephermal_key);
+    vPortFree(message_ctx->der_encoded_ephemeral_key);
     vPortFree(message_ctx);
     
     // Free final_message_struct

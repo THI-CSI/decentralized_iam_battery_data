@@ -1,0 +1,4 @@
+#define MAX_IPV4_SIZE 17
+#define MAX_ENDPOINT_DNS_SIZE 100
+#define DID_LENGTH 29
+
