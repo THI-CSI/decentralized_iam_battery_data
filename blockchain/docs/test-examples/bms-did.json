@@ -1,0 +1,37 @@
+{
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-08-01T09:00:00Z",
+    "verificationMethod": "did:batterypass:oem.VW#key-1",
+    "challenge": "c82f7883-42a1-4b78-9c2e-d8d5321af9f8",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHA6Ly9sb2NhbGhvc3Q6ODQ0My9kb2NzL2RpZC5zY2hlbWEuaHRtbCJdLCJpZCI6ImRpZDpiYXR0ZXJ5cGFzczpibXMudGVzdCIsInZlcmlmaWNhdGlvbk1ldGhvZCI6eyJpZCI6ImRpZDpiYXR0ZXJ5cGFzczpibXMudGVzdCNrZXktMSIsInR5cGUiOiJKc29uV2ViS2V5MjAyMCIsImNvbnRyb2xsZXIiOiJkaWQ6YmF0dGVyeXBhc3M6b2VtLlZXIiwicHVibGljS2V5TXVsdGliYXNlIjoiLS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS1NSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXdkR3kzYkQ5VGhGU0NGOFM1ZUFlYUlMYml1NUVybTdvTDZPRFNQQWM4amwrN1ZNWVBoWFVwMHBYQXFzNTZ2MDVacUZlZFdWWnphS0NaN01tUkhteFdBb3RUWDM3WVhTaHAyTnNFZE9ZVW9yOE91dGtnNkd1ZGlDUFhyRzNYTFEyNnAyblNQYmVVUWtpS2U2R1dXMXlTaEtYZVp6SXZ0ajUvV2h0NkVPKzM5b0xXV3poUVJpMlJSMHc1eEZwUEFSU2tDR2hLcndkS216UDFFZStUK2RQWnoyL0hXeHRHcW5kOWpnZ3RWUFplUnY1NkZPeC9abnpKNU92WklvazZHNHd6K3NWQmhJa0ExQ2tHajVjclo2QTQxNWgvTXBaNjNSVmxpV0hOUjVtS0ZRMHcwWmFITUVDbm9NUHVQcTVOckQwcXdMNm9Hblp3K1dqMVJrZEtZYUNmUUlEQVFBQi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLSJ9LCJzZXJ2aWNlIjpbeyJpZCI6ImRpZDpiYXR0ZXJ5cGFzczpibXMudGVzdCNiYXR0ZXJ5cGFzc0FwaS1wcm9kMSIsInR5cGUiOiJCYXR0ZXJ5UGFzc0FQSSIsInNlcnZpY2VFbmRwb2ludCI6Imh0dHBzOi8vY2xvdWQtZW5kcG9pbnQtcHJvZDEuZXhhbXBsZS5jb20ifSx7ImlkIjoiZGlkOmJhdHRlcnlwYXNzOmJtcy50ZXN0I2JhdHRlcnlwYXNzQXBpLXRlc3QxIiwidHlwZSI6IkJhdHRlcnlQYXNzQXBpIiwic2VydmljZUVuZHBvaW50IjoiaHR0cHM6Ly9jbG91ZC1lbmRwb2ludC10ZXN0MS5leGFtcGxlLmNvbSJ9XSwidGltZXN0YW1wIjoiMjAyNS0wNC0xMFQxMjowMDowMFoiLCJyZXZva2VkIjpmYWxzZX0.MmQYOCizdao8GpuC0N3zRHH1nUPrLA1qFCL0sU_jmgGJEM8m7Lk06lvB7kubC8gT8aUOWNHgMA8l2WCNKBqLVuC4iy5G_Kw2ZCxvzyoILHtuRLWI3PqS4Ylk9mVqtKCe5IY0M97MTuUCxdNYG0FsCCuqysjDy5MQPup5qSSIH6cVchtuElbbyln97zG5vGIjvD742wNuVjFdu8tOHP1Qcc9ikiU1fVTiMhkgdY4D6CmgYCV1B9svxa_aeWDWv0OTtnughiMJmpNcRC7vCmMSZpvLNz4mTRB3h84T5sVo2eH6cW43DYDMDHlO4NjmkUPKfpPDyfNL_Y3ue1KudKaPtQ"
+  },
+  "payload": {
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "http://localhost:8443/docs/did.schema.html"
+    ],
+    "id": "did:batterypass:bms.test",
+    "verificationMethod": {
+      "id": "did:batterypass:bms.test#key-1",
+      "type": "JsonWebKey2020",
+      "controller": "did:batterypass:oem.VW",
+      "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwdGy3bD9ThFSCF8S5eAeaILbiu5Erm7oL6ODSPAc8jl+7VMYPhXUp0pXAqs56v05ZqFedWVZzaKCZ7MmRHmxWAotTX37YXShp2NsEdOYUor8Outkg6GudiCPXrG3XLQ26p2nSPbeUQkiKe6GWW1yShKXeZzIvtj5/Wht6EO+39oLWWzhQRi2RR0w5xFpPARSkCGhKrwdKmzP1Ee+T+dPZz2/HWxtGqnd9jggtVPZeRv56FOx/ZnzJ5OvZIok6G4wz+sVBhIkA1CkGj5crZ6A415h/MpZ63RVliWHNR5mKFQ0w0ZaHMECnoMPuPq5NrD0qwL6oGnZw+Wj1RkdKYaCfQIDAQAB-----END PUBLIC KEY-----"
+    },
+    "service": [
+      {
+        "id": "did:batterypass:bms.test#batterypassApi-prod1",
+        "type": "BatteryPassAPI",
+        "serviceEndpoint": "https://cloud-endpoint-prod1.example.com"
+      },
+      {
+        "id": "did:batterypass:bms.test#batterypassApi-test1",
+        "type": "BatteryPassApi",
+        "serviceEndpoint": "https://cloud-endpoint-test1.example.com"
+      }
+    ],
+    "timestamp": "2025-04-10T12:00:00Z",
+    "revoked": false
+  }
+}
