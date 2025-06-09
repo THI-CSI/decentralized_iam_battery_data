@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"strings"
@@ -182,16 +181,13 @@ func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
 
 func (chain *Blockchain) GetPublicKey(didKeyFragment string) (string, error) {
 	parts := strings.Split(didKeyFragment, "#")
-	log.Println("\nparts: ", parts[0])
 	didDoc, err := chain.FindDID(parts[0])
 	if err != nil {
 		return "", err
 	}
-	log.Println("didDoc: ", didDoc)
 	if didDoc.VerificationMethod.ID != didKeyFragment {
 		return "", err
 	}
-	log.Println("pubKey: ", didDoc.VerificationMethod.PublicKeyMultibase)
 	return didDoc.VerificationMethod.PublicKeyMultibase, nil
 }
 

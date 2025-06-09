@@ -165,7 +165,7 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 	if erro == nil {
 		errro := errors.New("signed data differs from the payload")
 		if VCBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
-			verifiedBytes, err := utils.VerifyJAWS(v.chain, VCBms.Proof.Jws, VCBms.Proof.VerificationMethod)
+			verifiedBytes, err := utils.VerifyJWS(v.chain, VCBms.Proof.Jws, VCBms.Proof.VerificationMethod)
 			if err != nil {
 				return err
 			}
@@ -180,7 +180,7 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 				return errro
 			}
 		} else if VCService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
-			verifiedBytes, err := utils.VerifyJAWS(v.chain, VCService.Proof.Jws, VCService.Proof.VerificationMethod)
+			verifiedBytes, err := utils.VerifyJWS(v.chain, VCService.Proof.Jws, VCService.Proof.VerificationMethod)
 			if err != nil {
 				return err
 			}
@@ -195,7 +195,7 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 				return errro
 			}
 		} else if VCCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
-			verifiedBytes, err := utils.VerifyJAWS(v.chain, VCCloud.Proof.Jws, VCCloud.Proof.VerificationMethod)
+			verifiedBytes, err := utils.VerifyJWS(v.chain, VCCloud.Proof.Jws, VCCloud.Proof.VerificationMethod)
 			if err != nil {
 				return err
 			}
@@ -215,7 +215,7 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 }
 
 func (v *vcService) VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error {
-	verifiedBytes, err := utils.VerifyJAWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	verifiedBytes, err := utils.VerifyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
 	if err != nil {
 		return err
 	}

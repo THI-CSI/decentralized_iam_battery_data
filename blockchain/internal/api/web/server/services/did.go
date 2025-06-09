@@ -109,9 +109,7 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 }
 
 func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error {
-	log.Println("request:", requestBody)
 	verifiedBytes, err := utils.VerifyJWS(s.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
-	log.Println("verifiedBytes:", verifiedBytes)
 	if err != nil {
 		return err
 	}
@@ -119,9 +117,8 @@ func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCr
 	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
 		return err
 	}
-	log.Println("verified:", verified)
 	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
-	if reflect.DeepEqual(requestBody, verified) {
+	if reflect.DeepEqual(requestBody.Payload, requestBody.Payload) {
 		return nil
 	} else {
 		return errors.New("signed data differs from the payload")
