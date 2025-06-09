@@ -26,10 +26,10 @@ func NewVPService(chain *core.Blockchain) VPService {
 }
 
 func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) error {
-	verifiedBytes, err := utils.VerfiyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	verifiedBytes, err := utils.VerifyJAWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
 	if err != nil {
 		return err
-	}
+	} // TODO: Hash check of the vc record
 	var verified models.VpSchema
 	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
 		return err

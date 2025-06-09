@@ -109,7 +109,9 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 }
 
 func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error {
-	verifiedBytes, err := utils.VerfiyJWS(s.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	log.Println("request:", requestBody)
+	verifiedBytes, err := utils.VerifyJWS(s.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	log.Println("verifiedBytes:", verifiedBytes)
 	if err != nil {
 		return err
 	}
@@ -117,6 +119,7 @@ func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCr
 	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
 		return err
 	}
+	log.Println("verified:", verified)
 	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
 	if reflect.DeepEqual(requestBody, verified) {
 		return nil
@@ -126,7 +129,7 @@ func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCr
 }
 
 func (s *didService) VerifyRequestRevoke(requestBody models.RequestDidRevokeSchema) error {
-	verifiedBytes, err := utils.VerfiyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	verifiedBytes, err := utils.VerifyJWS(s.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
 	if err != nil {
 		return err
 	}

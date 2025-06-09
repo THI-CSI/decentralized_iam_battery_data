@@ -2,12 +2,17 @@ package utils
 
 import (
 	"blockchain/internal/core"
+	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
+	"errors"
+	"fmt"
 	"github.com/go-playground/validator/v10"
-	"github.com/lestrrat-go/jwx/v3/jwa"
-	"github.com/lestrrat-go/jwx/v3/jws"
+	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"regexp"
 )
 
@@ -15,7 +20,7 @@ import (
 // It uses tags (e.g., `validate:"required"`) defined in struct fields.
 var Validate = validator.New()
 
-// IsDidValid Checks if the DID conforms to the specified format.
+// IsDidValid Checks if the DID is conform to the specified format.
 func IsDidValid(did string) bool {
 	matched, _ := regexp.MatchString(`^did:batterypass:[a-zA-Z0-9.\-]+$`, did)
 	return matched
@@ -37,17 +42,55 @@ func Generate256HashHex(payload interface{}) (string, error) {
 	return hex.EncodeToString(hashBytes[:]), nil
 }
 
-func VerfiyJWS(chain *core.Blockchain, token string, didKeyFragment string) ([]byte, error) {
-	key, err := chain.GetPublicKey(didKeyFragment)
+func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string) ([]byte, error) {
+	publicKeyPEM, err := chain.GetPublicKey(didKeyFragment)
 	if err != nil {
 		return nil, err
+	}
+	// Parse the PEM public key
+	block, _ := pem.Decode([]byte(publicKeyPEM))
+	if block == nil || block.Type != "PUBLIC KEY" {
+		return nil, fmt.Errorf("failed to decode PEM block containing public key")
 	}
 
-	verified, err := jws.Verify([]byte(token), jws.WithKey(jwa.RS256(), key))
+	pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse public key: %v", err)
 	}
-	// TODO: Compare the signed content currently unused return of jws.Verify contains the content that was signed with key - we need to compare this against the payload that was sent
-	// We will need to umarshal the return value into the respected generated type and then compare them. Which is why I prepared the individual functions in server/services
-	return verified, nil
+
+	rsaPubKey, ok := pubKey.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("not RSA public key")
+	}
+
+	// Parse and verify the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Make sure the signing method is RSA (RS256)
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return rsaPubKey, nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify token: %v", err)
+	}
+
+	if token.Valid {
+		fmt.Println("Signature verified successfully!")
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			log.Fatal("could not convert claims to MapClaims")
+		}
+
+		jsonBytes, err := json.Marshal(claims)
+		if err != nil {
+			log.Fatalf("Failed to marshal claims to JSON bytes: %v", err)
+		}
+		return jsonBytes, nil
+	}
+
+	return nil, errors.New("invalid token")
 }
+
+// Tested with keys and signatures from https://8gwifi.org/jwsgen.jsp
