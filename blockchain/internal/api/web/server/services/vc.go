@@ -215,8 +215,20 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 }
 
 func (v *vcService) VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error {
-	// TODO: implement (JWS contains the signed content - can be parsed from JWS token and compared to payload)
-	return nil
+	verifiedBytes, err := utils.VerfiyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+	var verified models.RequestVcRevokeSchema
+	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+		return err
+	}
+	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+	if reflect.DeepEqual(requestBody, verified) {
+		return nil
+	} else {
+		return errors.New("signed data differs from the payload")
+	}
 }
 
 func checkVCSemantics(requestBody *models.RequestVcCreateSchema) error {

@@ -39,16 +39,7 @@
       }
     },
     "verifiableCredential": {
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 1,
-      "items": {
-        "oneOf": [
-          { "$ref": "vc.bmsProduced.schema.json" },
-          { "$ref": "vc.serviceAccess.schema.json" },
-          { "$ref": "vc.cloudInstance.schema.json" }
-        ]
-      }
+      "$ref": "../api/web/jsonschema/requests/request.vc.create.schema.json"
     },
     "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
     "proof": {

@@ -7,7 +7,9 @@ import (
 	coreTypes "blockchain/internal/core/types"
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
+	"reflect"
 )
 
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
@@ -107,11 +109,35 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 }
 
 func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error {
-	// TODO: implement (JWS contains the signed content - can be parsed from JWS token in proof and compared to payload)
-	return nil
+	verifiedBytes, err := utils.VerfiyJWS(s.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+	var verified models.RequestDidCreateormodifySchema
+	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+		return err
+	}
+	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+	if reflect.DeepEqual(requestBody, verified) {
+		return nil
+	} else {
+		return errors.New("signed data differs from the payload")
+	}
 }
 
 func (s *didService) VerifyRequestRevoke(requestBody models.RequestDidRevokeSchema) error {
-	// TODO: implement (JWS contains the signed content - can be parsed from JWS token in proof and compared to payload)
-	return nil
+	verifiedBytes, err := utils.VerfiyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+	var verified models.RequestDidRevokeSchema
+	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+		return err
+	}
+	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verifiedBytes
+	if reflect.DeepEqual(requestBody, verified) {
+		return nil
+	} else {
+		return errors.New("signed data differs from the payload")
+	}
 }

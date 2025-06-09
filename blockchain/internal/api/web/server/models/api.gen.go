@@ -65,6 +65,18 @@ type N256Hash = string
 // DID DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
 type DID = string
 
+// DIDBMS DID string with the DID method `batterypass` for a specific bms and then an identifier
+type DIDBMS = string
+
+// DIDCLOUD DID string with the DID method `batterypass` for a specific cloud and then an identifier
+type DIDCLOUD = string
+
+// DIDOEM DID string with the DID method `batterypass` for a specific oem and then an identifier
+type DIDOEM = string
+
+// DIDSERVICE DID string with the DID method `batterypass` for a specific service and then an identifier
+type DIDSERVICE = string
+
 // DateTime defines model for DateTime.
 type DateTime = time.Time
 
@@ -224,8 +236,8 @@ type VcBmsProducedSchema struct {
 	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
 	Context           []VcBmsProducedSchemaContext `json:"@context"`
 	CredentialSubject struct {
-		// BmsDid DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-		BmsDid DID `json:"bmsDid"`
+		// BmsDid DID string with the DID method `batterypass` for a specific bms and then an identifier
+		BmsDid DIDBMS `json:"bmsDid"`
 
 		// Id An identifier in uri format for Verifiable Credentials
 		Id        URI      `json:"id"`
@@ -235,13 +247,13 @@ type VcBmsProducedSchema struct {
 	} `json:"credentialSubject"`
 	ExpirationDate DateTime `json:"expirationDate"`
 
-	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	Holder       DID      `json:"holder"`
+	// Holder DID string with the DID method `batterypass` for a specific oem and then an identifier
+	Holder       DIDOEM   `json:"holder"`
 	Id           string   `json:"id"`
 	IssuanceDate DateTime `json:"issuanceDate"`
 
-	// Issuer DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	Issuer DID `json:"issuer"`
+	// Issuer DID string with the DID method `batterypass` for a specific bms and then an identifier
+	Issuer DIDBMS `json:"issuer"`
 
 	// Proof Cryptographic proof that makes the subject verifiable.
 	Proof Proof    `json:"proof"`
@@ -256,8 +268,8 @@ type VcCloudInstanceSchema struct {
 	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
 	Context           []VcCloudInstanceSchemaContext `json:"@context"`
 	CredentialSubject struct {
-		// CloudDid DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-		CloudDid DID `json:"cloudDid"`
+		// CloudDid DID string with the DID method `batterypass` for a specific cloud and then an identifier
+		CloudDid DIDCLOUD `json:"cloudDid"`
 
 		// Id An identifier in uri format for Verifiable Credentials
 		Id        URI      `json:"id"`
@@ -266,13 +278,13 @@ type VcCloudInstanceSchema struct {
 	} `json:"credentialSubject"`
 	ExpirationDate DateTime `json:"expirationDate"`
 
-	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	Holder       DID      `json:"holder"`
+	// Holder DID string with the DID method `batterypass` for a specific bms and then an identifier
+	Holder       DIDBMS   `json:"holder"`
 	Id           string   `json:"id"`
 	IssuanceDate DateTime `json:"issuanceDate"`
 
-	// Issuer DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	Issuer DID `json:"issuer"`
+	// Issuer DID string with the DID method `batterypass` for a specific oem and then an identifier
+	Issuer DIDOEM `json:"issuer"`
 
 	// Proof Cryptographic proof that makes the subject verifiable.
 	Proof Proof    `json:"proof"`
@@ -304,8 +316,8 @@ type VcServiceAccessSchema struct {
 	CredentialSubject struct {
 		AccessLevel []VcServiceAccessSchemaCredentialSubjectAccessLevel `json:"accessLevel"`
 
-		// BmsDid DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-		BmsDid DID `json:"bmsDid"`
+		// BmsDid DID string with the DID method `batterypass` for a specific bms and then an identifier
+		BmsDid DIDBMS `json:"bmsDid"`
 
 		// Id An identifier in uri format for Verifiable Credentials
 		Id         URI      `json:"id"`
@@ -315,13 +327,13 @@ type VcServiceAccessSchema struct {
 	} `json:"credentialSubject"`
 	ExpirationDate DateTime `json:"expirationDate"`
 
-	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	Holder       DID      `json:"holder"`
-	Id           string   `json:"id"`
-	IssuanceDate DateTime `json:"issuanceDate"`
+	// Holder DID string with the DID method `batterypass` for a specific service and then an identifier
+	Holder       DIDSERVICE `json:"holder"`
+	Id           string     `json:"id"`
+	IssuanceDate DateTime   `json:"issuanceDate"`
 
-	// Issuer DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
-	Issuer DID `json:"issuer"`
+	// Issuer DID string with the DID method `batterypass` for a specific bms and then an identifier
+	Issuer DIDBMS `json:"issuer"`
 
 	// Proof Cryptographic proof that makes the subject verifiable.
 	Proof Proof    `json:"proof"`
@@ -369,8 +381,10 @@ type VpSchema struct {
 		// VerificationMethod Reference to the key used to create the proof.
 		VerificationMethod string `json:"verificationMethod"`
 	} `json:"proof"`
-	Type                 []string                             `json:"type"`
-	VerifiableCredential []VpSchema_VerifiableCredential_Item `json:"verifiableCredential"`
+	Type []string `json:"type"`
+
+	// VerifiableCredential Schema for creating a new Verifiable Credential, supporting different credential types.
+	VerifiableCredential RequestVcCreateSchema `json:"verifiableCredential"`
 }
 
 // VpSchemaContext defines model for VpSchema.Context.
@@ -378,11 +392,6 @@ type VpSchemaContext string
 
 // VpSchemaProofType defines model for VpSchema.Proof.Type.
 type VpSchemaProofType string
-
-// VpSchema_VerifiableCredential_Item defines model for vp.schema.verifiableCredential.Item.
-type VpSchema_VerifiableCredential_Item struct {
-	union json.RawMessage
-}
 
 // CreateOrModifyDidJSONRequestBody defines body for CreateOrModifyDid for application/json ContentType.
 type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
@@ -545,94 +554,6 @@ func (t ResponseTransactionsSchema_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ResponseTransactionsSchema_Item) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsVcBmsProducedSchema returns the union data inside the VpSchema_VerifiableCredential_Item as a VcBmsProducedSchema
-func (t VpSchema_VerifiableCredential_Item) AsVcBmsProducedSchema() (VcBmsProducedSchema, error) {
-	var body VcBmsProducedSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcBmsProducedSchema overwrites any union data inside the VpSchema_VerifiableCredential_Item as the provided VcBmsProducedSchema
-func (t *VpSchema_VerifiableCredential_Item) FromVcBmsProducedSchema(v VcBmsProducedSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcBmsProducedSchema performs a merge with any union data inside the VpSchema_VerifiableCredential_Item, using the provided VcBmsProducedSchema
-func (t *VpSchema_VerifiableCredential_Item) MergeVcBmsProducedSchema(v VcBmsProducedSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsVcServiceAccessSchema returns the union data inside the VpSchema_VerifiableCredential_Item as a VcServiceAccessSchema
-func (t VpSchema_VerifiableCredential_Item) AsVcServiceAccessSchema() (VcServiceAccessSchema, error) {
-	var body VcServiceAccessSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcServiceAccessSchema overwrites any union data inside the VpSchema_VerifiableCredential_Item as the provided VcServiceAccessSchema
-func (t *VpSchema_VerifiableCredential_Item) FromVcServiceAccessSchema(v VcServiceAccessSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcServiceAccessSchema performs a merge with any union data inside the VpSchema_VerifiableCredential_Item, using the provided VcServiceAccessSchema
-func (t *VpSchema_VerifiableCredential_Item) MergeVcServiceAccessSchema(v VcServiceAccessSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsVcCloudInstanceSchema returns the union data inside the VpSchema_VerifiableCredential_Item as a VcCloudInstanceSchema
-func (t VpSchema_VerifiableCredential_Item) AsVcCloudInstanceSchema() (VcCloudInstanceSchema, error) {
-	var body VcCloudInstanceSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcCloudInstanceSchema overwrites any union data inside the VpSchema_VerifiableCredential_Item as the provided VcCloudInstanceSchema
-func (t *VpSchema_VerifiableCredential_Item) FromVcCloudInstanceSchema(v VcCloudInstanceSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcCloudInstanceSchema performs a merge with any union data inside the VpSchema_VerifiableCredential_Item, using the provided VcCloudInstanceSchema
-func (t *VpSchema_VerifiableCredential_Item) MergeVcCloudInstanceSchema(v VcCloudInstanceSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t VpSchema_VerifiableCredential_Item) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *VpSchema_VerifiableCredential_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
