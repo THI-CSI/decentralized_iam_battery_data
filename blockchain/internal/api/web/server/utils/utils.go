@@ -3,7 +3,7 @@ package utils
 import (
 	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/core"
-	"crypto/rsa"
+	"crypto/ecdsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/hex"
@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
-	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -50,7 +49,8 @@ func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string
 	if err != nil {
 		return nil, err
 	}
-	// Parse the PEM public key
+
+	// Decode PEM block
 	block, _ := pem.Decode([]byte(publicKeyPEM))
 	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, fmt.Errorf("failed to decode PEM block containing public key")
@@ -61,18 +61,17 @@ func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string
 		return nil, fmt.Errorf("failed to parse public key: %v", err)
 	}
 
-	rsaPubKey, ok := pubKey.(*rsa.PublicKey)
+	ecdsaPubKey, ok := pubKey.(*ecdsa.PublicKey)
 	if !ok {
-		return nil, fmt.Errorf("not RSA public key")
+		return nil, fmt.Errorf("not ECDSA P-256 public key")
 	}
 
-	// Parse and verify the token
+	// Parse and verify the JWT using EdDSA
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Make sure the signing method is RSA (RS256)
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		if token.Method.Alg() != jwt.SigningMethodES256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return rsaPubKey, nil
+		return ecdsaPubKey, nil
 	})
 
 	if err != nil {
@@ -83,12 +82,12 @@ func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string
 		fmt.Println("Signature verified successfully!")
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			log.Fatal("could not convert claims to MapClaims")
+			return nil, fmt.Errorf("could not convert claims to MapClaims")
 		}
 
 		jsonBytes, err := json.Marshal(claims)
 		if err != nil {
-			log.Fatalf("Failed to marshal claims to JSON bytes: %v", err)
+			return nil, fmt.Errorf("failed to marshal claims to JSON bytes: %v", err)
 		}
 		return jsonBytes, nil
 	}

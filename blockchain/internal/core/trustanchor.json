@@ -8,7 +8,7 @@
     "id": "did:batterypass:eu#key-1",
     "type": "JsonWebKey2020",
     "controller": "did:batterypass:eu",
-    "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoC/qRL5PxqYM+nCs3x/3N48uIeGu1OsQI2mZ+deIucYp85pSQnCDgs7fWsyrhWN30G0KywufOTkaFb9eVoEnbH9NWd2tQD1KaiPHunipxXFEENQoKx1d5943R1KHvsx2UGeWNt1wyrrMfvt9IVENXwztkkdom+GVtttfzyKh+FQezSf7o3dLb/QqY6JivdPTYqypfdKOTvwrWji+rNEHajp7oRsttrsDFxD6s8qznPUnlVQ4BZ20LikgYNSkDWJaNm1STMuSItXvGmS8cH1hu2VU1W6owsyM9PiVjhhNAKIhPO4B7Ryir55lU8U+ekp4VPVoEQ8vMfgl0CXORTLRwQIDAQAB\n-----END PUBLIC KEY-----\n"
+    "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQrlJgSc0Idu6NJz8sBnuWtBFePqmRUxO8thHlQn4yp+JFaGChLxcO9yEs90Edu7+ShMDON3FRdQmh/tx0y6dvQ==\n-----END PUBLIC KEY-----"
   },
   "timestamp": "2006-01-02T15:04:05Z",
   "revoked": false
