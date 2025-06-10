@@ -24,14 +24,24 @@ Documentation is done here in GitHub, but quick notes can be found in [our Hedge
 
 ## Sequence Diagrams
 
-- [BMS DID Creation](organizational/assets/bms_did_creation.svg)
-- [ORG DID Creation](organizational/assets/org_did_creation.svg)
-- [VC Creation](organizational/assets/vc_creation.svg)
-- [Service Access](organizational/assets/service_access.svg)
-- [DID Revocation](organizational/assets/did_revocation.svg)
+- [BMS DID Creation](organizational/report/assets/bms_did_creation.svg)
+- [ORG DID Creation](organizational/report/assets/org_did_creation.svg)
+- [VC Creation](organizational/report/assets/vc_creation.svg)
+- [Service Access](organizational/report/assets/service_access.svg)
+- [DID Revocation](organizational/report/assets/did_revocation.svg)
 
 ## Communication Protocol
 
 We are using **HTTP** as communication protocol.
+
+
+## BatteryPass Schemas
+
+`decentralized_iam_battery_data/cloud/BatteryPassDataModel` contains JSON Schemas from the [BatteryPass Data Model](https://github.com/batterypass/BatteryPassDataModel).
+
+**License:** Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)  
+**Source:** https://github.com/batterypass/BatteryPassDataModel
+
+These schemas are used for non-commercial validation purposes in this project.
 
 

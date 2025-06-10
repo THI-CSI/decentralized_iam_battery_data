@@ -23,22 +23,28 @@ jobs:
 
       - name: Generate diagrams from D2 files
         run: |
-          mkdir -p assets
           for file in organizational/diagrams/*.d2; do
             filename=$(basename "$file" .d2)
-            d2 "$file" "organizational/assets/${filename}.svg"
+            d2 "$file" "organizational/report/assets/${filename}.svg"
           done
+
+      - name: Setup SSH for Deploy Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.D2_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add organizational/assets/*.svg
+          git add organizational/report/assets/*.svg
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
             git commit -m "action: update d2 diagrams"
-            git push
+            git push git@github.com:THI-CSI/decentralized_iam_battery_data.git HEAD:main
           fi
 
       - name: Install Typst
@@ -46,13 +52,14 @@ jobs:
 
       - name: Compile Typst to PDF
         run: |
-          typst compile "organizational/report/main.typ" "assets/report.pdf"
+          typst compile "organizational/report/main.typ" "organizational/report/assets/report.pdf"
 
       - name: Upload PDF as release
         uses: softprops/action-gh-release@v2
         with: 
-          name: "Typst PDF Release - ${{ github.sha }}"
-          tag_name: "typst-${{ github.sha }}"
-          files: assets/report.pdf
+          name: "Latest Report Version"
+          tag_name: "latest"
+          make_latest: true
+          files: organizational/report/assets/report.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
