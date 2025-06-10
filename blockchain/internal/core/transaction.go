@@ -149,8 +149,9 @@ func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
 		return errors.New("vc does not exist")
 	}
 
-	now := time.Now()
+	now := time.Now().Truncate(time.Second)
 	vcRecord.ExpirationDate = &now
+	vcRecord.Timestamp = now
 	rawJson, err := vcRecord.Marshal()
 	if err != nil {
 		return err
@@ -160,23 +161,21 @@ func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
 }
 
 // AppendVcRecord Checks a given vc record and adds it
-func (chain *Blockchain) AppendVcRecord(vcRecords *core.VCRecord) error {
-	vcState := chain.CheckVCRecordState(vcRecords.ID, vcRecords.VcHash)
+func (chain *Blockchain) AppendVcRecord(vcRecord *core.VCRecord) error {
+	vcState := chain.CheckVCRecordState(vcRecord.ID, vcRecord.VcHash)
 	if vcState == VCPending {
 		return errors.New("vc Record is on the list of pending transactions and will be added to the blockchain soon")
 	}
 	if vcState != VCAbsent {
-		return errors.New(fmt.Sprintf("vc Record is already present: '%s'", vcRecords.ID))
+		return errors.New(fmt.Sprintf("vc Record is already present: '%s'", vcRecord.ID))
 	}
 
-	vcRecords.Timestamp = time.Now()
-	rawJson, err := vcRecords.Marshal()
+	vcRecord.Timestamp = time.Now().Truncate(time.Second)
+	rawJson, err := vcRecord.Marshal()
 	if err != nil {
 		return err
 	}
-
 	PendingTransactions = append(PendingTransactions, rawJson)
-
 	return nil
 }
 

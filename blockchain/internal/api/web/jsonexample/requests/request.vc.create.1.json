@@ -8,22 +8,22 @@
     "VerifiableCredential",
     "BMSProduction"
   ],
-  "issuer": "did:batterypass:bms.sn-987654321",
+  "issuer": "did:batterypass:bms.sn-544b51e7",
   "holder": "did:batterypass:oem.VW",
   "issuanceDate": "2025-06-10T12:01:00Z",
   "expirationDate": "2026-06-10T12:01:00Z",
   "credentialSubject": {
     "id": "did:batterypass:oem.VW",
     "type": "BMSProduction",
-    "bmsDid": "did:batterypass:bms.sn-987654321",
-    "timestamp": "2025-06-10",
+    "bmsDid": "did:batterypass:bms.sn-544b51e7",
+    "timestamp": "2025-06-10T12:01:00Z",
     "lotNumber": "LOT-775533"
   },
   "proof": {
     "type": "EcdsaSecp256r1Signature2019",
     "created": "2025-06-10T12:01:03Z",
-    "verificationMethod": "did:batterypass:bms.sn-987654321#key-1",
+    "verificationMethod": "did:batterypass:bms.sn-544b51e7#key-1",
     "proofPurpose": "authentication",
-    "jws": "eyJhbGciOiJFUzI1NiJ9..BASE64_SIG"
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJAY29udGV4dCI6IFsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCAiaHR0cDovL2xvY2FsaG9zdDo4NDQzL2RvY3MvdmMuYm1zUHJvZHVjdGlvbi5zY2hlbWEuaHRtbCJdLCAiaWQiOiAidXJuOnV1aWQ6OTgyYzQzZWUtM2QxNi00MTlhLWEyZjQtNWM2MTcxMGY0MjhiIiwgInR5cGUiOiBbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwgIkJNU1Byb2R1Y3Rpb24iXSwgImlzc3VlciI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgImhvbGRlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLlZXIiwgImlzc3VhbmNlRGF0ZSI6ICIyMDI1LTA2LTEwVDEyOjAxOjAwWiIsICJleHBpcmF0aW9uRGF0ZSI6ICIyMDI2LTA2LTEwVDEyOjAxOjAwWiIsICJjcmVkZW50aWFsU3ViamVjdCI6IHsiaWQiOiAiZGlkOmJhdHRlcnlwYXNzOm9lbS5WVyIsICJ0eXBlIjogIkJNU1Byb2R1Y3Rpb24iLCAiYm1zRGlkIjogImRpZDpiYXR0ZXJ5cGFzczpibXMuc24tNTQ0YjUxZTciLCAidGltZXN0YW1wIjogIjIwMjUtMDYtMTBUMTI6MDE6MDBaIiwgImxvdE51bWJlciI6ICJMT1QtNzc1NTMzIn0sICJwcm9vZiI6IHsidHlwZSI6ICJFY2RzYVNlY3AyNTZyMVNpZ25hdHVyZTIwMTkiLCAiY3JlYXRlZCI6ICIyMDI1LTA2LTEwVDEyOjAxOjAzWiIsICJ2ZXJpZmljYXRpb25NZXRob2QiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi01NDRiNTFlNyNrZXktMSIsICJwcm9vZlB1cnBvc2UiOiAiYXV0aGVudGljYXRpb24iLCAiandzIjogIiJ9fQ.IITX3UAy_S7WEoVWBXZwCsGoTt78KWu1_8Ccr8NLZFUYt-ETnRt7qNWDvB258DlRbraC9YPpRuhkkQPCJ4_2yQ"
   }
 }

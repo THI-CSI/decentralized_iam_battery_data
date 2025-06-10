@@ -381,10 +381,8 @@ type VpSchema struct {
 		// VerificationMethod Reference to the key used to create the proof.
 		VerificationMethod string `json:"verificationMethod"`
 	} `json:"proof"`
-	Type []string `json:"type"`
-
-	// VerifiableCredential Schema for creating a new Verifiable Credential, supporting different credential types.
-	VerifiableCredential RequestVcCreateSchema `json:"verifiableCredential"`
+	Type                 []string                `json:"type"`
+	VerifiableCredential []RequestVcCreateSchema `json:"verifiableCredential"`
 }
 
 // VpSchemaContext defines model for VpSchema.Context.

@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// TODO: Revoking a VC works when curling blocks but isn't represented in this endpoint
 // GetAllVCs handles GET /api/v1/vcs
 func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 	result, err := s.VCService.GetVCRecords(ctx.Request().Context())
@@ -40,18 +41,23 @@ func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
 	var requestBody models.RequestVcCreateSchema
 
+	log.Println("inside create vc record")
+
 	if err := ctx.Bind(&requestBody); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchema); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	log.Println("verify request create")
 	err := s.VCService.VerifyRequestCreate(&requestBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	log.Println("create vc record")
 	err = s.VCService.CreateVCRecord(ctx.Request().Context(), &requestBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

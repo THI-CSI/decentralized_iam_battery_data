@@ -41,6 +41,7 @@ func (v *vcService) GetVCRecords(ctx context.Context) (*[]coreTypes.VCRecord, er
 	for i := len(*v.chain) - 1; i >= 0; i-- {
 		block := *v.chain.GetBlock(i)
 		for _, transaction := range block.Transactions {
+			vcRecord = coreTypes.VCRecord{}
 			err = json.Unmarshal(transaction, &vcRecord)
 			if err != nil {
 				return nil, err
@@ -70,6 +71,8 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		log.Printf("Error generating hash: %v", err)
 		return err
 	}
+
+	log.Println("after generating hash")
 
 	var vcRecord coreTypes.VCRecord
 	if vcBms, err := createVcRecord.AsVcBmsProducedSchema(); err == nil {

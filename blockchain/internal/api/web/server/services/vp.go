@@ -4,10 +4,13 @@ import (
 	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/api/web/server/utils"
 	"blockchain/internal/core"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"reflect"
+	"fmt"
+	"github.com/gibson042/canonicaljson-go"
+	"github.com/google/go-cmp/cmp"
 )
 
 // VPService defines the interface for creating and returning vcs of the blockchain
@@ -37,25 +40,34 @@ func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) 
 		return err
 	}
 	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
-	if !reflect.DeepEqual(requestBody, verified) {
+	canon1, err := canonicaljson.Marshal(verified)
+	if err != nil {
+		return err
+	}
+	canon2, err := canonicaljson.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(canon1, canon2) {
+		fmt.Println("Canonical diff:", cmp.Diff(canon1, canon2))
 		return errors.New("signed data differs from the payload")
 	}
 	// Check VC Hash
-	errr := utils.CheckVCSemantics(&verified.VerifiableCredential)
+	errr := utils.CheckVCSemantics(&verified.VerifiableCredential[0])
 	if errr == nil {
-		if vcBMS, err := verified.VerifiableCredential.AsVcBmsProducedSchema(); err == nil {
+		if vcBMS, err := verified.VerifiableCredential[0].AsVcBmsProducedSchema(); err == nil {
 			if vcHash, err := utils.Generate256HashHex(vcBMS); err == nil {
 				return interpretVCState(v.chain.CheckVCRecordState(vcBMS.Id, vcHash))
 			} else {
 				return err
 			}
-		} else if vcService, err := verified.VerifiableCredential.AsVcServiceAccessSchema(); err == nil {
+		} else if vcService, err := verified.VerifiableCredential[0].AsVcServiceAccessSchema(); err == nil {
 			if vcHash, err := utils.Generate256HashHex(vcService); err == nil {
 				return interpretVCState(v.chain.CheckVCRecordState(vcService.Id, vcHash))
 			} else {
 				return err
 			}
-		} else if vcCloud, err := verified.VerifiableCredential.AsVcCloudInstanceSchema(); err == nil {
+		} else if vcCloud, err := verified.VerifiableCredential[0].AsVcCloudInstanceSchema(); err == nil {
 			if vcHash, err := utils.Generate256HashHex(vcCloud); err == nil {
 				return interpretVCState(v.chain.CheckVCRecordState(vcCloud.Id, vcHash))
 			} else {

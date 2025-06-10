@@ -41,6 +41,7 @@ func (s *didService) GetDIDs(ctx context.Context) (*[]coreTypes.Did, error) {
 	for i := len(*s.chain) - 1; i >= 0; i-- {
 		block := *s.chain.GetBlock(i)
 		for _, transaction := range block.Transactions {
+			did = coreTypes.Did{}
 			err = json.Unmarshal(transaction, &did)
 			if err != nil {
 				return nil, err
@@ -118,7 +119,7 @@ func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCr
 		return err
 	}
 	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
-	if reflect.DeepEqual(requestBody.Payload, requestBody.Payload) {
+	if reflect.DeepEqual(requestBody, requestBody) {
 		return nil
 	} else {
 		return errors.New("signed data differs from the payload")

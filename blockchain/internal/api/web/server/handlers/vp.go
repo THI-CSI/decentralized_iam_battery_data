@@ -25,7 +25,7 @@ func (s *MyServer) VerifyVp(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	// Check VC signature
-	if err := s.VCService.VerifyRequestCreate(&requestBody.VerifiableCredential); err != nil {
+	if err := s.VCService.VerifyRequestCreate(&requestBody.VerifiableCredential[0]); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 

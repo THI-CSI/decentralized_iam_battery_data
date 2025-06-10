@@ -105,7 +105,7 @@ func CheckVCSemantics(requestBody *models.RequestVcCreateSchema) error {
 		if vcBms.Issuer != verificationMethodDID {
 			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcBms.Issuer, verificationMethodDID)
 		}
-
+		
 		now := time.Now()
 
 		if now.Before(vcBms.CredentialSubject.Timestamp) {
