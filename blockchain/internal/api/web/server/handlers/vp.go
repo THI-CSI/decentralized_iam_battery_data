@@ -15,15 +15,17 @@ func (s *MyServer) VerifyVp(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Check input against jsonschema
 	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVpVerifySchema); err != nil {
 		return err
 	}
-	if err := s.VCService.VerifyRequestCreate(&requestBody.VerifiableCredential); err != nil {
-		return err
-	}
-	err := s.VPService.VerifyVP(ctx.Request().Context(), &requestBody)
-	if err != nil {
+	// Check VP signature and VC Hash
+	if err := s.VPService.VerifyVP(ctx.Request().Context(), &requestBody); err != nil {
 		log.Printf("Error verifying the VP: %s", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	// Check VC signature
+	if err := s.VCService.VerifyRequestCreate(&requestBody.VerifiableCredential); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 

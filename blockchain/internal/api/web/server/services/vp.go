@@ -27,6 +27,7 @@ func NewVPService(chain *core.Blockchain) VPService {
 
 // VerifyVP verifies that the recieved VP contains valid DIDs and a valid VC
 func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) error {
+	// Check signature of VP
 	verifiedBytes, err := utils.VerifyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
 	if err != nil {
 		return err
@@ -39,6 +40,7 @@ func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) 
 	if !reflect.DeepEqual(requestBody, verified) {
 		return errors.New("signed data differs from the payload")
 	}
+	// Check VC Hash
 	errr := utils.CheckVCSemantics(&verified.VerifiableCredential)
 	if errr == nil {
 		if vcBMS, err := verified.VerifiableCredential.AsVcBmsProducedSchema(); err == nil {
