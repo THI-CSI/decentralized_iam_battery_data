@@ -4,7 +4,7 @@ import pathlib
 import logging
 import base64
 import json
-
+from typing import Union
 import os
 
 import requests
@@ -13,49 +13,115 @@ from Crypto.Hash import SHA256
 from Crypto.Protocol import HPKE
 from Crypto.Protocol.DH import key_agreement
 from Crypto.Protocol.KDF import HKDF
-from Crypto.Signature import DSS
+from Crypto.Signature import DSS, pkcs1_15 
 from Crypto.PublicKey import ECC
 from typing import Dict, Any
 from Crypto.Hash import SHA3_256
 from multiformats import multibase
 
-def sign_vc(vc: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
+
+def base64url_encode(data: bytes) -> str:
+    """Encodes data using the base64url URL-safe alphabet."""
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('ascii')
+
+import json
+import base64
+from Crypto.Hash import SHA256
+from Crypto.PublicKey import ECC
+from Crypto.Signature import DSS
+
+# Helper function for base64url encoding, assuming it's not available elsewhere
+def base64url_encode(data: bytes) -> str:
+    """Encodes data in base64url format."""
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('ascii')
+
+def _sign_json_ld(obj: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
     """
-    Signs the Verifiable Credential dictionary using ECDSA secp256r1 with SHA-256.
+    Signs a JSON-LD object and produces a full, three-part JWS compact serialization.
+
+    The payload of the JWS is the canonicalized input object, including the 'proof'
+    block but with the 'jws' field removed. This is the standard for suites like
+    JsonWebSignature2020. The signature is then placed inside the 'proof.jws' field.
 
     Args:
-        vc (dict): The VC JSON object, must include a 'proof' object without 'jws' yet.
-        private_key (ECC.EccKey): ECC private key for signing.
-        verification_method (str): DID URI for the verification method to add in proof.
+        obj (dict): The JSON-LD object, must include a 'proof' object shell.
+        private_key (ECC.EccKey): The private key for signing.
+        verification_method (str): DID URI for the verification method. It will be
+                                   used for the 'kid' in the JWS header and the
+                                   'verificationMethod' in the final proof.
 
     Returns:
-        dict: The VC with 'proof.jws' added containing the base64-encoded signature.
+        dict: The signed JSON-LD object with 'proof.jws' and 'verificationMethod'.
     """
-    # Prepare a copy of VC to sign, excluding the proof.jws field
-    vc_copy = json.loads(json.dumps(vc))  # Deep copy
-    if 'jws' in vc_copy.get('proof', {}):
-        del vc_copy['proof']['jws']
+    # 1. Create a deep copy of the object to prepare the payload.
+    # This copy will include the proof metadata but not the signature itself.
+    obj_to_sign = json.loads(json.dumps(obj))
 
-    # Serialize with sorted keys, no whitespace (canonical-like)
-    serialized_vc = json.dumps(vc_copy, separators=(',', ':'), sort_keys=True).encode('utf-8')
+    # 2. Prepare the proof block for signing. It must include all metadata
+    # that needs to be integrity-protected.
+    if 'proof' not in obj_to_sign:
+        # Ensure a proof block exists if it was omitted.
+        obj_to_sign['proof'] = {}
+    
+    # Add the verificationMethod to the proof to be signed. This ensures
+    # the link to the key is also part of the signed data.
+    obj_to_sign['proof']['verificationMethod'] = verification_method
 
-    # Create hash of the serialized VC
-    hash_obj = SHA256.new(serialized_vc)
+    # The 'jws' field is where the signature will go, so it must be
+    # removed from the data being signed.
+    if 'jws' in obj_to_sign['proof']:
+        del obj_to_sign['proof']['jws']
 
-    # Create signer with FIPS 186-3 DER encoding (matches your verifier)
-    signer = DSS.new(private_key, 'fips-186-3')
+    # 3. Determine the JWS algorithm and create the JWS Header
+    header = {
+        "alg": "ES256",
+        "kid": verification_method
+    }
+    signer = DSS.new(private_key, 'fips-186-3', 'binary')
+   
+    # 4. Create the JWS parts: Header and Payload
+    encoded_header = base64url_encode(
+        json.dumps(header, separators=(',', ':'), sort_keys=True).encode('utf-8')
+    )
+    
+    # The payload is the canonicalized version of the object *with* the
+    # proof metadata but *without* the jws field.
+    canonical_payload = json.dumps(
+        obj_to_sign, separators=(',', ':'), sort_keys=True
+    ).encode('utf-8')
+    
+    encoded_payload = base64url_encode(canonical_payload)
 
-    # Generate signature (DER encoded)
-    signature_der = signer.sign(hash_obj)
+    # 5. Create the signing input and sign it
+    # The signing input is ASCII(BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload))
+    signing_input = f"{encoded_header}.{encoded_payload}".encode('ascii')
+    hash_obj = SHA256.new(signing_input)
+    signature = signer.sign(hash_obj)
+    
+    # 6. Encode the signature
+    encoded_signature = base64url_encode(signature)
 
-    # Base64 encode signature (standard base64)
-    signature_b64 = base64.b64encode(signature_der).decode('ascii')
+    # 7. Assemble the final JWS
+    jws = f"{encoded_header}.{encoded_payload}.{encoded_signature}"
+    
+    # 8. Add the JWS and verificationMethod to the *original* object's proof.
+    # We modify the original object, which is a common pattern for this operation.
+    obj['proof']['jws'] = jws
+    obj['proof']['verificationMethod'] = verification_method
 
-    # Update VC proof with signature and verification method
-    vc['proof']['jws'] = signature_b64
-    vc['proof']['verificationMethod'] = verification_method
+    return obj
 
-    return vc
+def sign_vc(vc: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
+    """Signs a Verifiable Credential."""
+    return _sign_json_ld(vc, private_key, verification_method)
+
+def sign_vp(vp: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
+    """Signs a Verifiable Presentation."""
+    return _sign_json_ld(vp, private_key, verification_method)
+
+def sign_did(did: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
+    """Signs a DID Document."""
+    return _sign_json_ld(did, private_key, verification_method)
 
 def sign_payload(payload: dict, private_key: ECC.EccKey) -> bytes:
 
@@ -85,41 +151,6 @@ def sign_payload(payload: dict, private_key: ECC.EccKey) -> bytes:
 
     return payload
 
-def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
-    message = json.loads(message_bytes)
-    fields_to_decode = ["ciphertext", "aad", "salt", "signature", "eph_pub"]
-    decoded_message = {key: base64.b64decode(value) for key, value in message.items() if key in fields_to_decode}
-    eph_pub_der = decoded_message["eph_pub"]
-    eph_pub = ECC.import_key(eph_pub_der)
-    nonce = decoded_message["aad"]
-    ciphertext = decoded_message["ciphertext"]
-    salt = decoded_message["salt"]
-    signature = decoded_message["signature"]
-    ciphertext_data = ciphertext[:-16]
-    tag = ciphertext[-16:]
-    context = eph_pub_der + receiver_key.public_key().export_key(format="DER")
-    did = message["did"]
-
-    # Verify signature
-    sender_key = retrieve_public_key(did)
-    verifier = DSS.new(sender_key, mode="fips-186-3", encoding="der")
-    message_to_verify = json.dumps({key: value for key, value in message.items() if key != "signature"}).encode()
-    try:
-        verifier.verify(SHA256.new(message_to_verify), signature)
-    except ValueError:
-        raise ValueError("Failed decryption due to invalid signature.")
-
-    # Decrypt message
-    hkdf = functools.partial(HKDF, key_len=32, hashmod=SHA256, salt=salt, context=context)
-    aes_key = key_agreement(eph_pub=eph_pub, static_priv=receiver_key, kdf=hkdf)
-    cipher = AES.new(aes_key, AES.MODE_GCM, nonce=nonce)
-    cipher.update(nonce)
-    try:
-        plaintext = cipher.decrypt_and_verify(ciphertext_data, tag)
-        return plaintext
-    except ValueError:
-        raise ValueError("Failed decryption due to invalid MAC tag.")
-
 
 def decrypt_hpke(private_key: ECC.EccKey, bundle: dict) -> bytes:
     enc = base64.b64decode(bundle["enc"])
@@ -137,12 +168,6 @@ def encrypt_hpke(private_key: ECC.EccKey, message: bytes) -> dict:
         "ciphertext": base64.b64encode(ciphertext).decode()
     }
 
-
-def verify_credentials(did, info) -> ECC.EccKey:
-    # TODO: Verify the credentials by checking against the DID document
-    pass
-
-
 def generate_keys(password: str, name: str  = "key") -> None:
     # TODO: Generate key pair once and register with blockchain
     keys_dir = pathlib.Path(__file__).parent.parent / "keys"
@@ -153,7 +178,6 @@ def generate_keys(password: str, name: str  = "key") -> None:
         key = ECC.generate(curve="P-256")
         export_private_key(key, password, keys_dir, key_name)
         logging.info(f"Generated {keys_dir / key_name}")
-        register_key(key.public_key())
 
 
 def export_private_key(key: ECC.EccKey, passphrase: str, keys_dir: pathlib.Path, name: str = "key.pem") -> None:
@@ -187,26 +211,6 @@ def load_private_key(passphrase: str, name: str = "key") -> ECC.EccKey:
     assert pem_file.is_file()
     with open(pem_file, "r") as f:
         return ECC.import_key(f.read(), passphrase=passphrase)
-
-
-def register_key(public_key: ECC.EccKey):
-    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids", json={
-        "publicKey": {
-            "type": "Multikey",
-            "publicKeyMultibase": multibase.encode(public_key.export_key(format="DER"), "base58btc"),
-        },
-        "service": {
-            "type": "BatteryPassAPI",
-            "serviceEndpoint": os.getenv("BASE_URL", "http://localhost:8567"),
-        }
-    })
-    return response.status_code == 200
-
-
-def retrieve_public_key(did: str) -> ECC.EccKey:
-    response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
-    # TODO: Add revoked check
-    return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
 
 
 def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
@@ -275,3 +279,28 @@ def verify_vc(vc_json_object: json) -> bool:
     # devbod: TODO: Check for Reasons
     else:
         return False
+
+def single_line_to_pem(single_line_key, key_type="PRIVATE KEY"):
+    """Converts a single-line Base64 string back to a standard PEM format."""
+    pem_lines = [single_line_key[i:i+64] for i in range(0, len(single_line_key), 64)]
+    reconstructed_pem = (
+        f"-----BEGIN {key_type}-----\n"
+        + "\n".join(pem_lines) + "\n"
+        + f"-----END {key_type}-----\n"
+    )
+    return reconstructed_pem
+
+def pem_to_single_line(pem_string):
+    """
+    Converts a standard multi-line PEM string to a single-line Base64 string.
+    """
+    print("--- 2. Converting PEM to Single Line ---")
+    lines = pem_string.strip().split('\n')
+    # Filter out the header and footer lines
+    b64_lines = [line for line in lines if not line.startswith('-----')]
+    single_line_key = "".join(b64_lines)
+    
+    print("Resulting single-line key:")
+    print(single_line_key)
+    print("\nThis format is ideal for environment variables or JSON configs.\n")
+    return single_line_key
