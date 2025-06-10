@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"blockchain/internal/api/web/server/models"
 	"blockchain/internal/core"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -14,6 +15,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"regexp"
+	"strings"
+	"time"
 )
 
 // Validate is a shared instance of the validator used for struct validation.
@@ -94,3 +97,59 @@ func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string
 }
 
 // Tested with keys and signatures from https://8gwifi.org/jwsgen.jsp
+
+func CheckVCSemantics(requestBody *models.RequestVcCreateSchema) error {
+	if vcBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
+		parts := strings.SplitN(vcBms.Proof.VerificationMethod, "#", 2)
+		verificationMethodDID := parts[0]
+
+		if vcBms.Issuer != verificationMethodDID {
+			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcBms.Issuer, verificationMethodDID)
+		}
+
+		now := time.Now()
+
+		if now.Before(vcBms.CredentialSubject.Timestamp) {
+			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcBms.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+		}
+
+		return nil
+
+	} else if vcService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
+
+		parts := strings.SplitN(vcService.Proof.VerificationMethod, "#", 2)
+		verificationMethodDID := parts[0]
+
+		if vcService.Issuer != verificationMethodDID {
+			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcService.Issuer, verificationMethodDID)
+		}
+
+		now := time.Now()
+
+		if now.Before(vcService.CredentialSubject.ValidFrom) {
+			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcService.CredentialSubject.ValidFrom.Format(time.RFC3339), now.Format(time.RFC3339))
+		}
+		if now.After(vcService.CredentialSubject.ValidUntil) {
+			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcService.CredentialSubject.ValidUntil.Format(time.RFC3339), now.Format(time.RFC3339))
+		}
+
+		return nil
+
+	} else if vcCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
+		parts := strings.SplitN(vcCloud.Proof.VerificationMethod, "#", 2)
+		verificationMethodDID := parts[0]
+
+		if vcCloud.Issuer != verificationMethodDID {
+			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcCloud.Issuer, verificationMethodDID)
+		}
+
+		now := time.Now()
+
+		if now.Before(vcCloud.CredentialSubject.Timestamp) {
+			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcCloud.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+		}
+
+		return nil
+	}
+	return errors.New("VC Unrecognized or invalid VC type in request payload")
+}

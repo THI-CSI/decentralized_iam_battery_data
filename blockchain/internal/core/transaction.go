@@ -67,15 +67,17 @@ func CreateTrustAnchor() error {
 
 // AppendDid Checks a given did and adds it or calls ModifyDid
 func (chain *Blockchain) AppendDid(did *core.Did) error {
-	didState := chain.VerifyDID(did.ID)
+	didState := chain.CheckDIDState(did.ID)
 	if didState == DidPending {
-		return errors.New("DID is on the list of pending transactions and will be added to the blockchain soon")
+		return errors.New("did is on the list of pending transactions and will be added to the blockchain soon")
 	}
 	if didState == DidRevoked {
-		return errors.New("DID is already revoked")
+		return errors.New("did is already revoked")
 	}
 	if didState == DidValid && !did.Revoked {
-		chain.ModifyDid(did)
+		if err := chain.ModifyDid(did); err != nil {
+			return err
+		}
 		return nil
 	} else {
 		did.Timestamp = time.Now()
@@ -94,7 +96,7 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 func (chain *Blockchain) ModifyDid(did *core.Did) error {
 	didOld, _ := chain.FindDID(did.ID)
 	if didOld.ID != did.ID {
-		return errors.New("New DID does not match existing DID")
+		return errors.New("new did does not match existing did")
 	}
 	did.Timestamp = time.Now()
 	rawJson, err := did.Marshal()
@@ -105,17 +107,17 @@ func (chain *Blockchain) ModifyDid(did *core.Did) error {
 	return nil
 }
 
-// RevokeDid revokes a given did if its saved in the blockchain and not yet revoked
+// RevokeDid revokes a given did if it's saved in the blockchain and not yet revoked
 func (chain *Blockchain) RevokeDid(did string) error {
-	didState := chain.VerifyDID(did)
+	didState := chain.CheckDIDState(did)
 	if didState == DidPending {
-		return errors.New("DID is on the list of pending transactions try again later.")
+		return errors.New("did is on the list of pending transactions try again later")
 	}
 	if didState == DidRevoked {
-		return errors.New("DID is already revoked")
+		return errors.New("did is already revoked")
 	}
 	if didState == DidAbsent {
-		return errors.New("DID does not exist")
+		return errors.New("did does not exist")
 	}
 	didDoc, err := chain.FindDID(did)
 	if err != nil {
@@ -136,15 +138,15 @@ func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
 		return err
 	}
 	vcHash := vcRecord.VcHash
-	vcRecordState := chain.VerifyVCRecord(vcUri, vcHash)
+	vcRecordState := chain.CheckVCRecordState(vcUri, vcHash)
 	if vcRecordState == VCPending {
-		return errors.New("VC record is on the list of pending transactions try again later.")
+		return errors.New("vc record is on the list of pending transactions try again later")
 	}
 	if vcRecordState == VCExpired {
-		return errors.New("VC is already expired")
+		return errors.New("vc is already expired")
 	}
 	if vcRecordState == VCAbsent {
-		return errors.New("DID does not exist")
+		return errors.New("vc does not exist")
 	}
 
 	now := time.Now()
@@ -159,12 +161,12 @@ func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
 
 // AppendVcRecord Checks a given vc record and adds it
 func (chain *Blockchain) AppendVcRecord(vcRecords *core.VCRecord) error {
-	vcState := chain.VerifyVCRecord(vcRecords.ID, vcRecords.VcHash)
+	vcState := chain.CheckVCRecordState(vcRecords.ID, vcRecords.VcHash)
 	if vcState == VCPending {
-		return errors.New("VC Record is on the list of pending transactions and will be added to the blockchain soon")
+		return errors.New("vc Record is on the list of pending transactions and will be added to the blockchain soon")
 	}
 	if vcState != VCAbsent {
-		return errors.New(fmt.Sprintf("VC Record is already present: '%s'", vcRecords.ID))
+		return errors.New(fmt.Sprintf("vc Record is already present: '%s'", vcRecords.ID))
 	}
 
 	vcRecords.Timestamp = time.Now()

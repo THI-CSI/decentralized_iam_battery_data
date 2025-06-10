@@ -83,8 +83,8 @@ func (chain *Blockchain) AppendBlock(block Block) {
 	}
 }
 
-// VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
-func (chain *Blockchain) VerifyDID(did string) DidState {
+// CheckDIDState Verify that the blockchain contains the DID and the revocation flag is false
+func (chain *Blockchain) CheckDIDState(did string) DidState {
 	for _, tx := range PendingTransactions {
 		didPending, _ := core.UnmarshalDid(tx)
 		if didPending.ID == did {
@@ -113,8 +113,8 @@ func (chain *Blockchain) VerifyDID(did string) DidState {
 	return DidAbsent
 }
 
-// VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
-func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
+// CheckVCRecordState Verify that the blockchain contains a VCRecord which is still valid
+func (chain *Blockchain) CheckVCRecordState(uri string, vcHash string) VCState {
 	for _, tx := range PendingTransactions {
 		vcPending, _ := core.UnmarshalVCRecord(tx)
 		if vcPending.ID == uri {
