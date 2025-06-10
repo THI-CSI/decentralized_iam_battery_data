@@ -60,7 +60,7 @@ func GenerateGenesisBlock() Block {
 	}
 
 	block.Index = 0
-	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")
+	block.Timestamp = time.Now().Format(time.RFC3339)
 	// Since this is the first block in the chain, the PreviousBlockHash is hardcoded
 	block.PreviousBlockHash = "0000000000000000000000000000000000000000000000000000000000000000"
 	block.Transactions = PendingTransactions
@@ -76,7 +76,7 @@ func GenerateBlock(currentBlock *Block) Block {
 	var block Block
 
 	block.Index = currentBlock.Index + 1
-	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")
+	block.Timestamp = time.Now().Format(time.RFC3339)
 	block.PreviousBlockHash = currentBlock.Hash
 	block.Transactions = PendingTransactions
 	block.MerkleRoot = BuildMerkleRoot(PendingTransactions)

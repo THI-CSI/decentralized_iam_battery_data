@@ -83,7 +83,7 @@
           "description": "Type or category of the service, e.g., 'BatteryDataService'."
         },
         "serviceEndpoint": {
-          "type": ["string"],
+          "type": "string",
           "description": "The actual service endpoint, which can be a URL."
         }
       }

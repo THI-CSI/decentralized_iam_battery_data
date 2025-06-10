@@ -80,7 +80,7 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 		}
 		return nil
 	} else {
-		did.Timestamp = time.Now()
+		did.Timestamp = time.Now().UTC().Truncate(time.Second)
 		rawJson, err := did.Marshal()
 		if err != nil {
 			return err
