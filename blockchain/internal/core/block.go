@@ -64,6 +64,7 @@ func GenerateGenesisBlock() Block {
 	// Since this is the first block in the chain, the PreviousBlockHash is hardcoded
 	block.PreviousBlockHash = "0000000000000000000000000000000000000000000000000000000000000000"
 	block.Transactions = PendingTransactions
+	block.MerkleRoot = "0000000000000000000000000000000000000000000000000000000000000000"
 	block.Hash = CalculateBlockHash(block)
 
 	PendingTransactions = nil
