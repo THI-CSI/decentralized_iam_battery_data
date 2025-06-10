@@ -5,10 +5,10 @@ import base64
 import json
 import requests
 
+from jwcrypto import jws, jwk
 from Crypto.Protocol import HPKE
 from Crypto.PublicKey import ECC
 from typing import Dict, Any, Union, Tuple, Literal
-from Crypto.Hash import SHA3_256
 
 
 def decrypt_and_verify(receiver_key: ECC.EccKey, message_bundle: dict) -> bytes:
@@ -81,78 +81,29 @@ def load_private_key(passphrase: str) -> ECC.EccKey:
 def register_key(key: ECC.EccKey):
     pass
 
-
-def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+def verify_vp(vp_json_object: json, private_key: ECC.EccKey) -> str|None:
     """
-    Extract URI, issuer, and holder from a VC object.
-
-    :param vc: The Verifiable Credential (VC) as a dictionary.
-    :return: A tuple containing (URI, Issuer ID, Holder ID).
+    This function takes a Verifiable Presentation dictionary and sends it to the Blockchain for verification.
     """
 
-    # Get all necessary data from the verifiable credential.
-    uri = vc.get("id")
-    issuer = vc.get("issuer")
-    subject = vc.get("credentialSubject")
+    validator = jws.JWS()
+    validator.deserialize(vp_json_object["proof"]["jws"])
+    key = jwk.JWK.from_pem(private_key.export_key(format="PEM").encode())
+    validator.verify(key)
 
-    # Checking credentialSubjects form (If we have a uniform form, this is not necessary,
-    # but will be left in for now)
-    if isinstance(subject, dict):
-        holder = subject.get("id")
-    elif isinstance(subject, list) and len(subject) > 0:
-        holder = subject[0].get("id")
-    else:
-        holder = None
+    if "proof" not in vp_json_object or "jws" not in vp_json_object["proof"]:
+        return None
 
-    # Check if all data is present, if not, raise a ValueError.
-    if uri is None or issuer is None or holder is None:
-        raise ValueError("Invalid Verifiable Credential")
-
-    return uri, issuer, holder
-
-
-def verify_vc(vc_json_object: json) -> Union[Tuple[Literal[True], dict], Tuple[Literal[False], str]]:
-    """
-    This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
-    creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
-    """
-
-    # Extract the uri, issuer and holder.
-    uri, issuer, holder = extract_vc_info(vc_json_object)
-
-    # To generate the Hash, we must first serialize the Object.
-    serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
-
-    # Create the SHA3-256bit Hash
-    vc_hash = SHA3_256.new(serialized_vc)
-
-    # devbod: TODO: Should we use hexdigest()?
-    # vc_digest = vc_hash.hexdigest()
-
-    # Now we need to send the Data to the Blockchain.
-    # First, we create the Datastructures we send.
-    data = {
-        "issuerDID": issuer,
-        "holderDID": holder,
-        "id": uri,
-        "vcHash": vc_hash
-    }
 
     # Then we send the Data to the Blockchain.
-    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=data)
+    response = requests.post(
+        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=vp_json_object)
 
     response_dict = response.json()
     response_status_code = response.status_code
 
     # If the response is 200, the VC is valid.
-    if response_status_code == 200:
-        return True, response_dict
-    # Status code 404 means the VC has not been found or revoked.
-    elif response_status_code == 404:
-        return False, f"VC has been revoked or not found, status code {response_status_code}"
-    # Status code 400 means the input was invalid/incorrect.
-    elif response_status_code == 400:
-        return False, f"Input is incorrect, status code {response_status_code}"
-    # If we have a whole different status code, we have an unknown error.
+    if response.ok:
+        return vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]
     else:
-        return False, f"Unknown status code {response.status_code}"
+        return None
