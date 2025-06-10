@@ -58,12 +58,12 @@
     },
     "DIDOEM": {
       "type": "string",
-      "pattern": "^did:batterypass:bms.([a-zA-Z0-9.\\-]+)?$",
+      "pattern": "^did:batterypass:oem.([a-zA-Z0-9.\\-]+)?$",
       "description": "DID string with the DID method `batterypass` for a specific oem and then an identifier"
     },
     "DIDCLOUD": {
       "type": "string",
-      "pattern": "^did:batterypass:bms.([a-zA-Z0-9.\\-]+)?$",
+      "pattern": "^did:batterypass:cloud.([a-zA-Z0-9.\\-]+)?$",
       "description": "DID string with the DID method `batterypass` for a specific cloud and then an identifier"
     },
     "DIDEU": {
