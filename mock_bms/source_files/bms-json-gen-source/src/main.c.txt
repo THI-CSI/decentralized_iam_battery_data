@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "cJSON.h"
+
+char random_char(int index) {
+	char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	return charset[index];
+}
+
+void random_string(char* ptr, int length) {
+	for (int i = 0; i < length; i++) {
+		int value = rand() % 52;
+		ptr[i] = random_char(value);
+	}
+	ptr[length] = '\0';
+}
+
+int random_value(int min, int max) {
+	return (rand() % (max - min + 1)) + min;
+}
+
+float random_float(float min, float max) {
+	float scale = rand() / (float) RAND_MAX;
+
+	return min + scale * (max - min);
+}
+
+char* generate_timestamp() {
+	// Allocate memory for timestamp string
+	char* timestamp = malloc(30);
+	if (timestamp == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		return NULL;
+	}
+
+	// Get current time
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	struct tm *tm_info = localtime(&ts.tv_sec);
+
+	// Format timestamp
+	strftime(timestamp, 20, "%Y-%m-%dT%H:%M:%S", tm_info);
+	snprintf(timestamp + 19, 30 - 19, ".%03ld%+03d:00", ts.tv_nsec / 1000000, 1);
+
+	return timestamp;
+}
+
+void process_json_data() {
+	char str[11]; // Random string of length 10 + 1 for null terminator
+	random_string(str, 10);
+	int randomNum = random_value(-10000, 0); // random number
+	float randomFloat = random_float(1.0f, 100.0f); // random float
+	char* timestamp = generate_timestamp(); // timestamp
+
+	// Create JSON object
+	cJSON *json = cJSON_CreateObject();
+
+	// Create sub-object
+	cJSON *randomData = cJSON_CreateObject();
+
+	cJSON_AddStringToObject(json, "random_string", str);
+	cJSON_AddNumberToObject(json, "random_number", randomNum);
+	cJSON_AddNumberToObject(json, "random_float", randomFloat);
+	cJSON_AddStringToObject(json, "timestamp", timestamp);
+
+	cJSON_AddItemToObject(json, "random_data", randomData);
+
+	// Print JSON object
+	char *json_string = cJSON_Print(json);
+	printf("Generated JSON Data:\n%s\n", json_string);
+
+	// Clean up
+	cJSON_Delete(json);
+	free(json_string);
+	free(timestamp);
+}
+
+int main() {
+	// Seed for random number generator
+	srand(time(NULL));
+
+	process_json_data();
+
+	return 0;
+}

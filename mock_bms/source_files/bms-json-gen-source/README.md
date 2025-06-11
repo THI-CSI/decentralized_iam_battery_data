@@ -10,5 +10,5 @@ $ make
 ```
 ### Step 3 - Execute Program:
 ```shell
-$ ./data_gen_c
+$ ./data_gen_c_v2
 ```
