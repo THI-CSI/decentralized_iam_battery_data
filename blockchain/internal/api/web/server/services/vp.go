@@ -28,6 +28,8 @@ func NewVPService(chain *core.Blockchain) VPService {
 	return &vpService{chain: chain}
 }
 
+// TODO: check that holder and issuer did are still valid
+// TODO: write checkVPSemantics method like for VCs to make sure dids in the vp match the vc
 // VerifyVP verifies that the recieved VP contains valid DIDs and a valid VC
 func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) error {
 	// Check signature of VP
@@ -52,6 +54,8 @@ func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) 
 		fmt.Println("Canonical diff:", cmp.Diff(canon1, canon2))
 		return errors.New("signed data differs from the payload")
 	}
+	// Check DIDs
+	if v.chain.FindDID().
 	// Check VC Hash
 	errr := utils.CheckVCSemantics(&verified.VerifiableCredential[0])
 	if errr == nil {

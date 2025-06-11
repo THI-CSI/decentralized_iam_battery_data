@@ -66,20 +66,22 @@ func (v *vcService) GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VC
 
 // CreateVCRecord creates a new VC record on the blockchain based on the provided VC
 func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *models.RequestVcCreateSchema) error {
-	hashString, err := utils.Generate256HashHex(createVcRecord)
-	if err != nil {
-		log.Printf("Error generating hash: %v", err)
-		return err
-	}
-
 	log.Println("after generating hash")
 
 	var vcRecord coreTypes.VCRecord
 	if vcBms, err := createVcRecord.AsVcBmsProducedSchema(); err == nil {
+		hashString, err := utils.Generate256HashHex(vcBms)
+		if err != nil {
+			log.Printf("Error generating hash: %v", err)
+			return err
+		}
 		vcRecord.ID = vcBms.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcBms.ExpirationDate
 		vcRecord.VcHash = hashString
+		log.Println("\nvcHash:", hashString)
+		log.Println("vcBms as json:", createVcRecord)
+		log.Println("vcBMS unmarshalled: ", vcBms)
 		jsonBytes, err := json.Marshal(vcBms.Proof)
 		if err != nil {
 			log.Printf("Error marshalling proof: %v", err)
@@ -96,6 +98,11 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			return err
 		}
 	} else if vcService, err := createVcRecord.AsVcServiceAccessSchema(); err == nil {
+		hashString, err := utils.Generate256HashHex(vcService)
+		if err != nil {
+			log.Printf("Error generating hash: %v", err)
+			return err
+		}
 		vcRecord.ID = vcService.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcService.ExpirationDate
@@ -116,6 +123,11 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 			return err
 		}
 	} else if vcCloud, err := createVcRecord.AsVcCloudInstanceSchema(); err == nil {
+		hashString, err := utils.Generate256HashHex(vcCloud)
+		if err != nil {
+			log.Printf("Error generating hash: %v", err)
+			return err
+		}
 		vcRecord.ID = vcCloud.Id
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcCloud.ExpirationDate
