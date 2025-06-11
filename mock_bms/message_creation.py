@@ -35,23 +35,23 @@ def read_bms_did():
 def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: str):
     bms_did = read_bms_did().encode('utf-8')
     bms_private_signing_key = read_key("bms_private_signing_key.der")
-    
+   
     cloud_public_key_der = base64.b64decode(cloud_public_key_der_base64)
     cloud_public_key = serialization.load_der_public_key(cloud_public_key_der)
 
-    # Generate ECC ephemeral key pair and export public key
-    private_ephemeral_key = ec.generate_private_key(ec.SECP256R1())
-    public_ephemeral_key = private_ephemeral_key.public_key()
-    ephemeral_public_key_der = public_ephemeral_key.public_bytes(
+    # Generate ECC ephermal key pair and export public key
+    private_ephermal_key = ec.generate_private_key(ec.SECP256R1())
+    public_ephermal_key = private_ephermal_key.public_key()
+    ephermal_public_key_der = public_ephermal_key.public_bytes(
         encoding=serialization.Encoding.DER,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
     # Key aggreement with ECDH
-    shared_secret = private_ephemeral_key.exchange(ec.ECDH(), cloud_public_key)
+    shared_secret = private_ephermal_key.exchange(ec.ECDH(), cloud_public_key)
 
     # Key derivation with HKDF(SHA-256)
-    info = ephemeral_public_key_der + cloud_public_key_der
+    info = ephermal_public_key_der + cloud_public_key_der
     salt = os.urandom(32)
     aes_derived_key = HKDF(
         algorithm=hashes.SHA256(),
@@ -73,18 +73,18 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
     ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
     associated_data_b64 = base64.b64encode(associated_data).decode('utf-8')
     salt_b64 = base64.b64encode(salt).decode('utf-8')
-    ephemeral_public_key_b64 = base64.b64encode(ephemeral_public_key_der).decode('utf-8')
+    ephermal_public_key_b64 = base64.b64encode(ephermal_public_key_der).decode('utf-8')
     did_b64 = base64.b64encode(bms_did).decode('utf-8')
     timestamp_b64 = base64.b64encode(timestamp_bytes).decode("utf-8")
     message = {
         "ciphertext": ciphertext_b64,
         "aad": associated_data_b64,
         "salt": salt_b64,
-        "ephemeral_public_key": ephemeral_public_key_b64,
         "did": did_b64,
+        "eph_pub": ephermal_public_key_b64,
         "timestamp": timestamp_b64
     }
-    message_json = json.dumps(message)
+    message_json = json.dumps(message, separators=(',', ':'))
     message_bytes = message_json.encode("utf-8")
 
     # Sign messsage with ECDSA and add to message
@@ -96,7 +96,7 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
     signature_raw = r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
     signature_b64 = base64.b64encode(signature_raw).decode('utf-8')
     message["signature"] = signature_b64
-    signed_json_message = json.dumps(message)
+    signed_json_message = json.dumps(message, separators=(',', ':'))
     signed_json_message_bytes = signed_json_message.encode("utf-8")
 
     return signed_json_message_bytes
