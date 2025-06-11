@@ -39,19 +39,19 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
     cloud_public_key_der = base64.b64decode(cloud_public_key_der_base64)
     cloud_public_key = serialization.load_der_public_key(cloud_public_key_der)
 
-    # Generate ECC ephermal key pair and export public key
-    private_ephermal_key = ec.generate_private_key(ec.SECP256R1())
-    public_ephermal_key = private_ephermal_key.public_key()
-    ephermal_public_key_der = public_ephermal_key.public_bytes(
+    # Generate ECC ephemeral key pair and export public key
+    private_ephemeral_key = ec.generate_private_key(ec.SECP256R1())
+    public_ephemeral_key = private_ephemeral_key.public_key()
+    ephemeral_public_key_der = public_ephemeral_key.public_bytes(
         encoding=serialization.Encoding.DER,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
     # Key aggreement with ECDH
-    shared_secret = private_ephermal_key.exchange(ec.ECDH(), cloud_public_key)
+    shared_secret = private_ephemeral_key.exchange(ec.ECDH(), cloud_public_key)
 
     # Key derivation with HKDF(SHA-256)
-    info = ephermal_public_key_der + cloud_public_key_der
+    info = ephemeral_public_key_der + cloud_public_key_der
     salt = os.urandom(32)
     aes_derived_key = HKDF(
         algorithm=hashes.SHA256(),
@@ -73,7 +73,7 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
     ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
     associated_data_b64 = base64.b64encode(associated_data).decode('utf-8')
     salt_b64 = base64.b64encode(salt).decode('utf-8')
-    ephermal_public_key_b64 = base64.b64encode(ephermal_public_key_der).decode('utf-8')
+    ephemeral_public_key_b64 = base64.b64encode(ephemeral_public_key_der).decode('utf-8')
     did_b64 = base64.b64encode(bms_did).decode('utf-8')
     timestamp_b64 = base64.b64encode(timestamp_bytes).decode("utf-8")
     message = {
@@ -81,7 +81,7 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
         "aad": associated_data_b64,
         "salt": salt_b64,
         "did": did_b64,
-        "eph_pub": ephermal_public_key_b64,
+        "eph_pub": ephemeral_public_key_b64,
         "timestamp": timestamp_b64
     }
     message_json = json.dumps(message, separators=(',', ':'))
