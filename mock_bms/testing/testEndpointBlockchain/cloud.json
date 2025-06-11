@@ -1,0 +1,22 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "http://localhost:8443/docs/did.schema.html"
+  ],
+  "id": "did:batterypass:cloud.vw-node-eu-central",
+  "verificationMethod": {
+    "id": "did:batterypass:cloud.vw-node-eu-central#key-1",
+    "type": "JsonWebKey2020",
+    "controller": "did:batterypass:oem.VW",
+    "publicKeyMultibase": "BKmR7J6FQnmfHjNoKGB7qICAUB/Mlda3TnQff7g5RPeScA3ePsoFXTnosvQAgQdg0eOnivX5MyEf+3T85O7xHsE="
+  },
+  "service": [
+    {
+      "id": "did:batterypass:cloud.vw-node-eu-central",
+      "type": "BatteryPassAPI",
+      "serviceEndpoint": "https://<cloud-endpoint>"
+    }
+  ],
+  "timestamp": "2025-04-02T09:00:00Z",
+  "revoked": false
+}

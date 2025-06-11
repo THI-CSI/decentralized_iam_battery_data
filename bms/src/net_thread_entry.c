@@ -57,6 +57,8 @@ Socket_t xSocket;
     IPV4Parameters_t xNd = {RESET_VALUE, RESET_VALUE, RESET_VALUE, {RESET_VALUE, RESET_VALUE}, RESET_VALUE, RESET_VALUE};
 #endif
 
+#define BUFFER_LENGTH 500
+
 uint32_t  dhcp_in_use   = RESET_VALUE;
 uint32_t  usrPingCount  = RESET_VALUE;
 ping_data_t ping_data   = {RESET_VALUE, RESET_VALUE, RESET_VALUE};
@@ -68,12 +70,12 @@ static uint32_t usr_print_ability = RESET_VALUE;
  * @retval     Status
  **********************************************************************************************************************/
 
-int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
+int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
 {
     struct freertos_sockaddr xRemoteAddress;
     BaseType_t xAlreadyTransmitted = 0, xBytesSent = 0;
 
-    xRemoteAddress.sin_port = FreeRTOS_htons( 12345 );
+    xRemoteAddress.sin_port = FreeRTOS_htons( pcPort );
     xRemoteAddress.sin_address.ulIP_IPv4 = FreeRTOS_inet_addr(pcIPAddress);
     xRemoteAddress.sin_family = FREERTOS_AF_INET4;
 
@@ -147,19 +149,24 @@ int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTo
             }
         }
     }
-    /* Initiate graceful shutdown. */
-    FreeRTOS_shutdown( xSocket, FREERTOS_SHUT_RDWR );
+
     /* Wait for the socket to disconnect gracefully (indicated by FreeRTOS_recv()
     returning a -pdFREERTOS_ERRNO_EINVAL error) before closing the socket. */
-    while( FreeRTOS_recv( xSocket, pcBufferToTransmit, xTotalLengthToSend, 0 ) >= 0 )
+	int len = 1;
+    while( (len = FreeRTOS_recv( xSocket, pcBufferToTransmit, BUFFER_LENGTH, 0 )) >= 0 )
     {
         /* Wait for shutdown to complete.  If a receive block time is used then
         this delay will not be necessary as FreeRTOS_recv() will place the RTOS task
         into the Blocked state anyway. */
-        vTaskDelay( pdTICKS_TO_MS( 250 ) );
+
+		vTaskDelay(1000);
         /* Note - real applications should implement a timeout here, not just
         loop forever. */
+
     }
+  	APP_PRINT("Response: %s\n", pcBufferToTransmit);
+	/* Initiate graceful shutdown. */
+    FreeRTOS_shutdown( xSocket, FREERTOS_SHUT_RDWR );
     /* The socket has shut down and is safe to close. */
     FreeRTOS_closesocket( xSocket );
     return 0;
@@ -308,14 +315,14 @@ void net_thread_entry(void *pvParameters)
                 APP_PRINT("Sending Hello World to the test-server...\n");
 				dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
 
-                if (!vTCPSend(gp_remote_ip_address, "Hello World!\n", 13)) {
-                    APP_PRINT("Sent Hello World!\n");
-                } else {
-                    APP_PRINT("Couldn't send Hello World!\n");
-                }
+                 if (!vTCPSend(gp_remote_ip_address, 12345, "Hello World!\n", 13)) {
+                     APP_PRINT("Sent Hello World!\n");
+                 } else {
+                     APP_PRINT("Couldn't send Hello World!\n");
+                 }
 				APP_PRINT("Trying to send to Freertos...\n");
 				dnsQuerryFunc(USR_TEST_DOMAIN_NAME, gp_remote_ip_address);
-				for (int i = 0; i < 100; i++) {
+				for (int i = 0; i < 10; i++) {
 					vSendPing(gp_remote_ip_address);
 					vTaskDelay(100);
 				}
@@ -325,7 +332,7 @@ void net_thread_entry(void *pvParameters)
                 } else {
                     APP_PRINT("Couldn't send Ping to external Address %s", gp_remote_ip_address);
                 }
-            }
+      }
             vTaskDelay(100);
             vTaskDelete( NULL );
         }

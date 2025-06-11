@@ -71,6 +71,6 @@ obj_copy: $(PROJECT_NAME).elf
 
 clean:
 	rm -rf $(OBJ) build/$(PROJECT_NAME).elf build/$(PROJECT_NAME).srec $(D_FILES) docs
-
+	kill -9 $(pgrep dnsmasq)
 
 .PHONY: all clean obj_copy move rasc_check
