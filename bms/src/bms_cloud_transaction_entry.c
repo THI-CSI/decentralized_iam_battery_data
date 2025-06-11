@@ -74,13 +74,13 @@ uint8_t fetch_did_documents(encryption_context *encryption_ctx)
             xReceivedBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
         } while(xReceivedBytes == 0);
         cJSON *root = cJSON_ParseWithLength(cReceivedString, xReceivedBytes);
-		cJSON *vm = cJSON_GetObjectItem(root, "verificationMethod");
-		cJSON *pubkey = cJSON_GetObjectItem(vm, "publicKeyMultibase");
-		const char *public_key_base_64 = pubkey->valuestring;
-		size_t public_key_base_64_length = strlen(public_key_base_64);
-		mbedtls_base64_decode(encryption_ctx->did_documents[i]->public_key_der_encoded, ECC_256_PUB_DER_MAX_BUFFER_SIZE, &encryption_ctx->did_documents[i]->public_key_der_encoded_length,
-									  (unsigned char *)public_key_base_64, public_key_base_64_length);
-		der_decoding(encryption_ctx->did_documents[i]->public_key_der_encoded, encryption_ctx->did_documents[i]->public_key_der_encoded_length, encryption_ctx->did_documents[i]->public_key);
+        cJSON *vm = cJSON_GetObjectItem(root, "verificationMethod");
+        cJSON *pubkey = cJSON_GetObjectItem(vm, "publicKeyMultibase");
+        const char *public_key_base_64 = pubkey->valuestring;
+        size_t public_key_base_64_length = strlen(public_key_base_64);
+        mbedtls_base64_decode(encryption_ctx->did_documents[i]->public_key_der_encoded, ECC_256_PUB_DER_MAX_BUFFER_SIZE, &encryption_ctx->did_documents[i]->public_key_der_encoded_length,
+							 (unsigned char *)public_key_base_64, public_key_base_64_length);
+        der_decoding(encryption_ctx->did_documents[i]->public_key_der_encoded, encryption_ctx->did_documents[i]->public_key_der_encoded_length, encryption_ctx->did_documents[i]->public_key);
         cJSON *service_array = cJSON_GetObjectItem(root, "service");
         cJSON *first_service = cJSON_GetArrayItem(service_array, 0);
         cJSON *endpoint = cJSON_GetObjectItem(first_service, "serviceEndpoint");
@@ -421,7 +421,7 @@ void create_message_string(message_context *message_ctx, uint8_t **concatenated_
     mbedtls_base64_encode(ephemeral_public_key_der_base64, ephemeral_public_key_der_base64_size, &ephemeral_publick_key_der_base64_bytes_written,
                              (unsigned char *)message_ctx->der_encoded_ephemeral_key, message_ctx->der_encoded_ephemeral_key_length);
     ephemeral_public_key_der_base64[ephemeral_publick_key_der_base64_bytes_written] = '\0';
-    cJSON_AddStringToObject(message_json, "ephemeral_public_key", (char *)ephemeral_public_key_der_base64);
+    cJSON_AddStringToObject(message_json, "eph_pub", (char *)ephemeral_public_key_der_base64);
 
     // Get timestamp, base64 encoding of timestamp and adding to message_json
     get_rtc_calendar_time(message_ctx->timestamp_bytes);
@@ -500,10 +500,10 @@ void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct 
 {
     xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
     char ack = {RESET_VALUE};
-	size_t ackBytes = RESET_VALUE;
-	do {
-		ackBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)&ack, sizeof(ack), pdMS_TO_TICKS(1000));
-	} while (ackBytes == 0);
+    size_t ackBytes = RESET_VALUE;
+    do {
+        ackBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)&ack, sizeof(ack), pdMS_TO_TICKS(1000));
+    } while (ackBytes == 0);
     xMessageBufferSend(crypto_net_message_buffer, (void *)final_message->signed_message_bytes, final_message->signed_message_bytes_length,
                                                pdMS_TO_TICKS(1000));
 }

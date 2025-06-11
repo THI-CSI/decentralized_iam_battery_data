@@ -143,10 +143,10 @@ void ethernet_send_init(char *endpoint, size_t endpoint_length, unsigned char* s
     size_t xBytesSentMessage = RESET_VALUE;
     xBytesSentEndpoint = xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
     char ack = {RESET_VALUE};
-	size_t ackBytes = RESET_VALUE;
-	do {
-		ackBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)&ack, sizeof(ack), pdMS_TO_TICKS(1000));
-	} while (ackBytes == 0);
+    size_t ackBytes = RESET_VALUE;
+    do {
+        ackBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)&ack, sizeof(ack), pdMS_TO_TICKS(1000));
+    } while (ackBytes == 0);
     xBytesSentMessage = xMessageBufferSend(crypto_net_message_buffer, (void *)sign_public_key_der_base64, sign_public_key_der_base64_length,
                                             pdMS_TO_TICKS(1000));
 }

@@ -56,7 +56,7 @@ void net_task_entry(void *pvParameters)
 
 void sending_and_receiving_functionality()
 {
-	char gp_remote_ip_address[MAX_IPV4_SIZE] = {RESET_VALUE};
+    char gp_remote_ip_address[MAX_IPV4_SIZE] = {RESET_VALUE};
     char endpoint_dns[MAX_ENDPOINT_DNS_SIZE] = {RESET_VALUE};
     const char ack = 'A';
     int endpoint_reachable = RESET_VALUE; // 1 = reachable; 0 = not reachable
