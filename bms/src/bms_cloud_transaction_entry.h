@@ -15,7 +15,6 @@
 #define DID_LENGTH (29U)
 #define TIMESTAMP_LENGTH (19U)
 #define SIGNING_KEY_ID ((psa_key_id_t) 6)
-#define FLASH_HP_DF_BLOCK_1 (0x40100040U) /*   64 B:  0x40100040 - 0x4010007F */
 
 #define CHECK_PSA_SUCCESS(status, msg) \
     if (PSA_SUCCESS != (status))       \

@@ -20,8 +20,6 @@
 #include "SEGGER_RTT/SEGGER_RTT.h"
 /* json header files */
 #include "cJSON.h"
-#include "core_json.h"
-
 
 #define BIT_SHIFT_8  (8u)
 #define SIZE_64      (64u)
@@ -48,6 +46,5 @@
 #define APP_READ(read_data)     (SEGGER_RTT_Read (SEGGER_INDEX, (read_data), sizeof(read_data)))
 
 #define APP_CHECK_DATA          (SEGGER_RTT_HasKey())
-
 
 #endif /* COMMON_UTILS_H_ */

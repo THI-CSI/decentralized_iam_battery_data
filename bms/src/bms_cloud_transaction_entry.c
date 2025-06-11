@@ -8,8 +8,9 @@
 #include "mbedtls/base64.h"
 #include "rtc_init.h"
 
-// Platform context structure
-mbedtls_platform_context ctx = {RESET_VALUE};
+// DID
+__attribute__((section(".data_flash")))
+const char did[30] = "did:example:123456789abcdefgh";
 
 /* BMS2Cloud entry function */
 /* pvParameters contains TaskHandle_t */
@@ -22,8 +23,6 @@ void bms_cloud_transaction_entry(void *pvParameters)
     {
         if (pdPASS == xSemaphoreTake(bms_cloud_sem, Semphr_wait_ticks))
         {
-            char did[DID_LENGTH] = {RESET_VALUE};
-            memcpy(did, (uint8_t *) FLASH_HP_DF_BLOCK_1, DID_LENGTH);
             // Initialize encryption_context on heap
             encryption_context *encryption_ctx = (encryption_context *)pvPortCalloc(1, sizeof(encryption_context));
             // Request DID-docs and initialize encryption_ctx->did_documents
@@ -59,36 +58,36 @@ void bms_cloud_transaction_entry(void *pvParameters)
  **********************************************************************************************************************/
 uint8_t fetch_did_documents(encryption_context *encryption_ctx)
 {
-    uint8_t number_of_endpoints = number_of_vcs; // = amount of stored VCs
-    size_t xReceivedBytes0 = RESET_VALUE;
+    uint8_t number_of_endpoints = 1; // = amount of stored VCs
     encryption_ctx->did_documents = (did_document **)pvPortCalloc(number_of_endpoints, sizeof(did_document *));
+    xSemaphoreGive(crypto_net_sem);
     for (uint8_t i = 0; i < number_of_endpoints; i++)
     {
-        xTaskNotifyGive(net_task);
         encryption_ctx->did_documents[i] = (did_document *)pvPortCalloc(1, sizeof(did_document));
         encryption_ctx->did_documents[i]->endpoint = (char *)pvPortCalloc(ENDPOINT_MAX_BUFFER_SIZE, sizeof(char));
         encryption_ctx->did_documents[i]->public_key_der_encoded = (uint8_t *)pvPortCalloc(ECC_256_PUB_DER_MAX_BUFFER_SIZE, sizeof(uint8_t));
-        size_t xReceivedBytes1 = RESET_VALUE;
+        size_t xReceivedBytes = RESET_VALUE;
         char cReceivedString[1024];
         memset(cReceivedString, RESET_VALUE, sizeof(cReceivedString));
         do
         {
-            xReceivedBytes1 = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
-
-        } while(xReceivedBytes1 == 0);
-        if (JSONSuccess == JSON_Validate(cReceivedString, xReceivedBytes1))
-        {
-            char public_key_query[] = "verificationMethod.publicKeyMultibase";
-            char *public_key_base_64;
-            size_t public_key_base_64_length;
-            JSON_Search(cReceivedString, xReceivedBytes1, public_key_query, strlen(public_key_query), &public_key_base_64, &public_key_base_64_length);
-            mbedtls_base64_decode(encryption_ctx->did_documents[i]->public_key_der_encoded, ECC_256_PUB_DER_MAX_BUFFER_SIZE, &encryption_ctx->did_documents[i]->public_key_der_encoded_length,
-                                  (unsigned char *)public_key_base_64, public_key_base_64_length);
-            der_decoding(encryption_ctx->did_documents[i]->public_key_der_encoded, encryption_ctx->did_documents[i]->public_key_der_encoded_length, encryption_ctx->did_documents[i]->public_key);
-            char endpoint_query[] = "service.serviceEndpoint";
-            JSON_Search(cReceivedString, xReceivedBytes1, endpoint_query, strlen(endpoint_query), &encryption_ctx->did_documents[i]->endpoint,
-                        &encryption_ctx->did_documents[i]->endpoint_length);
-        }
+            xReceivedBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
+        } while(xReceivedBytes == 0);
+        cJSON *root = cJSON_ParseWithLength(cReceivedString, xReceivedBytes);
+		cJSON *vm = cJSON_GetObjectItem(root, "verificationMethod");
+		cJSON *pubkey = cJSON_GetObjectItem(vm, "publicKeyMultibase");
+		const char *public_key_base_64 = pubkey->valuestring;
+		size_t public_key_base_64_length = strlen(public_key_base_64);
+		mbedtls_base64_decode(encryption_ctx->did_documents[i]->public_key_der_encoded, ECC_256_PUB_DER_MAX_BUFFER_SIZE, &encryption_ctx->did_documents[i]->public_key_der_encoded_length,
+									  (unsigned char *)public_key_base_64, public_key_base_64_length);
+		der_decoding(encryption_ctx->did_documents[i]->public_key_der_encoded, encryption_ctx->did_documents[i]->public_key_der_encoded_length, encryption_ctx->did_documents[i]->public_key);
+        cJSON *service_array = cJSON_GetObjectItem(root, "service");
+        cJSON *first_service = cJSON_GetArrayItem(service_array, 0);
+        cJSON *endpoint = cJSON_GetObjectItem(first_service, "serviceEndpoint");
+        const char *endpoint_ptr = endpoint->valuestring;
+        memcpy(encryption_ctx->did_documents[i]->endpoint, endpoint_ptr, strlen(endpoint->valuestring));
+        encryption_ctx->did_documents[i]->endpoint_length = strlen(endpoint->valuestring);
+        cJSON_Delete(root);
     }
     return number_of_endpoints;
 }
@@ -127,33 +126,12 @@ int get_number_of_full_battery_cycles(void)
 void prepare_final_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
 {
    psa_status_t status = (psa_status_t)RESET_VALUE;
-   int mbed_ret_val = RESET_VALUE;
-
-   // Setup the platform; initialize the SCE
-   mbed_ret_val = mbedtls_platform_setup(&ctx);
-   if (RESET_VALUE != mbed_ret_val)
-   {
-       APP_ERR_PRINT("\r\n** mbedtls_platform_setup API FAILED ** \r\n");
-       APP_ERR_TRAP(mbed_ret_val);
-   }
-   // Initialize crypto-library
-   status = psa_crypto_init();
-   if (PSA_SUCCESS != status)
-   {
-       APP_ERR_PRINT("\r\n** psa_crypto_init API FAILED ** \r\n");
-       // De-initialize the platform
-       mbedtls_platform_teardown(&ctx);
-       APP_ERR_TRAP(status);
-   }
    status = crypto_operations(recipient_counter, encryption_ctx, message_ctx, final_message);
    if (PSA_SUCCESS != status)
    {
        // HPKE operation failed. Perform cleanup and trap error.
        handle_error(status, "\r\n** Crypto-Operation FAILED ** \r\n");
    }
-   // De-initialize the platform
-   mbedtls_psa_crypto_free();
-   mbedtls_platform_teardown(&ctx);
 }
 
 psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message)
@@ -521,7 +499,11 @@ void generate_final_signed_json_message(cJSON* json_message, uint8_t *signature,
 void ethernet_send(char *endpoint, size_t endpoint_length, final_message_struct *final_message)
 {
     xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
-    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    char ack = {RESET_VALUE};
+	size_t ackBytes = RESET_VALUE;
+	do {
+		ackBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)&ack, sizeof(ack), pdMS_TO_TICKS(1000));
+	} while (ackBytes == 0);
     xMessageBufferSend(crypto_net_message_buffer, (void *)final_message->signed_message_bytes, final_message->signed_message_bytes_length,
                                                pdMS_TO_TICKS(1000));
 }
@@ -560,9 +542,9 @@ void free_contexts(uint8_t recipient_counter, encryption_context *encryption_ctx
  **********************************************************************************************************************/
 void handle_error(psa_status_t status, char *err_str)
 {
-    mbedtls_psa_crypto_free();
-    /* De-initialize the platform.*/
-    mbedtls_platform_teardown(&ctx);
+    /*mbedtls_psa_crypto_free();
+    // De-initialize the platform.
+    mbedtls_platform_teardown(&ctx_mbedtls);*/
     APP_ERR_PRINT(err_str);
     APP_ERR_TRAP(status);
 }
