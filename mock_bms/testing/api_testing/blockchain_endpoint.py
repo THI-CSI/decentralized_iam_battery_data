@@ -3,11 +3,10 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 import base64
-import json
 
 app = Flask(__name__)
 
-@app.route('/api/v1/dids/did:example:123456789abcdefgh', methods=['GET'])
+@app.route('/api/v1/dids/did:batterypass:896ad506-9843-48d3-b599-be45fca2bb3e', methods=['GET'])
 def get_did():
     # Generate a private key for use in the cloud
     private_key = ec.generate_private_key(ec.SECP256R1(), default_backend())
