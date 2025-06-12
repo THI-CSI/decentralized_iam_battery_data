@@ -19,7 +19,7 @@
 /* SEGGER RTT and error related headers */
 #include "SEGGER_RTT/SEGGER_RTT.h"
 /* json header files */
-#include "cJSON.h"
+#include "c_json/cJSON.h"
 
 #define BIT_SHIFT_8  (8u)
 #define SIZE_64      (64u)
