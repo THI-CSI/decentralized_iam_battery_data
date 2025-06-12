@@ -299,10 +299,7 @@ type VcRecordSchema struct {
 	ExpirationDate *DateTime `json:"expirationDate,omitempty"`
 
 	// Id An identifier in uri format for Verifiable Credentials
-	Id URI `json:"id"`
-
-	// Proof Cryptographic proof that makes the subject verifiable.
-	Proof     Proof    `json:"proof"`
+	Id        URI      `json:"id"`
 	Timestamp DateTime `json:"timestamp"`
 
 	// VcHash A SHA-256 hash of the complete VC in hexadecimal format.

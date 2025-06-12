@@ -60,7 +60,7 @@ func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
 	}
 
-	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID created"})
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID created/modified"})
 }
 
 // RevokeDid handles POST /api/v1/dids/revoke

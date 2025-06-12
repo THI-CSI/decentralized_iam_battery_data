@@ -95,8 +95,8 @@ func (chain *Blockchain) AppendDid(did *core.Did) error {
 // ModifyDid Checks that the identifier hasn't been manipulated and appends the modified DID doc
 func (chain *Blockchain) ModifyDid(did *core.Did) error {
 	didOld, _ := chain.FindDID(did.ID)
-	if didOld.ID != did.ID {
-		return errors.New("new did does not match existing did")
+	if didOld.VerificationMethod.Controller != did.VerificationMethod.Controller {
+		return errors.New("the Controller of an did can't be modified")
 	}
 	did.Timestamp = time.Now()
 	rawJson, err := did.Marshal()

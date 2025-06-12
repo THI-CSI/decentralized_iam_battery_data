@@ -234,6 +234,10 @@ paths:
           application/json:
             schema:
               $ref: './jsonschema/requests/request.vp.verify.schema.json'
+            examples:
+              vpVerifyRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vp.verify.1.json'
       responses:
         '200':
           description: VC Record successfully verified
@@ -353,7 +357,7 @@ paths:
             examples:
               vcCreateRequest: # Give a unique name to this example
                 summary: Example DID Creation Request, that should succeed
-                externalValue: './jsonexample/requests/request.did.revoke.eu.json'
+                externalValue: './jsonexample/requests/request.did.revoke.1.json'
       responses:
         '200':
           description: DID revoked successfully

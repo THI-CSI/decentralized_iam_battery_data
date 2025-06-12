@@ -1,0 +1,11 @@
+{
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-08-01T09:00:00Z",
+    "verificationMethod": "did:batterypass:oem.sn-audi#key-1",
+    "challenge": "c82f7883-42a1-4b78-9c2e-d8d5321af9f8",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJwcm9vZiI6IHsidHlwZSI6ICJFY2RzYVNlY3AyNTZyMVNpZ25hdHVyZTIwMTkiLCAiY3JlYXRlZCI6ICIyMDI1LTA4LTAxVDA5OjAwOjAwWiIsICJ2ZXJpZmljYXRpb25NZXRob2QiOiAiZGlkOmJhdHRlcnlwYXNzOm9lbS5zbi1hdWRpI2tleS0xIiwgImNoYWxsZW5nZSI6ICJjODJmNzg4My00MmExLTRiNzgtOWMyZS1kOGQ1MzIxYWY5ZjgiLCAicHJvb2ZQdXJwb3NlIjogImF1dGhlbnRpY2F0aW9uIiwgImp3cyI6ICIifSwgInBheWxvYWQiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi0xMjNnNTFiOSJ9.SN2_rYs67IesO59dZzhqA4-C0-I3U4J3QTqoq1FufOv0b1LLdm_mlnnHxNIW_II0fkUrshEKnN8jYTp8fkoBJQ"
+  },
+  "payload": "did:batterypass:bms.sn-123g51b9"
+}

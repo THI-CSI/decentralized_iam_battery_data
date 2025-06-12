@@ -8,8 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"reflect"
+	"strings"
 )
 
 // DidService defines the interface for managing Decentralized Identifiers (DIDs)
@@ -110,6 +112,39 @@ func containsDid(didList []coreTypes.Did, didId string) bool {
 }
 
 func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCreateormodifySchema) error {
+	// Check DID syntax
+	if !utils.IsDidValid(requestBody.Payload.Id) {
+		return fmt.Errorf("DID needs to match regex `^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\\-]+?$`: %s", requestBody.Payload.Id)
+	}
+
+	// Check DID trustchain
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:bms.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:oem.") {
+		return errors.New("a BMS can only be created/modified by an OEM")
+	}
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:cloud.") && (!strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:oem.") || !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu")) {
+		return errors.New("a Cloud can only be created/modified by an OEM or EU")
+	}
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:eu.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu") {
+		return errors.New("a EU can only be modified by an EU")
+	}
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:service.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu") {
+		return errors.New("a Service can only be modified by an EU")
+	}
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:oem.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu") {
+		return errors.New("a OEM can only be created by an EU")
+	}
+
+	// Check the right did strings match
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	if parts[0] != requestBody.Payload.VerificationMethod.Controller {
+		return errors.New("request needs to be signed by the controller")
+	}
+	parts = strings.SplitN(requestBody.Payload.VerificationMethod.Id, "#", 2)
+	if parts[0] != requestBody.Payload.Id {
+		return errors.New("DID ID needs to match the verification methods ID")
+	}
+
+	// Verify Signature
 	verifiedBytes, err := utils.VerifyJWS(s.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
 	if err != nil {
 		return err

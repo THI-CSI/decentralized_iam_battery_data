@@ -2,36 +2,24 @@
   "proof": {
     "type": "EcdsaSecp256r1Signature2019",
     "created": "2025-08-01T09:00:00Z",
-    "verificationMethod": "did:batterypass:eu#key-1",
+    "verificationMethod": "did:batterypass:oem.sn-audi#key-1",
     "challenge": "c82f7883-42a1-4b78-9c2e-d8d5321af9f8",
     "proofPurpose": "authentication",
-    "jws": "eyJraWQiOiIzZDVkZTk1Mi0wOWI2LTQ4N2MtOTVmYy04NDUwMjFjYzk1OTciLCJhbGciOiJSUzI1NiJ9.ew0KICAicHJvb2YiOiB7DQogICAgInR5cGUiOiAiRWNkc2FTZWNwMjU2cjFTaWduYXR1cmUyMDE5IiwNCiAgICAiY3JlYXRlZCI6ICIyMDI1LTA4LTAxVDA5OjAwOjAwWiIsDQogICAgInZlcmlmaWNhdGlvbk1ldGhvZCI6ICJkaWQ6YmF0dGVyeXBhc3M6ZXUja2V5LTEiLA0KICAgICJjaGFsbGVuZ2UiOiAiYzgyZjc4ODMtNDJhMS00Yjc4LTljMmUtZDhkNTMyMWFmOWY4IiwNCiAgICAicHJvb2ZQdXJwb3NlIjogImF1dGhlbnRpY2F0aW9uIiwNCiAgICAiandzIjogIiINCiAgfSwNCiAgInBheWxvYWQiOiB7DQogICAgIkBjb250ZXh0IjogWw0KICAgICAgImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwNCiAgICAgICJodHRwOi8vbG9jYWxob3N0Ojg0NDMvZG9jcy9kaWQuc2NoZW1hLmh0bWwiDQogICAgXSwNCiAgICAiaWQiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5pZGVudGlmaWVyIiwNCiAgICAidmVyaWZpY2F0aW9uTWV0aG9kIjogew0KICAgICAgImlkIjogImRpZDpiYXR0ZXJ5cGFzczpibXMuaWRlbnRpZmllciNrZXktMSIsDQogICAgICAidHlwZSI6ICJKc29uV2ViS2V5MjAyMCIsDQogICAgICAiY29udHJvbGxlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLlZXIiwNCiAgICAgICJwdWJsaWNLZXlNdWx0aWJhc2UiOiAiejZNa3B6Mnh3OU0zSk1mcWszbTdKUlhldFBMNFd3dXRiNlg2Ym9qcTJuTWlkOEtkIg0KICAgIH0sDQogICAgInNlcnZpY2UiOiBbDQogICAgICB7DQogICAgICAgICJpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLmlkZW50aWZpZXIjYmF0dGVyeXBhc3NBcGktcHJvZDEiLA0KICAgICAgICAidHlwZSI6ICJCYXR0ZXJ5UGFzc0FQSSIsDQogICAgICAgICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9jbG91ZC1lbmRwb2ludC1wcm9kMS5leGFtcGxlLmNvbSINCiAgICAgIH0sDQogICAgICB7DQogICAgICAgICJpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLmlkZW50aWZpZXIjYmF0dGVyeXBhc3NBcGktdGVzdDEiLA0KICAgICAgICAidHlwZSI6ICJCYXR0ZXJ5UGFzc0FwaSIsDQogICAgICAgICJzZXJ2aWNlRW5kcG9pbnQiOiAiaHR0cHM6Ly9jbG91ZC1lbmRwb2ludC10ZXN0MS5leGFtcGxlLmNvbSINCiAgICAgIH0NCiAgICBdLA0KICAgICJ0aW1lc3RhbXAiOiAiMjAyNS0wNC0xMFQxMjowMDowMFoiLA0KICAgICJyZXZva2VkIjogZmFsc2UNCiAgfQ0KfQ.hxVf5_TKH3eykCkJ8tawXUg3XJT5Luld5C_lMLI7WZhNdg5pCTyZgTrUgHVIPMH6OCG5QVZgy-Wj4BEd-01KsgodnOII3zS6n_bfqg_K5HekP0CG_9hnEaS_YvHKpOE3xrYbwwBGc6SsS1GlVIXEaS7njgPkce2tvBKyGtn4AzVt6XJvB0Ru4SA03QCAEbp5zCp1NYJINEmSlnbPUtOrKrfGUc32Z-qLtHn7GwyPns6vBdf01-DtPtXHzmdOzoFJJ9fmN7LuPm_izbgyFiH-YfW04clg2DukT0f668-JCQ8v9_Cz9uxpQgLJaYgR00oyqKcMnH2RIlmbvQL6ND3nKg"
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJwcm9vZiI6IHsidHlwZSI6ICJFY2RzYVNlY3AyNTZyMVNpZ25hdHVyZTIwMTkiLCAiY3JlYXRlZCI6ICIyMDI1LTA4LTAxVDA5OjAwOjAwWiIsICJ2ZXJpZmljYXRpb25NZXRob2QiOiAiZGlkOmJhdHRlcnlwYXNzOm9lbS5zbi1hdWRpI2tleS0xIiwgImNoYWxsZW5nZSI6ICJjODJmNzg4My00MmExLTRiNzgtOWMyZS1kOGQ1MzIxYWY5ZjgiLCAicHJvb2ZQdXJwb3NlIjogImF1dGhlbnRpY2F0aW9uIiwgImp3cyI6ICIifSwgInBheWxvYWQiOiB7IkBjb250ZXh0IjogWyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsICJodHRwOi8vbG9jYWxob3N0Ojg0NDMvZG9jcy9kaWQuc2NoZW1hLmh0bWwiXSwgImlkIjogImRpZDpiYXR0ZXJ5cGFzczpibXMuc24tMTIzZzUxYjkiLCAicmV2b2tlZCI6IGZhbHNlLCAidGltZXN0YW1wIjogIjIwMjUtMDYtMTFUMTQ6NDY6MjJaIiwgInZlcmlmaWNhdGlvbk1ldGhvZCI6IHsiY29udHJvbGxlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAiaWQiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi0xMjNnNTFiOSNrZXktMSIsICJwdWJsaWNLZXlNdWx0aWJhc2UiOiAiLS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS1cbk1Ga3dFd1lIS29aSXpqMENBUVlJS29aSXpqMERBUWNEUWdBRWxSOGc4SUEwZGRmSlhRRkFlRnV6bGdIcU5sNjlcbjBRQkZrQ3p5T05MQTVIN3pEbE04dVZ2bmdxYnBVUHdTZnpDUEgyTWJ4eTZ5STh3cUtJdUtsMzdWTnc9PVxuLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tIiwgInR5cGUiOiAiSnNvbldlYktleTIwMjAifX19.m6d-Jkg3Go4MVYUrovKkfeZPOkCw-W1mDYprm6_7CMDlOJPUgz21dzlUZND-l5NVsAeaZrQ38Mjifq9MhnmObw"
   },
-  "payload": {
+  "payload":  {
     "@context": [
       "https://www.w3.org/2018/credentials/v1",
       "http://localhost:8443/docs/did.schema.html"
     ],
-    "id": "did:batterypass:bms.identifier",
+    "id": "did:batterypass:bms.sn-123g51b9",
+    "revoked": false,
+    "timestamp": "2025-06-11T14:46:22Z",
     "verificationMethod": {
-      "id": "did:batterypass:bms.identifier#key-1",
-      "type": "JsonWebKey2020",
-      "controller": "did:batterypass:oem.VW",
-      "publicKeyMultibase": "z6Mkpz2xw9M3JMfqk3m7JRXetPL4Wwutb6X6bojq2nMid8Kd"
-    },
-    "service": [
-      {
-        "id": "did:batterypass:bms.identifier#batterypassApi-prod1",
-        "type": "BatteryPassAPI",
-        "serviceEndpoint": "https://cloud-endpoint-prod1.example.com"
-      },
-      {
-        "id": "did:batterypass:bms.identifier#batterypassApi-test1",
-        "type": "BatteryPassApi",
-        "serviceEndpoint": "https://cloud-endpoint-test1.example.com"
-      }
-    ],
-    "timestamp": "2025-04-10T12:00:00Z",
-    "revoked": false
+      "controller": "did:batterypass:oem.sn-audi",
+      "id": "did:batterypass:bms.sn-123g51b9#key-1",
+      "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAElR8g8IA0ddfJXQFAeFuzlgHqNl69\n0QBFkCzyONLA5H7zDlM8uVvngqbpUPwSfzCPH2Mbxy6yI8wqKIuKl37VNw==\n-----END PUBLIC KEY-----",
+      "type": "JsonWebKey2020"
+    }
   }
 }

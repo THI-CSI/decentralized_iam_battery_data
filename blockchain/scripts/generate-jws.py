@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 from jwcrypto import jwk, jws
 from jwcrypto.common import json_encode
 
@@ -12,6 +13,11 @@ def load_jwk_from_file(path):
             return jwk.JWK.from_pem(key_data.encode('utf-8'))
 
 def sign_json_file(json_file_path, key_path, output_path='signed.jws'):
+    # Remove the output file if it already exists
+    if os.path.exists(output_path):
+        print(f"Removing existing {output_path}...")
+        os.remove(output_path)
+
     # Load the JSON payload
     with open(json_file_path, 'r') as f:
         payload = json.dumps(json.load(f))  # ensure it's compact JSON string

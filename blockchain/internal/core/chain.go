@@ -144,7 +144,7 @@ func (chain *Blockchain) CheckVCRecordState(uri string, vcHash string) VCState {
 	return VCAbsent
 }
 
-// FindDID
+// FindDID returns a did document by its identifier from the blockchain.
 func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 	var didResponse core.Did
 	for i := len(*chain) - 1; i >= 0; i-- {
@@ -184,6 +184,9 @@ func (chain *Blockchain) GetPublicKey(didKeyFragment string) (string, error) {
 	didDoc, err := chain.FindDID(parts[0])
 	if err != nil {
 		return "", err
+	}
+	if didDoc.Revoked {
+		return "", fmt.Errorf("%s is revoked", didDoc.ID)
 	}
 	if didDoc.VerificationMethod.ID != didKeyFragment {
 		return "", err

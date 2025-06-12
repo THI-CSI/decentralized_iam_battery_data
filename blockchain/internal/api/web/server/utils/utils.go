@@ -24,7 +24,7 @@ var Validate = validator.New()
 
 // IsDidValid Checks if the DID is conform to the specified format.
 func IsDidValid(did string) bool {
-	matched, _ := regexp.MatchString(`^did:batterypass:[a-zA-Z0-9.\-]+$`, did)
+	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\-]+?$`, did)
 	return matched
 }
 
@@ -102,10 +102,14 @@ func CheckVCSemantics(requestBody *models.RequestVcCreateSchema) error {
 		parts := strings.SplitN(vcBms.Proof.VerificationMethod, "#", 2)
 		verificationMethodDID := parts[0]
 
-		if vcBms.Issuer != verificationMethodDID {
-			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcBms.Issuer, verificationMethodDID)
+		if vcBms.Issuer != verificationMethodDID || verificationMethodDID != vcBms.CredentialSubject.BmsDid {
+			return fmt.Errorf("The following 3 dids have to match: VC Issuer: '%s'; VC credentialSubject BMSdid: '%s'; VC proof verification method: '%s'", vcBms.Issuer, vcBms.CredentialSubject.BmsDid, verificationMethodDID)
 		}
-		
+
+		if vcBms.Holder != vcBms.CredentialSubject.Id {
+			return fmt.Errorf("The VC holder %s does not match the credential subject id %s", vcBms.Holder, vcBms.CredentialSubject.Id)
+		}
+
 		now := time.Now()
 
 		if now.Before(vcBms.CredentialSubject.Timestamp) {
@@ -120,7 +124,11 @@ func CheckVCSemantics(requestBody *models.RequestVcCreateSchema) error {
 		verificationMethodDID := parts[0]
 
 		if vcService.Issuer != verificationMethodDID {
-			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcService.Issuer, verificationMethodDID)
+			return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", vcService.Issuer, verificationMethodDID)
+		}
+
+		if vcService.Holder != vcService.CredentialSubject.Id {
+			return fmt.Errorf("The VC holder %s does not match the credential subject id %s", vcService.Holder, vcService.CredentialSubject.Id)
 		}
 
 		now := time.Now()
@@ -139,7 +147,11 @@ func CheckVCSemantics(requestBody *models.RequestVcCreateSchema) error {
 		verificationMethodDID := parts[0]
 
 		if vcCloud.Issuer != verificationMethodDID {
-			return fmt.Errorf("VC issuer DID '%s' does not match proof's verification method DID '%s'", vcCloud.Issuer, verificationMethodDID)
+			return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", vcCloud.Issuer, verificationMethodDID)
+		}
+
+		if vcCloud.Holder != vcCloud.CredentialSubject.Id {
+			return fmt.Errorf("The VC holder %s does not match the credential subject id %s", vcCloud.Holder, vcService.CredentialSubject.Id)
 		}
 
 		now := time.Now()

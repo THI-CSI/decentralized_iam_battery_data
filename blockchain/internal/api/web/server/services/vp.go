@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/gibson042/canonicaljson-go"
 	"github.com/google/go-cmp/cmp"
+	"strings"
 )
 
 // VPService defines the interface for creating and returning vcs of the blockchain
@@ -28,9 +29,7 @@ func NewVPService(chain *core.Blockchain) VPService {
 	return &vpService{chain: chain}
 }
 
-// TODO: check that holder and issuer did are still valid
-// TODO: write checkVPSemantics method like for VCs to make sure dids in the vp match the vc
-// VerifyVP verifies that the recieved VP contains valid DIDs and a valid VC
+// VerifyVP verifies that the received VP contains valid DIDs and a valid VC
 func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) error {
 	// Check signature of VP
 	verifiedBytes, err := utils.VerifyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
@@ -54,8 +53,11 @@ func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) 
 		fmt.Println("Canonical diff:", cmp.Diff(canon1, canon2))
 		return errors.New("signed data differs from the payload")
 	}
-	// Check DIDs
-	if v.chain.FindDID().
+
+	if err := checkVPSemantics(requestBody); err != nil {
+		return err
+	}
+
 	// Check VC Hash
 	errr := utils.CheckVCSemantics(&verified.VerifiableCredential[0])
 	if errr == nil {
@@ -93,4 +95,33 @@ func interpretVCState(state core.VCState) error {
 		return errors.New("vc has been tampered with")
 	}
 	return errors.New("vc not on the blockchain")
+}
+
+func checkVPSemantics(requestBody *models.VpSchema) error {
+	verifieableCredential := requestBody.VerifiableCredential[0]
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+	if vcBms, err := verifieableCredential.AsVcBmsProducedSchema(); err == nil {
+
+		if vcBms.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
+			return nil
+		}
+		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcBms.Holder, requestBody.Holder, verificationMethodDID)
+
+	} else if vcService, err := verifieableCredential.AsVcServiceAccessSchema(); err == nil {
+
+		if vcService.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
+			return nil
+		}
+		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcService.Holder, requestBody.Holder, verificationMethodDID)
+
+	} else if vcCloud, err := verifieableCredential.AsVcCloudInstanceSchema(); err == nil {
+
+		if vcCloud.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
+			return nil
+		}
+		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcCloud.Holder, requestBody.Holder, verificationMethodDID)
+
+	}
+	return errors.New("VC Unrecognized or invalid VC type in request payload")
 }

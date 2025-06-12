@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"reflect"
 	"time"
@@ -79,19 +80,6 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcBms.ExpirationDate
 		vcRecord.VcHash = hashString
-		log.Println("\nvcHash:", hashString)
-		log.Println("vcBms as json:", createVcRecord)
-		log.Println("vcBMS unmarshalled: ", vcBms)
-		jsonBytes, err := json.Marshal(vcBms.Proof)
-		if err != nil {
-			log.Printf("Error marshalling proof: %v", err)
-			return err
-		}
-		err = json.Unmarshal(jsonBytes, &vcRecord.Proof)
-		if err != nil {
-			log.Printf("Error unmarshalling proof: %v", err)
-			return err
-		}
 		err = v.chain.AppendVcRecord(&vcRecord)
 		if err != nil {
 			log.Printf("Error appending VC record: %v", err)
@@ -107,16 +95,6 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcService.ExpirationDate
 		vcRecord.VcHash = hashString
-		jsonBytes, err := json.Marshal(vcService.Proof)
-		if err != nil {
-			log.Printf("Error marshalling proof: %v", err)
-			return err
-		}
-		err = json.Unmarshal(jsonBytes, &vcRecord.Proof)
-		if err != nil {
-			log.Printf("Error unmarshalling proof: %v", err)
-			return err
-		}
 		err = v.chain.AppendVcRecord(&vcRecord)
 		if err != nil {
 			log.Printf("Error appending VC record: %v", err)
@@ -132,16 +110,6 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		vcRecord.Timestamp = time.Now()
 		vcRecord.ExpirationDate = &vcCloud.ExpirationDate
 		vcRecord.VcHash = hashString
-		jsonBytes, err := json.Marshal(vcCloud.Proof)
-		if err != nil {
-			log.Printf("Error marshalling proof: %v", err)
-			return err
-		}
-		err = json.Unmarshal(jsonBytes, &vcRecord.Proof)
-		if err != nil {
-			log.Printf("Error unmarshalling proof: %v", err)
-			return err
-		}
 		err = v.chain.AppendVcRecord(&vcRecord)
 		if err != nil {
 			log.Printf("Error appending VC record: %v", err)
@@ -178,6 +146,12 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 	if erro == nil {
 		errro := errors.New("signed data differs from the payload")
 		if VCBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
+			if err := interpretDIDState(v.chain.CheckDIDState(VCBms.Holder)); err != nil {
+				return fmt.Errorf("holder %s: %w", VCBms.Holder, err)
+			}
+			if err := interpretDIDState(v.chain.CheckDIDState(VCBms.Issuer)); err != nil {
+				return fmt.Errorf("issuer %s: %w", VCBms.Issuer, err)
+			}
 			verifiedBytes, err := utils.VerifyJWS(v.chain, VCBms.Proof.Jws, VCBms.Proof.VerificationMethod)
 			if err != nil {
 				return err
@@ -193,6 +167,12 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 				return errro
 			}
 		} else if VCService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
+			if err := interpretDIDState(v.chain.CheckDIDState(VCService.Holder)); err != nil {
+				return fmt.Errorf("holder %s: %w", VCService.Holder, err)
+			}
+			if err := interpretDIDState(v.chain.CheckDIDState(VCService.Issuer)); err != nil {
+				return fmt.Errorf("issuer %s: %w", VCService.Issuer, err)
+			}
 			verifiedBytes, err := utils.VerifyJWS(v.chain, VCService.Proof.Jws, VCService.Proof.VerificationMethod)
 			if err != nil {
 				return err
@@ -208,6 +188,12 @@ func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchem
 				return errro
 			}
 		} else if VCCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
+			if err := interpretDIDState(v.chain.CheckDIDState(VCCloud.Holder)); err != nil {
+				return fmt.Errorf("holder %s: %w", VCCloud.Holder, err)
+			}
+			if err := interpretDIDState(v.chain.CheckDIDState(VCCloud.Issuer)); err != nil {
+				return fmt.Errorf("issuer %s: %w", VCCloud.Issuer, err)
+			}
 			verifiedBytes, err := utils.VerifyJWS(v.chain, VCCloud.Proof.Jws, VCCloud.Proof.VerificationMethod)
 			if err != nil {
 				return err
@@ -242,4 +228,15 @@ func (v *vcService) VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema
 	} else {
 		return errors.New("signed data differs from the payload")
 	}
+}
+
+func interpretDIDState(state core.DidState) error {
+	if state == core.DidValid {
+		return nil
+	} else if state == core.DidPending {
+		return errors.New("did is on the list of pending transactions try again later")
+	} else if state == core.DidRevoked {
+		return errors.New("did is revoked")
+	}
+	return errors.New("did not on the blockchain")
 }
