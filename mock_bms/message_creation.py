@@ -35,7 +35,7 @@ def read_bms_did():
 def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: str):
     bms_did = read_bms_did().encode('utf-8')
     bms_private_signing_key = read_key("bms_private_signing_key.der")
-    
+   
     cloud_public_key_der = base64.b64decode(cloud_public_key_der_base64)
     cloud_public_key = serialization.load_der_public_key(cloud_public_key_der)
 
@@ -80,11 +80,11 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
         "ciphertext": ciphertext_b64,
         "aad": associated_data_b64,
         "salt": salt_b64,
-        "ephemeral_public_key": ephemeral_public_key_b64,
         "did": did_b64,
+        "eph_pub": ephemeral_public_key_b64,
         "timestamp": timestamp_b64
     }
-    message_json = json.dumps(message)
+    message_json = json.dumps(message, separators=(',', ':'))
     message_bytes = message_json.encode("utf-8")
 
     # Sign messsage with ECDSA and add to message
@@ -96,7 +96,7 @@ def message_creation(dynamic_battery_data: bytes, cloud_public_key_der_base64: s
     signature_raw = r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
     signature_b64 = base64.b64encode(signature_raw).decode('utf-8')
     message["signature"] = signature_b64
-    signed_json_message = json.dumps(message)
+    signed_json_message = json.dumps(message, separators=(',', ':'))
     signed_json_message_bytes = signed_json_message.encode("utf-8")
 
     return signed_json_message_bytes
