@@ -29,21 +29,48 @@ def extract_public_cloud_key(cloud_did):
 
     return public_cloud_key
 
-def data_exchange(blockchain_api_url, bms_did_id, cloud_api_url, regen):
+# Loads bms_did and extracts the id out of it
+def load_and_extract_bms_did_id():
+    try:
+        with open('bms_did.json', 'r') as f:
+            bms_did = json.load(f)
+        print("Data loaded successfully:")
+    except FileNotFoundError:
+        print(f"File does not exist.")
+        return None
+    except json.JSONDecodeError:
+        print("Error decoding JSON from the file.")
+        return None
+    except IOError as e:
+        print(f"An error occurred while reading the file: {e}")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
+
+    bms_did_id = bms_did['id']
+
+    return bms_did_id
+
+def data_exchange(blockchain_api_url, cloud_api_url, regen):
     battery_data_str = retrieve_stored_battery_data()
     if battery_data_str is None or regen==True:
         battery_data_str = run_battery_data_generator()
     battery_data = battery_data_str.encode('utf-8')
 
+    # Get ID of BMS from BMS_did
+    bms_did_id = load_and_extract_bms_did_id()
+
     # Fetch the cloud DID from the API
     cloud_did_dict = get_data(blockchain_api_url + bms_did_id)
     cloud_did_str = json.dumps(cloud_did_dict)
 
-    # Check if the DID is revoked
+    # Check if the Cloud DID is revoked
     if cloud_did_dict.get('revoked', False):
         print("The DID is revoked. Exiting.")
         return  # Exit or handle as needed
 
+    # Extract public key from cloud_did
     public_cloud_key = extract_public_cloud_key(cloud_did_str)
 
     cloud_public_key_der_base64 = base64.b64encode(public_cloud_key.public_bytes(
@@ -51,11 +78,12 @@ def data_exchange(blockchain_api_url, bms_did_id, cloud_api_url, regen):
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )).decode('utf-8')
 
+    # Create a signed and encrypted message containing battery data
     message = message_creation(battery_data, cloud_public_key_der_base64)
     print(message)
 
+    # Decode and serialize message to make it sendable
     decoded_message = message.decode('utf-8')
-
     serialized_message = json.dumps(json.loads(decoded_message))
 
     post_data(cloud_api_url, serialized_message)
