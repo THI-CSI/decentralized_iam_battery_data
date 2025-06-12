@@ -45,7 +45,7 @@ func CalculateBlockHash(block Block) string {
 	_, err := hasher.Write([]byte(record))
 	if err != nil {
 		print("Error: Could not write to hasher: %v\n", err)
-		return "" // TODO: This is a insecure fallback
+		return "" // TODO: This is an insecure fallback
 	}
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)

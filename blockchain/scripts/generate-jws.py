@@ -32,11 +32,7 @@ def sign_json_file(json_file_path, key_path, output_path='signed.jws'):
     # Output compact JWS format
     jws_output = signature.serialize(compact=True)
 
-    # Save the JWS to a file
-    with open(output_path, 'w') as out_file:
-        out_file.write(jws_output)
-
-    print(f"JWS signature saved to {output_path}")
+    print(jws_output)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

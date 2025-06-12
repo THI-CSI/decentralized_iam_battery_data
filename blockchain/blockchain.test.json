@@ -16,7 +16,7 @@
         "verificationMethod": {
           "controller": "did:batterypass:eu",
           "id": "did:batterypass:eu#key-1",
-          "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQrlJgSc0Idu6NJz8sBnuWtBFePqmRUxO8thHlQn4yp+JFaGChLxcO9yEs90Edu7+ShMDON3FRdQmh/tx0y6dvQ==\n-----END PUBLIC KEY-----",
+          "publicKeyMultibase": "zXwpRvsp669diLgsc6x74QgeUqftu7n3W4kHx5YrcxoALDTNzJr6gsAmnZyrsP8a9pU2uNBDsPp5BgbaKzDaYSWNYGjN",
           "type": "JsonWebKey2020"
         }
       }
@@ -40,7 +40,7 @@
         "verificationMethod": {
           "controller": "did:batterypass:eu",
           "id": "did:batterypass:oem.sn-audi#key-1",
-          "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtNmh1/OYXbVIWv9b5ASH8iwf0zD4\n6ruag0HMP/39OlhbV8GuxdlFch1A+9ekJ3I7zQiSY9Wr4xicievH1/HNxA==\n-----END PUBLIC KEY-----",
+          "publicKeyMultibase": "zXwpUDDd8qdYTwp5GxVGSHjLXEtykuxuFBqGu7NJjsWjVRwzoVdLTMCEh6enYJ1hXEmaP7cW9CLn4T8C7kXvmp31z4Zq",
           "type": "JsonWebKey2020"
         }
       }
@@ -64,7 +64,7 @@
         "verificationMethod": {
           "controller": "did:batterypass:oem.sn-audi",
           "id": "did:batterypass:bms.sn-544b51e7#key-1",
-          "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAElR8g8IA0ddfJXQFAeFuzlgHqNl69\n0QBFkCzyONLA5H7zDlM8uVvngqbpUPwSfzCPH2Mbxy6yI8wqKIuKl37VNw==\n-----END PUBLIC KEY-----",
+          "publicKeyMultibase": "zXwpTaResqAYjpbohqjBtFRnWKdSkzu8ZyTwCpEM8GMcbH3mdhFYvGLMdK7hn5TEi8h6sBMgcWhiWN28MV63NaH36cH4",
           "type": "JsonWebKey2020"
         }
       }
@@ -88,7 +88,7 @@
         "verificationMethod": {
           "controller": "did:batterypass:eu",
           "id": "did:batterypass:service.sn-service1#key-1",
-          "publicKeyMultibase": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzG9pChuLVm5vXLbIjmU2mr7Q+UlD\nLbqXuIv+K5Bc/7iRukOsDFv3hmyjypQIaWw7KTPUY1Fd7t7QmHQYQygTNg==\n-----END PUBLIC KEY-----",
+          "publicKeyMultibase": "zXwpUgZtTsyAoEmHsy1gBcVfzwePQLvq85sdexRoiX2sfvRMkuWzRMXjBJaPztoW4HYvTk3AKD5SuuMGNPjUi6FwqdSV",
           "type": "JsonWebKey2020"
         }
       }

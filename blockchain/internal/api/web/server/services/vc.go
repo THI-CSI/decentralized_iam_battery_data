@@ -52,6 +52,9 @@ func (v *vcService) GetVCRecords(ctx context.Context) (*[]coreTypes.VCRecord, er
 			}
 		}
 	}
+	if len(vcRecords) == 0 {
+		return nil, errors.New("no VC records found")
+	}
 	return &vcRecords, nil
 }
 

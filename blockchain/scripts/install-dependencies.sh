@@ -37,3 +37,4 @@ npm install --save-dev typedoc typedoc-plugin-markdown
 npm install --save-dev prettier
 # PIP installs
 $PIP install json-schema-for-humans
+$PIP install cryptography base58
