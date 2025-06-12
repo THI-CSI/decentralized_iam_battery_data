@@ -73,9 +73,6 @@ def get_db():
 def get_private_key():
     return load_private_key(os.getenv("PASSPHRASE", "secret"))
 
-def get_public_key():
-    private_key = get_private_key()
-    return private_key.public_key().export_key(format="PEM").encode("utf-8")
 
 def set_nested_value(doc, path_keys, new_value):
     current_level = doc
@@ -92,7 +89,8 @@ def set_nested_value(doc, path_keys, new_value):
                    "content": {"application/json": {"example": {"ok": "API is running."}}}},
          })
 def read_root():
-    return {"message": "API is working", "public_key": get_public_key()}
+    return {"ok": "API is running."}
+
 
 @app.get("/batterypass/",
          summary="List all stored DIDs",

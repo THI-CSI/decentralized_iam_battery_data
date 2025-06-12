@@ -7,7 +7,6 @@ import (
 	"net/http"
 )
 
-// TODO: Revoking a VC works when curling blocks but isn't represented in this endpoint
 // GetAllVCs handles GET /api/v1/vcs
 func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 	result, err := s.VCService.GetVCRecords(ctx.Request().Context())
