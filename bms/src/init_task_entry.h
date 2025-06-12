@@ -1,5 +1,5 @@
-#ifndef INITIA_THREAD_H_
-#define INITIA_THREAD_H_
+#ifndef INIT_TASK_ENTRY_H
+#define INIT_TASK_ENTRY_H
 
 #define SIGNING_KEY_256_BIT_LENGTH (256U)
 #define ECC_256_PUB_MAX_BUFFER_SIZE (70U)
@@ -19,4 +19,4 @@ void initialize_rtc(void);
 fsp_err_t littlefs_init(void);
 void deinit_littlefs(void);
 
-#endif /* INITIA_THREAD_H_ */
+#endif // INIT_TASK_ENTRY_H

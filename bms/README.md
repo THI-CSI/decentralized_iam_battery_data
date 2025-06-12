@@ -6,10 +6,10 @@ A firmware project for managing and monitoring battery systems.
 
 Follow these steps to set up your development environment for this project:
 
+### Option 1
+
 > [!Note] 
 > If you're using Windows, we recommend utilizing WSL.
-
----
 
 ### 1. Install Visual Studio Code
 
@@ -17,9 +17,16 @@ Download and install Visual Studio Code from the official website:
 
 [https://code.visualstudio.com/](https://code.visualstudio.com/)
 
----
+### 2. Install e²studio
 
-### 2. Install ARM Cross Compiler Toolchain
+Download and install e²studio from the official website:
+
+[https://www.renesas.com/en/software-tool/e-studio](https://www.renesas.com/en/software-tool/e-studio)
+
+> [!NOTE]
+> You need e²studio to get the Smart Configurator.
+
+### 3. Install ARM Cross Compiler Toolchain
 
 Install the ARM GCC cross compiler toolchain. You can do this by installing the appropriate package for your platform:
 
@@ -28,22 +35,23 @@ Install the ARM GCC cross compiler toolchain. You can do this by installing the 
 ```bash
 sudo apt install gcc-arm-none-eabi
 ```
-### 3. Install SEGGER J-Link
+
+### 4. Install SEGGER J-Link
 
 Download and install the SEGGER J-Link software and drivers: 
 
 https://www.segger.com/downloads/jlink
-### 4. Clone the GitHub Repository
+
+### 5. Clone the GitHub Repository
 
 Open a terminal or command prompt and run:
 ```bash
 git clone --recurse-submodules https://github.com/THI-CSI/decentralized_iam_battery_data.git
-cd bms
 ```
 
 Additionally, update the `CC` and `OBJCOPY` variables in the `Makefile` to point to your installed ARM toolchain executable.
 
-### 5. Open the Repository in VS Code
+### 6. Open the Repository in VS Code
 
 - Launch Visual Studio Code, then:
 
@@ -51,14 +59,14 @@ Additionally, update the `CC` and `OBJCOPY` variables in the `Makefile` to point
 
 - Browse to the cloned repository and open it
 
-### 6. Additional Extensions
+### 7. Additional Extensions
 
 When you open the project in VS Code for the first time, you'll be prompted to install recommended extensions — go ahead and install all of them.
 
 > [!NOTE]
 > If you missed the prompt, you can still install them manually by opening the Extensions view and searching: `@recommended`
 
-### 7. Install RA Device Support Files
+### 8. Install RA Device Support Files
 
 - In your system's command prompt or start menu search bar:
 Search for `> Renesas Support Files Manager`
@@ -69,20 +77,68 @@ Search for `> Renesas Support Files Manager`
 
 - Install all support files for the RA family
 
-## Building and Flashing the Image 
-### Build
-To compile the project, run the following command in the project root:
+### 9. Prepare and build the project
+
+- Use Smart Configurator to generate the project files from the configuration.xml.
+
+- To compile the project, run the following command in the project root:
 ```bash
 make clean 
 make 
-``` 
+```
 
-### Flash
+---
+
+### Option 2
+
+### 1. Install Flexible Software Package 
+
+Download and execute FSP Platform Installer from the official website:
+
+[https://www.renesas.com/en/software-tool/flexible-software-package-fsp](https://www.renesas.com/en/software-tool/flexible-software-package-fsp)
+
+> [!Note] 
+> When downloading the FSP Platform Installer, make sure to select FreeRTOS as the RTOS.
+
+### 2. Install SEGGER J-Link
+
+Download and install the SEGGER J-Link software and drivers: 
+
+https://www.segger.com/downloads/jlink
+
+### 3. Clone the GitHub Repository
+
+Open a terminal or command prompt and run:
+```bash
+git clone https://github.com/THI-CSI/decentralized_iam_battery_data.git
+```
+
+### 4. Open and Prepare the Eclipse Project in e²studio
+
+- Launch e²studio, then follow these steps:
+
+- Go to File > Open Projects from File System.
+
+- Navigate to the bms folder inside the cloned repository and select it.
+
+- Open the configuration.xml file.
+
+- Click Generate Project Content to generate the necessary files.
+
+### 5. Build the project
+
+To build the project, first select it, then click the Build button in the IDE.
+
+
+## Flashing the Image 
+
 1. Install the [Renesas Flash Programmer](https://www.renesas.com/en/software-tool/renesas-flash-programmer-programming-gui#overview) tool if you haven't already. 
 2. Flash the compiled image using: 
 ```bash 
-rfp-cli -device ra -tool jlink -file build/bms.srec -a -s 1M -vo 3.3 -if swd 
+rfp-cli -device ra -tool jlink -file <path-to-srec-file> -a -s 1M -vo 3.3 -if swd 
 ```
+
+---
 
 ## Usage
 

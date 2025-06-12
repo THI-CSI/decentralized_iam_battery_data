@@ -49,6 +49,7 @@
     const char *pcApplicationHostnameHook( void );
 #endif /* ipconfigDHCP_REGISTER_HOSTNAME */
 
+int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTotalLengthToSend); 
 uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                              uint16_t usSourcePort,
                                              uint32_t ulDestinationAddress,

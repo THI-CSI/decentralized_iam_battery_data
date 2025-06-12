@@ -1,15 +1,18 @@
 #include "common.h"
-#include "init_thread.h"
-#include "init_thread_entry.h"
+#include "init_task.h"
+#include "init_task_entry.h"
 #include "common_utils.h"
 #include "rtc_init.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/ecp.h"
 #include "mbedtls/base64.h"
 
+// Platform context structure
+mbedtls_platform_context ctx_mbedtls = {RESET_VALUE};
+
 /* CustomInit entry function */
 /* pvParameters contains TaskHandle_t */
-void init_thread_entry(void *pvParameters)
+void init_task_entry(void *pvParameters)
 {
     FSP_PARAMETER_NOT_USED (pvParameters);
     // Key Pair generation
@@ -30,7 +33,6 @@ void send_and_generate_signing_key_pair()
     psa_key_handle_t signing_key_handle = RESET_VALUE;
     psa_status_t status = (psa_status_t)RESET_VALUE;
     int mbed_ret_val = RESET_VALUE;
-    mbedtls_platform_context ctx_mbedtls = {RESET_VALUE};
     // Setup the platform; initialize the SCE
     mbed_ret_val = mbedtls_platform_setup(&ctx_mbedtls);
     if (RESET_VALUE != mbed_ret_val)
@@ -71,7 +73,7 @@ void send_and_generate_signing_key_pair()
         // Generate ECC P256R1 Key pair
         status = psa_generate_key(&signing_key_attributes, &signing_key_handle);
         CHECK_PSA_SUCCESS(status, "\r\n** psa_generate_key API FAILED ** \r\n");
-        
+
         // Register public key in blockchain
         uint8_t sign_pub_key[ECC_256_PUB_MAX_BUFFER_SIZE] = {RESET_VALUE};
         size_t sign_pub_key_length = RESET_VALUE;
@@ -87,15 +89,13 @@ void send_and_generate_signing_key_pair()
         unsigned char sign_pub_key_der_base64[sign_pub_key_der_base64_size];
         mbedtls_base64_encode(sign_pub_key_der_base64, sign_pub_key_der_base64_size, &sign_pub_key_der_base64_bytes_written,
                               sign_pub_key_der, sign_pub_key_der_length);
-        ethernet_send_init("http://blockchain-endpoint", strlen("http://blockchain-endpoint"), sign_pub_key_der_base64, sign_pub_key_der_base64_bytes_written);
-         
+        ethernet_send_init("http://oem-endpoint", strlen("http://oem-endpoint"), sign_pub_key_der_base64, sign_pub_key_der_base64_bytes_written);
+
         // Free memory
         vPortFree(sign_pub_key_der);
         status = psa_close_key(signing_key_handle);
         CHECK_PSA_SUCCESS(status, "\r\n** psa_close_key API FAILED ** \r\n");
     }
-    mbedtls_psa_crypto_free();
-    mbedtls_platform_teardown(&ctx_mbedtls);
 }
 
 /*******************************************************************************************************************//**
@@ -110,7 +110,7 @@ void der_encoding_init(uint8_t *sign_pub_key, size_t sign_pub_key_length, unsign
 {
     unsigned char sign_pub_key_der_encoded[ECC_256_PUB_DER_MAX_BUFFER_SIZE] = {RESET_VALUE};
     unsigned char *sign_pub_key_der_write_ptr = sign_pub_key_der_encoded + sizeof(sign_pub_key_der_encoded);
-    
+
     mbedtls_pk_context ctx_pk;
     mbedtls_pk_init(&ctx_pk);
     mbedtls_ecp_keypair *ecp = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair)); // pvPortCalloc?
@@ -120,11 +120,11 @@ void der_encoding_init(uint8_t *sign_pub_key, size_t sign_pub_key_length, unsign
     mbedtls_mpi_init(&ecp->d);
     mbedtls_pk_setup(&ctx_pk, mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY));
     ctx_pk.pk_ctx = ecp;
-    
+
     *sign_pub_key_der_length = (size_t)mbedtls_pk_write_pubkey_der(&ctx_pk, sign_pub_key_der_encoded, sizeof(sign_pub_key_der_encoded));
     *sign_pub_key_der = (uint8_t *)pvPortCalloc(*sign_pub_key_der_length, sizeof(char));
     memcpy(*sign_pub_key_der, (uint8_t *)(sign_pub_key_der_write_ptr - *sign_pub_key_der_length), *sign_pub_key_der_length);
-    
+
     mbedtls_ecp_keypair_free(ecp);
     mbedtls_pk_free(&ctx_pk);
 }
@@ -142,10 +142,13 @@ void ethernet_send_init(char *endpoint, size_t endpoint_length, unsigned char* s
     size_t xBytesSentEndpoint = RESET_VALUE;
     size_t xBytesSentMessage = RESET_VALUE;
     xBytesSentEndpoint = xMessageBufferSend(crypto_net_message_buffer, (void *)endpoint, endpoint_length, pdMS_TO_TICKS(1000));
+    char ack = {RESET_VALUE};
+    size_t ackBytes = RESET_VALUE;
     do {
-        xBytesSentMessage = xMessageBufferSend(crypto_net_message_buffer, (void *)sign_public_key_der_base64, sign_public_key_der_base64_length,
-                                               pdMS_TO_TICKS(1000));
-    } while (xBytesSentMessage > 0);
+        ackBytes = xMessageBufferReceive(net_crypto_message_buffer, (void *)&ack, sizeof(ack), pdMS_TO_TICKS(1000));
+    } while (ackBytes == 0);
+    xBytesSentMessage = xMessageBufferSend(crypto_net_message_buffer, (void *)sign_public_key_der_base64, sign_public_key_der_base64_length,
+                                            pdMS_TO_TICKS(1000));
 }
 
 /*******************************************************************************************************************//**

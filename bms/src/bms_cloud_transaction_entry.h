@@ -56,8 +56,8 @@ typedef struct {
     size_t encrypted_data_length;
     uint8_t aad[AAD_LENGTH]; /* == nonce */
     uint8_t salt[SALT_LENGTH];
-    uint8_t *der_encoded_ephermal_key;
-    size_t der_encoded_ephermal_key_length;
+    uint8_t *der_encoded_ephemeral_key;
+    size_t der_encoded_ephemeral_key_length;
     uint8_t timestamp_bytes[TIMESTAMP_LENGTH];
 } message_context;
 
@@ -71,8 +71,8 @@ void simulate_battery_data_query(encryption_context *encryption_ctx);
 int get_number_of_full_battery_cycles(void);
 void prepare_final_message_ctx(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message);
 psa_status_t crypto_operations(uint8_t recipient_counter, encryption_context *encryption_ctx, message_context *message_ctx, final_message_struct *final_message);
-psa_status_t generate_ephermal_key_pair(message_context *message_ctx, psa_key_handle_t *ephermal_key_handle);
-psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephermal_key_handle);
+psa_status_t generate_ephemeral_key_pair(message_context *message_ctx, psa_key_handle_t *ephemeral_key_handle);
+psa_status_t derive_encryption_key(message_context *message_ctx, encryption_context *encryption_ctx, uint8_t recipient_counter, psa_key_handle_t ephemeral_key_handle);
 void der_encoding(uint8_t *ecc_pub_key, size_t ecc_pub_key_length, uint8_t **der_encoded_key_buffer, size_t *der_encoded_key_buffer_length);
 void der_decoding(uint8_t *ecc_pub_key_der, size_t ecc_pub_key_der_length, uint8_t *raw_key_buffer);
 psa_status_t encrypt_battery_data(encryption_context *encryption_ctx, message_context *message_ctx);
