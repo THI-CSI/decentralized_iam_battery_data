@@ -53,7 +53,7 @@ export default function SingleDidOverview() {
                         </TableBody>
                     </Table>
                 </div>
-                {data.service!.map((service, i) => (
+                {data.service?.map((service, i) => (
                     <div
                         key={service.id}
                         className={"bg-primary/2 h-fit w-full rounded-lg p-6 shadow dark:bg-zinc-900 dark:text-white"}

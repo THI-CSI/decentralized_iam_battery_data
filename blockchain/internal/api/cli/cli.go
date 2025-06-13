@@ -137,7 +137,7 @@ func generateDemoBlockchain(chain *core.Blockchain, filename string) error {
 	chain.AppendDid(&didCloud)
 	chain.AppendDid(&didOem)
 	chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
-	chain.AppendVcRecords(&vcRecord)
+	chain.AppendVcRecord(&vcRecord)
 	chain.AppendBlock(core.GenerateBlock(chain.GetLastBlock()))
 	chain.AppendDid(&didCloud)
 	chain.AppendDid(&didOem)

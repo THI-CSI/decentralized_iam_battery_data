@@ -19,6 +19,7 @@ export default function BlockOverview() {
     if (!data) {
         return <h1>Loading ...</h1>;
     }
+
     return (
         <div className={"w-full"}>
             <h2 className={"text-primary mb-6 text-2xl font-semibold"}>Recent Blocks</h2>
@@ -38,17 +39,17 @@ export default function BlockOverview() {
                             {data.map((block) => (
                                 <TableRow
                                     className={"hover:cursor-pointer"}
-                                    key={block.id}
+                                    key={block.Index}
                                     onClick={() =>
                                         navigate({
                                             to: "/blocks/$blockId",
-                                            params: { blockId: block.id!.toString() },
+                                            params: { blockId: block.Index.toString() },
                                         })
                                     }
                                 >
-                                    <TableCell className={"text-sky-600"}>{block.id}</TableCell>
-                                    <TableCell>{block.timestamp}</TableCell>
-                                    <TableCell>{block.hash}</TableCell>
+                                    <TableCell className={"text-sky-600"}>{block.Index}</TableCell>
+                                    <TableCell>{block.Timestamp}</TableCell>
+                                    <TableCell>{block.Hash}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

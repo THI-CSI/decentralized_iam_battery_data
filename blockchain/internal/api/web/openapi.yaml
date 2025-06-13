@@ -1,0 +1,377 @@
+openapi: 3.1.0
+info:
+  title: Blockchain API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/THI-CSI/decentralized_iam_battery_data?tab=MIT-1-ov-file
+
+servers:
+  - url: http://localhost:8443
+    description: Local development server
+
+security: [ ]
+
+tags:
+  - name: Blocks
+    description: "Endpoints handling Block and Transaction data."
+  - name: VC
+    description: "Endpoints handling Verifiable Credentials."
+  - name: VP
+    description: "Endpoints handling Verifiable Presentations."
+  - name: DIDs
+    description: "Endpoints handling DID documents."
+
+paths:
+  /api/v1/blocks:
+    get:
+      tags: [ Blocks ]
+      summary: Get all blocks of the blockchain
+      operationId: getAllBlocks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.blocks.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/blocks/{blockId}:
+    get:
+      tags: [ Blocks ]
+      summary: Get a block of the blockchain by ID
+      operationId: getBlockById
+      parameters:
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.block.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/blocks/{blockId}/transactions:
+    get:
+      tags: [ Blocks ]
+      summary: Get all transactions of a specific block
+      operationId: getBlockTransactions
+      parameters:
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.transactions.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vcs:
+    get:
+      tags: [ VC ]
+      summary: Get a all VC Records
+      operationId: getAllVcRecords
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.vcs.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vcs/{vcUri}:
+    get:
+      tags: [ VC ]
+      summary: Get a specific VC Record by URI
+      operationId: getVcRecordById
+      parameters:
+        - name: vcUri
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uri
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.vc.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vcs/create:
+    post:
+      tags: [ VC ]
+      summary: Create a VC Record
+      operationId: createVcRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vc.create.schema.json'
+            examples:
+              vcCreateRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vc.create.1.json'
+      responses:
+        '200':
+          description: VC created successfully
+          content:
+            application/json:
+              schema:
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vcs/revoke:
+    post:
+      tags: [ VC ]
+      summary: Revoke a VC Record
+      operationId: revokeVcRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vc.revoke.schema.json'
+            examples:
+              vcCreateRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vc.revoke.1.json'
+      responses:
+        '200':
+          description: VC Record revoked successfully
+          content:
+            application/json:
+              schema:
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vps/verify:
+    post:
+      tags: [ VP ]
+      summary: Verify a VP Record
+      operationId: verifyVp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vp.verify.schema.json'
+            examples:
+              vpVerifyRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vp.verify.1.json'
+      responses:
+        '200':
+          description: VC Record successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.ok.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/dids:
+    get:
+      tags: [ DIDs ]
+      summary: Get all DIDs from the blockchain
+      operationId: getAllDids
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.dids.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/dids/{did}:
+    get:
+      tags: [ DIDs ]
+      summary: Get a specific DID Document by its DID
+      operationId: getDidById
+      parameters:
+        - name: did
+          in: path
+          required: true
+          schema:
+            type: string
+            description: DID of the requested DID document
+            pattern: "^did:batterypass:(eu|oem|cloud|bms|service)\\.[a-zA-Z0-9.\\-]+$"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.did.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/dids/createormodify:
+    post:
+      tags: [ DIDs ]
+      summary: Create or modify a DID document
+      operationId: createOrModifyDid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.did.createormodify.schema.json'
+            examples:
+              didCreateOrModifyRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.did.createormodify.1.json'
+      responses:
+        '200':
+          description: DID created or modified successfully
+          content:
+            application/json:
+              schema:
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/dids/revoke:
+    post:
+      tags: [ DIDs ]
+      summary: Revoke a DID document
+      operationId: revokeDid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.did.revoke.schema.json'
+            examples:
+              vcCreateRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.did.revoke.1.json'
+      responses:
+        '200':
+          description: DID revoked successfully
+          content:
+            application/json:
+              schema:
+                { $ref: './jsonschema/responses/response.ok.schema.json' }
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }

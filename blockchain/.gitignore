@@ -1,10 +1,11 @@
 bin/
+signed.jws
 blockchain.json
 package.json
 package-lock.json
 node_modules/
 .venv/
-docs/swagger
+docs/openapi.html
 docs/sourcecode/
 docs/schema
 schema_doc.css
@@ -12,4 +13,5 @@ schema_doc.min.js
 frontend/node_modules
 .idea
 blockchain-demo.json
-
+internal/api/web/openapi.bundled.yaml
+openapitools.json

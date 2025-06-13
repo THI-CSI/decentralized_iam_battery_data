@@ -1,31 +1,15 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "vc r",
-  "title": "VC Record Schema",
-  "description": "Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and revocation status.",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vc-r",
+  "title": "Battery-Ecosystem Verifiable Credential Record",
+  "description": "Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.",
   "type": "object",
   "required": ["id", "vcHash", "timestamp"],
   "additionalProperties": false,
   "properties": {
-    "id": {
-      "type": "string",
-      "format": "uri",
-      "description": "The identifier of the Verifiable Credential."
-    },
-    "vcHash": {
-      "type": "string",
-      "pattern": "^[A-Fa-f0-9]{64}$",
-      "description": "A SHA-256 hash of the complete VC in hexadecimal format."
-    },
-    "timestamp": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when the record was created or updated."
-    },
-    "expirationDate": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Expiration Date of the related Verifiable Credential"
-    }
+    "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
+    "vcHash": { "$ref": "common.defs.schema.json#/definitions/256Hash"},
+    "timestamp": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
+    "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" }
   }
 }

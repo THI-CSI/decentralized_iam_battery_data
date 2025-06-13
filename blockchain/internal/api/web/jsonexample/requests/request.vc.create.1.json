@@ -1,0 +1,29 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "http://localhost:8443/docs/vc.bmsProduction.schema.html"
+  ],
+  "id": "urn:uuid:982c43ee-3d16-419a-a2f4-5c61710f428c",
+  "type": [
+    "VerifiableCredential",
+    "BMSProduction"
+  ],
+  "issuer": "did:batterypass:bms.sn-544b51e7",
+  "holder": "did:batterypass:oem.sn-audi",
+  "issuanceDate": "2025-06-10T12:01:00Z",
+  "expirationDate": "2026-06-10T12:01:00Z",
+  "credentialSubject": {
+    "id": "did:batterypass:oem.sn-audi",
+    "type": "BMSProduction",
+    "bmsDid": "did:batterypass:bms.sn-544b51e7",
+    "timestamp": "2025-06-10T12:01:00Z",
+    "lotNumber": "LOT-775533"
+  },
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-06-10T12:01:03Z",
+    "verificationMethod": "did:batterypass:bms.sn-544b51e7#key-1",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJAY29udGV4dCI6IFsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCAiaHR0cDovL2xvY2FsaG9zdDo4NDQzL2RvY3MvdmMuYm1zUHJvZHVjdGlvbi5zY2hlbWEuaHRtbCJdLCAiaWQiOiAidXJuOnV1aWQ6OTgyYzQzZWUtM2QxNi00MTlhLWEyZjQtNWM2MTcxMGY0MjhjIiwgInR5cGUiOiBbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwgIkJNU1Byb2R1Y3Rpb24iXSwgImlzc3VlciI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgImhvbGRlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAiaXNzdWFuY2VEYXRlIjogIjIwMjUtMDYtMTBUMTI6MDE6MDBaIiwgImV4cGlyYXRpb25EYXRlIjogIjIwMjYtMDYtMTBUMTI6MDE6MDBaIiwgImNyZWRlbnRpYWxTdWJqZWN0IjogeyJpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAidHlwZSI6ICJCTVNQcm9kdWN0aW9uIiwgImJtc0RpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgInRpbWVzdGFtcCI6ICIyMDI1LTA2LTEwVDEyOjAxOjAwWiIsICJsb3ROdW1iZXIiOiAiTE9ULTc3NTUzMyJ9LCAicHJvb2YiOiB7InR5cGUiOiAiRWNkc2FTZWNwMjU2cjFTaWduYXR1cmUyMDE5IiwgImNyZWF0ZWQiOiAiMjAyNS0wNi0xMFQxMjowMTowM1oiLCAidmVyaWZpY2F0aW9uTWV0aG9kIjogImRpZDpiYXR0ZXJ5cGFzczpibXMuc24tNTQ0YjUxZTcja2V5LTEiLCAicHJvb2ZQdXJwb3NlIjogImF1dGhlbnRpY2F0aW9uIiwgImp3cyI6ICIifX0.FGuVZ-NqZ6VfHc-FSfqLzwkNAyFl8ncWkQ5-z0NvuUf5aIMAwS67pE1bpBqmlUAx3cb7Xwn1KzM0BMtQxowioQ"
+  }
+}

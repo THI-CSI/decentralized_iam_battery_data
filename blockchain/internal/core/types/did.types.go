@@ -24,14 +24,12 @@ func (r *Did) Marshal() ([]byte, error) {
 type Did struct {
 	// Defines the JSON-LD context, providing meaning to terms used in the did.                                   
 	Context                                                                                    []Context          `json:"@context"`
-	// Decentralized Identifier (DID) for the entity, following the DID syntax.                                   
 	ID                                                                                         string             `json:"id"`
 	// Boolean flag indicating whether this DID has been revoked.                                                 
 	Revoked                                                                                    bool               `json:"revoked"`
 	// Optional array of service endpoints related to the DID subject, such as APIs or metadata                   
 	// services.                                                                                                  
-	Service                                                                                    []DidSchema        `json:"service,omitempty"`
-	// Timestamp indicating when the DID document was created/modified.                                           
+	Service                                                                                    []ServiceEndpoint  `json:"service,omitempty"`
 	Timestamp                                                                                  time.Time          `json:"timestamp"`
 	// Public key information used for verifying signatures and authentication.                                   
 	VerificationMethod                                                                         VerificationMethod `json:"verificationMethod"`
@@ -39,7 +37,7 @@ type Did struct {
 
 // Represents a service associated with the DID subject, such as a metadata or data access
 // point.
-type DidSchema struct {
+type ServiceEndpoint struct {
 	// Identifier for the service endpoint, typically a DID fragment.       
 	ID                                                               string `json:"id"`
 	// The actual service endpoint, which can be a URL.                     

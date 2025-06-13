@@ -2,8 +2,8 @@
 
 set -e
 
-PROJECT_ROOT=$(dirname "$(dirname \""$0"\")")
-SPEC="${PROJECT_ROOT}/docs/swagger/swagger.json"
+PROJECT_ROOT=$(dirname "$(dirname "$0")")
+SPEC="${PROJECT_ROOT}/internal/api/web/openapi.bundled.yaml"
 GENERATED="${PROJECT_ROOT}/frontend/src/api/generated"
 CONFIG="${GENERATED}/config.json"
 TMP="${PROJECT_ROOT}/tmp"

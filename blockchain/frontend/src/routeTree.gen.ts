@@ -8,104 +8,44 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as DidsIndexRouteImport } from './routes/dids/index'
+import { Route as BlocksIndexRouteImport } from './routes/blocks/index'
+import { Route as SchemasSchema_nameIndexRouteImport } from './routes/schemas/$schema_name/index'
+import { Route as DidsDidIdIndexRouteImport } from './routes/dids/$didId/index'
+import { Route as BlocksBlockIdIndexRouteImport } from './routes/blocks/$blockId/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as DidsIndexImport } from './routes/dids/index'
-import { Route as BlocksIndexImport } from './routes/blocks/index'
-import { Route as DocsSchemanameIndexImport } from './routes/docs/$schema_name/index'
-import { Route as DidsDidIdIndexImport } from './routes/dids/$didId/index'
-import { Route as BlocksBlockIdIndexImport } from './routes/blocks/$blockId/index'
-
-// Create/Update Routes
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DidsIndexRoute = DidsIndexImport.update({
+const DidsIndexRoute = DidsIndexRouteImport.update({
   id: '/dids/',
   path: '/dids/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const BlocksIndexRoute = BlocksIndexImport.update({
+const BlocksIndexRoute = BlocksIndexRouteImport.update({
   id: '/blocks/',
   path: '/blocks/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DocsSchemanameIndexRoute = DocsSchemanameIndexImport.update({
-  id: '/docs/$schema_name/',
-  path: '/docs/$schema_name/',
-  getParentRoute: () => rootRoute,
+const SchemasSchema_nameIndexRoute = SchemasSchema_nameIndexRouteImport.update({
+  id: '/schemas/$schema_name/',
+  path: '/schemas/$schema_name/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DidsDidIdIndexRoute = DidsDidIdIndexImport.update({
+const DidsDidIdIndexRoute = DidsDidIdIndexRouteImport.update({
   id: '/dids/$didId/',
   path: '/dids/$didId/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const BlocksBlockIdIndexRoute = BlocksBlockIdIndexImport.update({
+const BlocksBlockIdIndexRoute = BlocksBlockIdIndexRouteImport.update({
   id: '/blocks/$blockId/',
   path: '/blocks/$blockId/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/blocks/': {
-      id: '/blocks/'
-      path: '/blocks'
-      fullPath: '/blocks'
-      preLoaderRoute: typeof BlocksIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/dids/': {
-      id: '/dids/'
-      path: '/dids'
-      fullPath: '/dids'
-      preLoaderRoute: typeof DidsIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/blocks/$blockId/': {
-      id: '/blocks/$blockId/'
-      path: '/blocks/$blockId'
-      fullPath: '/blocks/$blockId'
-      preLoaderRoute: typeof BlocksBlockIdIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/dids/$didId/': {
-      id: '/dids/$didId/'
-      path: '/dids/$didId'
-      fullPath: '/dids/$didId'
-      preLoaderRoute: typeof DidsDidIdIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/docs/$schema_name/': {
-      id: '/docs/$schema_name/'
-      path: '/docs/$schema_name'
-      fullPath: '/docs/$schema_name'
-      preLoaderRoute: typeof DocsSchemanameIndexImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -113,28 +53,25 @@ export interface FileRoutesByFullPath {
   '/dids': typeof DidsIndexRoute
   '/blocks/$blockId': typeof BlocksBlockIdIndexRoute
   '/dids/$didId': typeof DidsDidIdIndexRoute
-  '/docs/$schema_name': typeof DocsSchemanameIndexRoute
+  '/schemas/$schema_name': typeof SchemasSchema_nameIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blocks': typeof BlocksIndexRoute
   '/dids': typeof DidsIndexRoute
   '/blocks/$blockId': typeof BlocksBlockIdIndexRoute
   '/dids/$didId': typeof DidsDidIdIndexRoute
-  '/docs/$schema_name': typeof DocsSchemanameIndexRoute
+  '/schemas/$schema_name': typeof SchemasSchema_nameIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/blocks/': typeof BlocksIndexRoute
   '/dids/': typeof DidsIndexRoute
   '/blocks/$blockId/': typeof BlocksBlockIdIndexRoute
   '/dids/$didId/': typeof DidsDidIdIndexRoute
-  '/docs/$schema_name/': typeof DocsSchemanameIndexRoute
+  '/schemas/$schema_name/': typeof SchemasSchema_nameIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -143,7 +80,7 @@ export interface FileRouteTypes {
     | '/dids'
     | '/blocks/$blockId'
     | '/dids/$didId'
-    | '/docs/$schema_name'
+    | '/schemas/$schema_name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,7 +88,7 @@ export interface FileRouteTypes {
     | '/dids'
     | '/blocks/$blockId'
     | '/dids/$didId'
-    | '/docs/$schema_name'
+    | '/schemas/$schema_name'
   id:
     | '__root__'
     | '/'
@@ -159,17 +96,63 @@ export interface FileRouteTypes {
     | '/dids/'
     | '/blocks/$blockId/'
     | '/dids/$didId/'
-    | '/docs/$schema_name/'
+    | '/schemas/$schema_name/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BlocksIndexRoute: typeof BlocksIndexRoute
   DidsIndexRoute: typeof DidsIndexRoute
   BlocksBlockIdIndexRoute: typeof BlocksBlockIdIndexRoute
   DidsDidIdIndexRoute: typeof DidsDidIdIndexRoute
-  DocsSchemanameIndexRoute: typeof DocsSchemanameIndexRoute
+  SchemasSchema_nameIndexRoute: typeof SchemasSchema_nameIndexRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dids/': {
+      id: '/dids/'
+      path: '/dids'
+      fullPath: '/dids'
+      preLoaderRoute: typeof DidsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blocks/': {
+      id: '/blocks/'
+      path: '/blocks'
+      fullPath: '/blocks'
+      preLoaderRoute: typeof BlocksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schemas/$schema_name/': {
+      id: '/schemas/$schema_name/'
+      path: '/schemas/$schema_name'
+      fullPath: '/schemas/$schema_name'
+      preLoaderRoute: typeof SchemasSchema_nameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dids/$didId/': {
+      id: '/dids/$didId/'
+      path: '/dids/$didId'
+      fullPath: '/dids/$didId'
+      preLoaderRoute: typeof DidsDidIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blocks/$blockId/': {
+      id: '/blocks/$blockId/'
+      path: '/blocks/$blockId'
+      fullPath: '/blocks/$blockId'
+      preLoaderRoute: typeof BlocksBlockIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -178,45 +161,8 @@ const rootRouteChildren: RootRouteChildren = {
   DidsIndexRoute: DidsIndexRoute,
   BlocksBlockIdIndexRoute: BlocksBlockIdIndexRoute,
   DidsDidIdIndexRoute: DidsDidIdIndexRoute,
-  DocsSchemanameIndexRoute: DocsSchemanameIndexRoute,
+  SchemasSchema_nameIndexRoute: SchemasSchema_nameIndexRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/blocks/",
-        "/dids/",
-        "/blocks/$blockId/",
-        "/dids/$didId/",
-        "/docs/$schema_name/"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/blocks/": {
-      "filePath": "blocks/index.tsx"
-    },
-    "/dids/": {
-      "filePath": "dids/index.tsx"
-    },
-    "/blocks/$blockId/": {
-      "filePath": "blocks/$blockId/index.tsx"
-    },
-    "/dids/$didId/": {
-      "filePath": "dids/$didId/index.tsx"
-    },
-    "/docs/$schema_name/": {
-      "filePath": "docs/$schema_name/index.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

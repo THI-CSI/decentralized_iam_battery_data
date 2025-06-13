@@ -12,7 +12,7 @@
   },
   "service": [
     {
-      "id": "did:batterypass:cloud.vw-node-eu-central",
+      "id": "did:batterypass:cloud.vw-node-eu-central#batterypassApi",
       "type": "BatteryPassAPI",
       "serviceEndpoint": "https://<cloud-endpoint>"
     }

@@ -1,130 +1,89 @@
 package handlers
 
 import (
-	"blockchain/internal/api/web/server/domain"
-	"blockchain/internal/api/web/server/services"
-	"blockchain/internal/api/web/server/utils"
-	"github.com/gofiber/fiber/v2"
-	"log/slog"
-	"net/url"
+	"blockchain/internal/api/web/server/models"
+	"github.com/labstack/echo/v4"
+	"log"
+	"net/http"
 )
 
-// GetDIDs retrieves all DIDs from the blockchain
-//
-//	@Summary		Get all DIDs
-//	@Description	Get all DIDs from the blockchain
-//	@Tags			DIDs
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	[]core.Did
-//	@Failure		400	{object}	domain.ErrorResponseHTTP
-//	@Failure		500	{object}	domain.ErrorResponseHTTP
-//	@Router			/api/v1/dids [get]
-func GetDIDs(service services.DidService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		slog.Info("GetDIDs was called", "info")
-		result, err := service.GetDIDs(c.UserContext())
-		if err != nil {
-			return err
-		}
+// GetAllDids handles GET /api/v1/dids
+func (s *MyServer) GetAllDids(ctx echo.Context) error {
+	result, err := s.DidService.GetDIDs(ctx.Request().Context())
 
-		return utils.WriteResponse(c, fiber.StatusOK, result)
+	if err != nil {
+		log.Printf("Bad Request: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	if err := s.validateOutgoingResponse(ctx, *result, s.responseDidsSchema); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, result)
 }
 
-// GetDID retrieves a DID from the blockchain
-//
-//	@Summary		Get a single DID
-//	@Description	Get a DID from the blockchain
-//	@Tags			DIDs
-//	@Accept			json
-//	@Produce		json
-//	@Param			did	path		string	true	"DID"
-//	@Success		200	{object}	core.Did
-//	@Failure		400	{object}	domain.ErrorResponseHTTP
-//	@Failure		500	{object}	domain.ErrorResponseHTTP
-//	@Router			/api/v1/dids/{did} [get]
-func GetDID(service services.DidService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		did := c.Params("did")
-		did, err := url.QueryUnescape(did)
-		if err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		}
-		if !utils.IsDidValid(did) {
-			return domain.BadRequestError("Invalid Did")
-		}
-
-		slog.Info("GetDID was called", did)
-
-		result, err := service.GetDID(c.UserContext(), did)
-		if err != nil {
-			return fiber.NewError(fiber.StatusNotFound, err.Error())
-		}
-
-		return utils.WriteResponse(c, fiber.StatusOK, result)
+// GetDidById handles GET /api/v1/dids/{did}
+func (s *MyServer) GetDidById(ctx echo.Context, did string) error {
+	result, err := s.DidService.GetDID(ctx.Request().Context(), did)
+	if err != nil {
+		log.Printf("Bad Request: %v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	if err := s.validateOutgoingResponse(ctx, *result, s.responseDidSchema); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, result)
 }
 
-// CreateDID creates a DID on the blockchain
-//
-//	@Summary		Create a new DID
-//	@Description	Create a new DID on the blockchain
-//	@Tags			DIDs
-//	@Accept			json
-//	@Produce		json
-//	@Param			did body		domain.CreateDid	true	"DID"
-//	@Success		201		{object}	core.Did
-//	@Failure		400		{object}	domain.ErrorResponseHTTP
-//	@Failure		500		{object}	domain.ErrorResponseHTTP
-//	@Router			/api/v1/dids [post]
-func CreateDID(service services.DidService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		createDid, err := utils.ParseAndValidateStruct[domain.CreateDid](c)
-		if err != nil {
-			return domain.BadRequestError("Invalid Did")
-		}
+// CreateOrModifyDid handles POST /api/v1/dids/createormodify
+func (s *MyServer) CreateOrModifyDid(ctx echo.Context) error {
+	var requestBody models.CreateOrModifyDidJSONRequestBody
 
-		slog.Info("CreateDID was called", createDid)
-
-		result, err := service.CreateDID(c.UserContext(), createDid)
-		if err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		}
-
-		return utils.WriteResponse(c, fiber.StatusCreated, result)
+	if err := ctx.Bind(&requestBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
 	}
+
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidCreateormodifySchema); err != nil {
+		return err
+	}
+
+	err := s.DidService.VerifyRequestCreateOrModify(requestBody)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	err = s.DidService.CreateOrModifyDID(ctx.Request().Context(), &requestBody.Payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, models.ResponseErrorSchema{Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID created/modified"})
 }
 
-// RevokeDid revokes a DID on the blockchain and creates a new transaction
-//
-//	@Summary		Revokes a DID
-//	@Description	Revokes a DID on the blockchain and creates a new transaction
-//	@Tags			DIDs
-//	@Accept			json
-//	@Produce		json
-//	@Param			did	path	string	true	"DID"
-//	@Success		200
-//	@Failure		400	{object}	domain.ErrorResponseHTTP
-//	@Failure		500	{object}	domain.ErrorResponseHTTP
-//	@Router			/api/v1/dids/{did} [delete]
-func RevokeDid(service services.DidService) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		did := c.Params("did")
-		did, err := url.QueryUnescape(did)
-		if err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		}
-		if !utils.IsDidValid(did) {
-			return domain.BadRequestError("Invalid Did")
-		}
+// RevokeDid handles POST /api/v1/dids/revoke
+func (s *MyServer) RevokeDid(ctx echo.Context) error {
+	var requestBody models.RevokeDidJSONRequestBody
 
-		slog.Info("RevokeDid was called", did)
-
-		if err := service.RevokeDid(c.UserContext(), did); err != nil {
-			return err
-		}
-
-		return c.SendStatus(fiber.StatusOK)
+	if err := ctx.Bind(&requestBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestDidRevokeSchema); err != nil {
+		return err
+	}
+
+	err := s.DidService.VerifyRequestRevoke(requestBody)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = s.DidService.RevokeDid(ctx.Request().Context(), requestBody.Payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "DID revoked"})
 }
