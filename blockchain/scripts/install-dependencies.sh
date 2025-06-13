@@ -18,9 +18,6 @@ go get github.com/labstack/echo/v4
 go get github.com/labstack/echo/v4/middleware@v4.13.4
 go get github.com/oapi-codegen/runtime
 go get github.com/xeipuuv/gojsonschema
-go get github.com/lestrrat-go/jwx/v3
-go get github.com/lestrrat-go/jwx/v3/jws@v3.0.2
-go get github.com/lestrrat-go/jwx/v3/jwk@v3.0.2
 
 
 # NPM installs

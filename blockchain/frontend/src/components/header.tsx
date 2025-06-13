@@ -7,7 +7,7 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
+    navigationMenuTriggerStyle
 } from "./ui/navigation-menu";
 
 /**
@@ -40,13 +40,14 @@ export default function HeaderLayout() {
                         <NavigationMenuList className={"gap-4"}>
                             <NavigationMenuItem>
                                 <NavigationMenuTrigger className={"bg-sidebar-primary text-white duration-0"}>
-                                    Docs
+                                    Schemas
                                 </NavigationMenuTrigger>
                                 <NavigationMenuContent>
                                     <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+
                                         <Link
                                             className={"h-full w-full"}
-                                            to={"/docs/$schema_name"}
+                                            to={"/schemas/$schema_name"}
                                             params={{ schema_name: "did.schema.html" }}
                                         >
                                             DID
@@ -55,7 +56,7 @@ export default function HeaderLayout() {
                                     <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
-                                            to={"/docs/$schema_name"}
+                                            to={"/schemas/$schema_name"}
                                             params={{ schema_name: "vc.record.schema.html" }}
                                         >
                                             VC Records
@@ -64,10 +65,37 @@ export default function HeaderLayout() {
                                     <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
-                                            to={"/docs/$schema_name"}
-                                            params={{ schema_name: "vc.schema.html" }}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vc.bmsProduced.schema.html" }}
                                         >
-                                            VC Schema
+                                            VC BMS
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vc.cloudInstance.schema.html" }}
+                                        >
+                                            VC Cloud
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vc.serviceAccess.schema.html" }}
+                                        >
+                                            VC Service
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vp.schema.html" }}
+                                        >
+                                            VP Schema
                                         </Link>
                                     </NavigationMenuLink>
                                 </NavigationMenuContent>
@@ -91,7 +119,7 @@ export default function HeaderLayout() {
                                 navigate(
                                     pathname.includes("blocks") || pathname.includes("docs")
                                         ? { to: "/blocks" }
-                                        : { to: "/dids" },
+                                        : { to: "/dids" }
                                 )
                             }
                         >

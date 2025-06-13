@@ -30,8 +30,7 @@ DELETE_FOLDER = [
     "schema_doc.css",
     "schema_doc.min.js",
     "package.json",
-    "./internal/api/web/openapi.bundled.yaml"
-    "openapitools.json"
+    "./internal/api/web/openapi.bundled.yamlopenapitools.json",
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
@@ -48,6 +47,7 @@ def signal_handler(_sig, _frame):
     print("received interrupt signal")
     sys.exit(1)
 
+
 def check_return_code(code):
     if code != 0:
         print(f"Command failed with code {code}", file=sys.stderr)
@@ -57,6 +57,7 @@ def check_return_code(code):
 def blockchain_cmd(unknown_args):
     process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
     check_return_code(process.returncode)
+
 
 def docker_compose_dev(command: str, unknown_args):
     process = subprocess.run(
@@ -171,7 +172,6 @@ def main():
     elif args.command == "generate":
         if os.path.exists("./node_modules"):
             run_command(["bash", "./scripts/generate-api-go.sh"])
-            run_command(["bash", "./scripts/generate-api-typescript.sh"])
             run_command(
                 [
                     QUICKTYPE,

@@ -22,11 +22,11 @@ export default function DocsIframe(_props: DocsIframeProps) {
 
     return (
         <div className={"h-full w-full"}>
-            <iframe src={`/api/v1/docs/schema/${schema_name}`} className={"h-full w-full"}></iframe>
+            <iframe src={`/docs/schema/${schema_name}`} className={"h-full w-full"}></iframe>
         </div>
     );
 }
 
-export const Route = createFileRoute("/docs/$schema_name/")({
+export const Route = createFileRoute("/schemas/$schema_name/")({
     component: DocsIframe,
 });

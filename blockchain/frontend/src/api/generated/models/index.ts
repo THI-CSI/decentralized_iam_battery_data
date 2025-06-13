@@ -189,7 +189,7 @@ export interface ResponseBlockSchema {
      * @type {number}
      * @memberof ResponseBlockSchema
      */
-    _Index: number;
+    Index: number;
     /**
      * 
      * @type {string}
@@ -347,13 +347,13 @@ export interface VcBmsProducedSchema {
      */
     type: Set<string>;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific bms and then an identifier
      * @type {string}
      * @memberof VcBmsProducedSchema
      */
     issuer: string;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific oem and then an identifier
      * @type {string}
      * @memberof VcBmsProducedSchema
      */
@@ -413,7 +413,7 @@ export interface VcBmsProducedSchemaCredentialSubject {
      */
     type: string;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific bms and then an identifier
      * @type {string}
      * @memberof VcBmsProducedSchemaCredentialSubject
      */
@@ -457,13 +457,13 @@ export interface VcCloudInstanceSchema {
      */
     type: Set<string>;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific oem and then an identifier
      * @type {string}
      * @memberof VcCloudInstanceSchema
      */
     issuer: string;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific bms and then an identifier
      * @type {string}
      * @memberof VcCloudInstanceSchema
      */
@@ -523,7 +523,7 @@ export interface VcCloudInstanceSchemaCredentialSubject {
      */
     type: string;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific cloud and then an identifier
      * @type {string}
      * @memberof VcCloudInstanceSchemaCredentialSubject
      */
@@ -565,12 +565,6 @@ export interface VcRecordSchema {
      * @memberof VcRecordSchema
      */
     expirationDate?: string;
-    /**
-     * 
-     * @type {Proof}
-     * @memberof VcRecordSchema
-     */
-    proof: Proof;
 }
 /**
  * Schema for verifying Service Access claims.
@@ -598,13 +592,13 @@ export interface VcServiceAccessSchema {
      */
     type: Set<string>;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific bms and then an identifier
      * @type {string}
      * @memberof VcServiceAccessSchema
      */
     issuer: string;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific service and then an identifier
      * @type {string}
      * @memberof VcServiceAccessSchema
      */
@@ -664,7 +658,7 @@ export interface VcServiceAccessSchemaCredentialSubject {
      */
     type: string;
     /**
-     * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+     * DID string with the DID method `batterypass` for a specific bms and then an identifier
      * @type {string}
      * @memberof VcServiceAccessSchemaCredentialSubject
      */
@@ -750,10 +744,10 @@ export interface VpSchema {
     type: Array<string>;
     /**
      * 
-     * @type {Array<VpSchemaVerifiableCredentialInner>}
+     * @type {Array<RequestVcCreateSchema>}
      * @memberof VpSchema
      */
-    verifiableCredential: Array<VpSchemaVerifiableCredentialInner>;
+    verifiableCredential: Array<RequestVcCreateSchema>;
     /**
      * DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
      * @type {string}
@@ -778,9 +772,3 @@ export const VpSchemaContextEnum = {
 } as const;
 export type VpSchemaContextEnum = typeof VpSchemaContextEnum[keyof typeof VpSchemaContextEnum];
 
-/**
- * @type VpSchemaVerifiableCredentialInner
- * 
- * @export
- */
-export type VpSchemaVerifiableCredentialInner = VcBmsProducedSchema | VcCloudInstanceSchema | VcServiceAccessSchema;
