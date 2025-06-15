@@ -22,11 +22,11 @@
       - [Example](#example-1)
     - [GET `/batterypass/{did}`](#get-batterypassdid)
       - [Description](#description-4)
-      - [Body](#body-2)
+      - [Query Parameters](#query-parameters)
       - [Example](#example-2)
     - [DELETE `/batterypass/{did}`](#delete-batterypassdid)
       - [Description](#description-5)
-      - [Body](#body-3)
+      - [Query Parameters](#query-parameters-1)
       - [Example](#example-3)
 
 ---
@@ -35,11 +35,27 @@
 
 The API is available under <http://localhost:8000> by default.
 
-For the following examples it is advised to export a sample `did` into your shell environment:
+For the following examples it is advised to export a sample `did` into your shell environment.
+The keys that are registered inside [blockchain.test.json](../../blockchain/blockchain.test.json)
+can be used to test the functionality of the API.
+You can use `did:batterypass:bms.sn-544b51e7` as an example DID.
 
 ```shell
-export EXAMPLE_DID="did:batterypass:$(python -c 'import uuid; print(uuid.uuid4())')"
+export EXAMPLE_DID="did:batterypass:bms.sn-544b51e7"
 ```
+
+To generate the sample payloads, you can use:
+
+```shell
+python example/genpayloads.py did:batterypass:bms.sn-544b51e7 \
+  did:batterypass:oem.sn-audi \
+  example/testkeys/bms_decrypted_key.pem \
+  example/testkeys/oem_decrypted_key.pem
+```
+
+This will create PUT, POST, GET and DELETE payloads 
+signed and encrypted using `example/testkeys/bms_decrypted_key.pem`.
+These payloads can be used to test the different endpoints.
 
 ---
 
@@ -129,14 +145,16 @@ It is either created by the OEM or the BMS itself.
 
 #### Body
 
-> The body follows the [BatteryPassDataModel](https://github.com/batterypass/BatteryPassDataModel).
-> An example can be found in [./example/batterypass.json](./example/batterypass.json). It needs to be
-> encapsulated inside the [request body](#request-body).
+The body follows the [BatteryPassDataModel](https://github.com/batterypass/BatteryPassDataModel).
+An example can be found in [example/batterypass.json](./example/batterypass.json). It needs to be
+encapsulated inside the [request body](#request-body).
 
 #### Example
 
 ```shell
-curl -X PUT http://localhost:8000/batterypass/$EXAMPLE_DID --data {...}
+curl -X PUT http://localhost:8000/batterypass/$EXAMPLE_DID \
+  -H 'Content-Type: application/json' \
+  --data @example/payloads/put_payload.json
 ```
 
 ---
@@ -163,12 +181,14 @@ A proper example for such a list is as follows:
 
 #### Body
 
-> The JSON list needs to be encrypted and encapsulated inside the [request body](#request-body).
+The JSON list needs to be encrypted and encapsulated inside the [request body](#request-body).
 
 #### Example
 
 ```shell
-curl -X POST http://localhost:8000/batterypass/$EXAMPLE_DID --data {...}
+curl -X POST http://localhost:8000/batterypass/$EXAMPLE_DID \
+  -H 'Content-Type: application/json' \
+  --data @example/payloads/post_payload.json
 ```
 
 ---
@@ -179,18 +199,18 @@ curl -X POST http://localhost:8000/batterypass/$EXAMPLE_DID --data {...}
 
 Retrieving data can either be done with authentication (e.g., BMS / service access) or without it (public access).
 
-#### Body
+#### Query Parameters
 
-> The body can
->
-> - be empty (public access)
-> - contain an encrypted and encapsulated VC (verifiable credential) inside the [request body](#request-body) (e.g., service access)
-> - contain an encrypted and encapsulated 128-byte random number inside the [request body](#request-body) (BMS access)
+- public: set to `true` by default, needs to be set to `false` in order to access non-public data
+- payload: A compact [request body](#request-body) serialized as a URL-safe JSON string
+
+> [!NOTE]
+> The encrypted ciphertext can either contain a **128-byte random number** (BMS access) or a Verifiable Presentation (e.g., service access).
 
 #### Example
 
 ```shell
-curl -X GET http://localhost:8000/batterypass/$EXAMPLE_DID
+curl -X GET http://localhost:8000/batterypass/$EXAMPLE_DID?`cat example/payloads/get_payload.txt`
 ```
 
 ---
@@ -205,16 +225,16 @@ Deleting a battery pass can be achieved by sending a DELETE request to the batte
 > The deletion is permanent and cannot be reverted
 
 Since the request needs to be authenticated as having been sent by the BMS, a 128-byte random number
-should be included so that the signature can be verified.
+must be included so that the signature can be verified.
 
-#### Body
+#### Query Parameters
 
-> The 128-byte random number encrypted and encapsulated inside the [request body](#request-body).
+- payload: A compact [request body](#request-body) serialized as a URL-safe JSON string
 
 #### Example
 
 ```shell
-curl -X DELETE http://localhost:8000/batterypass/$EXAMPLE_DID --data {...}
+curl -X DELETE http://localhost:8000/batterypass/$EXAMPLE_DID?`cat example/payloads/delete_payload.txt`
 ```
 
 ---

@@ -1,0 +1,108 @@
+{
+  // public is able to read the following attributes
+  "public": {
+    "carbonFootprint": [
+      "carbonFootprintPerLifecycleStage",
+      "carbonFootprintStudy",
+      "absoluteCarbonFootprint",
+      "batteryCarbonFootprint",
+      "carbonFootprintPerformanceClass"
+    ],
+    "circularity": [
+      "renewableContent",
+      "recycledContent",
+      "endOfLifeInformation"
+    ],
+    "generalProductInformation": [
+      "batteryCategory",
+      "operatorInformation",
+      "productIdentifier",
+      "batteryMass",
+      "manufacturingDate",
+      "batteryPassportIdentifier",
+      "warrentyPeriod",
+      "manufacturerInformation",
+      "manufacturingPlace"
+    ],
+    "labels": [
+      "declarationOfConformity",
+      "labels"
+    ],
+    "materialComposition": [
+      "batteryChemistry",
+      "hazardousSubstances",
+      "batteryMaterials" // need to exclude if batteryMaterialLocation.componentName is Anode, Cathode, Electrolyte
+    ],
+    "performance": {
+      "batteryTechicalProperties": [
+        "originalPowerCapability",
+        "ratedEnergy",
+        "maximumVoltage",
+        "ratedMaximumPower",
+        "capacityThresholdForExhaustion",
+        "lifetimeReferenceTest",
+        "temperatureRangeIdleState",
+        "ratedCapacity",
+        "nominalVoltage",
+        "minimumVoltage",
+        "roundtripEfficiency",
+        "initialInternalResistance",
+        "cRateLifeCycleTest",
+        "expectedNumberOfCycles"
+      ],
+      "batteryCondition": [
+        "roundTripEfficiencyat50PerCentCycleLife"
+      ]
+    },
+    "supplyChainDueDiligence": [
+      "supplyChainDueDiligenceReport",
+      "supplyChainIndicies",
+      "thirdPartyAussurances"
+    ]
+  },
+  // legitimate_interest is able to read all public attributes including the following
+  "legitimate_interest": {
+    "carbonFootprint": [
+    ],
+    "circularity": [
+      "dismantlingAndRemovalInformation",
+      "safetyMeasures",
+      "sparePartSources"
+    ],
+    "generalProductInformation": [
+      "batteryStatus",
+      "puttingIntoService"
+    ],
+    "labels": [
+    ],
+    "materialComposition": [
+    ],
+    "performance": {
+      "batteryTechicalProperties": [
+        "expectedLifetime",
+        "initialSelfDischarge",
+        "cRate",
+        "powerCapabilityRatio"
+      ],
+      "batteryCondition": [
+        "numberOfFullCycles",
+        "stateOfCharge",
+        "currentSelfDischargingRate",
+        "remainingEnergy",
+        "evolutionOfSelfDischarge",
+        "negativeEvents",
+        "temperatureInformation",
+        "stateOfCertifiedEnergy",
+        "energyThroughput",
+        "internalResistanceIncrease",
+        "remainingPowerCapability",
+        "roundTripEfficiencyFade",
+        "powerFade",
+        "remainingRoundTripEnergyEfficiency",
+        "capacityThroughput",
+        "remainingCapacity",
+        "capacityFade"
+      ]
+    }
+  }
+}

@@ -108,7 +108,7 @@
       "hazardousSubstanceName" : "yedUsFwdkelQbxeTeQOvaScfqIOOmaa"
     } ],
     "batteryMaterials" : [ {
-      "batteryMaterialIdentifier" : "7439-93-2 ",
+      "batteryMaterialIdentifier" : "7439-93-2",
       "batteryMaterialMass" : 1.6111172E38,
       "batteryMaterialName" : "Lithium",
       "batteryMaterialLocation" : {

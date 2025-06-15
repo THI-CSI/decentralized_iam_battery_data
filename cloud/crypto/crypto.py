@@ -20,6 +20,8 @@ from typing import Dict, Any
 from Crypto.Hash import SHA3_256
 from multiformats import multibase
 from tinydb import TinyDB, where
+from jose import jwk
+from tinydb.table import Document
 
 
 def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
@@ -39,8 +41,10 @@ def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
 
     # Verify signature
     sender_key = retrieve_public_key(did)
-    verifier = DSS.new(sender_key, mode="fips-186-3", encoding="der")
-    message_to_verify = json.dumps({key: value for key, value in message.items() if key != "signature"}).encode()
+    verifier = DSS.new(sender_key, mode="fips-186-3", encoding="binary")
+    message_to_verify = json.dumps(
+        {key: value for key, value in message.items() if key != "signature"}, separators=(",", ":")
+    ).encode()
     try:
         verifier.verify(SHA256.new(message_to_verify), signature)
     except ValueError:
@@ -80,13 +84,13 @@ def verify_credentials(did, info) -> ECC.EccKey:
     pass
 
 
-def determine_role(db: TinyDB, accessed_did: str, sender_did: str) -> str | None:
-    if db.search(where("id") == sender_did):  # determine_role is called after verify_request
+def determine_role(doc: Document | None, sender_did: str) -> str | None:
+    if doc and doc["did"] == sender_did:
         return "bms"
-    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{accessed_did}")
+    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{sender_did}")
     if not did_response.ok:
         return None
-    controller = did_response.json()["controller"]
+    controller = did_response.json()["verificationMethod"]["controller"]
     return "oem" if controller == "did:batterypass:eu" else None
 
 
@@ -136,7 +140,15 @@ def register_key(public_key: ECC.EccKey):
 
 def retrieve_public_key(did: str) -> ECC.EccKey:
     response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
-    # TODO: Add revoked check
+    raw = multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"])
+    if len(raw) == 67:
+        raw = raw[len(b"\x12\x00"):]
+        return ECC.EccKey(curve="P-256",
+                          point=ECC.EccPoint(
+                              int.from_bytes(raw[1:33], "big"), int.from_bytes(raw[33:65], "big"))
+                          )
+    if response.json()["revoked"]:
+        raise ValueError("Public key revoked.")
     return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
 
 
@@ -175,6 +187,7 @@ def verify_vc(vc_json_object: json) -> bool:
     creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
     """
 
+    jwk.construct()
     # Extract the uri, issuer and holder
     uri, issuer, holder = extract_vc_info(vc_json_object)
 

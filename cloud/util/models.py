@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import Annotated
+
+from fastapi.params import Query
 from pydantic import BaseModel, Field, StringConstraints
 
 DID_PATTERN = r"^did:batterypass:(oem|cloud|bms|service|user)\.[a-zA-Z0-9][a-zA-Z0-9-]+$"
@@ -20,13 +22,40 @@ URN = Annotated[
     str,
     StringConstraints(pattern=URN_PATTERN)
 ]
-Base64String = Annotated[
-    str,
-    StringConstraints(pattern=BASE64_PATTERN)
-]
+
+
+def Base64String(length=None):
+    return Annotated[
+        str,
+        StringConstraints(pattern=BASE64_PATTERN, min_length=length, max_length=length)
+    ]
+
 
 bms_example = "did:batterypass:bms.sn-987654321"
 service_example = "did:batterypass:service.tuv-sued-42"
+
+
+def get_encrypted_payload(
+        ciphertext: Annotated[Base64String, Query(description="The payload inside the ciphertext must be a "
+                                                              "**128-byte random number**.")] = None,
+        aad: Annotated[Base64String, Query()] = None,
+        salt: Annotated[Base64String, Query()] = None,
+        eph_pub: Annotated[Base64String, Query()] = None,
+        sender_did: Annotated[DID, Query()] = None,
+        signature: Annotated[Base64String, Query()] = None,
+):
+    if not (
+            ciphertext and aad and salt and eph_pub and sender_did and signature
+    ):
+        return None
+    return EncryptedPayload(
+        ciphertext=ciphertext,
+        aad=aad,
+        salt=salt,
+        eph_pub=eph_pub,
+        sender_did=sender_did,
+        signature=signature
+    )
 
 
 class CredentialSubject(BaseModel):
@@ -55,21 +84,23 @@ class VerifiableCredential(BaseModel):
     issuanceDate: str
     expirationDate: str
     credentialSubject: CredentialSubject
+
+
+class VerifiablePresentation(BaseModel):
+    at_context: list[str] = Field(alias="@context")
+    type: list[str]
+    vc: VerifiableCredential
+    holder: DID
     proof: Proof
 
 
 class EncryptedPayload(BaseModel):
-    ciphertext: Base64String
-    aad: Base64String
-    salt: Base64String
-    eph_pub: Base64String
+    ciphertext: Base64String()
+    aad: Base64String(length=16)
+    salt: Base64String(length=44)
+    eph_pub: Base64String(length=124)
     did: DID
-    signature: Base64String
-
-
-class EncryptedPayloadVC(EncryptedPayload):
-    did: DID = Field(examples=[service_example])
-    vc: VerifiableCredential = None
+    signature: Base64String()
 
 
 class SuccessfulResponse(BaseModel):
