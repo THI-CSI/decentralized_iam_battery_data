@@ -1,0 +1,8 @@
+{
+    "ciphertext": "gAb7EXwChCJoTdWX2AhtPG8gPLdN0Y5EddUqoIuneuZWcq1a9bmGOzlS/umobAWiarIrf5YpddeHnixSsXS0UNbN5W6dcO5zcefpcO+edjiq/zaaQBVcdfFwEhKhV6cIOd9t14HUT3gf6mZlNuvKmh4YYarDqmFv6CS/zqQ+bU1IBN1XyV5+QGrQYj3lL55DZ0v5rt5a",
+    "aad": "Zw/8Gai6gwPiQUbr",
+    "salt": "K4vKN7uicddinPgKtbf3Y0sXUCTztW/wqUNWelDrQZQ=",
+    "eph_pub": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEyUK72/SK9l7KYeDxBLfuNjIsr+DIsWPr+u7bueeGsCCbAX/yxWMpxxk2RW05S8slGVXBnZpeoJ+OvSvaxtmzXQ==",
+    "did": "did:batterypass:bms.sn-544b51e7",
+    "signature": "9idkhpZ/4fUXVkbmDSAjvj2KmxUv0/f3/G84zqmgZ92rVQq9XteV/em5LrduUtZj7WDZ1sjO+1L79fyDb4o9yg=="
+}
