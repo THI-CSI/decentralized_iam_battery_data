@@ -59,7 +59,7 @@ def gen_payload(path: Path, sign_key: ECC.EccKey, sender_did: str, b: bytes, que
         if query is None:
             json.dump(payload, f, indent=4)
         else:
-            f.write(f"?{query}payload={quote(json.dumps(payload, separators=(",", ":")))}")
+            f.write(f"{query}payload={quote(json.dumps(payload, separators=(",", ":")))}")
     print(f"Generated {path}")
 
 

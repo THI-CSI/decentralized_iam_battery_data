@@ -2,24 +2,23 @@ import json
 import os
 import logging
 import pathlib
+
 from datetime import datetime
 from json import JSONDecodeError
-from typing import Literal, Annotated, Optional
-
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, Path, Body
 from fastapi.params import Query
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 from tinydb import TinyDB, where
-from tinydb.table import Document
 
 from crypto.crypto import load_private_key, generate_keys, encrypt_hpke, determine_role, \
     decrypt_hpke, verify_vc
 from dotenv import load_dotenv
 from util.models import EncryptedPayload, SuccessfulResponse, DID, \
     BadRequestResponse, ForbiddenResponse, NotFoundResponse, VerifiablePresentation, get_encrypted_payload
-from util.middleware import verify_request
+from util.middleware import verify_request, retrieve_data
 from util.validators import validate_battery_pass_payload
 
 app = FastAPI(
@@ -37,18 +36,6 @@ logging.basicConfig(
 )
 with open(pathlib.Path(__file__).parent / "docs" / "example" / "batterypass.json") as f:
     batterypass_json = json.load(f)
-with open(pathlib.Path(__file__).parent / "docs" / "example" / "payload.json") as f:
-    payload_json = json.load(f)
-with open(pathlib.Path(__file__).parent.parent /
-          "blockchain" / "docs" / "VC-DID-examples" / "VC-ServiceAccess.json") as f:
-    vc_service_json = json.load(f)
-
-
-def example_payload(did: DID, vp: VerifiablePresentation):
-    payload = payload_json.copy()
-    payload["did"] = did
-    payload["vp"] = vp
-    return payload
 
 
 def error_response(status_code: int, message: str):
@@ -85,6 +72,17 @@ def set_nested_value(doc, path_keys, new_value):
         current_level[path_keys[-1]] = new_value
 
 
+def is_vp(b: bytes) -> VerifiablePresentation | None:
+    try:
+        model = json.loads(b)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    try:
+        return VerifiablePresentation.model_validate(model)
+    except ValidationError:
+        raise ValueError("Invalid Verifiable Presentation.")
+
+
 @app.get("/",
          summary="API Health Check",
          tags=["General"],
@@ -107,19 +105,6 @@ async def list_dids(db: TinyDB = Depends(get_db)):
     return [entry["did"] for entry in entries if "did" in entry]
 
 
-def retrieve_data(scope: Literal["public", "bms", "legitimate_interest"], did: str, doc: Document,
-                  private_key: ECC.EccKey):
-    if scope not in ["public", "bms", "legitimate_interest"]:
-        raise ValueError(f"Scope '{scope}' is not in ['public', 'bms', 'legitimate_interest'].")
-    decrypted_data = decrypt_hpke(
-        private_key=private_key,
-        bundle=doc["encrypted_data"]
-    )
-    if scope == "bms":
-        return json.loads(decrypted_data)
-    return None
-
-
 @app.get("/batterypass/{did}",
          summary="Get a battery pass entry by DID",
          tags=["Battery Pass"],
@@ -127,20 +112,22 @@ def retrieve_data(scope: Literal["public", "bms", "legitimate_interest"], did: s
              200: {"model": dict, "content": {"application/json": {"example": batterypass_json}}},
              400: {"model": BadRequestResponse},
              404: {"model": NotFoundResponse},
-         })
+         },
+         description="A detailed description can be found "
+                     "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                     "/blob/main/cloud/docs/api.md#get-batterypassdid)**."
+         )
 async def read_item(
         did: str,
         payload: str = Query(
             default=None,
             description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
                         "/blob/main/cloud/docs/api.md#request-body) as a serialized string.\n\n"
-                        "The payload inside the ciphertext must contain a 128-byte random number."
+                        "The payload inside the ciphertext can contain a 128-byte random number "
+                        "**or** a [Verifiable Presentation](https://www.w3.org/TR/vc-data-model-2.0/) granting access."
         ),
         public: bool = Query(default=True, description="Whether to retrieve only public battery pass data.\n\n"
-                                                       "If set to `false`, either `payload` or `vp` must be provided."),
-        vp: str = Query(default=None,
-                        description="A verifiable presentation signed by the BMS defining the access level as a "
-                                    "serialized JSON string."),
+                                                       "If set to `false`, `payload` must be provided."),
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
@@ -149,14 +136,16 @@ async def read_item(
         return error_response(404, "Entry doesn't exist.")
     if public:
         return retrieve_data(scope="public", did=did, doc=document[0], private_key=private_key)
-    vp: VerifiablePresentation = VerifiablePresentation.model_validate_json(vp) if vp else None
-    payload: EncryptedPayload = EncryptedPayload.model_validate_json(payload) if payload else None
+    if not payload:
+        return error_response(400, "Payload must be provided.")
     try:
-        random_number = verify_request(payload, private_key)
-        if len(random_number) != 128:
+        payload: EncryptedPayload = EncryptedPayload.model_validate_json(payload) if payload else None
+        decrypted_payload = verify_request(payload, private_key)
+        vp: VerifiablePresentation = is_vp(decrypted_payload)
+        if not vp and len(decrypted_payload) != 128:
             raise ValueError("Invalid length for random value.")
     except ValueError as e:
-        return error_response(400, e.args[0])
+        return error_response(400, str(e))
     if determine_role(document[0], payload.did) == "bms":
         return retrieve_data(scope="bms", did=did, doc=document[0], private_key=private_key)
     if vp and verify_vc(vp):
@@ -186,11 +175,10 @@ async def create_item(
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
-    logging.info("Test")
     try:
         decrypted_payload = verify_request(payload, private_key)
     except ValueError as e:
-        return error_response(400, e.args[0])
+        return error_response(400, str(e))
     if db.search(where("did") == did):
         logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
@@ -234,7 +222,7 @@ async def update_item(
     except JSONDecodeError:
         return error_response(400, "Error occurred while decoding JSON.")
     except ValueError as e:
-        return error_response(400, e.args[0])
+        return error_response(400, str(e))
 
     document = db.search(where("did") == did)
     if not document:
@@ -281,11 +269,11 @@ async def delete_item(
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
-    payload = EncryptedPayload.model_validate_json(payload)
     try:
+        payload = EncryptedPayload.model_validate_json(payload)
         verify_request(payload, private_key)
     except ValueError as e:
-        return error_response(400, e.args[0])
+        return error_response(400, str(e))
 
     # Search for database entry with the given DID
     document = db.search(where("did") == did)
@@ -296,7 +284,6 @@ async def delete_item(
 
     if determine_role(document[0], payload.did) != "bms":
         return error_response(403, "Access denied.")
-
 
     # Delete the entry from the database
     db.remove(where("did") == did)
