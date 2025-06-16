@@ -20,14 +20,14 @@ st.title(":green[BatteryPass Data Viewer]")
 st.sidebar.title("Options")
 view_data = st.sidebar.selectbox(
     "What would you like to do?",
-    ["View All DIDs", "Retrieve DID Data"],
+    ["List All DIDs", "Retrieve Battery Pass Data"],
     on_change=lambda: st.query_params.pop("did") if "did" in st.query_params else None
 )
 
 query_params = st.query_params
 did = query_params.get("did")
 if did:
-    view_data = "Retrieve DID Data"
+    view_data = "Retrieve Battery Pass Data"
 
 
 def prettify_camel_case(text):
@@ -61,7 +61,7 @@ def render_item(value, indent=0):
 def render_top_level(data):
     for key, value in data.items():
         display_key = prettify_camel_case(key)
-        with st.expander(display_key, expanded=False):
+        with st.expander(f":green[{display_key}]", expanded=False):
             render_item(value)
 
 
@@ -107,7 +107,7 @@ def generate_qr_code() -> BytesIO:
     img = qr.make_image(
         image_factory=StyledPilImage,
         module_drawer=RoundedModuleDrawer(),
-        color_mask=SolidFillColorMask(front_color=(110, 210, 120), back_color=(255, 255, 255))
+        color_mask=SolidFillColorMask(front_color=(50, 100, 60), back_color=(255, 255, 255))
     )
     buf = BytesIO()
     img.save(buf, format="PNG")
@@ -116,8 +116,8 @@ def generate_qr_code() -> BytesIO:
     return buf
 
 
-# View All DIDs
-if view_data == "View All DIDs":
+# List All DIDs
+if view_data == "List All DIDs":
     st.header("List of All Available DIDs")
     dids = list_all_dids()
     if dids:
@@ -143,19 +143,18 @@ if view_data == "View All DIDs":
         st.warning("No DIDs found in the database.")
 
 # Retrieve and Display Data for a DID
-elif view_data == "Retrieve DID Data":
-    st.header("Retrieve Data for a Specific DID")
+elif view_data == "Retrieve Battery Pass Data":
+    st.header("Retrieve Battery Pass Data for a Specific DID")
     did_input = st.text_input("Enter a DID to fetch its data:", value=did)
-    if st.button("Fetch Data") or did:
-        if did_input.strip():
-            data = fetch_did_data(did_input.strip())
-            if data:
-                url = f"{STREAMLIT_BASE_URL}/?did={did_input.strip()}"
-                buf = generate_qr_code()
-                st.markdown(f'#### Data for **:green[{did_input.strip()}]**',
-                            unsafe_allow_html=True)
-                st.markdown(
-                    f"""
+    if did_input and did_input.strip():
+        data = fetch_did_data(did_input.strip())
+        if data:
+            url = f"{STREAMLIT_BASE_URL}/?did={did_input.strip()}"
+            buf = generate_qr_code()
+            st.markdown(f'#### Data for **:green[{did_input.strip()}]**',
+                        unsafe_allow_html=True)
+            st.markdown(
+                f"""
                         <div style='text-align: left;'>
                             <img src='data:image/png;base64,{base64.b64encode(buf.getvalue()).decode()}' 
                             style='border-radius: 10%;' alt='QR Code;'/>
@@ -163,8 +162,8 @@ elif view_data == "Retrieve DID Data":
                             <p>Scan the QR code to open this page in your browser.</p>
                         </div>
                     """,
-                    unsafe_allow_html=True)
-                st.markdown("")
-                render_top_level(data)
-        else:
-            st.warning("Please enter a valid DID.")
+                unsafe_allow_html=True)
+            st.markdown("")
+            render_top_level(data)
+    else:
+        st.warning("Please enter a valid DID.")
