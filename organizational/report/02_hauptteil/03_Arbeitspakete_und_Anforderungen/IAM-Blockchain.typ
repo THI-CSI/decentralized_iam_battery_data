@@ -128,3 +128,5 @@ frontend in typescript aus inline Kommentaren generiert.
 - Werden zu schnell nacheinander Requests gestellt kann dies aktuell zu bugs führen bei denen
   der Transaction Threshold pro block überschritten wird. Die Transaktionen werden korrekt
   geprüft, und auch zuverlässig angelegt landen allerdings im falschen Block.
+
+- Das JSONschema für den VC welcher den access von services steuert hat doppelte issuance & expiration dates.

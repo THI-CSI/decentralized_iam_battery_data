@@ -239,8 +239,8 @@ type VcBmsProducedSchema struct {
 		// BmsDid DID string with the DID method `batterypass` for a specific bms and then an identifier
 		BmsDid DIDBMS `json:"bmsDid"`
 
-		// Id An identifier in uri format for Verifiable Credentials
-		Id        URI      `json:"id"`
+		// Id DID string with the DID method `batterypass` for a specific oem and then an identifier
+		Id        DIDOEM   `json:"id"`
 		LotNumber string   `json:"lotNumber"`
 		Timestamp DateTime `json:"timestamp"`
 		Type      string   `json:"type"`
@@ -248,8 +248,10 @@ type VcBmsProducedSchema struct {
 	ExpirationDate DateTime `json:"expirationDate"`
 
 	// Holder DID string with the DID method `batterypass` for a specific oem and then an identifier
-	Holder       DIDOEM   `json:"holder"`
-	Id           string   `json:"id"`
+	Holder DIDOEM `json:"holder"`
+
+	// Id An identifier in uri format for Verifiable Credentials
+	Id           URI      `json:"id"`
 	IssuanceDate DateTime `json:"issuanceDate"`
 
 	// Issuer DID string with the DID method `batterypass` for a specific bms and then an identifier
@@ -271,16 +273,18 @@ type VcCloudInstanceSchema struct {
 		// CloudDid DID string with the DID method `batterypass` for a specific cloud and then an identifier
 		CloudDid DIDCLOUD `json:"cloudDid"`
 
-		// Id An identifier in uri format for Verifiable Credentials
-		Id        URI      `json:"id"`
+		// Id DID string with the DID method `batterypass` for a specific bms and then an identifier
+		Id        DIDBMS   `json:"id"`
 		Timestamp DateTime `json:"timestamp"`
 		Type      string   `json:"type"`
 	} `json:"credentialSubject"`
 	ExpirationDate DateTime `json:"expirationDate"`
 
 	// Holder DID string with the DID method `batterypass` for a specific bms and then an identifier
-	Holder       DIDBMS   `json:"holder"`
-	Id           string   `json:"id"`
+	Holder DIDBMS `json:"holder"`
+
+	// Id An identifier in uri format for Verifiable Credentials
+	Id           URI      `json:"id"`
 	IssuanceDate DateTime `json:"issuanceDate"`
 
 	// Issuer DID string with the DID method `batterypass` for a specific oem and then an identifier
@@ -296,7 +300,7 @@ type VcCloudInstanceSchemaContext string
 
 // VcRecordSchema Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.
 type VcRecordSchema struct {
-	ExpirationDate *DateTime `json:"expirationDate,omitempty"`
+	ExpirationDate DateTime `json:"expirationDate"`
 
 	// Id An identifier in uri format for Verifiable Credentials
 	Id        URI      `json:"id"`
@@ -316,18 +320,20 @@ type VcServiceAccessSchema struct {
 		// BmsDid DID string with the DID method `batterypass` for a specific bms and then an identifier
 		BmsDid DIDBMS `json:"bmsDid"`
 
-		// Id An identifier in uri format for Verifiable Credentials
-		Id         URI      `json:"id"`
-		Type       string   `json:"type"`
-		ValidFrom  DateTime `json:"validFrom"`
-		ValidUntil DateTime `json:"validUntil"`
+		// Id DID string with the DID method `batterypass` for a specific service and then an identifier
+		Id         DIDSERVICE `json:"id"`
+		Type       string     `json:"type"`
+		ValidFrom  DateTime   `json:"validFrom"`
+		ValidUntil DateTime   `json:"validUntil"`
 	} `json:"credentialSubject"`
 	ExpirationDate DateTime `json:"expirationDate"`
 
 	// Holder DID string with the DID method `batterypass` for a specific service and then an identifier
-	Holder       DIDSERVICE `json:"holder"`
-	Id           string     `json:"id"`
-	IssuanceDate DateTime   `json:"issuanceDate"`
+	Holder DIDSERVICE `json:"holder"`
+
+	// Id An identifier in uri format for Verifiable Credentials
+	Id           URI      `json:"id"`
+	IssuanceDate DateTime `json:"issuanceDate"`
 
 	// Issuer DID string with the DID method `batterypass` for a specific bms and then an identifier
 	Issuer DIDBMS `json:"issuer"`

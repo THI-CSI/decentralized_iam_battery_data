@@ -81,7 +81,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		}
 		vcRecord.ID = vcBms.Id
 		vcRecord.Timestamp = time.Now()
-		vcRecord.ExpirationDate = &vcBms.ExpirationDate
+		vcRecord.ExpirationDate = vcBms.ExpirationDate
 		vcRecord.VcHash = hashString
 		err = v.chain.AppendVcRecord(&vcRecord)
 		if err != nil {
@@ -96,7 +96,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		}
 		vcRecord.ID = vcService.Id
 		vcRecord.Timestamp = time.Now()
-		vcRecord.ExpirationDate = &vcService.ExpirationDate
+		vcRecord.ExpirationDate = vcService.ExpirationDate
 		vcRecord.VcHash = hashString
 		err = v.chain.AppendVcRecord(&vcRecord)
 		if err != nil {
@@ -111,7 +111,7 @@ func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *
 		}
 		vcRecord.ID = vcCloud.Id
 		vcRecord.Timestamp = time.Now()
-		vcRecord.ExpirationDate = &vcCloud.ExpirationDate
+		vcRecord.ExpirationDate = vcCloud.ExpirationDate
 		vcRecord.VcHash = hashString
 		err = v.chain.AppendVcRecord(&vcRecord)
 		if err != nil {

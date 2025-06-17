@@ -22,7 +22,7 @@
       "uniqueItems": true,
       "description": "Defines the JSON-LD context, providing meaning to terms used in the credential."
     },
-    "id": { "type": "string", "format": "uri" },
+    "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
     "type": {
       "type": "array",
       "items": {
@@ -42,10 +42,10 @@
     "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "credentialSubject": {
       "type": "object",
-      "required": ["id", "type", "cloudDid", "timestamp", "lotNumber"],
+      "required": ["id", "type", "cloudDid", "timestamp"],
       "additionalProperties": false,
       "properties": {
-        "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
+        "id": { "$ref": "common.defs.schema.json#/definitions/DIDBMS" },
         "type": {
           "type": "string",
           "const": "CloudInstance"
