@@ -26,7 +26,7 @@ import (
 
 // IsDidValid Checks if the DID is conform to the specified format.
 func IsDidValid(did string) bool {
-	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\-]+?$`, did)
+	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\-]*$`, did)
 	return matched
 }
 

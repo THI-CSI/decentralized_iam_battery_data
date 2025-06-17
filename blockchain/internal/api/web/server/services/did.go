@@ -121,11 +121,11 @@ func (s *didService) VerifyRequestCreateOrModify(requestBody models.RequestDidCr
 	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:bms.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:oem.") {
 		return errors.New("a BMS can only be created/modified by an OEM")
 	}
-	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:cloud.") && (!strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:oem.") || !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu")) {
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:cloud.") && !(strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:oem.") || strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu")) {
 		return errors.New("a Cloud can only be created/modified by an OEM or EU")
 	}
-	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:eu.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu") {
-		return errors.New("a EU can only be modified by an EU")
+	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:eu") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu") {
+		return errors.New("EU can only be modified by itself")
 	}
 	if strings.HasPrefix(requestBody.Payload.Id, "did:batterypass:service.") && !strings.HasPrefix(requestBody.Payload.VerificationMethod.Controller, "did:batterypass:eu") {
 		return errors.New("a Service can only be modified by an EU")
