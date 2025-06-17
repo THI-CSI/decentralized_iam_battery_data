@@ -1,2 +1,5 @@
 .idea/
 *.pdf
+.venv
+__pycache__
+keys/
