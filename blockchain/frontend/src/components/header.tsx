@@ -7,11 +7,18 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
+    navigationMenuTriggerStyle
 } from "./ui/navigation-menu";
 
 /**
- * The header layout for the application
+ * The main navigation header for the application.
+ *
+ * @remarks
+ * - Stays sticky at the top of the viewport.
+ * - Includes branding, route links, and schema doc shortcuts.
+ * - Uses a conditional "Back" button depending on route context.
+ *
+ * @returns JSX for the application header.
  */
 export default function HeaderLayout() {
     const navigate = useNavigate();
@@ -33,47 +40,75 @@ export default function HeaderLayout() {
                         <NavigationMenuList className={"gap-4"}>
                             <NavigationMenuItem>
                                 <NavigationMenuTrigger className={"bg-sidebar-primary text-white duration-0"}>
-                                    Docs
+                                    Schemas
                                 </NavigationMenuTrigger>
                                 <NavigationMenuContent>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+
                                         <Link
                                             className={"h-full w-full"}
-                                            to={"/docs/$schema_name"}
+                                            to={"/schemas/$schema_name"}
                                             params={{ schema_name: "did.schema.html" }}
                                         >
                                             DID
                                         </Link>
                                     </NavigationMenuLink>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
-                                            to={"/docs/$schema_name"}
+                                            to={"/schemas/$schema_name"}
                                             params={{ schema_name: "vc.record.schema.html" }}
                                         >
                                             VC Records
                                         </Link>
                                     </NavigationMenuLink>
-                                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
                                         <Link
                                             className={"h-full w-full"}
-                                            to={"/docs/$schema_name"}
-                                            params={{ schema_name: "vc.schema.html" }}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vc.bmsProduced.schema.html" }}
                                         >
-                                            VC Schema
+                                            VC BMS
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vc.cloudInstance.schema.html" }}
+                                        >
+                                            VC Cloud
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vc.serviceAccess.schema.html" }}
+                                        >
+                                            VC Service
+                                        </Link>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
+                                        <Link
+                                            className={"h-full w-full"}
+                                            to={"/schemas/$schema_name"}
+                                            params={{ schema_name: "vp.schema.html" }}
+                                        >
+                                            VP Schema
                                         </Link>
                                     </NavigationMenuLink>
                                 </NavigationMenuContent>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link to={"/blocks"}>
-                                    <NavigationMenuLink>Blocks</NavigationMenuLink>
-                                </Link>
+                                <NavigationMenuLink asChild>
+                                    <Link to={"/blocks"}>Blocks</Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <Link to={"/dids"}>
-                                    <NavigationMenuLink>Dids</NavigationMenuLink>
-                                </Link>
+                                <NavigationMenuLink asChild>
+                                    <Link to={"/dids"}>Dids</Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                         </NavigationMenuList>
                     </NavigationMenu>
@@ -84,7 +119,7 @@ export default function HeaderLayout() {
                                 navigate(
                                     pathname.includes("blocks") || pathname.includes("docs")
                                         ? { to: "/blocks" }
-                                        : { to: "/dids" },
+                                        : { to: "/dids" }
                                 )
                             }
                         >

@@ -21,3 +21,27 @@ Detailed information about issues, pull requests and our contribution guidelines
 
 ## Notes
 Documentation is done here in GitHub, but quick notes can be found in [our HedgeDoc](https://md.s0ck.de/Project2025). The main page of our HedgeDoc can be found [here](https://md.s0ck.de/Project2025) and should include links to all other Docs created by us.
+
+## Sequence Diagrams
+
+- [BMS DID Creation](organizational/report/assets/bms_did_creation.svg)
+- [ORG DID Creation](organizational/report/assets/org_did_creation.svg)
+- [VC Creation](organizational/report/assets/vc_creation.svg)
+- [Service Access](organizational/report/assets/service_access.svg)
+- [DID Revocation](organizational/report/assets/did_revocation.svg)
+
+## Communication Protocol
+
+We are using **HTTP** as communication protocol.
+
+
+## BatteryPass Schemas
+
+`decentralized_iam_battery_data/cloud/BatteryPassDataModel` contains JSON Schemas from the [BatteryPass Data Model](https://github.com/batterypass/BatteryPassDataModel).
+
+**License:** Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)  
+**Source:** https://github.com/batterypass/BatteryPassDataModel
+
+These schemas are used for non-commercial validation purposes in this project.
+
+

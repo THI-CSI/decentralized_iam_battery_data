@@ -15,7 +15,7 @@
 #include "usr_app.h"
 #include <stdint.h>
 #include <string.h>
-
+#include "cJSON.h"
 /* Domain for the DNS Host lookup is used in this Example Project.
  * The project can be built with different *gp_domain_name to validate the DNS client
  */
@@ -68,13 +68,13 @@ static uint32_t usr_print_ability = RESET_VALUE;
  * @retval     Status
  **********************************************************************************************************************/
 
-int vTCPSend(char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
+int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
 {
     struct freertos_sockaddr xRemoteAddress;
     BaseType_t xAlreadyTransmitted = 0, xBytesSent = 0;
 
     xRemoteAddress.sin_port = FreeRTOS_htons( 12345 );
-    xRemoteAddress.sin_address.ulIP_IPv4 = FreeRTOS_inet_addr_quick( 192, 168, 1, 100 );
+    xRemoteAddress.sin_address.ulIP_IPv4 = FreeRTOS_inet_addr(pcIPAddress);
     xRemoteAddress.sin_family = FREERTOS_AF_INET4;
 
     xSocket = FreeRTOS_socket(FREERTOS_AF_INET4, FREERTOS_SOCK_STREAM, FREERTOS_IPPROTO_TCP);
@@ -247,72 +247,6 @@ void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifie
 }
 
 /*******************************************************************************************************************//**
-* @brief      This is the User Thread for the EP.
-* @param[in]  Thread specific parameters
-* @retval     None
-**********************************************************************************************************************/
-void net_thread_entry(void *pvParameters)
-{
-    BaseType_t status = pdFALSE;
-    fsp_pack_version_t version = {RESET_VALUE};
-
-    FSP_PARAMETER_NOT_USED (pvParameters);
-
-    /* version get API for FLEX pack information */
-    R_FSP_VersionGet (&version);
-
-    /* Example Project information printed on the RTT */
-    APP_PRINT (BANNER_INFO, EP_VERSION, version.version_id_b.major, version.version_id_b.minor, version.version_id_b.patch);
-
-    /* Prints the Ethernet Configuration prior to the IP Init*/
-    APP_PRINT(ETH_PREINIT);
-    print_ipconfig();
-
-    /* FreeRTOS IP Initialization: This init initializes the IP stack  */
-    status = FreeRTOS_IPInit(ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress);
-
-    if(pdFALSE == status)
-    {
-        APP_ERR_PRINT("FreeRTOS_IPInit Failed");
-        APP_ERR_TRAP(status);
-    }
-
-    APP_PRINT(ETH_POSTINIT);
-    char *gp_remote_ip_address = "192.168.1.100";
-    while (1) 
-    {
-        if (SUCCESS == isNetworkUp()) 
-        {
-            if(!(PRINT_UP_MSG_DISABLE & usr_print_ability))
-            {
-                APP_PRINT("\r\nNetwork is Up");
-                usr_print_ability |= PRINT_UP_MSG_DISABLE;
-            }
-			dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
-            if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
-            {
-    #if( ipconfigUSE_DHCP != 0 )
-                /* Display the New IP credentials obtained from the DHCP server */
-                updateDhcpResponseToUsr();
-    #endif
-                /* Updated IP credentials on to the RTT console */
-                print_ipconfig();
-                APP_PRINT("Sending Hello World...");
-                if (!vTCPSend("Hello World!\n", 13)) {
-                    APP_PRINT("Sent Hello World!");
-                } else {
-                    APP_PRINT("Couldn't send Hello World!");
-                }
-            }
-            vTaskDelay(100);
-            return;
-        }
-    }
-
-    
-}
-
-/*******************************************************************************************************************//**
 * @brief      This is the User Hook for the DHCP Response. xApplicationDHCPHook() is called by DHCP Client Code when DHCP
 *             handshake messages are exchanged from the Server.
 * @param[in]  Different Phases of DHCP Phases and the Offered IP Address
@@ -431,19 +365,18 @@ int dnsQuerryFunc(char *domain, char *ip_address)
 
     /* Lookup the IP address of the FreeRTOS.org website. */
     ulIPAddress = FreeRTOS_gethostbyname((char*)domain);
-
     if( ulIPAddress != 0 )
     {
         /* Convert the IP address to a string. */
         FreeRTOS_inet_ntoa( ulIPAddress, ( char * ) ip_address);
 
-        /* Print out the IP address obtained from the DNS lookup. */
-        APP_PRINT ("\r\nDNS Lookup for \"test-server.lan\" is      : %s  \r\n", ip_address);
+		/* Print out the IP address obtained from the DNS lookup. */
+        APP_PRINT ("\r\nDNS Lookup for %s is      : %s  \r\n", domain, ip_address);
 		return 0;
     }
     else
     {
-        APP_PRINT ("\r\nDNS Lookup failed for \"test-server.lan\" \r\n");
+        APP_PRINT ("\r\nDNS Lookup failed for %s \r\n", domain);
 		return 1;
 	}
 	return 1;

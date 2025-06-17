@@ -1,28 +1,41 @@
 import json
 import os
 import logging
+import pathlib
+
 from datetime import datetime
-
-
-
+from json import JSONDecodeError
 from Crypto.PublicKey import ECC
 from functools import lru_cache
-from fastapi import FastAPI, Depends, HTTPException, Path
+from fastapi import FastAPI, Depends, Path, Body
+from fastapi.params import Query
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 from tinydb import TinyDB, where
-from crypto.crypto import load_private_key, generate_keys, decrypt_and_verify, encrypt_and_sign
+
+from crypto.crypto import load_private_key, generate_keys, encrypt_hpke, determine_role, \
+    decrypt_hpke, verify_vc
 from dotenv import load_dotenv
-from util.models import EncryptedPayload
-from util.middleware import verify_request
+from util.models import EncryptedPayload, SuccessfulResponse, DID, \
+    BadRequestResponse, ForbiddenResponse, NotFoundResponse, VerifiablePresentation, get_encrypted_payload
+from util.middleware import verify_request, retrieve_data
+from util.validators import validate_battery_pass_payload
 
+app = FastAPI(
+    title="Battery Pass API",
+    description="A detailed API description can be found "
+                "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data/tree/main/cloud/docs/api.md)**.",
+    redoc_url=None,
+)
 
-app = FastAPI()
 load_dotenv()
 generate_keys(os.getenv("PASSPHRASE", "secret"))
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+with open(pathlib.Path(__file__).parent / "docs" / "example" / "batterypass.json") as f:
+    batterypass_json = json.load(f)
 
 
 def error_response(status_code: int, message: str):
@@ -31,7 +44,7 @@ def error_response(status_code: int, message: str):
         content={
             "status": status_code,
             "message": message,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now().isoformat()
         }
     )
 
@@ -53,10 +66,30 @@ def set_nested_value(doc, path_keys, new_value):
     current_level = doc
     for key in path_keys[:-1]:
         current_level = current_level.setdefault(key, {})
-    current_level[path_keys[-1]] = new_value
+    if isinstance(current_level[path_keys[-1]], list):
+        current_level[path_keys[-1]].append(new_value)
+    else:
+        current_level[path_keys[-1]] = new_value
 
 
-@app.get("/")
+def is_vp(b: bytes) -> VerifiablePresentation | None:
+    try:
+        model = json.loads(b)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    try:
+        return VerifiablePresentation.model_validate(model)
+    except ValidationError:
+        raise ValueError("Invalid Verifiable Presentation.")
+
+
+@app.get("/",
+         summary="API Health Check",
+         tags=["General"],
+         responses={
+             200: {"model": SuccessfulResponse,
+                   "content": {"application/json": {"example": {"ok": "API is running."}}}},
+         })
 def read_root():
     """
     Handles the root endpoint of the API and provides a response indicating
@@ -64,13 +97,45 @@ def read_root():
 
     :return: A dictionary containing a message indicating that the API is working
     """
-    return {"message": "API is working"}
+    return {"ok": "API is running."}
 
 
-@app.get("/batterypass/{did}", summary="Get a battery pass entry by DID")
+@app.get("/batterypass/",
+         summary="List all stored DIDs",
+         tags=["Battery Pass"],
+         responses={
+             200: {"model": list[DID]}
+         })
+async def list_dids(db: TinyDB = Depends(get_db)):
+    entries = db.all()
+    return [entry["did"] for entry in entries if "did" in entry]
+
+
+@app.get("/batterypass/{did}",
+         summary="Get a battery pass entry by DID",
+         tags=["Battery Pass"],
+         responses={
+             200: {"model": dict, "content": {"application/json": {"example": batterypass_json}}},
+             400: {"model": BadRequestResponse},
+             404: {"model": NotFoundResponse},
+         },
+         description="A detailed description can be found "
+                     "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                     "/blob/main/cloud/docs/api.md#get-batterypassdid)**."
+         )
 async def read_item(
-        did: str = Path(description="Must be a properly formed DID"),
+        did: str,
+        payload: str = Query(
+            default=None,
+            description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                        "/blob/main/cloud/docs/api.md#request-body) as a serialized string.\n\n"
+                        "The payload inside the ciphertext can contain a 128-byte random number "
+                        "**or** a [Verifiable Presentation](https://www.w3.org/TR/vc-data-model-2.0/) granting access."
+        ),
+        public: bool = Query(default=True, description="Whether to retrieve only public battery pass data.\n\n"
+                                                       "If set to `false`, `payload` must be provided."),
         db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
 ):
     """
     Retrieve a battery pass entry by a specified Decentralized Identifier (DID).
@@ -80,12 +145,46 @@ async def read_item(
 
     :return: A list of query results from the database that matches the specified DID.
     """
-    return db.search(where("did") == did)
+    document = db.search(where("did") == did)
+    if not document:
+        return error_response(404, "Entry doesn't exist.")
+    if public:
+        return retrieve_data(scope="public", did=did, doc=document[0], private_key=private_key)
+    if not payload:
+        return error_response(400, "Payload must be provided.")
+    try:
+        payload: EncryptedPayload = EncryptedPayload.model_validate_json(payload) if payload else None
+        decrypted_payload = verify_request(payload, private_key)
+        vp: VerifiablePresentation = is_vp(decrypted_payload)
+        if not vp and len(decrypted_payload) != 128:
+            raise ValueError("Invalid length for random value.")
+    except ValueError as e:
+        return error_response(400, str(e))
+    if determine_role(document[0], payload.did) == "bms":
+        return retrieve_data(scope="bms", did=did, doc=document[0], private_key=private_key)
+    if vp and verify_vc(vp):
+        return retrieve_data(scope="legitimate_interest", did=did, doc=document[0], private_key=private_key)
+    return error_response(400, "Invalid request.")
 
 
-@app.put("/batterypass/{did}", summary="Create a new battery pass entry for a DID")
+@app.put("/batterypass/{did}",
+         summary="Create a new battery pass entry for a DID",
+         tags=["Battery Pass"],
+         responses={
+             200: {"model": SuccessfulResponse,
+                   "content": {
+                       "application/json": {
+                           "example": {"ok": "Entry for did:batterypass:bms.sn-987654321 added successfully."}
+                       }
+                   }},
+             400: {"model": BadRequestResponse},
+             403: {"model": ForbiddenResponse},
+         },
+         description="A detailed description can be found "
+                     "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                     "/blob/main/cloud/docs/api.md#put-batterypassdid)**.")
 async def create_item(
-        item: EncryptedPayload,
+        payload: EncryptedPayload,
         did: str,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
@@ -100,18 +199,45 @@ async def create_item(
 
     :return: Success message indicating the entry was added successfully.
     """
-    verify_request(item, private_key)
+    try:
+        decrypted_payload = verify_request(payload, private_key)
+    except ValueError as e:
+        return error_response(400, str(e))
     if db.search(where("did") == did):
+        logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
-    else:
-        db.insert({"did": did, "encrypted_data": item.model_dump()})
-        return {"ok": f"Entry for {did} added successfully."}
+    if not determine_role(None, payload.did) == "oem":
+        return error_response(403, "Access denied.")
+    results = validate_battery_pass_payload(json.loads(decrypted_payload))
+    if not all(value == "Valid" for value in results.values()):
+        return error_response(400, f"Invalid payload: {json.dumps(results)}")
+    db.insert({
+        "did": did,
+        "encrypted_data": encrypt_hpke(private_key, decrypted_payload)
+    })
+    return {"ok": f"Entry for {did} added successfully."}
 
 
-@app.post("/batterypass/{did}")
+@app.post("/batterypass/{did}",
+          summary="Update a battery pass entry by DID",
+          tags=["Battery Pass"],
+          responses={
+              200: {"model": SuccessfulResponse,
+                    "content": {
+                        "application/json": {
+                            "example": {"ok": "Entry for did:batterypass:bms.sn-987654321 updated successfully."}
+                        }
+                    }},
+              400: {"model": BadRequestResponse},
+              403: {"model": ForbiddenResponse},
+              404: {"model": NotFoundResponse},
+          },
+          description="A detailed description can be found "
+                      "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                      "/blob/main/cloud/docs/api.md#post-batterypassdid)**.")
 async def update_item(
-        item: EncryptedPayload,
-        did: int,
+        payload: EncryptedPayload,
+        did: str,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
@@ -125,35 +251,78 @@ async def update_item(
 
     :return: A dictionary confirming a successful update for the specified DID.
     """
-    decrypted_item = verify_request(item, private_key)
+    try:
+        decrypted_payload = json.loads(verify_request(payload, private_key))
+    except JSONDecodeError:
+        return error_response(400, "Error occurred while decoding JSON.")
+    except ValueError as e:
+        return error_response(400, str(e))
+
     document = db.search(where("did") == did)
     if not document:
         return error_response(404, "Entry doesn't exist.")
-    decrypted_document = decrypt_and_verify(private_key, document[0]["encrypted_data"])
-    for key, value in decrypted_item.items():
+    if determine_role(document[0], payload.did) != "bms":
+        return error_response(403, "Access denied.")
+    decrypted_document = json.loads(decrypt_hpke(private_key, document[0]["encrypted_data"]))
+    for element in decrypted_payload:  # Iterate over the list of JSON items
+        if not isinstance(element, dict) or len(element) != 1:
+            return error_response(400, "Invalid update format.")
+        key, value = next(iter(element.items()))
         set_nested_value(decrypted_document, key.split("."), value)
-    encrypt_and_sign(private_key.public_key(), json.dumps(decrypted_document).encode("utf-8"))
-    db.update(document[0], where("did") == did)
+    encrypted_data = encrypt_hpke(
+        private_key.public_key(), json.dumps(decrypted_document).encode()
+    )
+    db.update({"encrypted_data": encrypted_data}, where("did") == did)
     return {"ok": f"Entry for {did} updated successfully."}
 
 
-@app.delete("/batterypass/{did}")
+@app.delete("/batterypass/{did}",
+            summary="Delete a battery pass entry by DID",
+            tags=["Battery Pass"],
+            responses={
+                200: {"model": SuccessfulResponse,
+                      "content": {
+                          "application/json": {
+                              "example": {"ok": "Entry for did:batterypass:bms.sn-987654321 deleted successfully."}
+                          }
+                      }},
+                400: {"model": BadRequestResponse},
+                403: {"model": ForbiddenResponse},
+                404: {"model": NotFoundResponse},
+            },
+            description="A detailed description can be found "
+                        "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                        "/blob/main/cloud/docs/api.md#delete-batterypassdid)**.")
 async def delete_item(
-        did: int,
+        did: str,
+        payload: str = Query(
+            description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                        "/blob/main/cloud/docs/api.md#request-body) as a serialized string.\n\n"
+                        "The payload inside the ciphertext must contain a 128-byte random number."
+        ),
         db: TinyDB = Depends(get_db),
+        private_key: ECC.EccKey = Depends(get_private_key),
 ):
     """
     For a given DID, delete the entry from the database.
 
     :return: None
     """
+    try:
+        payload = EncryptedPayload.model_validate_json(payload)
+        verify_request(payload, private_key)
+    except ValueError as e:
+        return error_response(400, str(e))
 
     # Search for database entry with the given DID
     document = db.search(where("did") == did)
 
     # If no entry is found, raise an HTTP exception
     if not document:
-        raise HTTPException(status_code=404, detail="Entry doesn't exist.")
+        return error_response(404, "Entry doesn't exist.")
+
+    if determine_role(document[0], payload.did) != "bms":
+        return error_response(403, "Access denied.")
 
     # Delete the entry from the database
     db.remove(where("did") == did)

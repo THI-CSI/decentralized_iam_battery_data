@@ -1,0 +1,49 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "http://localhost:8443/docs/vp.schema.html"
+  ],
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "http://localhost:8443/docs/vc.bmsProduction.schema.html"
+      ],
+      "id": "urn:uuid:982c43ee-3d16-419a-a2f4-5c61710f428c",
+      "type": [
+        "VerifiableCredential",
+        "BMSProduction"
+      ],
+      "issuer": "did:batterypass:bms.sn-544b51e7",
+      "holder": "did:batterypass:oem.sn-audi",
+      "issuanceDate": "2025-06-10T12:01:00Z",
+      "expirationDate": "2026-06-10T12:01:00Z",
+      "credentialSubject": {
+        "id": "did:batterypass:oem.sn-audi",
+        "type": "BMSProduction",
+        "bmsDid": "did:batterypass:bms.sn-544b51e7",
+        "timestamp": "2025-06-10T12:01:00Z",
+        "lotNumber": "LOT-775533"
+      },
+      "proof": {
+        "type": "EcdsaSecp256r1Signature2019",
+        "created": "2025-06-10T12:01:03Z",
+        "verificationMethod": "did:batterypass:bms.sn-544b51e7#key-1",
+        "proofPurpose": "authentication",
+        "jws": "eyJhbGciOiJFUzI1NiJ9.eyJAY29udGV4dCI6IFsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCAiaHR0cDovL2xvY2FsaG9zdDo4NDQzL2RvY3MvdmMuYm1zUHJvZHVjdGlvbi5zY2hlbWEuaHRtbCJdLCAiaWQiOiAidXJuOnV1aWQ6OTgyYzQzZWUtM2QxNi00MTlhLWEyZjQtNWM2MTcxMGY0MjhjIiwgInR5cGUiOiBbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwgIkJNU1Byb2R1Y3Rpb24iXSwgImlzc3VlciI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgImhvbGRlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAiaXNzdWFuY2VEYXRlIjogIjIwMjUtMDYtMTBUMTI6MDE6MDBaIiwgImV4cGlyYXRpb25EYXRlIjogIjIwMjYtMDYtMTBUMTI6MDE6MDBaIiwgImNyZWRlbnRpYWxTdWJqZWN0IjogeyJpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAidHlwZSI6ICJCTVNQcm9kdWN0aW9uIiwgImJtc0RpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgInRpbWVzdGFtcCI6ICIyMDI1LTA2LTEwVDEyOjAxOjAwWiIsICJsb3ROdW1iZXIiOiAiTE9ULTc3NTUzMyJ9LCAicHJvb2YiOiB7InR5cGUiOiAiRWNkc2FTZWNwMjU2cjFTaWduYXR1cmUyMDE5IiwgImNyZWF0ZWQiOiAiMjAyNS0wNi0xMFQxMjowMTowM1oiLCAidmVyaWZpY2F0aW9uTWV0aG9kIjogImRpZDpiYXR0ZXJ5cGFzczpibXMuc24tNTQ0YjUxZTcja2V5LTEiLCAicHJvb2ZQdXJwb3NlIjogImF1dGhlbnRpY2F0aW9uIiwgImp3cyI6ICIifX0.FGuVZ-NqZ6VfHc-FSfqLzwkNAyFl8ncWkQ5-z0NvuUf5aIMAwS67pE1bpBqmlUAx3cb7Xwn1KzM0BMtQxowioQ"
+      }
+    }
+  ],
+  "holder": "did:batterypass:oem.sn-audi",
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-08-01T09:00:00Z",
+    "verificationMethod": "did:batterypass:oem.sn-audi#key-1",
+    "challenge": "c82f7883-42a1-4b78-9c2e-d8d5321af9f8",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJAY29udGV4dCI6IFsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCAiaHR0cDovL2xvY2FsaG9zdDo4NDQzL2RvY3MvdnAuc2NoZW1hLmh0bWwiXSwgInR5cGUiOiBbIlZlcmlmaWFibGVQcmVzZW50YXRpb24iXSwgInZlcmlmaWFibGVDcmVkZW50aWFsIjogW3siQGNvbnRleHQiOiBbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwgImh0dHA6Ly9sb2NhbGhvc3Q6ODQ0My9kb2NzL3ZjLmJtc1Byb2R1Y3Rpb24uc2NoZW1hLmh0bWwiXSwgImlkIjogInVybjp1dWlkOjk4MmM0M2VlLTNkMTYtNDE5YS1hMmY0LTVjNjE3MTBmNDI4YyIsICJ0eXBlIjogWyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsICJCTVNQcm9kdWN0aW9uIl0sICJpc3N1ZXIiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi01NDRiNTFlNyIsICJob2xkZXIiOiAiZGlkOmJhdHRlcnlwYXNzOm9lbS5zbi1hdWRpIiwgImlzc3VhbmNlRGF0ZSI6ICIyMDI1LTA2LTEwVDEyOjAxOjAwWiIsICJleHBpcmF0aW9uRGF0ZSI6ICIyMDI2LTA2LTEwVDEyOjAxOjAwWiIsICJjcmVkZW50aWFsU3ViamVjdCI6IHsiaWQiOiAiZGlkOmJhdHRlcnlwYXNzOm9lbS5zbi1hdWRpIiwgInR5cGUiOiAiQk1TUHJvZHVjdGlvbiIsICJibXNEaWQiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi01NDRiNTFlNyIsICJ0aW1lc3RhbXAiOiAiMjAyNS0wNi0xMFQxMjowMTowMFoiLCAibG90TnVtYmVyIjogIkxPVC03NzU1MzMifSwgInByb29mIjogeyJ0eXBlIjogIkVjZHNhU2VjcDI1NnIxU2lnbmF0dXJlMjAxOSIsICJjcmVhdGVkIjogIjIwMjUtMDYtMTBUMTI6MDE6MDNaIiwgInZlcmlmaWNhdGlvbk1ldGhvZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3I2tleS0xIiwgInByb29mUHVycG9zZSI6ICJhdXRoZW50aWNhdGlvbiIsICJqd3MiOiAiZXlKaGJHY2lPaUpGVXpJMU5pSjkuZXlKQVkyOXVkR1Y0ZENJNklGc2lhSFIwY0hNNkx5OTNkM2N1ZHpNdWIzSm5Mekl3TVRndlkzSmxaR1Z1ZEdsaGJITXZkakVpTENBaWFIUjBjRG92TDJ4dlkyRnNhRzl6ZERvNE5EUXpMMlJ2WTNNdmRtTXVZbTF6VUhKdlpIVmpkR2x2Ymk1elkyaGxiV0V1YUhSdGJDSmRMQ0FpYVdRaU9pQWlkWEp1T25WMWFXUTZPVGd5WXpRelpXVXRNMlF4TmkwME1UbGhMV0V5WmpRdE5XTTJNVGN4TUdZME1qaGpJaXdnSW5SNWNHVWlPaUJiSWxabGNtbG1hV0ZpYkdWRGNtVmtaVzUwYVdGc0lpd2dJa0pOVTFCeWIyUjFZM1JwYjI0aVhTd2dJbWx6YzNWbGNpSTZJQ0prYVdRNlltRjBkR1Z5ZVhCaGMzTTZZbTF6TG5OdUxUVTBOR0kxTVdVM0lpd2dJbWh2YkdSbGNpSTZJQ0prYVdRNlltRjBkR1Z5ZVhCaGMzTTZiMlZ0TG5OdUxXRjFaR2tpTENBaWFYTnpkV0Z1WTJWRVlYUmxJam9nSWpJd01qVXRNRFl0TVRCVU1USTZNREU2TURCYUlpd2dJbVY0Y0dseVlYUnBiMjVFWVhSbElqb2dJakl3TWpZdE1EWXRNVEJVTVRJNk1ERTZNREJhSWl3Z0ltTnlaV1JsYm5ScFlXeFRkV0pxWldOMElqb2dleUpwWkNJNklDSmthV1E2WW1GMGRHVnllWEJoYzNNNmIyVnRMbk51TFdGMVpHa2lMQ0FpZEhsd1pTSTZJQ0pDVFZOUWNtOWtkV04wYVc5dUlpd2dJbUp0YzBScFpDSTZJQ0prYVdRNlltRjBkR1Z5ZVhCaGMzTTZZbTF6TG5OdUxUVTBOR0kxTVdVM0lpd2dJblJwYldWemRHRnRjQ0k2SUNJeU1ESTFMVEEyTFRFd1ZERXlPakF4T2pBd1dpSXNJQ0pzYjNST2RXMWlaWElpT2lBaVRFOVVMVGMzTlRVek15SjlMQ0FpY0hKdmIyWWlPaUI3SW5SNWNHVWlPaUFpUldOa2MyRlRaV053TWpVMmNqRlRhV2R1WVhSMWNtVXlNREU1SWl3Z0ltTnlaV0YwWldRaU9pQWlNakF5TlMwd05pMHhNRlF4TWpvd01Ub3dNMW9pTENBaWRtVnlhV1pwWTJGMGFXOXVUV1YwYUc5a0lqb2dJbVJwWkRwaVlYUjBaWEo1Y0dGemN6cGliWE11YzI0dE5UUTBZalV4WlRjamEyVjVMVEVpTENBaWNISnZiMlpRZFhKd2IzTmxJam9nSW1GMWRHaGxiblJwWTJGMGFXOXVJaXdnSW1wM2N5STZJQ0lpZlgwLkZHdVZaLU5xWjZWZkhjLUZTZnFMendrTkF5Rmw4bmNXa1E1LXowTnZ1VWY1YUlNQXdTNjdwRTFicEJxbWxVQXgzY2I3WHduMUt6TTBCTXRReG93aW9RIn19XSwgImhvbGRlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAicHJvb2YiOiB7InR5cGUiOiAiRWNkc2FTZWNwMjU2cjFTaWduYXR1cmUyMDE5IiwgImNyZWF0ZWQiOiAiMjAyNS0wOC0wMVQwOTowMDowMFoiLCAidmVyaWZpY2F0aW9uTWV0aG9kIjogImRpZDpiYXR0ZXJ5cGFzczpvZW0uc24tYXVkaSNrZXktMSIsICJjaGFsbGVuZ2UiOiAiYzgyZjc4ODMtNDJhMS00Yjc4LTljMmUtZDhkNTMyMWFmOWY4IiwgInByb29mUHVycG9zZSI6ICJhdXRoZW50aWNhdGlvbiIsICJqd3MiOiAiIn19.UQMPKcwrydYUhLquW9lFjboiQ2s7bLQTqREtFVeoMI5F5i52t22pY9Qa9Dk7gP_EUOKXY9XTrwO6opFoGlYolA"
+  }
+}

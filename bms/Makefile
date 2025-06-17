@@ -13,6 +13,7 @@ D_FILES=$(SRC:.c=.d)
 INCLUDES = \
 	-I./bms-config-override \
     -I./src \
+	-I./ra-lib/c_json \
     -I./ra-lib/ra/arm/CMSIS_6/CMSIS/Core/Include 	\
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/include \
     -I./ra-lib/ra/aws/FreeRTOS/FreeRTOS-Plus/Source/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC \
@@ -43,10 +44,11 @@ config: rasc_check
 # ----------------------------------------------------------------------------------
 # Move generated files to subfolder
 move:
-	@if [ -d ld ]; then mv ld ra-lib; fi 
-	@if [ -d ra_gen ]; then mv ra_gen ra-lib; fi
-	@if [ -d ra_cfg ]; then mv ra_cfg ra-lib; fi
-	@if [ -d ra ]; then mv ra ra-lib; fi
+	@if [ -d ld ]; then rsync -a ld/ ra-lib/ld/; fi 
+	@if [ -d ra_gen ]; then rsync -a ra_gen/ ra-lib/ra_gen/; fi
+	@if [ -d ra_cfg ]; then rsync -a ra_cfg/ ra-lib/ra_cfg/; fi
+	@if [ -d ra ]; then rsync -a ra/ ra-lib/ra/; fi
+	rm -rf ld ra_gen ra ra_cfg memory_regions.ld ra_cfg.txt script
 	sed -i -e 's/INCLUDE ld/INCLUDE ra-lib\/ld/' ra-lib/ld/fsp.ld
 
 # Build docs

@@ -10,23 +10,17 @@ import (
 )
 
 // TransactionThreshold is the number of PendingTransactions required to create a new block.
-const TransactionThreshold = 2
+const TransactionThreshold = 1
 
 // Block represents a unit in the blockchain containing a set of Transactions.
 // Each block is cryptographically linked to the previous one.
 type Block struct {
-	// Index is the position of the block in the chain.
-	Index int
-	// Timestamp is when the block was created.
-	Timestamp string
-	// Hash is the cryptographic hash of this block.
-	Hash string
-	// PreviousBlockHash is the hash of the prior block.
-	PreviousBlockHash string
-	// Transactions hold all transactions in this block.
-	Transactions []json.RawMessage
-	// MerkleRoot holds the fingerprint of the whole merkle tree
-	MerkleRoot string
+	Index             int               `json:"Index"`
+	Timestamp         string            `json:"Timestamp"`
+	Hash              string            `json:"Hash"`
+	PreviousBlockHash string            `json:"PreviousBlockHash"`
+	Transactions      []json.RawMessage `json:"Transactions"`
+	MerkleRoot        string            `json:"MerkleRoot"`
 }
 
 // Returns a more readable string representation of the block structure
@@ -51,7 +45,7 @@ func CalculateBlockHash(block Block) string {
 	_, err := hasher.Write([]byte(record))
 	if err != nil {
 		print("Error: Could not write to hasher: %v\n", err)
-		return "" // TODO: Check if this might lead to issues down the line
+		return "" // TODO: This is an insecure fallback
 	}
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
@@ -61,13 +55,16 @@ func CalculateBlockHash(block Block) string {
 func GenerateGenesisBlock() Block {
 	var block Block
 
-	CreateTrustAnchor()
+	if err := CreateTrustAnchor(); err != nil {
+		fmt.Println("CreateTrustAnchor method failed: ", err)
+	}
 
 	block.Index = 0
-	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")
+	block.Timestamp = time.Now().Format(time.RFC3339)
 	// Since this is the first block in the chain, the PreviousBlockHash is hardcoded
 	block.PreviousBlockHash = "0000000000000000000000000000000000000000000000000000000000000000"
 	block.Transactions = PendingTransactions
+	block.MerkleRoot = "0000000000000000000000000000000000000000000000000000000000000000"
 	block.Hash = CalculateBlockHash(block)
 
 	PendingTransactions = nil
@@ -80,7 +77,7 @@ func GenerateBlock(currentBlock *Block) Block {
 	var block Block
 
 	block.Index = currentBlock.Index + 1
-	block.Timestamp = time.Now().Format("2006-01-02 15:04:05")
+	block.Timestamp = time.Now().Format(time.RFC3339)
 	block.PreviousBlockHash = currentBlock.Hash
 	block.Transactions = PendingTransactions
 	block.MerkleRoot = BuildMerkleRoot(PendingTransactions)

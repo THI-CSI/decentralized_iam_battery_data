@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "request.did.revoke",
+  "type": "object",
+  "required": ["proof", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "proof": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/Proof"},
+    "payload": { "$ref": "../../../../jsonschema/common.defs.schema.json#/definitions/DID"}
+  }
+}

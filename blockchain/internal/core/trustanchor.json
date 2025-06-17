@@ -1,0 +1,15 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "http://localhost:8443/docs/did.schema.html"
+  ],
+  "id": "did:batterypass:eu",
+  "verificationMethod": {
+    "id": "did:batterypass:eu#key-1",
+    "type": "JsonWebKey2020",
+    "controller": "did:batterypass:eu",
+    "publicKeyMultibase": "zXwpRvsp669diLgsc6x74QgeUqftu7n3W4kHx5YrcxoALDTNzJr6gsAmnZyrsP8a9pU2uNBDsPp5BgbaKzDaYSWNYGjN"
+  },
+  "timestamp": "2006-01-02T15:04:05Z",
+  "revoked": false
+}

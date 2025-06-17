@@ -1,6 +1,6 @@
 {
-  
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "did",
   "title": "Battery-Ecosystem DID Document",
   "description": "Minimal on-chain DID record with a revocation tag.",
@@ -24,30 +24,26 @@
       "description": "Defines the JSON-LD context, providing meaning to terms used in the did."
     },
     "id": {
-      "type": "string",
-      "pattern": "^did:[a-z0-9]+:[A-Za-z0-9._-]+$",
-      "description": "Decentralized Identifier (DID) for the entity, following the DID syntax."
+      "$ref": "common.defs.schema.json#/definitions/DID"
     },
     "verificationMethod": {
-      "$ref": "#/$defs/verificationMethod",
+      "$ref": "#/definitions/verificationMethod",
       "description": "Public key information used for verifying signatures and authentication."
     },
     "service": {
       "type": "array",
-      "items": { "$ref": "#/$defs/ServiceEndpoint" },
+      "items": { "$ref": "#/definitions/ServiceEndpoint" },
       "description": "Optional array of service endpoints related to the DID subject, such as APIs or metadata services."
     },
     "timestamp": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp indicating when the DID document was created/modified."
+      "$ref": "common.defs.schema.json#/definitions/DateTime"
     },
     "revoked": {
       "type": "boolean",
       "description": "Boolean flag indicating whether this DID has been revoked."
     }
   },
-  "$defs": {
+  "definitions": {
     "verificationMethod": {
       "type": "object",
       "required": ["id", "type", "controller", "publicKeyMultibase"],
@@ -87,7 +83,7 @@
           "description": "Type or category of the service, e.g., 'BatteryDataService'."
         },
         "serviceEndpoint": {
-          "type": ["string"],
+          "type": "string",
           "description": "The actual service endpoint, which can be a URL."
         }
       }

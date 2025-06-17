@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "common.defs.schema.json",
+  "title": "Common Definitions",
+  "type": "object",
+  "definitions": {
+    "Proof": {
+      "description": "Cryptographic proof that makes the subject verifiable.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "created", "verificationMethod", "proofPurpose", "jws"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["EcdsaSecp256r1Signature2019"]
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "verificationMethod": {
+          "type": "string",
+          "pattern": "^did:batterypass:[a-zA-Z0-9.\\-]+?#key-1$",
+          "description": "Reference to the key used to create the proof."
+        },
+        "proofPurpose": {
+          "type": "string",
+          "const": "authentication"
+        },
+        "jws": {
+          "type": "string",
+          "description": "The actual signature in JSON Web Signature format"
+        },
+        "challenge": {
+          "type": "string",
+          "description": "Optional challenge to prevent replay attacks."
+        }
+      }
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "URI": {
+      "type": "string",
+      "format": "uri",
+      "description": "An identifier in uri format for Verifiable Credentials"
+    },
+    "DID": {
+      "type": "string",
+      "pattern": "^did:batterypass:[a-zA-Z0-9.\\-]+?$",
+      "description": "DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier"
+    },
+    "DIDBMS": {
+      "type": "string",
+      "pattern": "^did:batterypass:bms.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific bms and then an identifier"
+    },
+    "DIDOEM": {
+      "type": "string",
+      "pattern": "^did:batterypass:oem.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific oem and then an identifier"
+    },
+    "DIDCLOUD": {
+      "type": "string",
+      "pattern": "^did:batterypass:cloud.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific cloud and then an identifier"
+    },
+    "DIDEU": {
+      "type": "string",
+      "pattern": "^did:batterypass:eu$",
+      "description": "DID string with the DID method `batterypass` for the trust anchor eu"
+    },
+    "DIDSERVICE": {
+      "type": "string",
+      "pattern": "^did:batterypass:service.([a-zA-Z0-9.\\-]+)?$",
+      "description": "DID string with the DID method `batterypass` for a specific service and then an identifier"
+    },
+    "256Hash": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "A SHA-256 hash of the complete VC in hexadecimal format."
+    }
+  }
+}

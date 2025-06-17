@@ -1,0 +1,98 @@
+[
+  {
+    "Index": 0,
+    "Timestamp": "2025-06-11T16:44:45+02:00",
+    "Hash": "a46e7d5dbe957fac79608a4262e5ccfddd1902a3930db729cebc9bb15607dfbe",
+    "PreviousBlockHash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "Transactions": [
+      {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "http://localhost:8443/docs/did.schema.html"
+        ],
+        "id": "did:batterypass:eu",
+        "revoked": false,
+        "timestamp": "2025-06-11T14:44:45Z",
+        "verificationMethod": {
+          "controller": "did:batterypass:eu",
+          "id": "did:batterypass:eu#key-1",
+          "publicKeyMultibase": "zXwpRvsp669diLgsc6x74QgeUqftu7n3W4kHx5YrcxoALDTNzJr6gsAmnZyrsP8a9pU2uNBDsPp5BgbaKzDaYSWNYGjN",
+          "type": "JsonWebKey2020"
+        }
+      }
+    ],
+    "MerkleRoot": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+    "Index": 1,
+    "Timestamp": "2025-06-11T14:46:21Z",
+    "Hash": "77eca57185949110dc5da2477390171ba2567122cbee2b2c260d816855de7d24",
+    "PreviousBlockHash": "a46e7d5dbe957fac79608a4262e5ccfddd1902a3930db729cebc9bb15607dfbe",
+    "Transactions": [
+      {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "http://localhost:8443/docs/did.schema.html"
+        ],
+        "id": "did:batterypass:oem.sn-audi",
+        "revoked": false,
+        "timestamp": "2025-06-11T14:46:20Z",
+        "verificationMethod": {
+          "controller": "did:batterypass:eu",
+          "id": "did:batterypass:oem.sn-audi#key-1",
+          "publicKeyMultibase": "zXwpUDDd8qdYTwp5GxVGSHjLXEtykuxuFBqGu7NJjsWjVRwzoVdLTMCEh6enYJ1hXEmaP7cW9CLn4T8C7kXvmp31z4Zq",
+          "type": "JsonWebKey2020"
+        }
+      }
+    ],
+    "MerkleRoot": "e4e0d3834feef6951745da34fb7e35d8359b2c190619129f37f303974c355075"
+  },
+  {
+    "Index": 2,
+    "Timestamp": "2025-06-11T14:46:23Z",
+    "Hash": "19da98d764387fdc841b9b7f97c9452284b8d0c46c272f88a661679956519104",
+    "PreviousBlockHash": "77eca57185949110dc5da2477390171ba2567122cbee2b2c260d816855de7d24",
+    "Transactions": [
+      {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "http://localhost:8443/docs/did.schema.html"
+        ],
+        "id": "did:batterypass:bms.sn-544b51e7",
+        "revoked": false,
+        "timestamp": "2025-06-11T14:46:22Z",
+        "verificationMethod": {
+          "controller": "did:batterypass:oem.sn-audi",
+          "id": "did:batterypass:bms.sn-544b51e7#key-1",
+          "publicKeyMultibase": "zXwpTaResqAYjpbohqjBtFRnWKdSkzu8ZyTwCpEM8GMcbH3mdhFYvGLMdK7hn5TEi8h6sBMgcWhiWN28MV63NaH36cH4",
+          "type": "JsonWebKey2020"
+        }
+      }
+    ],
+    "MerkleRoot": "09ce3f93573dc1116c30784ef2b1f18e80ce8eef3289f083762c8b45c17510b1"
+  },
+  {
+    "Index": 3,
+    "Timestamp": "2025-06-11T14:46:26Z",
+    "Hash": "0933f4741f80f208bdf77a989b81909f8edef8c0675fd3a5114b54b12255a804",
+    "PreviousBlockHash": "19da98d764387fdc841b9b7f97c9452284b8d0c46c272f88a661679956519104",
+    "Transactions": [
+      {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "http://localhost:8443/docs/did.schema.html"
+        ],
+        "id": "did:batterypass:service.sn-service1",
+        "revoked": false,
+        "timestamp": "2025-06-11T14:46:25Z",
+        "verificationMethod": {
+          "controller": "did:batterypass:eu",
+          "id": "did:batterypass:service.sn-service1#key-1",
+          "publicKeyMultibase": "zXwpUgZtTsyAoEmHsy1gBcVfzwePQLvq85sdexRoiX2sfvRMkuWzRMXjBJaPztoW4HYvTk3AKD5SuuMGNPjUi6FwqdSV",
+          "type": "JsonWebKey2020"
+        }
+      }
+    ],
+    "MerkleRoot": "3b15c6a0add882866b967f6251ec982a57d4709ae6a04ba171805b4bdf94d284"
+  }
+]

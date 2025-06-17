@@ -1,9 +1,21 @@
-= Hauptteil
+#pagebreak()
+= Allgemeine Projektbeschreibung
 
-== passisr
-#include "passisr/main.typ"
+#include "01_Allgemeine_Projektbeschreibung/Projektkontext.typ"
+#include "01_Allgemeine_Projektbeschreibung/Problembeschreibung.typ"
+#include "01_Allgemeine_Projektbeschreibung/Projektziel.typ"
 
-== bee1850
-#include "bee1850/main.typ"
-#linebreak()
-#include "bee1850/abcd.typ"
+#pagebreak()
+= Projektorganisation 
+#include "02_Projekt_Organisation/Ueberblick_und_Zusammenhang_der_Arbeitspakete.typ"
+#include "02_Projekt_Organisation/Systemarchitektur.typ"
+
+#pagebreak()
+= Arbeitspakete & Anforderungen im Detail
+#include "03_Arbeitspakete_und_Anforderungen/Uebersicht_der_arbeitspakete_und_zugeordneter_requirements.typ"
+#include "03_Arbeitspakete_und_Anforderungen/Projekt_Management.typ"
+#include "03_Arbeitspakete_und_Anforderungen/Requirements_Engineering.typ"
+#include "03_Arbeitspakete_und_Anforderungen/Infrastructure.typ"
+#include "03_Arbeitspakete_und_Anforderungen/IAM-Blockchain.typ"
+#include "03_Arbeitspakete_und_Anforderungen/BMS.typ"
+#include "03_Arbeitspakete_und_Anforderungen/Cloud.typ"

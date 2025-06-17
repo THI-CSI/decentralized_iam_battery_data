@@ -1,6 +1,10 @@
 import requests
 import json
 import time
+import logging
+
+# Logging konfigurieren
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 # URL deines lokalen FastAPI-Servers
 url = "http://127.0.0.1:8000/batterypass/"
@@ -22,29 +26,29 @@ def send_dummy_data_with_retry(data, max_retries=3):
     attempt = 0
     while attempt < max_retries:
         try:
+            logging.info(f" Attempt {attempt + 1} of {max_retries}")
             response = requests.put(url, headers=headers, data=json.dumps(data))
-            
+
             if response.status_code == 200:
-                print("✅ Success:")
-                print(response.json())
+                logging.info(" Success")
+                logging.debug(f"Response: {response.json()}")
                 return response.json()
 
             elif 400 <= response.status_code < 500:
-                print(f"❌ Client Error {response.status_code}:")
-                print(response.text)
+                logging.error(f" Client Error {response.status_code}: {response.text}")
                 return None  # Kein Retry bei Client-Fehlern
 
             else:
-                print(f"⚠️ Server Error {response.status_code}, retrying...")
+                logging.warning(f" Server Error {response.status_code}, retrying...")
 
         except requests.exceptions.RequestException as e:
-            print(f"❌ Network Exception: {str(e)}")
+            logging.exception(" Network Exception occurred")
 
         attempt += 1
-        print(f"🔁 Retry {attempt}/{max_retries} in 2s...\n")
+        logging.info(f" Waiting 2 seconds before retry ({attempt}/{max_retries})...\n")
         time.sleep(2)
 
-    print("❌ Max retries reached. Giving up.")
+    logging.error(" Max retries reached. Giving up.")
     return None
 
 # Hauptfunktion

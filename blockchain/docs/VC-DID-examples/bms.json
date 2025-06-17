@@ -12,9 +12,14 @@
   },
   "service": [
     {
-      "id": "did:batterypass:oem.VW",
-      "type": "IssueVC",
-      "serviceEndpoint": "https://<client-endpoint>"
+      "id": "did:batterypass:bms.identifier#batterypassApi-prod1",
+      "type": "BatteryPassAPI",
+      "serviceEndpoint": "https://cloud-endpoint-prod1.example.com"
+    },
+    {
+      "id": "did:batterypass:bms.identifier#batterypassApi-test1",
+      "type": "BatteryPassApi",
+      "serviceEndpoint": "https://cloud-endpoint-test1.example.com"
     }
   ],
   "timestamp": "2025-04-10T12:00:00Z",
