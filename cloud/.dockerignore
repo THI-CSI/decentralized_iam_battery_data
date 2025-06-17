@@ -1,0 +1,8 @@
+ATTRIBUTION.md
+README.md
+test_client.py
+docker-compose.yml
+.gitignore
+.dockerignore
+__pycache__
+build

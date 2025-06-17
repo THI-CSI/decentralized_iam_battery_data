@@ -1,14 +1,12 @@
 import functools
-import json
 import pathlib
 import logging
 import base64
 import json
-import requests
-
 from jwcrypto import jws, jwk
 import os
 import requests
+
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto.Protocol import HPKE
@@ -19,8 +17,6 @@ from Crypto.PublicKey import ECC
 from typing import Dict, Any
 from Crypto.Hash import SHA3_256
 from multiformats import multibase
-from tinydb import TinyDB, where
-from jose import jwk
 from tinydb.table import Document
 
 
@@ -176,7 +172,6 @@ def verify_vc(vc_json_object: json) -> bool:
     creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
     """
 
-    jwk.construct()
     # Extract the uri, issuer and holder
     uri, issuer, holder = extract_vc_info(vc_json_object)
 
