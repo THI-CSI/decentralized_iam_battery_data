@@ -6,8 +6,8 @@ import base64
 import json
 import requests
 
+from jwcrypto import jws, jwk
 import os
-
 import requests
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -151,36 +151,25 @@ def retrieve_public_key(did: str) -> ECC.EccKey:
         raise ValueError("Public key revoked.")
     return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
 
-
-def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+def verify_vp(vp_json_object: json, private_key: ECC.EccKey) -> str|None:
     """
-    Extract URI, issuer, and holder from a VC object.
-
-    :param vc: The Verifiable Credential (VC) as a dictionary.
-    :return: A tuple containing (URI, Issuer ID, Holder ID).
+    This function takes a Verifiable Presentation dictionary and sends it to the Blockchain for verification.
     """
 
-    # Get all necessary data from the verifiable credential
-    uri = vc.get("id")
-    issuer = vc.get("issuer")
-    subject = vc.get("credentialSubject")
+    validator = jws.JWS()
+    validator.deserialize(vp_json_object["proof"]["jws"])
+    key = jwk.JWK.from_pem(private_key.export_key(format="PEM").encode())
+    validator.verify(key)
 
-    # Checking credentialSubjects form (If we have a uniform form, this is not necessary,
-    # but will be left in for now)
-    if isinstance(subject, dict):
-        holder = subject.get("id")
-    elif isinstance(subject, list) and len(subject) > 0:
-        holder = subject[0].get("id")
-    else:
-        holder = None
-
-    # Check if all data is present, if not raise a ValueError
-    if uri is None or issuer is None or holder is None:
-        raise ValueError("Invalid Verifiable Credential")
-
-    return uri, issuer, holder
+    if "proof" not in vp_json_object or "jws" not in vp_json_object["proof"]:
+        return None
 
 
+    # Then we send the Data to the Blockchain.
+    response = requests.post(
+        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=vp_json_object)
+    
+    
 def verify_vc(vc_json_object: json) -> bool:
     """
     This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
@@ -212,10 +201,8 @@ def verify_vc(vc_json_object: json) -> bool:
     # Then we send the Data to the Blockchain
     response = requests.post(BLOCKCHAIN_URL, json=data)
 
-    # If the response is 200, we can assume the VC is valid
-    if response.status_code == 200:
-        return True
-    # If not, we can assume the VC is invalid. We should check for reasons in the future
-    # devbod: TODO: Check for Reasons
+    # If the response is 200, the VC is valid.
+    if response.ok:
+        return vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]
     else:
-        return False
+        return None
