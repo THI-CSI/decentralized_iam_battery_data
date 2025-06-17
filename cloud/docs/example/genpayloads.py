@@ -6,7 +6,6 @@ import click
 from base64 import b64encode
 from datetime import datetime
 from functools import lru_cache
-from urllib.parse import quote
 from pathlib import Path
 from os import urandom, getenv
 from dotenv import load_dotenv
@@ -32,7 +31,7 @@ def load_cloud_public_key() -> ECC.EccKey:
         return ECC.import_key(f.read(), passphrase=getenv("PASSPHRASE")).public_key()
 
 
-def gen_payload(path: Path, sign_key: ECC.EccKey, sender_did: str, b: bytes, query: str = None) -> None:
+def gen_payload(path: Path, sign_key: ECC.EccKey, sender_did: str, b: bytes) -> None:
     eph_key = ECC.generate(curve="P-256")
     cloud_pub = load_cloud_public_key()
     salt = urandom(32)
@@ -56,15 +55,12 @@ def gen_payload(path: Path, sign_key: ECC.EccKey, sender_did: str, b: bytes, que
     ))
     payload["signature"] = b64encode(signature).decode()
     with open(path, "w") as f:
-        if query is None:
-            json.dump(payload, f, indent=4)
-        else:
-            f.write(f"{query}payload={quote(json.dumps(payload, separators=(",", ":")))}")
+        json.dump(payload, f, indent=4)
     print(f"Generated {path}")
 
 
 def gen_get_payload() -> None:
-    gen_payload(payloads_path / "get_payload.txt", bms_key, bms_did, urandom(128), "public=false&")
+    gen_payload(payloads_path / "read_payload.json", bms_key, bms_did, urandom(128))
 
 
 def gen_post_payload() -> None:
@@ -74,17 +70,17 @@ def gen_post_payload() -> None:
             "lastUpdate": datetime.now().isoformat()
         }
     }]
-    gen_payload(payloads_path / "post_payload.json", bms_key, bms_did, json.dumps(update).encode())
+    gen_payload(payloads_path / "update_payload.json", bms_key, bms_did, json.dumps(update).encode())
 
 
 def gen_put_payload() -> None:
     with open(Path(__file__).parent / "batterypass.json", "r") as f:
         batterypass = json.load(f)
-    gen_payload(payloads_path / "put_payload.json", oem_key, oem_did, json.dumps(batterypass).encode())
+    gen_payload(payloads_path / "create_payload.json", oem_key, oem_did, json.dumps(batterypass).encode())
 
 
 def gen_delete_payload() -> None:
-    gen_payload(payloads_path / "delete_payload.txt", bms_key, bms_did, urandom(128), "")
+    gen_payload(payloads_path / "delete_payload.json", bms_key, bms_did, urandom(128))
 
 
 @click.command()

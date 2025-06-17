@@ -14,8 +14,6 @@ from Crypto.Protocol.DH import key_agreement
 from Crypto.Protocol.KDF import HKDF
 from Crypto.Signature import DSS
 from Crypto.PublicKey import ECC
-from typing import Dict, Any
-from Crypto.Hash import SHA3_256
 from multiformats import multibase
 from tinydb.table import Document
 
@@ -147,57 +145,34 @@ def retrieve_public_key(did: str) -> ECC.EccKey:
         raise ValueError("Public key revoked.")
     return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
 
-def verify_vp(vp_json_object: json, private_key: ECC.EccKey) -> str|None:
+
+def verify_vp(vp_json_object) -> str | None:
     """
     This function takes a Verifiable Presentation dictionary and sends it to the Blockchain for verification.
     """
-
     validator = jws.JWS()
-    validator.deserialize(vp_json_object["proof"]["jws"])
-    key = jwk.JWK.from_pem(private_key.export_key(format="PEM").encode())
-    validator.verify(key)
-
-    if "proof" not in vp_json_object or "jws" not in vp_json_object["proof"]:
+    try:
+        validator.deserialize(vp_json_object["proof"]["jws"])
+        did = vp_json_object["proof"]["verificationMethod"].split("#")[0]
+    except KeyError:
         return None
-
+    key = jwk.JWK.from_pem(retrieve_public_key(did).export_key(format="PEM").encode())
+    try:
+        validator.verify(key)
+    except jws.InvalidJWSSignature:
+        return None
 
     # Then we send the Data to the Blockchain.
     response = requests.post(
-        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=vp_json_object)
-    
-    
-def verify_vc(vc_json_object: json) -> bool:
-    """
-    This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
-    creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
-    """
+        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify",
+        json=vp_json_object
+    )
+    if not response.ok:
+        return None
 
-    # Extract the uri, issuer and holder
-    uri, issuer, holder = extract_vc_info(vc_json_object)
-
-    # To generate the Hash, we must first serialize the Object
-    serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
-
-    # Create the SHA3-256bit Hash
-    vc_hash = SHA3_256.new(serialized_vc)
-
-    # devbod: TODO: Should we use hexdigest()?
-    # vc_digest = vc_hash.hexdigest()
-
-    # Now we need to send the Data to the Blockchain
-    # First we create the Datastructures we send
-    data = {
-        "uri": uri,
-        "issuer": issuer,
-        "holder": holder,
-        "hash": vc_hash
-    }
-
-    # Then we send the Data to the Blockchain
-    response = requests.post(BLOCKCHAIN_URL, json=data)
-
-    # If the response is 200, the VC is valid.
-    if response.ok:
-        return vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]
-    else:
+    try:
+        return "read" if (
+                "read" in next(vp_json_object["verifiableCredential"])["credentialSubject"]["accessLevel"]
+        ) else None
+    except (KeyError, StopIteration):
         return None
