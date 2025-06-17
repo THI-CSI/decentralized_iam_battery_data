@@ -4,13 +4,20 @@ import logging
 import pathlib
 
 from datetime import datetime
+from io import BytesIO
 from json import JSONDecodeError
+
+import multibase
+import qrcode
 from Crypto.PublicKey import ECC
 from functools import lru_cache
 from fastapi import FastAPI, Depends, Path, Body
 from fastapi.params import Query
-from fastapi.responses import JSONResponse
-from pydantic import ValidationError
+from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import ValidationError, HttpUrl
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.colormasks import SolidFillColorMask
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
 from tinydb import TinyDB, where
 
 from crypto.crypto import load_private_key, generate_keys, encrypt_hpke, determine_role, \
@@ -62,6 +69,9 @@ def get_private_key():
     return load_private_key(os.getenv("PASSPHRASE", "secret"))
 
 
+pub_key_multibase = multibase.encode("base58btc", get_private_key().public_key().export_key(format="DER"))
+
+
 def set_nested_value(doc, path_keys, new_value):
     current_level = doc
     for key in path_keys[:-1]:
@@ -83,15 +93,36 @@ def is_vp(b: bytes) -> VerifiablePresentation | None:
         raise ValueError("Invalid Verifiable Presentation.")
 
 
+def generate_qr_code(base_url: HttpUrl, did: DID) -> BytesIO:
+    qr = qrcode.QRCode(
+        version=None,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=5,
+        border=4,
+    )
+    qr.add_data(f"{base_url}?did={did}")
+    qr.make(fit=True)
+    img = qr.make_image(
+        image_factory=StyledPilImage,
+        module_drawer=RoundedModuleDrawer(),
+        color_mask=SolidFillColorMask(front_color=(50, 100, 60), back_color=(255, 255, 255))
+    )
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
+
+
 @app.get("/",
          summary="API Health Check",
          tags=["General"],
          responses={
-             200: {"model": SuccessfulResponse,
-                   "content": {"application/json": {"example": {"ok": "API is running."}}}},
+             200: {"content": {"application/json": {"example": {
+                 "ok": "API is running.", "publicKeyMultibase": pub_key_multibase
+             }}}},
          })
 def read_root():
-    return {"ok": "API is running."}
+    return {"ok": "API is running.", "publicKeyMultibase": pub_key_multibase}
 
 
 @app.get("/batterypass/",
@@ -118,7 +149,7 @@ async def list_dids(db: TinyDB = Depends(get_db)):
                      "/blob/main/cloud/docs/api.md#get-batterypassdid)**."
          )
 async def read_item(
-        did: str,
+        did: DID,
         payload: str = Query(
             default=None,
             description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
@@ -171,7 +202,7 @@ async def read_item(
                      "/blob/main/cloud/docs/api.md#put-batterypassdid)**.")
 async def create_item(
         payload: EncryptedPayload,
-        did: str,
+        did: DID,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
@@ -213,7 +244,7 @@ async def create_item(
                       "/blob/main/cloud/docs/api.md#post-batterypassdid)**.")
 async def update_item(
         payload: EncryptedPayload,
-        did: str,
+        did: DID,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
@@ -260,7 +291,7 @@ async def update_item(
                         "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
                         "/blob/main/cloud/docs/api.md#delete-batterypassdid)**.")
 async def delete_item(
-        did: str,
+        did: DID,
         payload: str = Query(
             description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
                         "/blob/main/cloud/docs/api.md#request-body) as a serialized string.\n\n"
@@ -290,3 +321,18 @@ async def delete_item(
 
     # Return a success message indicating the deletion was successful
     return {"ok": f"Entry for {did} deleted successfully."}
+
+
+@app.get("/batterypass/{did}/qr",
+         summary="Get a QR code for a battery pass entry by DID",
+         tags=["Battery Pass"],
+         responses={
+             200: {"content": {"image/png": {"example": b""}}},
+             400: {"model": BadRequestResponse},
+         })
+def read_qr(did: DID, url: HttpUrl = Query(description="The URL for the battery pass viewer.")):
+    try:
+        qr_code = generate_qr_code(url, did)
+    except ValueError as e:
+        return error_response(400, str(e))
+    return StreamingResponse(qr_code, media_type="image/png")

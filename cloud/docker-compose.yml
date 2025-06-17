@@ -1,38 +1,35 @@
 services:
   api-service:
+    restart: unless-stopped
     networks:
       - net
       - blockchain_net-blockchain
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: build/Dockerfile-api
     container_name: api-service
-    expose:
-      - "8000"
     ports:
       - "8000:8000"
     env_file: .env
     environment:
       BLOCKCHAIN_URL: "http://blockchain-nginx-dev-1"
     volumes:
-      - ./data:/app/data
+      - battery-data:/app/data
 
   streamlit-ui:
+    restart: unless-stopped
     networks:
       - net
     build:
       context: .
-      dockerfile: Dockerfile-ui
+      dockerfile: build/Dockerfile-ui
     container_name: streamlit-ui
     working_dir: /app
-    volumes:
-      - .:/app
-      - ./streamlit_cache:/home/app/.streamlit
     ports:
       - "8501:8501"
     environment:
       API_BASE_URL: "http://api-service:8000"
-      STREAMLIT_BASE_URL: "http://localhost:5601"
+      STREAMLIT_BASE_URL: "http://localhost:8501"
     depends_on:
       - api-service
 
@@ -40,3 +37,6 @@ networks:
   net:
   blockchain_net-blockchain:
     external: true
+
+volumes:
+  battery-data:
