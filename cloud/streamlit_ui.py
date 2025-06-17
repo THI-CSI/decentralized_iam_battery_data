@@ -128,11 +128,11 @@ if view_data == "List All DIDs":
                     <style>
                     .hover-link {{
                         text-decoration: none !important;
-                        color: white !important;
+                        color: #6ed278 !important;
                         transition: color 0.2s ease;
                     }}
                     .hover-link:hover {{
-                        color: #6ed278 !important;
+                        color: white !important;
                     }}
                     </style>
     
