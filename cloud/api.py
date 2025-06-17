@@ -337,7 +337,7 @@ async def delete_item(
     return {"ok": f"Entry for {did} deleted successfully."}
 
 
-@app.get("/batterypass/{did}/qr",
+@app.get("/batterypass/qr/{did}",
          summary="Get a QR code for a battery pass entry by DID",
          tags=["Battery Pass"],
          responses={
