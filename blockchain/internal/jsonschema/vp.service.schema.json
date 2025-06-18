@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vp",
+  "$id": "vp.service",
   "title": "Battery-Ecosystem Verifiable Presentation",
   "description": "Schema for verifying presentations of VCs with holder proof.",
   "type": "object",
@@ -41,7 +41,7 @@
     "verifiableCredential": {
       "type": "array",
       "items": {
-        "$ref": "../api/web/jsonschema/requests/request.vc.serviceAccess.create.schema.json"
+        "$ref": "vc.service.schema.json"
       }
     },
     "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },

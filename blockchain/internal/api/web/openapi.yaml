@@ -167,7 +167,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './jsonschema/requests/request.vc.bmsProduced.create.schema.json'
+              $ref: './jsonschema/requests/request.vc.bms.create.schema.json'
             examples:
               vcCreateRequestBms: # Give a unique name to this example
                 summary: Example DID Creation Request, that should succeed
@@ -200,7 +200,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './jsonschema/requests/request.vc.serviceAccess.create.schema.json'
+              $ref: './jsonschema/requests/request.vc.service.create.schema.json'
             examples:
               vcCreateRequestServices: # Give a unique name to this example
                 summary: Example DID Creation Request, that should succeed
@@ -233,7 +233,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './jsonschema/requests/request.vc.cloudInstance.create.schema.json'
+              $ref: './jsonschema/requests/request.vc.cloud.create.schema.json'
             examples:
               vcCreateRequestCloud: # Give a unique name to this example
                 summary: Example DID Creation Request, that should succeed
@@ -289,17 +289,83 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vps/verify/bms:
+  /api/v1/vps/verify/services:
     post:
       tags: [ VP ]
-      summary: Verify a VP Record
-      operationId: verifyVp
+      summary: Verify a VP Record for Services
+      operationId: verifyVpServices
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: './jsonschema/requests/request.vp.verify.schema.json'
+              $ref: './jsonschema/requests/request.vp.service.verify.schema.json'
+            examples:
+              vpVerifyRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vp.verify.2.json'
+      responses:
+        '200':
+          description: VC Record successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.ok.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vps/verify/cloud:
+    post:
+      tags: [ VP ]
+      summary: Verify a VP Record for Cloud
+      operationId: verifyVpCloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vp.cloud.verify.schema.json'
+            examples:
+              vpVerifyRequest: # Give a unique name to this example
+                summary: Example DID Creation Request, that should succeed
+                externalValue: './jsonexample/requests/request.vp.verify.3.json'
+      responses:
+        '200':
+          description: VC Record successfully verified
+          content:
+            application/json:
+              schema:
+                $ref: './jsonschema/responses/response.ok.schema.json'
+        '400':
+          description: Client Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+        '500':
+          description: Server Errors
+          content:
+            application/json:
+              schema: { $ref: './jsonschema/responses/response.error.schema.json' }
+
+  /api/v1/vps/verify/bms:
+    post:
+      tags: [ VP ]
+      summary: Verify a VP Record for Bms
+      operationId: verifyVpBms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './jsonschema/requests/request.vp.bms.verify.schema.json'
             examples:
               vpVerifyRequest: # Give a unique name to this example
                 summary: Example DID Creation Request, that should succeed

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "request.vc.create.bmsProduced",
+  "$id": "request.vc.create.bms",
   "title": "Create Verifiable Credential Request BMS Produced",
   "description": "Schema for creating a new Verifiable Credential for BMS Produced",
-  "$ref": "../../../../jsonschema/vc.bmsProduced.schema.json"
+  "$ref": "../../../../jsonschema/vc.bms.schema.json"
 }

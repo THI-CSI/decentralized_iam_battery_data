@@ -8,10 +8,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"reflect"
-	"strings"
 	"time"
 )
 
@@ -72,18 +70,8 @@ func (v *vcService) GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VC
 
 // CreateVCRecordCloud creates a new VC record on the blockchain based on the provided VC
 func (v *vcService) CreateVCRecordCloud(userContext context.Context, createVcRecord *models.CreateVcRecordCloudJSONRequestBody) error {
-	parts := strings.SplitN(createVcRecord.Proof.VerificationMethod, "#", 2)
-	verificationMethodDID := parts[0]
-
-	if createVcRecord.Issuer != verificationMethodDID {
-		return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", createVcRecord.Issuer, verificationMethodDID)
-	}
-	if createVcRecord.Holder != createVcRecord.CredentialSubject.Id {
-		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", createVcRecord.Holder, createVcRecord.CredentialSubject.Id)
-	}
-	now := time.Now()
-	if now.Before(createVcRecord.CredentialSubject.Timestamp) {
-		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+	if err := utils.VerifyRequestCreateCloud(createVcRecord); err != nil {
+		return err
 	}
 
 	var vcRecord coreTypes.VCRecord
@@ -107,18 +95,8 @@ func (v *vcService) CreateVCRecordCloud(userContext context.Context, createVcRec
 
 // CreateVCRecordBms creates a new VC record on the blockchain based on the provided VC
 func (v *vcService) CreateVCRecordBms(userContext context.Context, createVcRecord *models.CreateVcRecordBmsJSONRequestBody) error {
-	parts := strings.SplitN(createVcRecord.Proof.VerificationMethod, "#", 2)
-	verificationMethodDID := parts[0]
-
-	if createVcRecord.Issuer != verificationMethodDID || verificationMethodDID != createVcRecord.CredentialSubject.BmsDid {
-		return fmt.Errorf("the following 3 dids have to match: VC Issuer: '%s'; VC credentialSubject BMSdid: '%s'; VC proof verification method: '%s'", createVcRecord.Issuer, createVcRecord.CredentialSubject.BmsDid, verificationMethodDID)
-	}
-	if createVcRecord.Holder != createVcRecord.CredentialSubject.Id {
-		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", createVcRecord.Holder, createVcRecord.CredentialSubject.Id)
-	}
-	now := time.Now()
-	if now.Before(createVcRecord.CredentialSubject.Timestamp) {
-		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+	if err := utils.VerifyRequestCreateBms(createVcRecord); err != nil {
+		return err
 	}
 
 	var vcRecord coreTypes.VCRecord
@@ -142,21 +120,8 @@ func (v *vcService) CreateVCRecordBms(userContext context.Context, createVcRecor
 
 // CreateVCRecordServices creates a new VC record on the blockchain based on the provided VC
 func (v *vcService) CreateVCRecordServices(userContext context.Context, createVcRecord *models.CreateVcRecordServicesJSONRequestBody) error {
-	parts := strings.SplitN(createVcRecord.Proof.VerificationMethod, "#", 2)
-	verificationMethodDID := parts[0]
-
-	if createVcRecord.Issuer != verificationMethodDID {
-		return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", createVcRecord.Issuer, verificationMethodDID)
-	}
-	if createVcRecord.Holder != createVcRecord.CredentialSubject.Id {
-		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", createVcRecord.Holder, createVcRecord.CredentialSubject.Id)
-	}
-	now := time.Now()
-	if now.Before(createVcRecord.CredentialSubject.ValidFrom) {
-		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.ValidFrom.Format(time.RFC3339), now.Format(time.RFC3339))
-	}
-	if now.After(createVcRecord.CredentialSubject.ValidUntil) {
-		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.ValidUntil.Format(time.RFC3339), now.Format(time.RFC3339))
+	if err := utils.VerifyRequestCreateServices(createVcRecord); err != nil {
+		return err
 	}
 
 	var vcRecord coreTypes.VCRecord

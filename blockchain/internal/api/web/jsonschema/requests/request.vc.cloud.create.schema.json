@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "request.vc.create.cloudInstance",
+  "$id": "request.vc.create.cloud",
   "title": "Create Verifiable Credential Request Cloud Instance",
   "description": "Schema for creating a new Verifiable Credential for Cloud Instance",
-  "$ref": "../../../../jsonschema/vc.cloudInstance.schema.json"
+  "$ref": "../../../../jsonschema/vc.cloud.schema.json"
 }

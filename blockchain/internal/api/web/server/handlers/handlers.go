@@ -36,7 +36,9 @@ type MyServer struct {
 	requestVcCreateSchemaServiceAccess *gojsonschema.Schema
 	requestVcCreateSchemaBmsProduced   *gojsonschema.Schema
 	requestVcRevokeSchema              *gojsonschema.Schema
-	requestVpVerifySchema              *gojsonschema.Schema
+	requestVpVerifySchemaCloud         *gojsonschema.Schema
+	requestVpVerifySchemaServices      *gojsonschema.Schema
+	requestVpVerifySchemaBms           *gojsonschema.Schema
 }
 
 // NewMyServer is the constructor for MyServer.
@@ -145,19 +147,19 @@ func NewMyServer(
 		return nil, fmt.Errorf("failed to load requestDidRevokeSchema: %w", err)
 	}
 
-	s.requestVcCreateSchemaServiceAccess, err = loadSchema(apiWebSchemasPath, "requests/request.vc.serviceAccess.create.schema.json")
+	s.requestVcCreateSchemaServiceAccess, err = loadSchema(apiWebSchemasPath, "requests/request.vc.service.create.schema.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load requestVcCreateSchema: %w", err)
+		return nil, fmt.Errorf("failed to load requestVcCreateSchemaServiceAccess: %w", err)
 	}
 
-	s.requestVcCreateSchemaCloudInstance, err = loadSchema(apiWebSchemasPath, "requests/request.vc.cloudInstance.create.schema.json")
+	s.requestVcCreateSchemaCloudInstance, err = loadSchema(apiWebSchemasPath, "requests/request.vc.cloud.create.schema.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load requestVcCreateSchema: %w", err)
+		return nil, fmt.Errorf("failed to load requestVcCreateSchemaCloudInstance: %w", err)
 	}
 
-	s.requestVcCreateSchemaBmsProduced, err = loadSchema(apiWebSchemasPath, "requests/request.vc.bmsProduced.create.schema.json")
+	s.requestVcCreateSchemaBmsProduced, err = loadSchema(apiWebSchemasPath, "requests/request.vc.bms.create.schema.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load requestVcCreateSchema: %w", err)
+		return nil, fmt.Errorf("failed to load requestVcCreateSchemaBmsProduced: %w", err)
 	}
 
 	s.requestVcRevokeSchema, err = loadSchema(apiWebSchemasPath, "requests/request.vc.revoke.schema.json")
@@ -165,9 +167,19 @@ func NewMyServer(
 		return nil, fmt.Errorf("failed to load requestVcRevokeSchema: %w", err)
 	}
 
-	s.requestVpVerifySchema, err = loadSchema(apiWebSchemasPath, "requests/request.vp.verify.schema.json")
+	s.requestVpVerifySchemaCloud, err = loadSchema(apiWebSchemasPath, "requests/request.vp.cloud.verify.schema.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load requestVpVerifySchema: %w", err)
+		return nil, fmt.Errorf("failed to load requestVpVerifySchemaCloud: %w", err)
+	}
+
+	s.requestVpVerifySchemaServices, err = loadSchema(apiWebSchemasPath, "requests/request.vp.service.verify.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load requestVpVerifySchemaServices: %w", err)
+	}
+
+	s.requestVpVerifySchemaBms, err = loadSchema(apiWebSchemasPath, "requests/request.vp.bms.verify.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load requestVpVerifySchemaBms: %w", err)
 	}
 
 	log.Println("All JSON schemas loaded and compiled successfully.")

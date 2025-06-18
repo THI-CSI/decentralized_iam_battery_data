@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "request.vc.create.serviceAccess",
+  "$id": "request.vc.create.service",
   "title": "Create Verifiable Credential Request Service Access",
   "description": "Schema for creating a new Verifiable Credential for Service Access",
-  "$ref": "../../../../jsonschema/vc.serviceAccess.schema.json"
+  "$ref": "../../../../jsonschema/vc.service.schema.json"
 }
