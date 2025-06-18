@@ -152,7 +152,7 @@ encapsulated inside the [request body](#request-body).
 #### Example
 
 ```shell
-curl -X PUT http://localhost:8000/batterypass/$EXAMPLE_DID \
+curl -X PUT http://localhost:8000/batterypass/create/$EXAMPLE_DID \
   -H 'Content-Type: application/json' \
   --data @example/payloads/put_payload.json
 ```

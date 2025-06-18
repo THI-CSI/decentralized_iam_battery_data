@@ -28,6 +28,7 @@ narwhals==1.42.1
 numpy==2.3.0
 packaging==24.2
 pandas==2.3.0
+base58==2.1.1
 pillow==11.2.1
 protobuf==6.31.1
 py-multibase==1.0.3
