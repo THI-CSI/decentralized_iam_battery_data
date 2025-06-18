@@ -6,27 +6,21 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/sha256"
-	"math/big"
-	//"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
-	//"encoding/pem"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/multiformats/go-multibase"
+	"math/big"
 	"regexp"
 	"strings"
 	"time"
 )
 
-// Validate is a shared instance of the validator used for struct validation.
-// It uses tags (e.g., `validate:"required"`) defined in struct fields.
-//var Validate = validator.New()
-
 // IsDidValid Checks if the DID is conform to the specified format.
 func IsDidValid(did string) bool {
-	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\-]+?$`, did)
+	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\-]*$`, did)
 	return matched
 }
 
@@ -45,58 +39,6 @@ func Generate256HashHex(payload interface{}) (string, error) {
 	hashBytes := sha256.Sum256(jsonBytes)
 	return hex.EncodeToString(hashBytes[:]), nil
 }
-
-// PEM format
-//func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string) ([]byte, error) {
-//	publicKeyPEM, err := chain.GetPublicKey(didKeyFragment)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	// Decode PEM block
-//	block, _ := pem.Decode([]byte(publicKeyPEM))
-//	if block == nil || block.Type != "PUBLIC KEY" {
-//		return nil, fmt.Errorf("failed to decode PEM block containing public key")
-//	}
-//
-//	pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
-//	if err != nil {
-//		return nil, fmt.Errorf("failed to parse public key: %v", err)
-//	}
-//
-//	ecdsaPubKey, ok := pubKey.(*ecdsa.PublicKey)
-//	if !ok {
-//		return nil, fmt.Errorf("not ECDSA P-256 public key")
-//	}
-//
-//	// Parse and verify the JWT using EdDSA
-//	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-//		if token.Method.Alg() != jwt.SigningMethodES256.Alg() {
-//			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-//		}
-//		return ecdsaPubKey, nil
-//	})
-//
-//	if err != nil {
-//		return nil, fmt.Errorf("failed to verify token: %v", err)
-//	}
-//
-//	if token.Valid {
-//		fmt.Println("Signature verified successfully!")
-//		claims, ok := token.Claims.(jwt.MapClaims)
-//		if !ok {
-//			return nil, fmt.Errorf("could not convert claims to MapClaims")
-//		}
-//
-//		jsonBytes, err := json.Marshal(claims)
-//		if err != nil {
-//			return nil, fmt.Errorf("failed to marshal claims to JSON bytes: %v", err)
-//		}
-//		return jsonBytes, nil
-//	}
-//
-//	return nil, errors.New("invalid token")
-//}
 
 func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string) ([]byte, error) {
 	publicKeyMultibase, err := chain.GetPublicKey(didKeyFragment)
@@ -129,7 +71,7 @@ func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string
 	curve := elliptic.P256()
 
 	if len(rawPubKeyBytes) != 65 || rawPubKeyBytes[0] != 0x04 {
-		return nil, fmt.Errorf("invalid raw P-256 public key format: expected 65 bytes starting with 0x04")
+		return nil, fmt.Errorf("invalid raw P-256 public key format fetched from blockchain: expected 65 bytes starting with 0x04")
 	}
 
 	// Extract X and Y coordinates

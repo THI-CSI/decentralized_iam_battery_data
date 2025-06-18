@@ -152,8 +152,17 @@ def main():
                 f"{DOCS}/openapi.html",
             ]
         )
-        run_command(["gomarkdoc", "./...", "-o", DOCS + "/sourcecode/go.md"])
-        run_command([TYPEDOC])
+        run_command(["gomarkdoc", "./...", "-o", DOCS + "/sourcecode/go/md/go.md"])
+        run_command([
+            "golds",
+            "-nouses",
+            "-only-list-exporteds",
+            "-gen",
+            f"-dir={DOCS}/sourcecode/go/html",
+            "./..."
+        ])
+        run_command([TYPEDOC, "--options", "typedoc.md.json"])
+        run_command([TYPEDOC, "--options", "typedoc.html.json"])
         run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
         run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
 

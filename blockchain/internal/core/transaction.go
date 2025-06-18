@@ -150,7 +150,7 @@ func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
 	}
 
 	now := time.Now().Truncate(time.Second)
-	vcRecord.ExpirationDate = &now
+	vcRecord.ExpirationDate = now
 	vcRecord.Timestamp = now
 	rawJson, err := vcRecord.Marshal()
 	if err != nil {
