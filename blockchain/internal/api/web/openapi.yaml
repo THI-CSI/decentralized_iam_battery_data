@@ -289,7 +289,7 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vps/verify/services:
+  /api/v1/vps/verify/service:
     post:
       tags: [ VP ]
       summary: Verify a VP Record for Services
