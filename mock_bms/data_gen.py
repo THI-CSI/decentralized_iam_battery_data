@@ -1,10 +1,31 @@
 import ctypes
 import json
-#import pathlib
+
+def flatten_json(data, parent_key='', sep='.'):
+    items = []
+    for k, v in data.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_json(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+def convert_json_structure(json_string):
+    # Parse the JSON string into a Python dictionary
+    data = json.loads(json_string)
+
+    # Flatten the JSON structure
+    flattened_data = flatten_json(data)
+
+    # Creating keypath to value structure
+    result = [{keypath: value} for keypath, value in flattened_data.items()]
+
+    return result
 
 def run_battery_data_generator():
     # Load the shared library
-    lib = ctypes.CDLL('./libdata_gen_c_v2.so')
+    lib = ctypes.CDLL('./libdata_gen.so')
 
     # Define the return type of the function
     lib.process_json_data.restype = ctypes.c_char_p
@@ -34,10 +55,11 @@ def run_battery_data_generator():
     else:
         print("Failed to generate JSON string.")
 
-    return json_string
+    json_string_structured = convert_json_structure(json_string)
+    return json_string_structured
 
 def generate_and_store_data():
-    filename = "battery_data.json"
+    filename = "battery_data3.json"
     battery_data = run_battery_data_generator()
 
     try:
@@ -50,7 +72,7 @@ def generate_and_store_data():
         print(f"An unexpected error occurred: {e}")
 
 def retrieve_stored_battery_data():
-    filename = "battery_data.json"
+    filename = "battery_data3.json"
 
     try:
         with open(filename, 'r') as f:
@@ -69,3 +91,4 @@ def retrieve_stored_battery_data():
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return None
+
