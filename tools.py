@@ -42,6 +42,7 @@ def main():
     args, unknown_args = parser.parse_known_args()
 
     signal.signal(signal.SIGINT, signal_handler)
+
     docker_compose(args.command, unknown_args)
 
 

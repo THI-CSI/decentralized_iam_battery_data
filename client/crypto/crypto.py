@@ -6,25 +6,18 @@ import base64
 import os
 from typing import Union, Dict, Any
 
-import requests
 from Crypto.Cipher import AES
-from Crypto.Hash import SHA256, SHA3_256
+from Crypto.Hash import SHA256
 from Crypto.Protocol import HPKE
 from Crypto.Protocol.DH import key_agreement
 from Crypto.Protocol.KDF import HKDF
-from Crypto.Signature import DSS
 from Crypto.PublicKey import ECC
-from multiformats import multibase
 from datetime import datetime, timezone
 
 # --- jwcrypto imports for robust JWS signing ---
 from jwcrypto import jwk, jws
 from jwcrypto.common import json_encode
 
-from util.util import _format_datetime
-
-# The base64url_encode helper is no longer needed for signing,
-# as jwcrypto handles it internally. It is removed for clarity.
 
 def sign_json_payload(payload_dict, ecc_key):
     # Serialize payload to a compact JSON string
@@ -63,6 +56,12 @@ def sign_vp(vp: dict, private_key: ECC.EccKey, verification_method: str) -> dict
 
 def sign_did(did: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
     """Signs a DID Document."""
+    jws_token = sign_json_payload(did, private_key)
+    return attach_proof_jws(did, jws_token, verification_method)
+
+def sign_did_external(did: dict,  verification_method: str) -> dict:
+    """Signs a DID Document."""
+    private_key = load_private_key("123","oem_key")
     jws_token = sign_json_payload(did, private_key)
     return attach_proof_jws(did, jws_token, verification_method)
 
