@@ -57,6 +57,8 @@ Socket_t xSocket;
     IPV4Parameters_t xNd = {RESET_VALUE, RESET_VALUE, RESET_VALUE, {RESET_VALUE, RESET_VALUE}, RESET_VALUE, RESET_VALUE};
 #endif
 
+#define BUFFER_LENGTH 500
+
 uint32_t  dhcp_in_use   = RESET_VALUE;
 uint32_t  usrPingCount  = RESET_VALUE;
 ping_data_t ping_data   = {RESET_VALUE, RESET_VALUE, RESET_VALUE};
@@ -68,12 +70,12 @@ static uint32_t usr_print_ability = RESET_VALUE;
  * @retval     Status
  **********************************************************************************************************************/
 
-int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
+int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
 {
     struct freertos_sockaddr xRemoteAddress;
     BaseType_t xAlreadyTransmitted = 0, xBytesSent = 0;
 
-    xRemoteAddress.sin_port = FreeRTOS_htons( 12345 );
+    xRemoteAddress.sin_port = FreeRTOS_htons( pcPort );
     xRemoteAddress.sin_address.ulIP_IPv4 = FreeRTOS_inet_addr(pcIPAddress);
     xRemoteAddress.sin_family = FREERTOS_AF_INET4;
 
@@ -147,19 +149,24 @@ int vTCPSend(const char* pcIPAddress, char *pcBufferToTransmit, const size_t xTo
             }
         }
     }
-    /* Initiate graceful shutdown. */
-    FreeRTOS_shutdown( xSocket, FREERTOS_SHUT_RDWR );
+
     /* Wait for the socket to disconnect gracefully (indicated by FreeRTOS_recv()
     returning a -pdFREERTOS_ERRNO_EINVAL error) before closing the socket. */
-    while( FreeRTOS_recv( xSocket, pcBufferToTransmit, xTotalLengthToSend, 0 ) >= 0 )
+	int len = 1;
+    while( (len = FreeRTOS_recv( xSocket, pcBufferToTransmit, BUFFER_LENGTH, 0 )) >= 0 )
     {
         /* Wait for shutdown to complete.  If a receive block time is used then
         this delay will not be necessary as FreeRTOS_recv() will place the RTOS task
         into the Blocked state anyway. */
-        vTaskDelay( pdTICKS_TO_MS( 250 ) );
+
+		vTaskDelay(1000);
         /* Note - real applications should implement a timeout here, not just
         loop forever. */
+
     }
+  	APP_PRINT("Response: %s\n", pcBufferToTransmit);
+	/* Initiate graceful shutdown. */
+    FreeRTOS_shutdown( xSocket, FREERTOS_SHUT_RDWR );
     /* The socket has shut down and is safe to close. */
     FreeRTOS_closesocket( xSocket );
     return 0;
@@ -247,6 +254,97 @@ void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifie
 }
 
 /*******************************************************************************************************************//**
+<<<<<<< HEAD
+=======
+* @brief      This is the User Thread for the EP.
+* @param[in]  Thread specific parameters
+* @retval     None
+**********************************************************************************************************************/
+void net_thread_entry(void *pvParameters)
+{
+    BaseType_t status = pdFALSE;
+    fsp_pack_version_t version = {RESET_VALUE};
+
+    FSP_PARAMETER_NOT_USED (pvParameters);
+
+	cJSON *json = cJSON_CreateObject();
+	cJSON_AddStringToObject(json, "name", "Battery Data");
+	cJSON_AddNumberToObject(json, "State of Health", 100);
+	cJSON_AddNumberToObject(json, "State of Charge", 90);
+	char *string = cJSON_Print(json);
+	APP_PRINT("Battery Mock Data: %s\n", string);
+	vPortFree(string);
+	cJSON_Delete(json);
+
+    /* version get API for FLEX pack information */
+    R_FSP_VersionGet (&version);
+
+    /* Example Project information printed on the RTT */
+    APP_PRINT (BANNER_INFO, EP_VERSION, version.version_id_b.major, version.version_id_b.minor, version.version_id_b.patch);
+
+    /* Prints the Ethernet Configuration prior to the IP Init*/
+    APP_PRINT(ETH_PREINIT);
+    print_ipconfig();
+
+    /* FreeRTOS IP Initialization: This init initializes the IP stack  */
+    status = FreeRTOS_IPInit(ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress);
+
+    if(pdFALSE == status)
+    {
+        APP_ERR_PRINT("FreeRTOS_IPInit Failed");
+        APP_ERR_TRAP(status);
+    }
+
+    APP_PRINT(ETH_POSTINIT);
+    char gp_remote_ip_address[] = "255.255.255.255";
+    while (1) 
+    {
+        if (SUCCESS == isNetworkUp()) 
+        {
+            if(!(PRINT_UP_MSG_DISABLE & usr_print_ability))
+            {
+                APP_PRINT("\r\nNetwork is Up");
+                usr_print_ability |= PRINT_UP_MSG_DISABLE;
+            }
+            if(!(PRINT_NWK_USR_MSG_DISABLE & usr_print_ability))
+            {
+    #if( ipconfigUSE_DHCP != 0 )
+                /* Display the New IP credentials obtained from the DHCP server */
+                updateDhcpResponseToUsr();
+    #endif
+                /* Updated IP credentials on to the RTT console */
+                print_ipconfig();
+                APP_PRINT("Sending Hello World to the test-server...\n");
+				dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
+
+                 if (!vTCPSend(gp_remote_ip_address, 12345, "Hello World!\n", 13)) {
+                     APP_PRINT("Sent Hello World!\n");
+                 } else {
+                     APP_PRINT("Couldn't send Hello World!\n");
+                 }
+				APP_PRINT("Trying to send to Freertos...\n");
+				dnsQuerryFunc(USR_TEST_DOMAIN_NAME, gp_remote_ip_address);
+				for (int i = 0; i < 10; i++) {
+					vSendPing(gp_remote_ip_address);
+					vTaskDelay(100);
+				}
+				// Test Connection to outside world
+				if (!vSendPing(gp_remote_ip_address)) {
+                    APP_PRINT("Sent Ping to external Address %s", gp_remote_ip_address);
+                } else {
+                    APP_PRINT("Couldn't send Ping to external Address %s", gp_remote_ip_address);
+                }
+      }
+            vTaskDelay(100);
+            vTaskDelete( NULL );
+        }
+    }
+
+    
+}
+
+/*******************************************************************************************************************//**
+>>>>>>> f624a14c1e5863d7b54053e7734c08871089c5dd
 * @brief      This is the User Hook for the DHCP Response. xApplicationDHCPHook() is called by DHCP Client Code when DHCP
 *             handshake messages are exchanged from the Server.
 * @param[in]  Different Phases of DHCP Phases and the Offered IP Address
