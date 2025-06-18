@@ -11,7 +11,7 @@
     Verwaltung und Konfiguration der technischen und organisatorischen Infrastruktur, inklusive GitHub-Einstellungen und Koordination.
   ],
   [IAM-Blockchain], [
-    Entwicklung eines Blockchain-Kerns durch Datenstrukturierung, Block- und Transaktionsaufbau sowie Definition von Konsens- und Netzwerkansätzen.
+    Entwicklung eines Blockchain-Kerns durch Datenstrukturierung, Block- und Transaktionsaufbau nach dem W3C standard.
   ],
   [BMS], [
     Sichere Erfassung, Verschlüsselung und Kommunikation von Batteriedaten zwischen dem Battery-Management-System und der Blockchain, inklusive Hardware-Simulation.

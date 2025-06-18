@@ -106,21 +106,21 @@ func checkVPSemantics(requestBody *models.VpSchema) error {
 		if vcBms.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
 			return nil
 		}
-		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcBms.Holder, requestBody.Holder, verificationMethodDID)
+		return fmt.Errorf("the following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcBms.Holder, requestBody.Holder, verificationMethodDID)
 
 	} else if vcService, err := verifieableCredential.AsVcServiceAccessSchema(); err == nil {
 
 		if vcService.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
 			return nil
 		}
-		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcService.Holder, requestBody.Holder, verificationMethodDID)
+		return fmt.Errorf("the following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcService.Holder, requestBody.Holder, verificationMethodDID)
 
 	} else if vcCloud, err := verifieableCredential.AsVcCloudInstanceSchema(); err == nil {
 
 		if vcCloud.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
 			return nil
 		}
-		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcCloud.Holder, requestBody.Holder, verificationMethodDID)
+		return fmt.Errorf("the following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcCloud.Holder, requestBody.Holder, verificationMethodDID)
 
 	}
 	return errors.New("VC Unrecognized or invalid VC type in request payload")
