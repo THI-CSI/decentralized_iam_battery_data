@@ -7,7 +7,7 @@ from jwcrypto import jws, jwk
 import os
 import requests
 #from test.cloudutil import ecc_public_key_to_multibase, build_did_document, sign_did, register_key_with_blockchain, export_pem
-import test.cloudutil as cloudutil
+import cloudutil.cloudutil as cloudutil
 
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
