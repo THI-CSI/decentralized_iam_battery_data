@@ -190,7 +190,7 @@ paths:
             application/json:
               schema: { $ref: './jsonschema/responses/response.error.schema.json' }
 
-  /api/v1/vcs/create/services:
+  /api/v1/vcs/create/service:
     post:
       tags: [ VC ]
       summary: Create a VC Record for a Services
