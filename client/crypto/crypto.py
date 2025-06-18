@@ -49,6 +49,12 @@ def sign_vc(vc: dict, private_key: ECC.EccKey, verification_method: str) -> dict
     jws_token = sign_json_payload(vc, private_key)
     return attach_proof_jws(vc, jws_token, verification_method)
 
+def sign_vc_external(vc: dict,  verification_method: str) -> dict:
+    """Signs a VC Document."""
+    private_key = load_private_key("123","oem_key")
+    jws_token = sign_json_payload(vc, private_key)
+    return attach_proof_jws(vc, jws_token, verification_method)
+
 def sign_vp(vp: dict, private_key: ECC.EccKey, verification_method: str) -> dict:
     """Signs a Verifiable Presentation."""
     jws_token = sign_json_payload(vp, private_key)

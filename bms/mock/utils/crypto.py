@@ -1,7 +1,16 @@
-from Crypto.PublicKey import ECC
+import functools
+import pathlib
+import base64
 import pathlib
 import base58
+import os
 
+
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
+from Crypto.Protocol.DH import key_agreement
+from Crypto.Protocol.KDF import HKDF
+from Crypto.PublicKey import ECC
 
 MULTICODEC_PREFIXES = {
     'p256': b'\x12\x00',
@@ -61,3 +70,23 @@ def load_private_key(name: str = "key.der") -> ECC.EccKey:
     assert key_file.is_file()
     with open(key_file, "rb") as f:
         return ECC.import_key(f.read())
+    
+def encrypt_hpke(did, receiver_public_key: ECC.EccKey, message: bytes) -> dict:
+    eph_key = ECC.generate(curve="P-256")
+    salt = os.urandom(32)
+    nonce = os.urandom(12)
+    eph_pub = eph_key.public_key().export_key(format="DER")
+    context = eph_pub + receiver_public_key.export_key(format="DER")
+    hkdf = functools.partial(HKDF, key_len=32, hashmod=SHA256, salt=salt, context=context)
+    aes_key = key_agreement(eph_priv=eph_key, static_pub=receiver_public_key, kdf=hkdf)
+    cipher = AES.new(aes_key, AES.MODE_GCM, nonce=nonce)
+    cipher.update(nonce)
+    ciphertext, tag = cipher.encrypt_and_digest(message)
+    payload = {
+        "ciphertext": base64.b64encode(ciphertext + tag).decode(),
+        "aad": base64.b64encode(nonce).decode(),
+        "salt": base64.b64encode(salt).decode(),
+        "eph_pub": base64.b64encode(eph_pub).decode(),
+        "did": did,
+    }
+    return payload

@@ -1,9 +1,10 @@
 import os
 import requests
 import uuid
+import json
+from datetime import datetime, timedelta, timezone
 
 import utils.data_gen as data_gen
-import utils.message_creation as message_creation
 import utils.crypto as crypto
 import utils.did as did_utils
 
@@ -11,11 +12,12 @@ import utils.did as did_utils
 BMS_FILE_NAME = "bms_key"
 
 BLOCKCHAIN_URL = "http://localhost:8443"
-SIGN_SERVICE_URL = "http://localhost:8123"
+OEM_SIGN_SERVICE_URL = os.getenv("OEM_SIGN_SERVICE_URL", "http://localhost:8123")
 
 # Environment Variables
 CONTROLLER_DID = os.getenv("CONTROLLER_DID", "did:batterypass:oem.audi")
-VERIFICATION_METHOD = os.getenv("VERIFICATION_METHOD", "")
+SN = os.getenv("SN", (uuid.uuid4().hex[:8]))
+CLOUD_DID = os.getenv("CLOUD_DID", "did:batterypass:cloud.centralcloud")
 
 if __name__ == "__main__":
     # 1. Generate BMS Key Pair
@@ -29,14 +31,15 @@ if __name__ == "__main__":
     # 2. Generate BMS DID
     did_bms = f"did:batterypass:bms.sn-{(uuid.uuid4().hex[:8])}"
 
-    did_document = did_utils.build_did_document(did_bms, VERIFICATION_METHOD, public_key_multibase)
+    did_document = did_utils.build_did_document(did_bms, CONTROLLER_DID, public_key_multibase)
     # 3. Sign DID with Client's sign service
-    response = requests.post(f"{SIGN_SERVICE_URL}/sign/did", json={
-        "did": did_bms,
-        "verification_method": VERIFICATION_METHOD
-    })
+    response = requests.post(f"{OEM_SIGN_SERVICE_URL}/sign/did", json=json.dumps({
+        "did": did_document,
+        "verification_method": CONTROLLER_DID
+    }))
     if response.status_code != 200:
         print("Error while signing DID.")
+        print(response.text)
         exit(1)
 
     signed_did = response.json()
@@ -51,7 +54,7 @@ if __name__ == "__main__":
     if response.status_code != 200:
         print("Error while registering BMS on Blockchain.")
         exit(1)
-    print("BMS registered successfully.")
+    print(f"BMS {SN} registered successfully.")
 
     # 5. Get DID from Controller (OEM)
     response = requests.get(f"{BLOCKCHAIN_URL}/api/v1/dids/{CONTROLLER_DID}")
@@ -63,22 +66,35 @@ if __name__ == "__main__":
 
 
 
-    # TODO 6. Create VC
+    # 6. Create VC
     # Create CloudInstanceVC
-    vc_document = {}
 
-    # TODO 7. Sign VC
+    now = datetime.now(timezone.utc)
+
+    vc_document = did_utils.create_cloud_instance_vc(
+        CONTROLLER_DID, # OEM DID (Controller DID)
+        did_bms, # BMS DID
+        CLOUD_DID, # Cloud DID
+        now, #Today
+        (now + timedelta(days=365)) # Valid for 1 year
+    )
+
+    # 7. Sign VC
     # Sign CloudInstanceVC with OEM (Use clients sign service)
-    #response = requests.post(f"{SIGN_SERVICE_URL}/sign/vc", json={})
-    #if response.status_code != 200:
-    #    print("Error while signing VC.")
-    #    exit(1)
-
+    response = requests.post(f"{OEM_SIGN_SERVICE_URL}/sign/vc", json=json.dumps({
+        "vc": vc_document,
+        "verification_method": CONTROLLER_DID
+    }))
+    if response.status_code != 200:
+        print("Error while signing VC.")
+        exit(1)
+    signed_vc = response.json()
+    
     # TODO 8. Register VC.
     response = requests.post(
-        f"{BLOCKCHAIN_URL}/api/v1/vcs/create",
+        f"{BLOCKCHAIN_URL}/api/v1/vcs/create/cloud",
         headers={'Content-type': 'application/json'},
-        json=vc_document
+        json=signed_vc
     )
 
     if response.status_code != 200:
@@ -103,11 +119,10 @@ if __name__ == "__main__":
         public_key = did["verificationMethod"]["publicKeyMultibase"]
 
         # TODO Encrypt Data for Cloud
-        #encrypted_data = message_creation.message_creation(battery_data, public_key)
-        encrypted_data = battery_data
+        encrypted_data = crypto.encrypt_hpke(did_string, public_key, battery_data)
 
         # Upload Data
-        response = requests.post(f"{url}/batterypass/{did_bms}", json={"data": encrypted_data})
+        response = requests.post(f"{url}/batterypass/read/{did_bms}", json={"data": encrypted_data})
         if response.status_code == 200:
             print(f"Data for {did_string} sent successfully.")
 
