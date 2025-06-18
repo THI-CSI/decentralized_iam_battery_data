@@ -1,0 +1,21 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY ../requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+COPY streamlit_ui.py .
+
+EXPOSE 8501
+
+RUN addgroup --system app && adduser --system --ingroup app --home /home/app app
+USER app
+
+
+RUN mkdir -p /home/app/.streamlit && chown -R app:app /home/app
+CMD ["streamlit", "run", "streamlit_ui.py", "--server.port=8501", "--server.address=0.0.0.0"]

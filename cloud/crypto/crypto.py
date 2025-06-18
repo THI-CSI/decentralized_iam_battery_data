@@ -1,14 +1,12 @@
 import functools
-import json
 import pathlib
 import logging
 import base64
 import json
-import requests
-
+from jwcrypto import jws, jwk
 import os
-
 import requests
+
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto.Protocol import HPKE
@@ -19,7 +17,7 @@ from Crypto.PublicKey import ECC
 from typing import Dict, Any
 from Crypto.Hash import SHA3_256
 from multiformats import multibase
-from tinydb import TinyDB, where
+from tinydb.table import Document
 
 
 def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
@@ -39,8 +37,10 @@ def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
 
     # Verify signature
     sender_key = retrieve_public_key(did)
-    verifier = DSS.new(sender_key, mode="fips-186-3", encoding="der")
-    message_to_verify = json.dumps({key: value for key, value in message.items() if key != "signature"}).encode()
+    verifier = DSS.new(sender_key, mode="fips-186-3", encoding="binary")
+    message_to_verify = json.dumps(
+        {key: value for key, value in message.items() if key != "signature"}, separators=(",", ":")
+    ).encode()
     try:
         verifier.verify(SHA256.new(message_to_verify), signature)
     except ValueError:
@@ -80,13 +80,13 @@ def verify_credentials(did, info) -> ECC.EccKey:
     pass
 
 
-def determine_role(db: TinyDB, accessed_did: str, sender_did: str) -> str | None:
-    if db.search(where("id") == sender_did):  # determine_role is called after verify_request
+def determine_role(doc: Document | None, sender_did: str) -> str | None:
+    if doc and doc["did"] == sender_did:
         return "bms"
-    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{accessed_did}")
+    did_response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{sender_did}")
     if not did_response.ok:
         return None
-    controller = did_response.json()["controller"]
+    controller = did_response.json()["verificationMethod"]["controller"]
     return "oem" if controller == "did:batterypass:eu" else None
 
 
@@ -136,39 +136,36 @@ def register_key(public_key: ECC.EccKey):
 
 def retrieve_public_key(did: str) -> ECC.EccKey:
     response = requests.get(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/{did}")
-    # TODO: Add revoked check
+    raw = multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"])
+    if len(raw) == 67:
+        raw = raw[len(b"\x12\x00"):]
+        return ECC.EccKey(curve="P-256",
+                          point=ECC.EccPoint(
+                              int.from_bytes(raw[1:33], "big"), int.from_bytes(raw[33:65], "big"))
+                          )
+    if response.json()["revoked"]:
+        raise ValueError("Public key revoked.")
     return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
 
-
-def extract_vc_info(vc: Dict[str, Any]) -> tuple[str, str, str]:
+def verify_vp(vp_json_object: json, private_key: ECC.EccKey) -> str|None:
     """
-    Extract URI, issuer, and holder from a VC object.
-
-    :param vc: The Verifiable Credential (VC) as a dictionary.
-    :return: A tuple containing (URI, Issuer ID, Holder ID).
+    This function takes a Verifiable Presentation dictionary and sends it to the Blockchain for verification.
     """
 
-    # Get all necessary data from the verifiable credential
-    uri = vc.get("id")
-    issuer = vc.get("issuer")
-    subject = vc.get("credentialSubject")
+    validator = jws.JWS()
+    validator.deserialize(vp_json_object["proof"]["jws"])
+    key = jwk.JWK.from_pem(private_key.export_key(format="PEM").encode())
+    validator.verify(key)
 
-    # Checking credentialSubjects form (If we have a uniform form, this is not necessary,
-    # but will be left in for now)
-    if isinstance(subject, dict):
-        holder = subject.get("id")
-    elif isinstance(subject, list) and len(subject) > 0:
-        holder = subject[0].get("id")
-    else:
-        holder = None
-
-    # Check if all data is present, if not raise a ValueError
-    if uri is None or issuer is None or holder is None:
-        raise ValueError("Invalid Verifiable Credential")
-
-    return uri, issuer, holder
+    if "proof" not in vp_json_object or "jws" not in vp_json_object["proof"]:
+        return None
 
 
+    # Then we send the Data to the Blockchain.
+    response = requests.post(
+        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=vp_json_object)
+    
+    
 def verify_vc(vc_json_object: json) -> bool:
     """
     This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
@@ -199,10 +196,8 @@ def verify_vc(vc_json_object: json) -> bool:
     # Then we send the Data to the Blockchain
     response = requests.post(BLOCKCHAIN_URL, json=data)
 
-    # If the response is 200, we can assume the VC is valid
-    if response.status_code == 200:
-        return True
-    # If not, we can assume the VC is invalid. We should check for reasons in the future
-    # devbod: TODO: Check for Reasons
+    # If the response is 200, the VC is valid.
+    if response.ok:
+        return vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]
     else:
-        return False
+        return None
