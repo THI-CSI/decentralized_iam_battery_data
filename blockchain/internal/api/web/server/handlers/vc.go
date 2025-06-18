@@ -37,8 +37,8 @@ func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 }
 
 // CreateVcRecord handles POST /api/v1/vcs/create
-func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
-	var requestBody models.RequestVcCreateSchema
+func (s *MyServer) CreateVcRecordForCloud(ctx echo.Context) error {
+	var requestBody models.CreateVcRecordCloudJSONRequestBody
 
 	log.Println("inside create vc record")
 
@@ -46,7 +46,7 @@ func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchema); err != nil {
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchemaCloudInstance); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 

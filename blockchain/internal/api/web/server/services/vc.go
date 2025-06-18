@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -18,9 +19,10 @@ import (
 type VCService interface {
 	GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VCRecord, error)
 	GetVCRecords(ctx context.Context) (*[]coreTypes.VCRecord, error)
-	CreateVCRecord(userContext context.Context, createVcRecord *models.RequestVcCreateSchema) error
+	CreateVCRecordBms(userContext context.Context, createVcRecord *models.CreateVcRecordBmsJSONRequestBody) error
+	CreateVCRecordCloud(userContext context.Context, createVcRecord *models.CreateVcRecordCloudJSONRequestBody) error
+	CreateVCRecordServices(userContext context.Context, createVcRecord *models.CreateVcRecordServicesJSONRequestBody) error
 	RevokeVCRecord(ctx context.Context, vcId string) error
-	VerifyRequestCreate(requestBody *models.RequestVcCreateSchema) error
 	VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error
 }
 
@@ -68,57 +70,111 @@ func (v *vcService) GetVCRecord(ctx context.Context, vcId string) (*coreTypes.VC
 	return vcRecord, nil
 }
 
-// CreateVCRecord creates a new VC record on the blockchain based on the provided VC
-func (v *vcService) CreateVCRecord(userContext context.Context, createVcRecord *models.RequestVcCreateSchema) error {
-	log.Println("after generating hash")
+// CreateVCRecordCloud creates a new VC record on the blockchain based on the provided VC
+func (v *vcService) CreateVCRecordCloud(userContext context.Context, createVcRecord *models.CreateVcRecordCloudJSONRequestBody) error {
+	parts := strings.SplitN(createVcRecord.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+
+	if createVcRecord.Issuer != verificationMethodDID {
+		return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", createVcRecord.Issuer, verificationMethodDID)
+	}
+	if createVcRecord.Holder != createVcRecord.CredentialSubject.Id {
+		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", createVcRecord.Holder, createVcRecord.CredentialSubject.Id)
+	}
+	now := time.Now()
+	if now.Before(createVcRecord.CredentialSubject.Timestamp) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
 
 	var vcRecord coreTypes.VCRecord
-	if vcBms, err := createVcRecord.AsVcBmsProducedSchema(); err == nil {
-		hashString, err := utils.Generate256HashHex(vcBms)
-		if err != nil {
-			log.Printf("Error generating hash: %v", err)
-			return err
-		}
-		vcRecord.ID = vcBms.Id
-		vcRecord.Timestamp = time.Now()
-		vcRecord.ExpirationDate = vcBms.ExpirationDate
-		vcRecord.VcHash = hashString
-		err = v.chain.AppendVcRecord(&vcRecord)
-		if err != nil {
-			log.Printf("Error appending VC record: %v", err)
-			return err
-		}
-	} else if vcService, err := createVcRecord.AsVcServiceAccessSchema(); err == nil {
-		hashString, err := utils.Generate256HashHex(vcService)
-		if err != nil {
-			log.Printf("Error generating hash: %v", err)
-			return err
-		}
-		vcRecord.ID = vcService.Id
-		vcRecord.Timestamp = time.Now()
-		vcRecord.ExpirationDate = vcService.ExpirationDate
-		vcRecord.VcHash = hashString
-		err = v.chain.AppendVcRecord(&vcRecord)
-		if err != nil {
-			log.Printf("Error appending VC record: %v", err)
-			return err
-		}
-	} else if vcCloud, err := createVcRecord.AsVcCloudInstanceSchema(); err == nil {
-		hashString, err := utils.Generate256HashHex(vcCloud)
-		if err != nil {
-			log.Printf("Error generating hash: %v", err)
-			return err
-		}
-		vcRecord.ID = vcCloud.Id
-		vcRecord.Timestamp = time.Now()
-		vcRecord.ExpirationDate = vcCloud.ExpirationDate
-		vcRecord.VcHash = hashString
-		err = v.chain.AppendVcRecord(&vcRecord)
-		if err != nil {
-			log.Printf("Error appending VC record: %v", err)
-			return err
-		}
+	hashString, err := utils.Generate256HashHex(createVcRecord)
+	if err != nil {
+		log.Printf("Error generating hash: %v", err)
+		return err
 	}
+	vcRecord.ID = createVcRecord.Id
+	vcRecord.Timestamp = time.Now()
+	vcRecord.ExpirationDate = createVcRecord.ExpirationDate
+	vcRecord.VcHash = hashString
+	err = v.chain.AppendVcRecord(&vcRecord)
+	if err != nil {
+		log.Printf("Error appending VC record: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+// CreateVCRecordBms creates a new VC record on the blockchain based on the provided VC
+func (v *vcService) CreateVCRecordBms(userContext context.Context, createVcRecord *models.CreateVcRecordBmsJSONRequestBody) error {
+	parts := strings.SplitN(createVcRecord.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+
+	if createVcRecord.Issuer != verificationMethodDID || verificationMethodDID != createVcRecord.CredentialSubject.BmsDid {
+		return fmt.Errorf("the following 3 dids have to match: VC Issuer: '%s'; VC credentialSubject BMSdid: '%s'; VC proof verification method: '%s'", createVcRecord.Issuer, createVcRecord.CredentialSubject.BmsDid, verificationMethodDID)
+	}
+	if createVcRecord.Holder != createVcRecord.CredentialSubject.Id {
+		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", createVcRecord.Holder, createVcRecord.CredentialSubject.Id)
+	}
+	now := time.Now()
+	if now.Before(createVcRecord.CredentialSubject.Timestamp) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+
+	var vcRecord coreTypes.VCRecord
+	hashString, err := utils.Generate256HashHex(createVcRecord)
+	if err != nil {
+		log.Printf("Error generating hash: %v", err)
+		return err
+	}
+	vcRecord.ID = createVcRecord.Id
+	vcRecord.Timestamp = time.Now()
+	vcRecord.ExpirationDate = createVcRecord.ExpirationDate
+	vcRecord.VcHash = hashString
+	err = v.chain.AppendVcRecord(&vcRecord)
+	if err != nil {
+		log.Printf("Error appending VC record: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+// CreateVCRecordServices creates a new VC record on the blockchain based on the provided VC
+func (v *vcService) CreateVCRecordServices(userContext context.Context, createVcRecord *models.CreateVcRecordServicesJSONRequestBody) error {
+	parts := strings.SplitN(createVcRecord.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+
+	if createVcRecord.Issuer != verificationMethodDID {
+		return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", createVcRecord.Issuer, verificationMethodDID)
+	}
+	if createVcRecord.Holder != createVcRecord.CredentialSubject.Id {
+		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", createVcRecord.Holder, createVcRecord.CredentialSubject.Id)
+	}
+	now := time.Now()
+	if now.Before(createVcRecord.CredentialSubject.ValidFrom) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.ValidFrom.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+	if now.After(createVcRecord.CredentialSubject.ValidUntil) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", createVcRecord.CredentialSubject.ValidUntil.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+
+	var vcRecord coreTypes.VCRecord
+	hashString, err := utils.Generate256HashHex(createVcRecord)
+	if err != nil {
+		log.Printf("Error generating hash: %v", err)
+		return err
+	}
+	vcRecord.ID = createVcRecord.Id
+	vcRecord.Timestamp = time.Now()
+	vcRecord.ExpirationDate = createVcRecord.ExpirationDate
+	vcRecord.VcHash = hashString
+	err = v.chain.AppendVcRecord(&vcRecord)
+	if err != nil {
+		log.Printf("Error appending VC record: %v", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -142,78 +198,6 @@ func containsVcRecord(vcRecordList []coreTypes.VCRecord, vcId string) bool {
 		}
 	}
 	return false
-}
-
-func (v *vcService) VerifyRequestCreate(requestBody *models.RequestVcCreateSchema) error {
-	erro := utils.CheckVCSemantics(requestBody)
-	if erro == nil {
-		errro := errors.New("signed data differs from the payload")
-		if VCBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
-			if err := interpretDIDState(v.chain.CheckDIDState(VCBms.Holder)); err != nil {
-				return fmt.Errorf("holder %s: %w", VCBms.Holder, err)
-			}
-			if err := interpretDIDState(v.chain.CheckDIDState(VCBms.Issuer)); err != nil {
-				return fmt.Errorf("issuer %s: %w", VCBms.Issuer, err)
-			}
-			verifiedBytes, err := utils.VerifyJWS(v.chain, VCBms.Proof.Jws, VCBms.Proof.VerificationMethod)
-			if err != nil {
-				return err
-			}
-			var verified models.VcBmsProducedSchema
-			if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
-				return err
-			}
-			VCBms.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
-			if reflect.DeepEqual(VCBms, verified) {
-				return nil
-			} else {
-				return errro
-			}
-		} else if VCService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
-			if err := interpretDIDState(v.chain.CheckDIDState(VCService.Holder)); err != nil {
-				return fmt.Errorf("holder %s: %w", VCService.Holder, err)
-			}
-			if err := interpretDIDState(v.chain.CheckDIDState(VCService.Issuer)); err != nil {
-				return fmt.Errorf("issuer %s: %w", VCService.Issuer, err)
-			}
-			verifiedBytes, err := utils.VerifyJWS(v.chain, VCService.Proof.Jws, VCService.Proof.VerificationMethod)
-			if err != nil {
-				return err
-			}
-			var verified models.VcServiceAccessSchema
-			if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
-				return err
-			}
-			VCService.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
-			if reflect.DeepEqual(VCService, verified) {
-				return nil
-			} else {
-				return errro
-			}
-		} else if VCCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
-			if err := interpretDIDState(v.chain.CheckDIDState(VCCloud.Holder)); err != nil {
-				return fmt.Errorf("holder %s: %w", VCCloud.Holder, err)
-			}
-			if err := interpretDIDState(v.chain.CheckDIDState(VCCloud.Issuer)); err != nil {
-				return fmt.Errorf("issuer %s: %w", VCCloud.Issuer, err)
-			}
-			verifiedBytes, err := utils.VerifyJWS(v.chain, VCCloud.Proof.Jws, VCCloud.Proof.VerificationMethod)
-			if err != nil {
-				return err
-			}
-			var verified models.VcCloudInstanceSchema
-			if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
-				return err
-			}
-			VCCloud.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
-			if reflect.DeepEqual(VCCloud, verified) {
-				return nil
-			} else {
-				return errro
-			}
-		}
-	}
-	return erro
 }
 
 func (v *vcService) VerifyRequestRevoke(requestBody models.RequestVcRevokeSchema) error {

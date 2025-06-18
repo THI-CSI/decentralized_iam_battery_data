@@ -153,11 +153,6 @@ type RequestDidRevokeSchema struct {
 	Proof Proof `json:"proof"`
 }
 
-// RequestVcCreateSchema Schema for creating a new Verifiable Credential, supporting different credential types.
-type RequestVcCreateSchema struct {
-	union json.RawMessage
-}
-
 // RequestVcRevokeSchema defines model for request.vc.revoke.schema.
 type RequestVcRevokeSchema struct {
 	// Payload An identifier in uri format for Verifiable Credentials
@@ -385,7 +380,7 @@ type VpSchema struct {
 		VerificationMethod string `json:"verificationMethod"`
 	} `json:"proof"`
 	Type                 []string                `json:"type"`
-	VerifiableCredential []RequestVcCreateSchema `json:"verifiableCredential"`
+	VerifiableCredential []VcServiceAccessSchema `json:"verifiableCredential"`
 }
 
 // VpSchemaContext defines model for VpSchema.Context.
@@ -400,102 +395,20 @@ type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
 // RevokeDidJSONRequestBody defines body for RevokeDid for application/json ContentType.
 type RevokeDidJSONRequestBody = RequestDidRevokeSchema
 
-// CreateVcRecordJSONRequestBody defines body for CreateVcRecord for application/json ContentType.
-type CreateVcRecordJSONRequestBody = RequestVcCreateSchema
+// CreateVcRecordBmsJSONRequestBody defines body for CreateVcRecordBms for application/json ContentType.
+type CreateVcRecordBmsJSONRequestBody = VcBmsProducedSchema
+
+// CreateVcRecordCloudJSONRequestBody defines body for CreateVcRecordCloud for application/json ContentType.
+type CreateVcRecordCloudJSONRequestBody = VcCloudInstanceSchema
+
+// CreateVcRecordServicesJSONRequestBody defines body for CreateVcRecordServices for application/json ContentType.
+type CreateVcRecordServicesJSONRequestBody = VcServiceAccessSchema
 
 // RevokeVcRecordJSONRequestBody defines body for RevokeVcRecord for application/json ContentType.
 type RevokeVcRecordJSONRequestBody = RequestVcRevokeSchema
 
 // VerifyVpJSONRequestBody defines body for VerifyVp for application/json ContentType.
 type VerifyVpJSONRequestBody = VpSchema
-
-// AsVcBmsProducedSchema returns the union data inside the RequestVcCreateSchema as a VcBmsProducedSchema
-func (t RequestVcCreateSchema) AsVcBmsProducedSchema() (VcBmsProducedSchema, error) {
-	var body VcBmsProducedSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcBmsProducedSchema overwrites any union data inside the RequestVcCreateSchema as the provided VcBmsProducedSchema
-func (t *RequestVcCreateSchema) FromVcBmsProducedSchema(v VcBmsProducedSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcBmsProducedSchema performs a merge with any union data inside the RequestVcCreateSchema, using the provided VcBmsProducedSchema
-func (t *RequestVcCreateSchema) MergeVcBmsProducedSchema(v VcBmsProducedSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsVcServiceAccessSchema returns the union data inside the RequestVcCreateSchema as a VcServiceAccessSchema
-func (t RequestVcCreateSchema) AsVcServiceAccessSchema() (VcServiceAccessSchema, error) {
-	var body VcServiceAccessSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcServiceAccessSchema overwrites any union data inside the RequestVcCreateSchema as the provided VcServiceAccessSchema
-func (t *RequestVcCreateSchema) FromVcServiceAccessSchema(v VcServiceAccessSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcServiceAccessSchema performs a merge with any union data inside the RequestVcCreateSchema, using the provided VcServiceAccessSchema
-func (t *RequestVcCreateSchema) MergeVcServiceAccessSchema(v VcServiceAccessSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsVcCloudInstanceSchema returns the union data inside the RequestVcCreateSchema as a VcCloudInstanceSchema
-func (t RequestVcCreateSchema) AsVcCloudInstanceSchema() (VcCloudInstanceSchema, error) {
-	var body VcCloudInstanceSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcCloudInstanceSchema overwrites any union data inside the RequestVcCreateSchema as the provided VcCloudInstanceSchema
-func (t *RequestVcCreateSchema) FromVcCloudInstanceSchema(v VcCloudInstanceSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcCloudInstanceSchema performs a merge with any union data inside the RequestVcCreateSchema, using the provided VcCloudInstanceSchema
-func (t *RequestVcCreateSchema) MergeVcCloudInstanceSchema(v VcCloudInstanceSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t RequestVcCreateSchema) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *RequestVcCreateSchema) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
 
 // AsDidSchema returns the union data inside the ResponseTransactionsSchema_Item as a DidSchema
 func (t ResponseTransactionsSchema_Item) AsDidSchema() (DidSchema, error) {
@@ -585,9 +498,15 @@ type ServerInterface interface {
 	// Get a all VC Records
 	// (GET /api/v1/vcs)
 	GetAllVcRecords(ctx echo.Context) error
-	// Create a VC Record
-	// (POST /api/v1/vcs/create)
-	CreateVcRecord(ctx echo.Context) error
+	// Create a VC Record for a BMS
+	// (POST /api/v1/vcs/create/bms)
+	CreateVcRecordBms(ctx echo.Context) error
+	// Create a VC Record for a Cloud
+	// (POST /api/v1/vcs/create/cloud)
+	CreateVcRecordCloud(ctx echo.Context) error
+	// Create a VC Record for a Services
+	// (POST /api/v1/vcs/create/services)
+	CreateVcRecordServices(ctx echo.Context) error
 	// Revoke a VC Record
 	// (POST /api/v1/vcs/revoke)
 	RevokeVcRecord(ctx echo.Context) error
@@ -697,12 +616,30 @@ func (w *ServerInterfaceWrapper) GetAllVcRecords(ctx echo.Context) error {
 	return err
 }
 
-// CreateVcRecord converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateVcRecord(ctx echo.Context) error {
+// CreateVcRecordBms converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateVcRecordBms(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreateVcRecord(ctx)
+	err = w.Handler.CreateVcRecordBms(ctx)
+	return err
+}
+
+// CreateVcRecordCloud converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateVcRecordCloud(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateVcRecordCloud(ctx)
+	return err
+}
+
+// CreateVcRecordServices converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateVcRecordServices(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateVcRecordServices(ctx)
 	return err
 }
 
@@ -776,7 +713,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/api/v1/dids/revoke", wrapper.RevokeDid)
 	router.GET(baseURL+"/api/v1/dids/:did", wrapper.GetDidById)
 	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVcRecords)
-	router.POST(baseURL+"/api/v1/vcs/create", wrapper.CreateVcRecord)
+	router.POST(baseURL+"/api/v1/vcs/create/bms", wrapper.CreateVcRecordBms)
+	router.POST(baseURL+"/api/v1/vcs/create/cloud", wrapper.CreateVcRecordCloud)
+	router.POST(baseURL+"/api/v1/vcs/create/services", wrapper.CreateVcRecordServices)
 	router.POST(baseURL+"/api/v1/vcs/revoke", wrapper.RevokeVcRecord)
 	router.GET(baseURL+"/api/v1/vcs/:vcUri", wrapper.GetVcRecordById)
 	router.POST(baseURL+"/api/v1/vps/verify", wrapper.VerifyVp)

@@ -30,11 +30,13 @@ type MyServer struct {
 	responseVcSchema           *gojsonschema.Schema
 	responseVcsSchema          *gojsonschema.Schema
 
-	requestDidCreateormodifySchema *gojsonschema.Schema
-	requestDidRevokeSchema         *gojsonschema.Schema
-	requestVcCreateSchema          *gojsonschema.Schema
-	requestVcRevokeSchema          *gojsonschema.Schema
-	requestVpVerifySchema          *gojsonschema.Schema
+	requestDidCreateormodifySchema     *gojsonschema.Schema
+	requestDidRevokeSchema             *gojsonschema.Schema
+	requestVcCreateSchemaCloudInstance *gojsonschema.Schema
+	requestVcCreateSchemaServiceAccess *gojsonschema.Schema
+	requestVcCreateSchemaBmsProduced   *gojsonschema.Schema
+	requestVcRevokeSchema              *gojsonschema.Schema
+	requestVpVerifySchema              *gojsonschema.Schema
 }
 
 // NewMyServer is the constructor for MyServer.
@@ -143,7 +145,17 @@ func NewMyServer(
 		return nil, fmt.Errorf("failed to load requestDidRevokeSchema: %w", err)
 	}
 
-	s.requestVcCreateSchema, err = loadSchema(apiWebSchemasPath, "requests/request.vc.create.schema.json")
+	s.requestVcCreateSchemaServiceAccess, err = loadSchema(apiWebSchemasPath, "requests/request.vc.serviceAccess.create.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load requestVcCreateSchema: %w", err)
+	}
+
+	s.requestVcCreateSchemaCloudInstance, err = loadSchema(apiWebSchemasPath, "requests/request.vc.cloudInstance.create.schema.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to load requestVcCreateSchema: %w", err)
+	}
+
+	s.requestVcCreateSchemaBmsProduced, err = loadSchema(apiWebSchemasPath, "requests/request.vc.bmsProduced.create.schema.json")
 	if err != nil {
 		return nil, fmt.Errorf("failed to load requestVcCreateSchema: %w", err)
 	}

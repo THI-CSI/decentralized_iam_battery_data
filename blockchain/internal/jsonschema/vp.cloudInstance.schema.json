@@ -41,7 +41,7 @@
     "verifiableCredential": {
       "type": "array",
       "items": {
-        "$ref": "../api/web/jsonschema/requests/request.vc.create.schema.json"
+        "$ref": "../api/web/jsonschema/requests/request.vc.cloudInstance.create.schema.json"
       }
     },
     "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
