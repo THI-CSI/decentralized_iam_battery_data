@@ -7,8 +7,14 @@ import json
 
 app = FastAPI()
 
-@app.post("/sign/")
-def sign_service(response: Response, request: Any = Body(None)):
+
+@app.post("/sign/vc")
+def sign_vc_service(response: Response, request: Any = Body(None)):
+    response.status_code = 501
+    return {"error": "Not implemented"}
+
+@app.post("/sign/did")
+def sign_did_service(response: Response, request: Any = Body(None)):
     response.status_code = 400
 
     try:
