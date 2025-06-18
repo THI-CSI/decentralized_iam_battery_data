@@ -53,30 +53,75 @@ def create_service_access_vc(
     valid_until: datetime,
     proof: dict = None
 ) -> dict:
+    return create_vc(
+        type="serviceAccess",
+        issuer_did=issuer_did,
+        holder_did=holder_did,
+        subject=bms_did,
+        access_levels=access_levels,
+        valid_from=valid_from,
+        valid_until=valid_until,
+        proof=proof
+    )
+
+def create_cloud_instance_vc(
+    issuer_did: str,
+    holder_did: str,
+    cloud_did: str,
+    valid_from: datetime,
+    valid_until: datetime,
+    proof: dict = None
+) -> dict:
+    return create_vc(
+        type="cloudInstance",
+        issuer_did=issuer_did,
+        holder_did=holder_did,
+        subject=cloud_did,
+        access_levels=None,
+        valid_from=valid_from,
+        valid_until=valid_until,
+        proof=proof
+    )
+
+def create_vc(
+    type: str,
+    issuer_did: str,
+    holder_did: str,
+    subject: str,
+    access_levels: list,
+    valid_from: datetime,
+    valid_until: datetime,
+    proof: dict = None
+) -> dict:
     issuance_date = _format_datetime(valid_from)
     expiration_date = _format_datetime(valid_until)
    
     vc_id = f"urn:uuid:{uuid.uuid4()}"
     credential_subject_id = holder_did
 
+    captialized_type = "ServiceAccess" if type == "serviceAccess" else "CloudInstance"
+    if type not in ["serviceAccess", "cloudInstance"]:
+        raise ValueError(f"Unsupported VC type: {type}. Supported types are 'serviceAccess' and 'CloudInstance'.")
+    
     vc = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
-            "http://localhost:8443/docs/vc.serviceAccess.schema.html"
+            f"http://localhost:8443/docs/vc.{type}.schema.html"
         ],
         "id": vc_id,
-        "type": ["VerifiableCredential", "ServiceAccess"],
+        "type": ["VerifiableCredential", captialized_type],
         "issuer": issuer_did,
         "holder": holder_did,
         "issuanceDate": issuance_date,
         "expirationDate": expiration_date,
         "credentialSubject": {
             "id": credential_subject_id,
-            "type": "ServiceAccess",
-            "bmsDid": bms_did,
-            "accessLevel": access_levels,
-            "validFrom": issuance_date,
-            "validUntil": expiration_date
+            "type": captialized_type,
+            ("bmsDid" if type == "serviceAccess" else "cloudDid"): subject,
+            **({"timestamp": issuance_date} if type == "cloudInstance" else {}),
+            **({"validFrom": issuance_date} if type == "serviceAccess" else {}),
+            **({"validUntil": expiration_date} if type == "serviceAccess" else {}),
+            **({"accessLevel": access_levels} if type == "serviceAccess" else {})
         },
         "proof": proof or {
             "type": "EcdsaSecp256r1Signature2019",
@@ -86,7 +131,6 @@ def create_service_access_vc(
             "jws": ""  # Placeholder, replace with actual signature
         }
     }
-
     return vc
 
 def make_vp_from_vc(vc: dict, holder_did: str, proof: dict = None) -> dict:
@@ -158,6 +202,10 @@ def build_did_document(did: str, controller: str, public_key_multibase: str, bms
     
 
     return did_doc
+
+def register_key_with_blockchain(payload: dict = None) -> bool:
+    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/createormodify", headers={'Content-type': 'application/json'}, json=payload)
+    return response.status_code == 200
 
 def register_key_with_blockchain(payload: dict = None) -> bool:
     response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/createormodify", headers={'Content-type': 'application/json'}, json=payload)

@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 from crypto.crypto import load_private_key, get_public_key, generate_keys, encrypt_hpke, decrypt_hpke, sign_vc, sign_vp, sign_did
 from Crypto.PublicKey import ECC, RSA 
-from util.util import  ecc_public_key_to_multibase, build_did_document, create_service_access_vc, make_vp_from_vc, register_key_with_blockchain, upload_vc_to_blockchain
+from util.util import  ecc_public_key_to_multibase, build_did_document,create_cloud_instance_vc, create_service_access_vc, make_vp_from_vc, register_key_with_blockchain, upload_vc_to_blockchain
 from multiformats import multibase
 from dotenv import load_dotenv
 load_dotenv()
@@ -87,6 +87,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate keys for BMS and Service Station")
     parser.add_argument("--bms-password", required=True, help="Password to encrypt BMS private key")
     parser.add_argument("--service-password", required=True, help="Password to encrypt Service Station private key")
+    parser.add_argument("--cloud-password", required=True, help="Password to encrypt Cloud private key")
     parser.add_argument("--oem-password", required=True, help="Password to encrypt OEM private key")
     parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
     args = parser.parse_args()
@@ -103,17 +104,17 @@ def main():
 
     if response.status_code == 200:
         log(f"Successfully connected to {requests_url}", override=True)
-    
-        # This is a Base64 encoded string of a DER key
-        base64_der_key = response.json().get("publicKeyMultibase", None)
-        log(f"Cloud Public Key (Base64-DER): {base64_der_key}", override=True)
+        
+        # This is a multibase base58btc encoded string of a DER key
+        public_key_multibase = response.json().get("publicKeyMultibase", None)
+        log(f"Cloud Public Key (Multibase - base58btc): {public_key_multibase}", override=True)
 
-        # Decode the Base64 string to get the raw DER bytes
-        der_key = base64.b64decode(base64_der_key)
-    
+        # Decode the multibase string to get the raw DER bytes
+        der_key = multibase.decode(public_key_multibase)
+
         # Now, import the DER-formatted key (which is in bytes)
         cloud_public_key = ECC.import_key(der_key)
-    
+
         log(f"Successfully imported Cloud Public Key as ECC object.", override=True)
     else:
         log(f"Failed to connect to {requests_url}. Status code: {response.status_code}", level="error", override=True)
@@ -136,6 +137,15 @@ def main():
     )
     time.sleep(1)  # Adding a small delay
     
+    cloud_data = setup_entity(
+        entity_name="cloud",
+        password=args.cloud_password,
+        controller="did:batterypass:eu",
+        controller_priv_key=eu_private_key,
+        sn="centralcloud"
+    )
+    time.sleep(1)  # Adding a small delay
+    
     bms_data = setup_entity(
         entity_name="bms",
         password=args.bms_password,
@@ -152,13 +162,42 @@ def main():
         controller_priv_key=eu_private_key,
         sn="service"
     )
-    
+    time.sleep(1)  # Adding a small delay
     log("Successfully generated keys and DID documents for BMS and Service Station.", override=True)
     log("-" * 40, override=True)
     # Generate Verifiable Credential
     log("[ServiceClient] Generating Verifiable Credential...", override=True)
     
     now = datetime.now(timezone.utc)
+
+    cloud_instance_vc = create_cloud_instance_vc(
+        issuer_did=oem_data['did'],
+        holder_did=bms_data['did'],
+        cloud_did=cloud_data['did'],
+        valid_from=now,
+        valid_until=(now + timedelta(days=365))
+    )
+
+    verification_method = f"{oem_data['did']}#key-1"
+    
+    log("[BMS] Signing CloudInstance Verifiable Credential...", override=True)
+    signed_vc = sign_vc(cloud_instance_vc, oem_data['priv_key'], verification_method)
+    log("Signed CloudInstance Verifiable Credential:", override=True)
+    log(json.dumps(signed_vc, indent=2), override=True)
+
+    time.sleep(2)  # Adding a small delay
+    exit(0)
+    log("[ServiceClient] Uploading CloudInstance Verifiable Credential to Blockchain...", override=True)
+    
+    if not upload_vc_to_blockchain(signed_vc):
+        log("Failed to upload CloudInstance Verifiable Credential to Blockchain.", level="error", override=True)
+        sys.exit(1)
+    log("CloudInstance Verifiable Credential successfully uploaded to Blockchain.", override=True)
+    time.sleep(1)  # Adding a small delay
+    log("-" * 40, override=True)
+    # Generate Verifiable Credential
+    log("[ServiceClient] Generating Verifiable Credential for Service Access...", override=True)
+    
 
     service_access_vc = create_service_access_vc(
         issuer_did=bms_data['did'],

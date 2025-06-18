@@ -42,7 +42,7 @@
     "expirationDate": { "$ref": "common.defs.schema.json#/definitions/DateTime" },
     "credentialSubject": {
       "type": "object",
-      "required": ["id", "type", "cloudDid", "timestamp", "lotNumber"],
+      "required": ["id", "type", "cloudDid", "timestamp"],
       "additionalProperties": false,
       "properties": {
         "id": { "$ref": "common.defs.schema.json#/definitions/URI" },
