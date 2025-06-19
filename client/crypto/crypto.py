@@ -51,7 +51,7 @@ def sign_vc(vc: dict, private_key: ECC.EccKey, verification_method: str) -> dict
 
 def sign_vc_external(vc: dict,  verification_method: str) -> dict:
     """Signs a VC Document."""
-    private_key = load_private_key("123","oem_key")
+    private_key = load_private_key("oem_key")
     jws_token = sign_json_payload(vc, private_key)
     return attach_proof_jws(vc, jws_token, verification_method)
 
@@ -67,7 +67,7 @@ def sign_did(did: dict, private_key: ECC.EccKey, verification_method: str) -> di
 
 def sign_did_external(did: dict,  verification_method: str) -> dict:
     """Signs a DID Document."""
-    private_key = load_private_key("123","oem_key")
+    private_key = load_private_key_as_der("oem_key")
     jws_token = sign_json_payload(did, private_key)
     return attach_proof_jws(did, jws_token, verification_method)
 
@@ -99,14 +99,13 @@ def encrypt_hpke(did, receiver_public_key: ECC.EccKey, message: bytes) -> dict:
     }
     return payload
 
-def generate_keys(password: str, name: str  = "key") -> None:
+def generate_keys(name: str  = "key") -> None:
     keys_dir = pathlib.Path(__file__).parent.parent / "keys"
     keys_dir.mkdir(exist_ok=True)
-    if not (keys_dir /  f"{name}.der").is_file():
+    if not (keys_dir /  f"{name}.pem").is_file():
         key = ECC.generate(curve="P-256")
-        export_private_key(key, password, keys_dir,  f"{name}.der")
+        #export_private_key(key, password, keys_dir,  f"{name}.der")
         export_pem(key, keys_dir,  f"{name}.pem")
-        logging.info(f"Generated {keys_dir /  f"{name}.der"}")
 
 def export_pem(key: ECC.EccKey, keys_dir: pathlib.Path, name: str = "key.pem") -> None:
     pem_key = key.export_key(format="PEM")
@@ -147,4 +146,14 @@ def load_private_key(passphrase: str, name: str = "key") -> ECC.EccKey:
     with open(key_file, "rb") as f:
         return ECC.import_key(f.read(), passphrase=passphrase)
 
+
+def load_private_key_as_der(name: str = "key") -> bytes:
+    key_file = pathlib.Path(__file__).parent.parent / "keys" / f"{name}.pem"
+
+    assert key_file.is_file(), f"Key file not found: {key_file}"
+    key = None
+    with open(key_file, "rt") as f:
+        key = ECC.import_key(f.read())
+
+    return key
 

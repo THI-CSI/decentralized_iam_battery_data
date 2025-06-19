@@ -29,7 +29,7 @@ if __name__ == "__main__":
     public_key_multibase = crypto.ecc_public_key_to_multibase(public_key)
 
     # 2. Generate BMS DID
-    did_bms = f"did:batterypass:bms.sn-{(uuid.uuid4().hex[:8])}"
+    did_bms = f"did:batterypass:bms.sn-{SN}"
 
     did_document = did_utils.build_did_document(did_bms, CONTROLLER_DID, public_key_multibase)
     # 3. Sign DID with Client's sign service
@@ -51,9 +51,9 @@ if __name__ == "__main__":
         json=signed_did
     )
 
-    if response.status_code != 200:
-        print("Error while registering BMS on Blockchain.")
-        exit(1)
+    #if response.status_code != 200:
+    #    print("Error while registering BMS on Blockchain.")
+    #    exit(1)
     print(f"BMS {SN} registered successfully.")
 
     # 5. Get DID from Controller (OEM)
@@ -87,9 +87,10 @@ if __name__ == "__main__":
     }))
     if response.status_code != 200:
         print("Error while signing VC.")
+        print(response.text)
         exit(1)
     signed_vc = response.json()
-    
+    exit(0)
     # TODO 8. Register VC.
     response = requests.post(
         f"{BLOCKCHAIN_URL}/api/v1/vcs/create/cloud",

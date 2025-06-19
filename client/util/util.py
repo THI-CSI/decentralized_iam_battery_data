@@ -2,9 +2,14 @@ import uuid
 import requests
 import json
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 import base58
 from Crypto.PublicKey import ECC
+from multiformats import multibase
+
+
+VERBOSE = os.getenv("VERBOSE", "false").lower() == "true"
 
 MULTICODEC_PREFIXES = {
     'p256': b'\x12\x00',
@@ -35,6 +40,11 @@ def ecc_public_key_to_multibase(ecc_key):
     multibase = 'z' + base58.b58encode(multicodec_bytes).decode()
 
     return multibase
+
+def log(message, level="info", override=False):
+    if VERBOSE or override:
+        print(f"[{level.upper()}] {message}")
+
 
 def _format_datetime(dt: datetime) -> str:
     """Formats a datetime object to ISO 8601 UTC format (YYYY-MM-DDTHH:MM:SSZ)."""
@@ -216,3 +226,24 @@ def upload_vc_to_blockchain(vc: dict) -> bool:
     response = requests.post(f"{os.getenv('BLOCKCHAIN_URL', 'http://localhost:8443')}/api/v1/vcs/create", headers={'Content-type': 'application/json'}, json=vc)
     return response.status_code == 200
 
+def get_cloud_public_key(url: str):
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        log(f"Successfully connected to {url}", override=True)
+
+        # This is a multibase base58btc encoded string of a DER key
+        public_key_multibase = response.json().get("publicKeyMultibase", None)
+        log(f"Cloud Public Key (Multibase - base58btc): {public_key_multibase}", override=True)
+
+        # Decode the multibase string to get the raw DER bytes
+        der_key = multibase.decode(public_key_multibase)
+
+        # Now, import the DER-formatted key (which is in bytes)
+        cloud_public_key = ECC.import_key(der_key)
+
+        log(f"Successfully imported Cloud Public Key as ECC object.", override=True)
+        return cloud_public_key
+    else:
+        log(f"Failed to connect to {url}. Status code: {response.status_code}", level="error", override=True)
+        sys.exit(1)
