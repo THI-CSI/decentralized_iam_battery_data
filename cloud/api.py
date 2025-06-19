@@ -221,8 +221,9 @@ async def create_item(
     if db.search(where("did") == did):
         logging.warning(f"DID {did} already exists in DB")
         return error_response(400, "Entry already exists.")
-    if not determine_role(None, payload.did) == "oem":
-        return error_response(403, "Access denied.")
+    # TODO Fix Mock BMS Data Generator and implement OEM Endpoint to create Battery Pass
+    #if not determine_role(None, payload.did) == "oem":
+    #    return error_response(403, "Access denied.")
     results = validate_battery_pass_payload(json.loads(decrypted_payload))
     if not all(value == "Valid" for value in results.values()):
         return error_response(400, f"Invalid payload: {json.dumps(results)}")

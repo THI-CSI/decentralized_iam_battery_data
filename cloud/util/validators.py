@@ -1,9 +1,11 @@
+import os
 from pathlib import Path
 import json
 import re
 from jsonschema import validate, Draft4Validator, ValidationError
 
 # Define relevant paths
+# TODO Probably wrong PROJECT ROOT in the docker-compose container
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 SCHEMA_DIR = PROJECT_ROOT / 'cloud' / 'BatteryPassDataModel'
 

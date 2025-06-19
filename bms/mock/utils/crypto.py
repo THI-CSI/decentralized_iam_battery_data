@@ -142,7 +142,6 @@ def encrypt_hpke(did, receiver_public_key: ECC.EccKey, message: bytes) -> dict:
 def encrypt_data_from_did(bms_did: str, publicKeyMultibase: str, battery_data: str, private_key: ECC.EccKey):
     public_key = multibase_to_ecc_public_key(publicKeyMultibase) # ECC Key
     encrypted_data = encrypt_hpke(bms_did, public_key, battery_data.encode('utf-8'))
-
     message_to_verify = json.dumps(
         {key: value for key, value in encrypted_data.items() if key != "signature"}, separators=(",", ":")
     ).encode()

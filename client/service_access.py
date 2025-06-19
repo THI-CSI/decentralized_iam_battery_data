@@ -120,7 +120,8 @@ def main():
         for root, dirs, files in KEYS_DIR.walk(top_down=False):
             for name in files:
                 (root / name).unlink()
-        KEYS_DIR.rmdir()
+        if is_initialized():
+            KEYS_DIR.rmdir()
         # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
         eu_private_key_b64 = os.getenv('EU_PRIVATE_KEY')
         if not eu_private_key_b64:

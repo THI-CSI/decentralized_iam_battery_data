@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives import serialization
 from Crypto.PublicKey import ECC
 from datetime import datetime, timedelta, timezone
 
+import utils.battery_data as battery_data
 import utils.data_gen as data_gen
 import utils.crypto as crypto
 import utils.did as did_utils
@@ -122,15 +123,23 @@ if __name__ == "__main__":
         print(f"Registering VC for '{CLOUD_DID}' in the Blockchain...")
         time.sleep(1)
 
+    # TODO
+    #  if entry exists:
+    ##      /create (Maybe the OEM has to create the batterypass -> New Endpoint at sign service(-> rename to oem service))
+    # else:
+    ##      /update
     dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
-    # Generate Data
-    battery_data = data_gen.run_battery_data_generator()
+
+    # TODO Rewrite Data Generator
+    #battery_data = data_gen.run_battery_data_generator()
+    battery_data = battery_data.get_battery_data()
 
     for did in dids:
         url = did["service"][0]["serviceEndpoint"]
+        service_public_key = did["verificationMethod"]["publicKeyMultibase"]
         if TESTING_SETUP:
             url = url.replace("api-service", "localhost")
-        encrypted_data = crypto.encrypt_data_from_did(did_bms, public_key_multibase, battery_data, private_key)
+        encrypted_data = crypto.encrypt_data_from_did(did_bms, service_public_key, battery_data, private_key)
 
         # Upload Data
         response = requests.put(f"{url}/batterypass/create/{did_bms}", json=encrypted_data)
@@ -145,13 +154,13 @@ if __name__ == "__main__":
         dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
         # Generate Data
         battery_data = data_gen.run_battery_data_generator()
-
         for did in dids:
             url = did["service"][0]["serviceEndpoint"]
+            service_public_key = did["verificationMethod"]["publicKeyMultibase"]
             if TESTING_SETUP:
                 url = url.replace("api-service", "localhost")
 
-            encrypted_data = crypto.encrypt_data_from_did(did_bms, public_key_multibase, battery_data, private_key)
+            encrypted_data = crypto.encrypt_data_from_did(did_bms, service_public_key, battery_data, private_key)
 
             # Upload Data
             response = requests.post(f"{url}/batterypass/update/{did_bms}", json=encrypted_data)

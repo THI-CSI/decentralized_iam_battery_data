@@ -21,7 +21,7 @@ def convert_json_structure(json_string):
 
 def run_battery_data_generator():
     # Load the shared library
-    lib = ctypes.CDLL('./utils/libdata_gen.so')
+    lib = ctypes.CDLL('./utils/libdata_gen_c_v2.so')
 
     # Define the return type of the function
     lib.process_json_data.restype = ctypes.c_char_p

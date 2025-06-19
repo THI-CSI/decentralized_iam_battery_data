@@ -16,6 +16,7 @@ DOCKER_COMMANDS = [
     "ls",
 ]
 
+# TODO Clean Key file directories and blockchain.json
 
 def signal_handler(_sig, _frame):
     print("received interrupt signal")
