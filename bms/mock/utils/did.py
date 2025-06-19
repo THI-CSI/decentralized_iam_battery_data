@@ -60,14 +60,6 @@ def build_did_document(did: str, controller: str, public_key_multibase: str) -> 
         "publicKeyMultibase": public_key_multibase
     }
 
-    # TODO: Do we need this?
-    ServiceEndpoint = [
-        {
-            "id": f"{did}#batterypassApi-test1",
-            "type": "BatteryPassAPI",
-            "serviceEndpoint": f"http://localhost:8443"
-        }
-    ]
 
     did_doc = {
         "proof": {
@@ -85,7 +77,6 @@ def build_did_document(did: str, controller: str, public_key_multibase: str) -> 
             ],
             "id": did,
             "verificationMethod": verification_method,
-            "service": ServiceEndpoint,
             "timestamp": timestamp,
             "revoked": False
         }

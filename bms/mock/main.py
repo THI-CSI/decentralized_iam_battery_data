@@ -15,9 +15,9 @@ BLOCKCHAIN_URL = "http://localhost:8443"
 OEM_SIGN_SERVICE_URL = os.getenv("OEM_SIGN_SERVICE_URL", "http://localhost:8123")
 
 # Environment Variables
-CONTROLLER_DID = os.getenv("CONTROLLER_DID", "did:batterypass:oem.audi")
+CONTROLLER_DID = os.getenv("CONTROLLER_DID", "did:batterypass:oem.sn-audi")
 SN = os.getenv("SN", (uuid.uuid4().hex[:8]))
-CLOUD_DID = os.getenv("CLOUD_DID", "did:batterypass:cloud.centralcloud")
+CLOUD_DID = os.getenv("CLOUD_DID", "did:batterypass:cloud.sn-centralcloud")
 
 if __name__ == "__main__":
     # 1. Generate BMS Key Pair
@@ -43,7 +43,6 @@ if __name__ == "__main__":
         exit(1)
 
     signed_did = response.json()
-
     # 4. Register BMS on Blockchain
     response = requests.post(
         f"{BLOCKCHAIN_URL}/api/v1/dids/createormodify",
@@ -51,9 +50,10 @@ if __name__ == "__main__":
         json=signed_did
     )
 
-    #if response.status_code != 200:
-    #    print("Error while registering BMS on Blockchain.")
-    #    exit(1)
+    if response.status_code != 200:
+        print("Error while registering BMS on Blockchain.")
+        print(response.text)
+        exit(1)
     print(f"BMS {SN} registered successfully.")
 
     # 5. Get DID from Controller (OEM)
@@ -90,7 +90,6 @@ if __name__ == "__main__":
         print(response.text)
         exit(1)
     signed_vc = response.json()
-    exit(0)
     # TODO 8. Register VC.
     response = requests.post(
         f"{BLOCKCHAIN_URL}/api/v1/vcs/create/cloud",
@@ -100,9 +99,10 @@ if __name__ == "__main__":
 
     if response.status_code != 200:
         print("Error while registering VC on Blockchain.")
+        print(response.text)
         exit(1)
 
-
+    exit(0)
     vcs = ["did:batterypass:cloud.sn-central"]
     dids = []
     for vc in vcs:

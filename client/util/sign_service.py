@@ -22,12 +22,12 @@ def sign_vc_service(response: Response, request: Any = Body(None)):
     if "verification_method" not in data:
         return {"error": "verification_method is required"}
     vc = data["vc"]
-    verification_method = data["verification_method"]
+    verification_method = f"{data["verification_method"]}#key-1"
 
     try:
         signed_vc = sign_vc_external(vc, verification_method)
-    except:
-        return {"error": "Failed to sign VC"}
+    except Exception as e:
+        return {"error": "Failed to sign VC", "message": e}
 
     response.status_code = 200
     return signed_vc
@@ -46,7 +46,7 @@ def sign_did_service(response: Response, request: Any = Body(None)):
     if "verification_method" not in data:
         return {"error": "verification_method is required"}
     did = data["did"]
-    verification_method = data["verification_method"]
+    verification_method = f"{data["verification_method"]}#key-1"
 
     try:
         signed_did = sign_did_external(did, verification_method)

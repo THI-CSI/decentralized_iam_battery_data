@@ -51,7 +51,7 @@ def sign_vc(vc: dict, private_key: ECC.EccKey, verification_method: str) -> dict
 
 def sign_vc_external(vc: dict,  verification_method: str) -> dict:
     """Signs a VC Document."""
-    private_key = load_private_key("oem_key")
+    private_key = load_private_key_as_der("oem_key")
     jws_token = sign_json_payload(vc, private_key)
     return attach_proof_jws(vc, jws_token, verification_method)
 
@@ -138,14 +138,6 @@ def get_public_key(keys_dir: pathlib.Path, passphrase: str, name: str = "key") -
     private_key = ECC.import_key(private_key_der, passphrase=passphrase)
     public_key = private_key.public_key()
     return public_key.export_key(format="DER")
-
-
-def load_private_key(passphrase: str, name: str = "key") -> ECC.EccKey:
-    key_file = pathlib.Path(__file__).parent.parent / "keys" / f"{name}.der"
-    assert key_file.is_file()
-    with open(key_file, "rb") as f:
-        return ECC.import_key(f.read(), passphrase=passphrase)
-
 
 def load_private_key_as_der(name: str = "key") -> bytes:
     key_file = pathlib.Path(__file__).parent.parent / "keys" / f"{name}.pem"
