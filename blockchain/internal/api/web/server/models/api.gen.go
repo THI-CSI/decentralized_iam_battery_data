@@ -24,39 +24,61 @@ const (
 	DidSchemaContextHttpswwwW3Org2018credentialsv1     DidSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for VcBmsProducedSchemaContext.
+// Defines values for VcBmsSchemaContext.
 const (
-	VcBmsProducedSchemaContextHttplocalhost8443docsvcBmsProductionSchemaHtml VcBmsProducedSchemaContext = "http://localhost:8443/docs/vc.bmsProduction.schema.html"
-	VcBmsProducedSchemaContextHttpswwwW3Org2018credentialsv1                 VcBmsProducedSchemaContext = "https://www.w3.org/2018/credentials/v1"
+	VcBmsSchemaContextHttplocalhost8443docsvcBmsProductionSchemaHtml VcBmsSchemaContext = "http://localhost:8443/docs/vc.bmsProduction.schema.html"
+	VcBmsSchemaContextHttpswwwW3Org2018credentialsv1                 VcBmsSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for VcCloudInstanceSchemaContext.
+// Defines values for VcCloudSchemaContext.
 const (
-	VcCloudInstanceSchemaContextHttplocalhost8443docsvcCloudInstanceSchemaHtml VcCloudInstanceSchemaContext = "http://localhost:8443/docs/vc.cloudInstance.schema.html"
-	VcCloudInstanceSchemaContextHttpswwwW3Org2018credentialsv1                 VcCloudInstanceSchemaContext = "https://www.w3.org/2018/credentials/v1"
+	VcCloudSchemaContextHttplocalhost8443docsvcCloudInstanceSchemaHtml VcCloudSchemaContext = "http://localhost:8443/docs/vc.cloudInstance.schema.html"
+	VcCloudSchemaContextHttpswwwW3Org2018credentialsv1                 VcCloudSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for VcServiceAccessSchemaContext.
+// Defines values for VcServiceSchemaContext.
 const (
-	VcServiceAccessSchemaContextHttplocalhost8443docsvcServiceAccessSchemaHtml VcServiceAccessSchemaContext = "http://localhost:8443/docs/vc.serviceAccess.schema.html"
-	VcServiceAccessSchemaContextHttpswwwW3Org2018credentialsv1                 VcServiceAccessSchemaContext = "https://www.w3.org/2018/credentials/v1"
+	VcServiceSchemaContextHttplocalhost8443docsvcServiceAccessSchemaHtml VcServiceSchemaContext = "http://localhost:8443/docs/vc.serviceAccess.schema.html"
+	VcServiceSchemaContextHttpswwwW3Org2018credentialsv1                 VcServiceSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for VcServiceAccessSchemaCredentialSubjectAccessLevel.
+// Defines values for VcServiceSchemaCredentialSubjectAccessLevel.
 const (
-	Read  VcServiceAccessSchemaCredentialSubjectAccessLevel = "read"
-	Write VcServiceAccessSchemaCredentialSubjectAccessLevel = "write"
+	Read  VcServiceSchemaCredentialSubjectAccessLevel = "read"
+	Write VcServiceSchemaCredentialSubjectAccessLevel = "write"
 )
 
-// Defines values for VpSchemaContext.
+// Defines values for VpBmsSchemaContext.
 const (
-	Httplocalhost8443docsvpSchemaHtml VpSchemaContext = "http://localhost:8443/docs/vp.schema.html"
-	HttpswwwW3Org2018credentialsv1    VpSchemaContext = "https://www.w3.org/2018/credentials/v1"
+	VpBmsSchemaContextHttplocalhost8443docsvpSchemaHtml VpBmsSchemaContext = "http://localhost:8443/docs/vp.schema.html"
+	VpBmsSchemaContextHttpswwwW3Org2018credentialsv1    VpBmsSchemaContext = "https://www.w3.org/2018/credentials/v1"
 )
 
-// Defines values for VpSchemaProofType.
+// Defines values for VpBmsSchemaProofType.
 const (
-	VpSchemaProofTypeEcdsaSecp256r1Signature2019 VpSchemaProofType = "EcdsaSecp256r1Signature2019"
+	VpBmsSchemaProofTypeEcdsaSecp256r1Signature2019 VpBmsSchemaProofType = "EcdsaSecp256r1Signature2019"
+)
+
+// Defines values for VpCloudSchemaContext.
+const (
+	VpCloudSchemaContextHttplocalhost8443docsvpSchemaHtml VpCloudSchemaContext = "http://localhost:8443/docs/vp.schema.html"
+	VpCloudSchemaContextHttpswwwW3Org2018credentialsv1    VpCloudSchemaContext = "https://www.w3.org/2018/credentials/v1"
+)
+
+// Defines values for VpCloudSchemaProofType.
+const (
+	VpCloudSchemaProofTypeEcdsaSecp256r1Signature2019 VpCloudSchemaProofType = "EcdsaSecp256r1Signature2019"
+)
+
+// Defines values for VpServiceSchemaContext.
+const (
+	Httplocalhost8443docsvpSchemaHtml VpServiceSchemaContext = "http://localhost:8443/docs/vp.schema.html"
+	HttpswwwW3Org2018credentialsv1    VpServiceSchemaContext = "https://www.w3.org/2018/credentials/v1"
+)
+
+// Defines values for VpServiceSchemaProofType.
+const (
+	VpServiceSchemaProofTypeEcdsaSecp256r1Signature2019 VpServiceSchemaProofType = "EcdsaSecp256r1Signature2019"
 )
 
 // N256Hash A SHA-256 hash of the complete VC in hexadecimal format.
@@ -153,11 +175,6 @@ type RequestDidRevokeSchema struct {
 	Proof Proof `json:"proof"`
 }
 
-// RequestVcCreateSchema Schema for creating a new Verifiable Credential, supporting different credential types.
-type RequestVcCreateSchema struct {
-	union json.RawMessage
-}
-
 // RequestVcRevokeSchema defines model for request.vc.revoke.schema.
 type RequestVcRevokeSchema struct {
 	// Payload An identifier in uri format for Verifiable Credentials
@@ -231,10 +248,10 @@ type ResponseTransactionsSchema_Item struct {
 // ResponseVcsSchema An array holding all VC Records in the blockchain
 type ResponseVcsSchema = []VcRecordSchema
 
-// VcBmsProducedSchema Schema for verifying BMS Production claims.
-type VcBmsProducedSchema struct {
+// VcBmsSchema Schema for verifying BMS Production claims.
+type VcBmsSchema struct {
 	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
-	Context           []VcBmsProducedSchemaContext `json:"@context"`
+	Context           []VcBmsSchemaContext `json:"@context"`
 	CredentialSubject struct {
 		// BmsDid DID string with the DID method `batterypass` for a specific bms and then an identifier
 		BmsDid DIDBMS `json:"bmsDid"`
@@ -262,13 +279,13 @@ type VcBmsProducedSchema struct {
 	Type  []string `json:"type"`
 }
 
-// VcBmsProducedSchemaContext defines model for VcBmsProducedSchema.Context.
-type VcBmsProducedSchemaContext string
+// VcBmsSchemaContext defines model for VcBmsSchema.Context.
+type VcBmsSchemaContext string
 
-// VcCloudInstanceSchema Schema for verifying which cloud instances a BMS should send its battery data to.
-type VcCloudInstanceSchema struct {
+// VcCloudSchema Schema for verifying which cloud instances a BMS should send its battery data to.
+type VcCloudSchema struct {
 	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
-	Context           []VcCloudInstanceSchemaContext `json:"@context"`
+	Context           []VcCloudSchemaContext `json:"@context"`
 	CredentialSubject struct {
 		// CloudDid DID string with the DID method `batterypass` for a specific cloud and then an identifier
 		CloudDid DIDCLOUD `json:"cloudDid"`
@@ -295,8 +312,8 @@ type VcCloudInstanceSchema struct {
 	Type  []string `json:"type"`
 }
 
-// VcCloudInstanceSchemaContext defines model for VcCloudInstanceSchema.Context.
-type VcCloudInstanceSchemaContext string
+// VcCloudSchemaContext defines model for VcCloudSchema.Context.
+type VcCloudSchemaContext string
 
 // VcRecordSchema Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a timestamp, and expiration date.
 type VcRecordSchema struct {
@@ -310,12 +327,12 @@ type VcRecordSchema struct {
 	VcHash N256Hash `json:"vcHash"`
 }
 
-// VcServiceAccessSchema Schema for verifying Service Access claims.
-type VcServiceAccessSchema struct {
+// VcServiceSchema Schema for verifying Service Access claims.
+type VcServiceSchema struct {
 	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
-	Context           []VcServiceAccessSchemaContext `json:"@context"`
+	Context           []VcServiceSchemaContext `json:"@context"`
 	CredentialSubject struct {
-		AccessLevel []VcServiceAccessSchemaCredentialSubjectAccessLevel `json:"accessLevel"`
+		AccessLevel []VcServiceSchemaCredentialSubjectAccessLevel `json:"accessLevel"`
 
 		// BmsDid DID string with the DID method `batterypass` for a specific bms and then an identifier
 		BmsDid DIDBMS `json:"bmsDid"`
@@ -343,11 +360,11 @@ type VcServiceAccessSchema struct {
 	Type  []string `json:"type"`
 }
 
-// VcServiceAccessSchemaContext defines model for VcServiceAccessSchema.Context.
-type VcServiceAccessSchemaContext string
+// VcServiceSchemaContext defines model for VcServiceSchema.Context.
+type VcServiceSchemaContext string
 
-// VcServiceAccessSchemaCredentialSubjectAccessLevel defines model for VcServiceAccessSchema.CredentialSubject.AccessLevel.
-type VcServiceAccessSchemaCredentialSubjectAccessLevel string
+// VcServiceSchemaCredentialSubjectAccessLevel defines model for VcServiceSchema.CredentialSubject.AccessLevel.
+type VcServiceSchemaCredentialSubjectAccessLevel string
 
 // VerificationMethod A method by which a DID subject can be authenticated, typically using cryptographic keys.
 type VerificationMethod struct {
@@ -364,10 +381,10 @@ type VerificationMethod struct {
 	Type string `json:"type"`
 }
 
-// VpSchema Schema for verifying presentations of VCs with holder proof.
-type VpSchema struct {
+// VpBmsSchema Schema for verifying presentations of VCs with holder proof.
+type VpBmsSchema struct {
 	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
-	Context []VpSchemaContext `json:"@context"`
+	Context []VpBmsSchemaContext `json:"@context"`
 
 	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
 	Holder DID `json:"holder"`
@@ -377,22 +394,82 @@ type VpSchema struct {
 		Created   time.Time `json:"created"`
 
 		// Jws The actual signature in JSON Web Signature format
-		Jws          string            `json:"jws"`
-		ProofPurpose string            `json:"proofPurpose"`
-		Type         VpSchemaProofType `json:"type"`
+		Jws          string               `json:"jws"`
+		ProofPurpose string               `json:"proofPurpose"`
+		Type         VpBmsSchemaProofType `json:"type"`
 
 		// VerificationMethod Reference to the key used to create the proof.
 		VerificationMethod string `json:"verificationMethod"`
 	} `json:"proof"`
-	Type                 []string                `json:"type"`
-	VerifiableCredential []RequestVcCreateSchema `json:"verifiableCredential"`
+	Type                 []string      `json:"type"`
+	VerifiableCredential []VcBmsSchema `json:"verifiableCredential"`
 }
 
-// VpSchemaContext defines model for VpSchema.Context.
-type VpSchemaContext string
+// VpBmsSchemaContext defines model for VpBmsSchema.Context.
+type VpBmsSchemaContext string
 
-// VpSchemaProofType defines model for VpSchema.Proof.Type.
-type VpSchemaProofType string
+// VpBmsSchemaProofType defines model for VpBmsSchema.Proof.Type.
+type VpBmsSchemaProofType string
+
+// VpCloudSchema Schema for verifying presentations of VCs with holder proof.
+type VpCloudSchema struct {
+	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
+	Context []VpCloudSchemaContext `json:"@context"`
+
+	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+	Holder DID `json:"holder"`
+	Proof  struct {
+		// Challenge Optional challenge to prevent replay attacks.
+		Challenge string    `json:"challenge"`
+		Created   time.Time `json:"created"`
+
+		// Jws The actual signature in JSON Web Signature format
+		Jws          string                 `json:"jws"`
+		ProofPurpose string                 `json:"proofPurpose"`
+		Type         VpCloudSchemaProofType `json:"type"`
+
+		// VerificationMethod Reference to the key used to create the proof.
+		VerificationMethod string `json:"verificationMethod"`
+	} `json:"proof"`
+	Type                 []string        `json:"type"`
+	VerifiableCredential []VcCloudSchema `json:"verifiableCredential"`
+}
+
+// VpCloudSchemaContext defines model for VpCloudSchema.Context.
+type VpCloudSchemaContext string
+
+// VpCloudSchemaProofType defines model for VpCloudSchema.Proof.Type.
+type VpCloudSchemaProofType string
+
+// VpServiceSchema Schema for verifying presentations of VCs with holder proof.
+type VpServiceSchema struct {
+	// Context Defines the JSON-LD context, providing meaning to terms used in the credential.
+	Context []VpServiceSchemaContext `json:"@context"`
+
+	// Holder DID string with the DID method `batterypass` followed by one of `eu, oem, cloud, bms, service` and then an identifier
+	Holder DID `json:"holder"`
+	Proof  struct {
+		// Challenge Optional challenge to prevent replay attacks.
+		Challenge string    `json:"challenge"`
+		Created   time.Time `json:"created"`
+
+		// Jws The actual signature in JSON Web Signature format
+		Jws          string                   `json:"jws"`
+		ProofPurpose string                   `json:"proofPurpose"`
+		Type         VpServiceSchemaProofType `json:"type"`
+
+		// VerificationMethod Reference to the key used to create the proof.
+		VerificationMethod string `json:"verificationMethod"`
+	} `json:"proof"`
+	Type                 []string          `json:"type"`
+	VerifiableCredential []VcServiceSchema `json:"verifiableCredential"`
+}
+
+// VpServiceSchemaContext defines model for VpServiceSchema.Context.
+type VpServiceSchemaContext string
+
+// VpServiceSchemaProofType defines model for VpServiceSchema.Proof.Type.
+type VpServiceSchemaProofType string
 
 // CreateOrModifyDidJSONRequestBody defines body for CreateOrModifyDid for application/json ContentType.
 type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
@@ -400,102 +477,26 @@ type CreateOrModifyDidJSONRequestBody = RequestDidCreateormodifySchema
 // RevokeDidJSONRequestBody defines body for RevokeDid for application/json ContentType.
 type RevokeDidJSONRequestBody = RequestDidRevokeSchema
 
-// CreateVcRecordJSONRequestBody defines body for CreateVcRecord for application/json ContentType.
-type CreateVcRecordJSONRequestBody = RequestVcCreateSchema
+// CreateVcRecordBmsJSONRequestBody defines body for CreateVcRecordBms for application/json ContentType.
+type CreateVcRecordBmsJSONRequestBody = VcBmsSchema
+
+// CreateVcRecordCloudJSONRequestBody defines body for CreateVcRecordCloud for application/json ContentType.
+type CreateVcRecordCloudJSONRequestBody = VcCloudSchema
+
+// CreateVcRecordServicesJSONRequestBody defines body for CreateVcRecordServices for application/json ContentType.
+type CreateVcRecordServicesJSONRequestBody = VcServiceSchema
 
 // RevokeVcRecordJSONRequestBody defines body for RevokeVcRecord for application/json ContentType.
 type RevokeVcRecordJSONRequestBody = RequestVcRevokeSchema
 
-// VerifyVpJSONRequestBody defines body for VerifyVp for application/json ContentType.
-type VerifyVpJSONRequestBody = VpSchema
+// VerifyVpBmsJSONRequestBody defines body for VerifyVpBms for application/json ContentType.
+type VerifyVpBmsJSONRequestBody = VpBmsSchema
 
-// AsVcBmsProducedSchema returns the union data inside the RequestVcCreateSchema as a VcBmsProducedSchema
-func (t RequestVcCreateSchema) AsVcBmsProducedSchema() (VcBmsProducedSchema, error) {
-	var body VcBmsProducedSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
+// VerifyVpCloudJSONRequestBody defines body for VerifyVpCloud for application/json ContentType.
+type VerifyVpCloudJSONRequestBody = VpCloudSchema
 
-// FromVcBmsProducedSchema overwrites any union data inside the RequestVcCreateSchema as the provided VcBmsProducedSchema
-func (t *RequestVcCreateSchema) FromVcBmsProducedSchema(v VcBmsProducedSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcBmsProducedSchema performs a merge with any union data inside the RequestVcCreateSchema, using the provided VcBmsProducedSchema
-func (t *RequestVcCreateSchema) MergeVcBmsProducedSchema(v VcBmsProducedSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsVcServiceAccessSchema returns the union data inside the RequestVcCreateSchema as a VcServiceAccessSchema
-func (t RequestVcCreateSchema) AsVcServiceAccessSchema() (VcServiceAccessSchema, error) {
-	var body VcServiceAccessSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcServiceAccessSchema overwrites any union data inside the RequestVcCreateSchema as the provided VcServiceAccessSchema
-func (t *RequestVcCreateSchema) FromVcServiceAccessSchema(v VcServiceAccessSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcServiceAccessSchema performs a merge with any union data inside the RequestVcCreateSchema, using the provided VcServiceAccessSchema
-func (t *RequestVcCreateSchema) MergeVcServiceAccessSchema(v VcServiceAccessSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsVcCloudInstanceSchema returns the union data inside the RequestVcCreateSchema as a VcCloudInstanceSchema
-func (t RequestVcCreateSchema) AsVcCloudInstanceSchema() (VcCloudInstanceSchema, error) {
-	var body VcCloudInstanceSchema
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromVcCloudInstanceSchema overwrites any union data inside the RequestVcCreateSchema as the provided VcCloudInstanceSchema
-func (t *RequestVcCreateSchema) FromVcCloudInstanceSchema(v VcCloudInstanceSchema) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeVcCloudInstanceSchema performs a merge with any union data inside the RequestVcCreateSchema, using the provided VcCloudInstanceSchema
-func (t *RequestVcCreateSchema) MergeVcCloudInstanceSchema(v VcCloudInstanceSchema) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t RequestVcCreateSchema) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *RequestVcCreateSchema) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
+// VerifyVpServicesJSONRequestBody defines body for VerifyVpServices for application/json ContentType.
+type VerifyVpServicesJSONRequestBody = VpServiceSchema
 
 // AsDidSchema returns the union data inside the ResponseTransactionsSchema_Item as a DidSchema
 func (t ResponseTransactionsSchema_Item) AsDidSchema() (DidSchema, error) {
@@ -585,18 +586,30 @@ type ServerInterface interface {
 	// Get a all VC Records
 	// (GET /api/v1/vcs)
 	GetAllVcRecords(ctx echo.Context) error
-	// Create a VC Record
-	// (POST /api/v1/vcs/create)
-	CreateVcRecord(ctx echo.Context) error
+	// Create a VC Record for a BMS
+	// (POST /api/v1/vcs/create/bms)
+	CreateVcRecordBms(ctx echo.Context) error
+	// Create a VC Record for a Cloud
+	// (POST /api/v1/vcs/create/cloud)
+	CreateVcRecordCloud(ctx echo.Context) error
+	// Create a VC Record for a Services
+	// (POST /api/v1/vcs/create/services)
+	CreateVcRecordServices(ctx echo.Context) error
 	// Revoke a VC Record
 	// (POST /api/v1/vcs/revoke)
 	RevokeVcRecord(ctx echo.Context) error
 	// Get a specific VC Record by URI
 	// (GET /api/v1/vcs/{vcUri})
 	GetVcRecordById(ctx echo.Context, vcUri string) error
-	// Verify a VP Record
-	// (POST /api/v1/vps/verify)
-	VerifyVp(ctx echo.Context) error
+	// Verify a VP Record for Bms
+	// (POST /api/v1/vps/verify/bms)
+	VerifyVpBms(ctx echo.Context) error
+	// Verify a VP Record for Cloud
+	// (POST /api/v1/vps/verify/cloud)
+	VerifyVpCloud(ctx echo.Context) error
+	// Verify a VP Record for Services
+	// (POST /api/v1/vps/verify/services)
+	VerifyVpServices(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -697,12 +710,30 @@ func (w *ServerInterfaceWrapper) GetAllVcRecords(ctx echo.Context) error {
 	return err
 }
 
-// CreateVcRecord converts echo context to params.
-func (w *ServerInterfaceWrapper) CreateVcRecord(ctx echo.Context) error {
+// CreateVcRecordBms converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateVcRecordBms(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreateVcRecord(ctx)
+	err = w.Handler.CreateVcRecordBms(ctx)
+	return err
+}
+
+// CreateVcRecordCloud converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateVcRecordCloud(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateVcRecordCloud(ctx)
+	return err
+}
+
+// CreateVcRecordServices converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateVcRecordServices(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateVcRecordServices(ctx)
 	return err
 }
 
@@ -731,12 +762,30 @@ func (w *ServerInterfaceWrapper) GetVcRecordById(ctx echo.Context) error {
 	return err
 }
 
-// VerifyVp converts echo context to params.
-func (w *ServerInterfaceWrapper) VerifyVp(ctx echo.Context) error {
+// VerifyVpBms converts echo context to params.
+func (w *ServerInterfaceWrapper) VerifyVpBms(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.VerifyVp(ctx)
+	err = w.Handler.VerifyVpBms(ctx)
+	return err
+}
+
+// VerifyVpCloud converts echo context to params.
+func (w *ServerInterfaceWrapper) VerifyVpCloud(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.VerifyVpCloud(ctx)
+	return err
+}
+
+// VerifyVpServices converts echo context to params.
+func (w *ServerInterfaceWrapper) VerifyVpServices(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.VerifyVpServices(ctx)
 	return err
 }
 
@@ -776,9 +825,13 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/api/v1/dids/revoke", wrapper.RevokeDid)
 	router.GET(baseURL+"/api/v1/dids/:did", wrapper.GetDidById)
 	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVcRecords)
-	router.POST(baseURL+"/api/v1/vcs/create", wrapper.CreateVcRecord)
+	router.POST(baseURL+"/api/v1/vcs/create/bms", wrapper.CreateVcRecordBms)
+	router.POST(baseURL+"/api/v1/vcs/create/cloud", wrapper.CreateVcRecordCloud)
+	router.POST(baseURL+"/api/v1/vcs/create/services", wrapper.CreateVcRecordServices)
 	router.POST(baseURL+"/api/v1/vcs/revoke", wrapper.RevokeVcRecord)
 	router.GET(baseURL+"/api/v1/vcs/:vcUri", wrapper.GetVcRecordById)
-	router.POST(baseURL+"/api/v1/vps/verify", wrapper.VerifyVp)
+	router.POST(baseURL+"/api/v1/vps/verify/bms", wrapper.VerifyVpBms)
+	router.POST(baseURL+"/api/v1/vps/verify/cloud", wrapper.VerifyVpCloud)
+	router.POST(baseURL+"/api/v1/vps/verify/services", wrapper.VerifyVpServices)
 
 }

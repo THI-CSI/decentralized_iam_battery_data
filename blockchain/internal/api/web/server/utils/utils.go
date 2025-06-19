@@ -18,19 +18,19 @@ import (
 	"time"
 )
 
-// IsDidValid Checks if the DID is conform to the specified format.
+// IsDidValid Checks if the DID is conformed to the specified format.
 func IsDidValid(did string) bool {
 	matched, _ := regexp.MatchString(`^did:batterypass:(eu|oem.|bms.|service.|cloud.)[a-zA-Z0-9.\-]*$`, did)
 	return matched
 }
 
-// IsUrnValid Validates if the input string is a valid URN according to the UUID pattern.
+// IsUrnValid Validates if the input string is a valid URN, according to the UUID pattern.
 func IsUrnValid(urn string) bool {
 	matched, _ := regexp.MatchString(`^urn:uuid:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$`, urn)
 	return matched
 }
 
-// Generate256HashHex expects payload with json tags, marshalls it and then calculates a SHA-256 hash in hex format with that.
+// Generate256HashHex expects payload with JSON tags, marshalls it and then calculates a SHA-256 hash in hex format with that.
 func Generate256HashHex(payload interface{}) (string, error) {
 	jsonBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -121,72 +121,59 @@ func VerifyJWS(chain *core.Blockchain, tokenString string, didKeyFragment string
 	return nil, errors.New("invalid token")
 }
 
-// Tested with keys and signatures from https://8gwifi.org/jwsgen.jsp
+func VerifyRequestCreateCloud(requestBody *models.CreateVcRecordCloudJSONRequestBody) error {
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
 
-func CheckVCSemantics(requestBody *models.RequestVcCreateSchema) error {
-	if vcBms, err := requestBody.AsVcBmsProducedSchema(); err == nil {
-		parts := strings.SplitN(vcBms.Proof.VerificationMethod, "#", 2)
-		verificationMethodDID := parts[0]
-
-		if vcBms.Issuer != verificationMethodDID || verificationMethodDID != vcBms.CredentialSubject.BmsDid {
-			return fmt.Errorf("the following 3 dids have to match: VC Issuer: '%s'; VC credentialSubject BMSdid: '%s'; VC proof verification method: '%s'", vcBms.Issuer, vcBms.CredentialSubject.BmsDid, verificationMethodDID)
-		}
-
-		if vcBms.Holder != vcBms.CredentialSubject.Id {
-			return fmt.Errorf("the VC holder %s does not match the credential subject id %s", vcBms.Holder, vcBms.CredentialSubject.Id)
-		}
-
-		now := time.Now()
-
-		if now.Before(vcBms.CredentialSubject.Timestamp) {
-			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcBms.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
-		}
-
-		return nil
-
-	} else if vcService, err := requestBody.AsVcServiceAccessSchema(); err == nil {
-
-		parts := strings.SplitN(vcService.Proof.VerificationMethod, "#", 2)
-		verificationMethodDID := parts[0]
-
-		if vcService.Issuer != verificationMethodDID {
-			return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", vcService.Issuer, verificationMethodDID)
-		}
-
-		if vcService.Holder != vcService.CredentialSubject.Id {
-			return fmt.Errorf("the VC holder %s does not match the credential subject id %s", vcService.Holder, vcService.CredentialSubject.Id)
-		}
-
-		now := time.Now()
-
-		if now.Before(vcService.CredentialSubject.ValidFrom) {
-			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcService.CredentialSubject.ValidFrom.Format(time.RFC3339), now.Format(time.RFC3339))
-		}
-		if now.After(vcService.CredentialSubject.ValidUntil) {
-			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcService.CredentialSubject.ValidUntil.Format(time.RFC3339), now.Format(time.RFC3339))
-		}
-
-		return nil
-
-	} else if vcCloud, err := requestBody.AsVcCloudInstanceSchema(); err == nil {
-		parts := strings.SplitN(vcCloud.Proof.VerificationMethod, "#", 2)
-		verificationMethodDID := parts[0]
-
-		if vcCloud.Issuer != verificationMethodDID {
-			return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", vcCloud.Issuer, verificationMethodDID)
-		}
-
-		if vcCloud.Holder != vcCloud.CredentialSubject.Id {
-			return fmt.Errorf("the VC holder %s does not match the credential subject id %s", vcCloud.Holder, vcCloud.CredentialSubject.Id)
-		}
-
-		now := time.Now()
-
-		if now.Before(vcCloud.CredentialSubject.Timestamp) {
-			return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", vcCloud.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
-		}
-
-		return nil
+	if requestBody.Issuer != verificationMethodDID {
+		return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", requestBody.Issuer, verificationMethodDID)
 	}
-	return errors.New("VC Unrecognized or invalid VC type in request payload")
+	if requestBody.Holder != requestBody.CredentialSubject.Id {
+		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", requestBody.Holder, requestBody.CredentialSubject.Id)
+	}
+	now := time.Now()
+	if now.Before(requestBody.CredentialSubject.Timestamp) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", requestBody.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+
+	return nil
+}
+
+func VerifyRequestCreateServices(requestBody *models.CreateVcRecordServicesJSONRequestBody) error {
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+
+	if requestBody.Issuer != verificationMethodDID {
+		return fmt.Errorf("VC issuer DID '%s' does not match the proof's verification method DID '%s'", requestBody.Issuer, verificationMethodDID)
+	}
+	if requestBody.Holder != requestBody.CredentialSubject.Id {
+		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", requestBody.Holder, requestBody.CredentialSubject.Id)
+	}
+	now := time.Now()
+	if now.Before(requestBody.CredentialSubject.ValidFrom) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", requestBody.CredentialSubject.ValidFrom.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+	if now.After(requestBody.CredentialSubject.ValidUntil) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", requestBody.CredentialSubject.ValidUntil.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+
+	return nil
+}
+
+func VerifyRequestCreateBms(requestBody *models.CreateVcRecordBmsJSONRequestBody) error {
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+
+	if requestBody.Issuer != verificationMethodDID || verificationMethodDID != requestBody.CredentialSubject.BmsDid {
+		return fmt.Errorf("the following 3 dids have to match: VC Issuer: '%s'; VC credentialSubject BMSdid: '%s'; VC proof verification method: '%s'", requestBody.Issuer, requestBody.CredentialSubject.BmsDid, verificationMethodDID)
+	}
+	if requestBody.Holder != requestBody.CredentialSubject.Id {
+		return fmt.Errorf("the VC holder %s does not match the credential subject id %s", requestBody.Holder, requestBody.CredentialSubject.Id)
+	}
+	now := time.Now()
+	if now.Before(requestBody.CredentialSubject.Timestamp) {
+		return fmt.Errorf("VC credential is not yet valid. Valid from: %s, Current time: %s", requestBody.CredentialSubject.Timestamp.Format(time.RFC3339), now.Format(time.RFC3339))
+	}
+
+	return nil
 }

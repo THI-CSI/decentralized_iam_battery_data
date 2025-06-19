@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "vc.serviceAccess",
+  "$id": "vc.service",
   "title": "Service Access Verifiable Credential",
   "description": "Schema for verifying Service Access claims.",
   "type": "object",
