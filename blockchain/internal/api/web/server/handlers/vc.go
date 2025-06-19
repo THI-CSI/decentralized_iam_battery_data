@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// GetAllVCs handles GET /api/v1/vcs
+// GetAllVcRecords handles GET /api/v1/vcs
 func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 	result, err := s.VCService.GetVCRecords(ctx.Request().Context())
 	if err != nil {
@@ -22,7 +22,7 @@ func (s *MyServer) GetAllVcRecords(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, result)
 }
 
-// GetVcById handles GET /api/v1/vcs/{vcUri}
+// GetVcRecordById handles GET /api/v1/vcs/{vcUri}
 func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 	result, err := s.VCService.GetVCRecord(ctx.Request().Context(), did)
 	if err != nil {
@@ -36,28 +36,59 @@ func (s *MyServer) GetVcRecordById(ctx echo.Context, did string) error {
 	return ctx.JSON(http.StatusOK, result)
 }
 
-// CreateVcRecord handles POST /api/v1/vcs/create
-func (s *MyServer) CreateVcRecord(ctx echo.Context) error {
-	var requestBody models.RequestVcCreateSchema
-
-	log.Println("inside create vc record")
+// CreateVcRecordCloud handles POST /api/v1/vcs/create/cloud
+func (s *MyServer) CreateVcRecordCloud(ctx echo.Context) error {
+	var requestBody models.CreateVcRecordCloudJSONRequestBody
 
 	if err := ctx.Bind(&requestBody); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchema); err != nil {
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchemaCloudInstance); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	log.Println("verify request create")
-	err := s.VCService.VerifyRequestCreate(&requestBody)
+	err := s.VCService.CreateVCRecordCloud(ctx.Request().Context(), &requestBody)
 	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC created"})
+}
+
+// CreateVcRecordBms handles POST /api/v1/vcs/create/bms
+func (s *MyServer) CreateVcRecordBms(ctx echo.Context) error {
+	var requestBody models.CreateVcRecordBmsJSONRequestBody
+
+	if err := ctx.Bind(&requestBody); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	log.Println("create vc record")
-	err = s.VCService.CreateVCRecord(ctx.Request().Context(), &requestBody)
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchemaBmsProduced); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err := s.VCService.CreateVCRecordBms(ctx.Request().Context(), &requestBody)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, models.ResponseOkSchema{Message: "VC created"})
+}
+
+// CreateVcRecordServices handles POST /api/v1/vcs/create/services
+func (s *MyServer) CreateVcRecordServices(ctx echo.Context) error {
+	var requestBody models.CreateVcRecordServicesJSONRequestBody
+
+	if err := ctx.Bind(&requestBody); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := s.validateIncomingRequest(ctx, &requestBody, s.requestVcCreateSchemaServiceAccess); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err := s.VCService.CreateVCRecordServices(ctx.Request().Context(), &requestBody)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
