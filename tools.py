@@ -61,6 +61,14 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     docker_compose(args.command, unknown_args)
+    ## Service-client:
+    ### Initialize Service Client
+    # python3 service_access.py --initialize
+    ### Start the Sign Service:
+    # python3 service_access.py --sign-service
+
+    ## Start BMS:
+    # python3 main.py
 
 
 if __name__ == "__main__":

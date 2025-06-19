@@ -86,8 +86,6 @@ OEM_PASSWORD = os.getenv("OEM_PASSWORD", "asdf")
 def is_initialized():
     if not (KEYS_DIR / "oem_key.pem").is_file():
         return False
-    if not (KEYS_DIR / "cloud_key.pem").is_file():
-        return False
     if not (KEYS_DIR / "service_key.pem").is_file():
         return False
     return True
@@ -95,7 +93,7 @@ def is_initialized():
 
 def main():
     parser = argparse.ArgumentParser(description="Generate keys for BMS and Service Station")
-    parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM, Cloud and Service DIDs")
+    parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs")
     parser.add_argument("--sign-service", required=False, action='store_true', help="Starts the Sign Service")
     parser.add_argument("--service-access", required=False, action='store_true', help="Starts a Service Access Flow")
     parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
@@ -119,8 +117,10 @@ def main():
         log("[ServiceClient] Sending GET Request to Clound Endpoint to ensure connection...", override=True)
         requests_url = os.getenv('CLOUD_URL', 'http://localhost:8000') # Added a default for testing
         cloud_public_key = get_cloud_public_key(requests_url)
-
-
+        for root, dirs, files in KEYS_DIR.walk(top_down=False):
+            for name in files:
+                (root / name).unlink()
+        KEYS_DIR.rmdir()
         # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
         eu_private_key_b64 = os.getenv('EU_PRIVATE_KEY')
         if not eu_private_key_b64:
@@ -134,14 +134,6 @@ def main():
             controller="did:batterypass:eu",
             controller_priv_key=eu_private_key,
             sn="audi"
-        )
-        time.sleep(1)  # Adding a small delay
-
-        cloud_data = setup_entity(
-            entity_name="cloud",
-            controller="did:batterypass:eu",
-            controller_priv_key=eu_private_key,
-            sn="centralcloud"
         )
         time.sleep(1)  # Adding a small delay
 

@@ -1,10 +1,27 @@
 import ctypes
 import json
-#import pathlib
+
+def flatten_json(data, parent_key='', sep='.'):
+    items = []
+    for k, v in data.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_json(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
+def convert_json_structure(json_string):
+    data = json.loads(json_string)
+    flattened_data = flatten_json(data)
+    result = [{keypath: value} for keypath, value in flattened_data.items()]
+    return result
+
 
 def run_battery_data_generator():
     # Load the shared library
-    lib = ctypes.CDLL('./utils/libdata_gen_c_v2.so')
+    lib = ctypes.CDLL('./utils/libdata_gen.so')
 
     # Define the return type of the function
     lib.process_json_data.restype = ctypes.c_char_p

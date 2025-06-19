@@ -1,5 +1,0 @@
-dotenv
-cryptography
-pycryptodome
-base58
-jwcrypto

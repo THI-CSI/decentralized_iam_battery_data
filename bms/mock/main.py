@@ -2,11 +2,16 @@ import os
 import requests
 import uuid
 import json
+import time
+import base58
+from cryptography.hazmat.primitives import serialization
+from Crypto.PublicKey import ECC
 from datetime import datetime, timedelta, timezone
 
 import utils.data_gen as data_gen
 import utils.crypto as crypto
 import utils.did as did_utils
+import utils.util as mock_util
 
 
 BMS_FILE_NAME = "bms_key"
@@ -17,7 +22,12 @@ OEM_SIGN_SERVICE_URL = os.getenv("OEM_SIGN_SERVICE_URL", "http://localhost:8123"
 # Environment Variables
 CONTROLLER_DID = os.getenv("CONTROLLER_DID", "did:batterypass:oem.sn-audi")
 SN = os.getenv("SN", (uuid.uuid4().hex[:8]))
-CLOUD_DID = os.getenv("CLOUD_DID", "did:batterypass:cloud.sn-centralcloud")
+CLOUD_DIDS = os.getenv("CLOUD_DIDS", "did:batterypass:cloud.sn-central")
+INTERVAL_MIN = os.getenv("INTERVAL_MIN", "2")
+TESTING_SETUP = os.getenv("TESTING_SETUP", "true").lower() == "true"
+
+VCs = []
+
 
 if __name__ == "__main__":
     # 1. Generate BMS Key Pair
@@ -65,65 +75,93 @@ if __name__ == "__main__":
     controller_did = response.json()
 
 
+    print(f"Registering BMS DID '{did_bms}' in the Blockchain...")
+    time.sleep(1)
 
     # 6. Create VC
     # Create CloudInstanceVC
 
     now = datetime.now(timezone.utc)
 
-    vc_document = did_utils.create_cloud_instance_vc(
-        CONTROLLER_DID, # OEM DID (Controller DID)
-        did_bms, # BMS DID
-        CLOUD_DID, # Cloud DID
-        now, #Today
-        (now + timedelta(days=365)) # Valid for 1 year
-    )
+    # Split CLOUD_DIDs by ','
+    CLOUD_DIDS_SPLIT = CLOUD_DIDS.split(',')
+    for CLOUD_DID in CLOUD_DIDS_SPLIT:
+        vc_document = did_utils.create_cloud_instance_vc(
+            CONTROLLER_DID,  # OEM DID (Controller DID)
+            did_bms,  # BMS DID
+            CLOUD_DID,  # Cloud DID
+            now,  # Today
+            (now + timedelta(days=365))  # Valid for 1 year
+        )
 
-    # 7. Sign VC
-    # Sign CloudInstanceVC with OEM (Use clients sign service)
-    response = requests.post(f"{OEM_SIGN_SERVICE_URL}/sign/vc", json=json.dumps({
-        "vc": vc_document,
-        "verification_method": CONTROLLER_DID
-    }))
-    if response.status_code != 200:
-        print("Error while signing VC.")
-        print(response.text)
-        exit(1)
-    signed_vc = response.json()
-    # TODO 8. Register VC.
-    response = requests.post(
-        f"{BLOCKCHAIN_URL}/api/v1/vcs/create/cloud",
-        headers={'Content-type': 'application/json'},
-        json=signed_vc
-    )
+        # 7. Sign VC
+        # Sign CloudInstanceVC with OEM (Use clients sign service)
+        response = requests.post(f"{OEM_SIGN_SERVICE_URL}/sign/vc", json=json.dumps({
+            "vc": vc_document,
+            "verification_method": CONTROLLER_DID
+        }))
+        if response.status_code != 200:
+            print("Error while signing VC.")
+            print(response.text)
+            exit(1)
+        signed_vc = response.json()
+        # 8. Register VC.
+        response = requests.post(
+            f"{BLOCKCHAIN_URL}/api/v1/vcs/create/cloud",
+            headers={'Content-type': 'application/json'},
+            json=signed_vc
+        )
 
-    if response.status_code != 200:
-        print("Error while registering VC on Blockchain.")
-        print(response.text)
-        exit(1)
+        if response.status_code != 200:
+            print("Error while registering VC on Blockchain.")
+            print(response.text)
+            exit(1)
 
-    exit(0)
-    vcs = ["did:batterypass:cloud.sn-central"]
-    dids = []
-    for vc in vcs:
-        response = requests.get(f"{BLOCKCHAIN_URL}/api/v1/dids/{vc}").json()
-        dids.append(response)
+        VCs.append(signed_vc)
 
+        print(f"Registering VC for '{CLOUD_DID}' in the Blockchain...")
+        time.sleep(1)
 
+    dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
     # Generate Data
-    # TODO use updated version from 'feat/mbms-data-gen'
     battery_data = data_gen.run_battery_data_generator()
 
     for did in dids:
         url = did["service"][0]["serviceEndpoint"]
-        did_string = did["id"]
-        public_key = did["verificationMethod"]["publicKeyMultibase"]
-
-        # TODO Encrypt Data for Cloud
-        encrypted_data = crypto.encrypt_hpke(did_string, public_key, battery_data)
+        if TESTING_SETUP:
+            url = url.replace("api-service", "localhost")
+        encrypted_data = crypto.encrypt_data_from_did(did_bms, public_key_multibase, battery_data, private_key)
 
         # Upload Data
-        response = requests.post(f"{url}/batterypass/read/{did_bms}", json={"data": encrypted_data})
-        if response.status_code == 200:
-            print(f"Data for {did_string} sent successfully.")
+        response = requests.put(f"{url}/batterypass/create/{did_bms}", json=encrypted_data)
+        if response.status_code != 200:
+            print(f"Error while uploading data for {did['id']}.")
+            print(response.text)
+            exit(1)
+        else:
+            print(f"Data for {did['id']} sent successfully.")
+    exit(0)
+    while True:
+        dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
+        # Generate Data
+        battery_data = data_gen.run_battery_data_generator()
+
+        for did in dids:
+            url = did["service"][0]["serviceEndpoint"]
+            if TESTING_SETUP:
+                url = url.replace("api-service", "localhost")
+
+            encrypted_data = crypto.encrypt_data_from_did(did_bms, public_key_multibase, battery_data, private_key)
+
+            # Upload Data
+            response = requests.post(f"{url}/batterypass/update/{did_bms}", json=encrypted_data)
+
+            if response.status_code != 200:
+                print(f"Error while uploading data for {did['id']}.")
+                print(response.text)
+                exit(1)
+            else:
+                print(f"Data for {did['id']} sent successfully.")
+
+        time.sleep(int(INTERVAL_MIN) * 60)
 

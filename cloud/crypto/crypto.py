@@ -52,6 +52,7 @@ def decrypt_and_verify(receiver_key: ECC.EccKey, message_bytes: bytes) -> bytes:
     cipher = AES.new(aes_key, AES.MODE_GCM, nonce=nonce)
     cipher.update(nonce)
     try:
+        # TODO BMS Data Transfer Fails here
         plaintext = cipher.decrypt_and_verify(ciphertext_data, tag)
         return plaintext
     except ValueError:

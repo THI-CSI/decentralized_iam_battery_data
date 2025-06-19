@@ -1,3 +1,4 @@
 requests==2.32.4
 base58==2.1.1
 pycryptodome==3.23.0
+jwcrypto==1.5.6
