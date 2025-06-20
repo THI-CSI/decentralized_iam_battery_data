@@ -46,6 +46,10 @@ def main():
     subparser = parser.add_subparsers(dest="command")
     subparser.required = True
 
+    # TODO Install dependencies
+    ## npm install json-schema-faker
+    ## npx json-schema-faker cloud/BatteryData/BatteryData-Root-schema.json
+
     if not os.path.exists("./blockchain/blockchain.json"):
         blockchain_cmd(["-genesis"])
 

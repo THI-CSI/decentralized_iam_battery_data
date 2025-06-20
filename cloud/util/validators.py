@@ -20,7 +20,7 @@ def load_schema(submodel: str) -> dict:
     path = SCHEMA_DIR / f"{submodel}-schema.json"
     if not path.exists():
         raise FileNotFoundError(f"Schema not found for {submodel}")
-    with path.open("r", encoding="utf-16") as f:
+    with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 # ------------------------------- Full Payload Validation ------------------------------- #

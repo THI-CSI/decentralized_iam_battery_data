@@ -4,6 +4,7 @@ import uuid
 import json
 import time
 import base58
+import urllib.parse as urllib
 from cryptography.hazmat.primitives import serialization
 from Crypto.PublicKey import ECC
 from datetime import datetime, timedelta, timezone
@@ -49,7 +50,7 @@ if __name__ == "__main__":
         "verification_method": CONTROLLER_DID
     }))
     if response.status_code != 200:
-        print("Error while signing DID.")
+        print("[-] Error while signing DID.")
         print(response.text)
         exit(1)
 
@@ -62,21 +63,20 @@ if __name__ == "__main__":
     )
 
     if response.status_code != 200:
-        print("Error while registering BMS on Blockchain.")
+        print("[-] Error while registering BMS on Blockchain.")
         print(response.text)
         exit(1)
-    print(f"BMS {SN} registered successfully.")
 
     # 5. Get DID from Controller (OEM)
     response = requests.get(f"{BLOCKCHAIN_URL}/api/v1/dids/{CONTROLLER_DID}")
     if response.status_code != 200:
-        print("Error while getting Controller DID from the blockchain.")
+        print("[-] Error while getting Controller DID from the blockchain.")
         exit(1)
 
     controller_did = response.json()
 
 
-    print(f"Registering BMS DID '{did_bms}' in the Blockchain...")
+    print(f"[+] Registering BMS DID '{did_bms}' in the Blockchain...")
     time.sleep(1)
 
     # 6. Create VC
@@ -102,7 +102,7 @@ if __name__ == "__main__":
             "verification_method": CONTROLLER_DID
         }))
         if response.status_code != 200:
-            print("Error while signing VC.")
+            print("[-] Error while signing VC.")
             print(response.text)
             exit(1)
         signed_vc = response.json()
@@ -114,21 +114,19 @@ if __name__ == "__main__":
         )
 
         if response.status_code != 200:
-            print("Error while registering VC on Blockchain.")
+            print("[-] Error while registering VC on Blockchain.")
             print(response.text)
             exit(1)
 
         VCs.append(signed_vc)
 
-        print(f"Registering VC for '{CLOUD_DID}' in the Blockchain...")
+        print(f"[+] Registering VC for '{CLOUD_DID}' in the Blockchain...")
         time.sleep(1)
 
     dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
 
-    # TODO Rewrite Data Generator
-    #battery_data = data_gen.run_battery_data_generator()
+    # Data Generator
     battery_data = battery_data_generator.get_battery_data()
-
 
     for did in dids:
         url = did["service"][0]["serviceEndpoint"]
@@ -139,9 +137,8 @@ if __name__ == "__main__":
 
         response = requests.get(f"{url}/batterypass/{did_bms}")
         if response.status_code != 200:
-            print("Batterypass not created.")
 
-            print("Creating Batterypass at the cloud through the OEM Service...")
+            print("[+] Creating Batterypass at the cloud through the OEM Service...")
             encrypted_data = crypto.encrypt_data_from_did(did_bms, oem_public_key, battery_data, private_key)
 
             response = requests.post(
@@ -151,33 +148,44 @@ if __name__ == "__main__":
                 "encryptedData": encrypted_data
             })
             if response.status_code != 200:
-                print("Batterypass not created.")
+                print("[-] Batterypass not created.")
                 print(response.text)
                 exit(1)
 
+    print('-'*32)
+    print(f"[i] QR-Code: http://localhost:8000/batterypass/qr/{urllib.quote_plus(did_bms)}?url={urllib.quote_plus(f'http://localhost:8501/?did={did_bms}')}")
+    print(f"[i] Blockchain Explorer: http://localhost:8443/dids/{urllib.quote_plus(did_bms)}")
+    print(f"[i] BatteryPass Data Viewer: http://localhost:8501/?did={urllib.quote_plus(did_bms)}")
+    print('-'*32)
 
-    while True:
-        dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
-        # TODO Rewrite Data Generator
-        #battery_data = data_gen.run_battery_data_generator()
-        battery_data = battery_data_generator.get_battery_data_update()
-        for did in dids:
-            url = did["service"][0]["serviceEndpoint"]
-            service_public_key = did["verificationMethod"]["publicKeyMultibase"]
-            if TESTING_SETUP:
-                url = url.replace("api-service", "localhost")
+    try:
+        while True:
+            dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
 
-            encrypted_data = crypto.encrypt_data_from_did(did_bms, service_public_key, battery_data, private_key)
+            # Data Generator
+            battery_data = battery_data_generator.get_battery_data_update()
 
-            # Upload Data
-            response = requests.post(f"{url}/batterypass/update/{did_bms}", json=encrypted_data)
+            for did in dids:
+                url = did["service"][0]["serviceEndpoint"]
+                service_public_key = did["verificationMethod"]["publicKeyMultibase"]
+                if TESTING_SETUP:
+                    url = url.replace("api-service", "localhost")
 
-            if response.status_code != 200:
-                print(f"Error while uploading data for {did['id']}.")
-                print(response.text)
-                exit(1)
-            else:
-                print(f"Data for {did['id']} sent successfully.")
+                encrypted_data = crypto.encrypt_data_from_did(did_bms, service_public_key, battery_data, private_key)
 
-        time.sleep(int(INTERVAL_MIN) * 60)
+                # Upload Data
+                response = requests.post(f"{url}/batterypass/update/{did_bms}", json=encrypted_data)
+
+                if response.status_code != 200:
+                    print(f"[-] Error while uploading data for {did['id']}.")
+                    print(response.text)
+                    exit(1)
+                else:
+                    print(f"[>] Data for {did['id']} sent successfully.")
+
+            time.sleep(int(INTERVAL_MIN) * 60)
+
+    except KeyboardInterrupt:
+        print("\r[i] Stopping BMS Mock...")
+        exit(0)
 

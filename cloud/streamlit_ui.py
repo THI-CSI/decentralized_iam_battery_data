@@ -84,7 +84,7 @@ def list_all_dids():
 def fetch_did_data(did):
     url = f"{API_BASE_URL}/batterypass/{did}"
     try:
-        response = requests.get(url)
+        response = requests.post(f"{API_BASE_URL}/batterypass/read/{did}")
         if response.status_code == 200:
             return response.json()
         else:

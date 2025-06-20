@@ -94,10 +94,8 @@ def initialize():
     keys_dir = pathlib.Path(__file__).parent / "keys"
     keys_dir.mkdir(exist_ok=True)
     password = os.getenv("PASSPHRASE", "secret")
-    print("INIT CLOUD")
     print(keys_dir)
     if not (keys_dir / "key.pem").is_file():
-        print("INIT CLOUD 2")
         private_key = generate_keys(password, keys_dir)
         public_key = private_key.public_key()
         public_key_multibase = cloudutil.ecc_public_key_to_multibase(public_key)
@@ -110,7 +108,6 @@ def initialize():
         verification_method = f"{controller}#key-1"
 
         controller_priv_key_path = pathlib.Path(os.getenv("TESTKEYS_DIR", "../blockchain/internal/api/web/testkeys/")+'ec_private_key.pem')
-        print("BLOCKCHAIN:", controller_priv_key_path)
         with open(controller_priv_key_path, "r") as f:
             controller_priv_key = ECC.import_key(f.read())
         signed_did_doc = cloudutil.sign_did(did_doc, controller_priv_key, verification_method)
