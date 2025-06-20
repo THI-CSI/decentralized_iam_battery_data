@@ -10,5 +10,6 @@ multiformats
 jwcrypto
 base58
 fastapi
+uvicorn
 # License?
 pyld

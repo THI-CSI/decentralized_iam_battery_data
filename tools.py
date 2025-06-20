@@ -1,5 +1,5 @@
 import argparse
-import datetime
+import random
 import shutil
 import sys
 import subprocess
@@ -8,6 +8,8 @@ import os
 import time
 
 import requests
+
+DEBUG = os.getenv("DEBUG", "false") == "true"
 
 
 CLI_COMMANDS = [
@@ -20,16 +22,16 @@ CLI_COMMANDS = [
 CLEANUP_FILES = [
     "./blockchain/blockchain.json",
     "./bms/mock/utils/keys/",
+    "./bms/mock/.venv/",
     "./cloud/.env",
     "./cloud/docs/example/keys/",
-    "./client/keys/"
+    "./client/keys/",
+    "./client/.venv/"
 ]
 
 REQUIREMENTS = [
     "docker",
-    "tmux",
-    "npm",
-    "pip"
+    "tmux"
 ]
 
 
@@ -169,7 +171,7 @@ tmux = None
 def service_monitor_on_steroids():
     log.info("Starting Tmux Utility On Steroids")
     global tmux
-    tmux = Tmux(f"decentral_iam_bat_tmux", user_pane_id="blockchain_cloud")
+    tmux = Tmux(f"diam_bat_tmux_{random.randint(100,999)}", user_pane_id="blockchain_cloud")
     # Create Panes
     tmux.split_pane("bms_1", "right")
     tmux.split_pane("bms_2", "bottom")
@@ -189,8 +191,9 @@ def service_monitor_on_steroids():
     # Start OEM Service
     log.info("Initializing the Client Service")
     tmux.send_command("oem_service", "cd client")
-    # TODO create venv
-    tmux.send_command("oem_service", "venv")
+    tmux.send_command("oem_service", "source .venv/bin/activate")
+
+    # TODO Do not initialize on every run
     tmux.send_command("oem_service", "python3 main.py --initialize")
     log.info("Starting the OEM Service")
     tmux.send_command("oem_service", "python3 main.py --oem-service")
@@ -204,26 +207,13 @@ def service_monitor_on_steroids():
     for bms in ["bms_1", "bms_2"]:
         log.info(f"Starting BMS {bms}")
         tmux.send_command(bms, "cd bms/mock")
-        # TODO create venv
-        tmux.send_command(bms, "venv")
+        tmux.send_command(bms, "source .venv/bin/activate")
         tmux.send_command(bms, 'INTERVAL_MIN="0.1" python3 main.py')
 
     #input("Press Enter to continue...")
     tmux.attach_to_tmux_session()
 
     tmux.kill_tmux_session()
-    # TODO 1. Multithreaded
-    # docker_compose(args.command, unknown_args)
-
-    # TODO 2. Check if services are running 8443, 8000
-
-    # TODO 3. Init Service Client '--initialize-docker'
-    # exec_cmd(["python3", "main.py", "--initialize-docker"], dir='client')
-
-    # TODO 4. Start OEM Service '--oem-service'
-    # exec_cmd(["python3", "main.py", "--oem-service"], dir='client')
-
-    # TODO Add CLI Command to create a number of BMS
 
 
 def signal_handler(_sig, _frame):
@@ -240,10 +230,62 @@ def check_return_code(code):
         sys.exit(code)
 
 
+def create_and_install_venv(dir):
+    if not os.path.isdir(dir):
+        log.error(f"Error: Directory '{dir}' does not exist.")
+        return
+
+    venv_path = os.path.join(dir, '.venv')
+    requirements_path = os.path.join(dir, 'requirements.txt')
+
+
+    if os.path.exists(venv_path):
+        log.info(f"Virtual environment already exists at '{venv_path}'. Skipping creation.")
+    else:
+        log.info(f"Creating virtual environment at '{venv_path}'...")
+        try:
+            cwd = os.getcwd()
+            os.chdir(dir)
+
+            subprocess.run([sys.executable, '-m', 'venv', '.venv'], check=True, capture_output=True, text=True)
+
+            os.chdir(cwd)
+            log.info("Virtual environment created successfully.")
+        except subprocess.CalledProcessError as e:
+            os.chdir(cwd)
+            log.error(f"Error creating virtual environment: {e}")
+            print(f"Stdout: {e.stdout}")
+            print(f"Stderr: {e.stderr}")
+            return
+        except Exception as e:
+            os.chdir(cwd)
+            log.error(f"An unexpected error occurred during venv creation: {e}")
+            return
+
+    venv_python_executable = os.path.join(venv_path, 'bin', 'python')
+
+    if os.path.exists(requirements_path):
+        log.info(f"Found '{requirements_path}'. Installing packages...")
+        try:
+            subprocess.run([venv_python_executable, '-m', 'pip', 'install', '-r', requirements_path],
+                           check=True, capture_output=True, text=True)
+            log.info("Packages from requirements.txt installed successfully.")
+        except subprocess.CalledProcessError as e:
+            log.error(f"Error installing packages from requirements.txt: {e}")
+            print(f"Stdout: {e.stdout}")
+            print(f"Stderr: {e.stderr}")
+        except Exception as e:
+            log.error(f"An unexpected error occurred during package installation: {e}")
+    else:
+        log.warning(f"No 'requirements.txt' found at '{requirements_path}'. Skipping package installation.")
+
+
+
+
 def exec_cmd(unknown_args, dir='./'):
     cwd = os.getcwd()
     os.chdir(dir)
-    process = subprocess.run(unknown_args, capture_output=True, text=False)
+    process = subprocess.run(unknown_args, capture_output=True, text=DEBUG)
     os.chdir(cwd)
     check_return_code(process.returncode)
     os.chdir(cwd)
@@ -301,6 +343,10 @@ def project_initialization():
         log.info("Creating .env file for Cloud")
         with open('./cloud/.env', 'w') as file: file.write('PASSPHRASE=bad-password')
 
+
+    create_and_install_venv("client")
+    create_and_install_venv("bms/mock")
+
     # TODO Install dependencies for the Mock BMS Data Generator
     ## npm install json-schema-faker
     ## npx json-schema-faker cloud/BatteryData/BatteryData-Root-schema.json
@@ -316,7 +362,6 @@ def main():
     args, unknown_args = parser.parse_known_args()
 
     signal.signal(signal.SIGINT, signal_handler)
-
 
     if args.command == "clean":
         cleanup_project()
