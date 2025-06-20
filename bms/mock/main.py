@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives import serialization
 from Crypto.PublicKey import ECC
 from datetime import datetime, timedelta, timezone
 
-import utils.battery_data as battery_data
+import utils.battery_data as battery_data_generator
 import utils.data_gen as data_gen
 import utils.crypto as crypto
 import utils.did as did_utils
@@ -17,14 +17,14 @@ import utils.util as mock_util
 
 BMS_FILE_NAME = "bms_key"
 
-BLOCKCHAIN_URL = "http://localhost:8443"
+BLOCKCHAIN_URL = os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")
 OEM_SIGN_SERVICE_URL = os.getenv("OEM_SIGN_SERVICE_URL", "http://localhost:8123")
 
 # Environment Variables
 CONTROLLER_DID = os.getenv("CONTROLLER_DID", "did:batterypass:oem.sn-audi")
 SN = os.getenv("SN", (uuid.uuid4().hex[:8]))
 CLOUD_DIDS = os.getenv("CLOUD_DIDS", "did:batterypass:cloud.sn-central")
-INTERVAL_MIN = os.getenv("INTERVAL_MIN", "2")
+INTERVAL_MIN = os.getenv("INTERVAL_MIN", "1")
 TESTING_SETUP = os.getenv("TESTING_SETUP", "true").lower() == "true"
 
 VCs = []
@@ -123,37 +123,44 @@ if __name__ == "__main__":
         print(f"Registering VC for '{CLOUD_DID}' in the Blockchain...")
         time.sleep(1)
 
-    # TODO
-    #  if entry exists:
-    ##      /create (Maybe the OEM has to create the batterypass -> New Endpoint at sign service(-> rename to oem service))
-    # else:
-    ##      /update
     dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
 
     # TODO Rewrite Data Generator
     #battery_data = data_gen.run_battery_data_generator()
-    battery_data = battery_data.get_battery_data()
+    battery_data = battery_data_generator.get_battery_data()
+
 
     for did in dids:
         url = did["service"][0]["serviceEndpoint"]
-        service_public_key = did["verificationMethod"]["publicKeyMultibase"]
+        oem_public_key = controller_did["verificationMethod"]["publicKeyMultibase"]
+
         if TESTING_SETUP:
             url = url.replace("api-service", "localhost")
-        encrypted_data = crypto.encrypt_data_from_did(did_bms, service_public_key, battery_data, private_key)
 
-        # Upload Data
-        response = requests.put(f"{url}/batterypass/create/{did_bms}", json=encrypted_data)
+        response = requests.get(f"{url}/batterypass/{did_bms}")
         if response.status_code != 200:
-            print(f"Error while uploading data for {did['id']}.")
-            print(response.text)
-            exit(1)
-        else:
-            print(f"Data for {did['id']} sent successfully.")
-    exit(0)
+            print("Batterypass not created.")
+
+            print("Creating Batterypass at the cloud through the OEM Service...")
+            encrypted_data = crypto.encrypt_data_from_did(did_bms, oem_public_key, battery_data, private_key)
+
+            response = requests.post(
+                f"{OEM_SIGN_SERVICE_URL}/batterypass/{did_bms}",
+                json={
+                "cloudDid": did["id"],
+                "encryptedData": encrypted_data
+            })
+            if response.status_code != 200:
+                print("Batterypass not created.")
+                print(response.text)
+                exit(1)
+
+
     while True:
         dids = mock_util.fill_dids(VCs, BLOCKCHAIN_URL)
-        # Generate Data
-        battery_data = data_gen.run_battery_data_generator()
+        # TODO Rewrite Data Generator
+        #battery_data = data_gen.run_battery_data_generator()
+        battery_data = battery_data_generator.get_battery_data_update()
         for did in dids:
             url = did["service"][0]["serviceEndpoint"]
             service_public_key = did["verificationMethod"]["publicKeyMultibase"]

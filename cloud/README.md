@@ -30,7 +30,6 @@ Create a `.env` file containing the following variables:
 
 ```shell
 echo "PASSPHRASE=$(python -c 'import uuid; print(uuid.uuid4())')" > .env
-echo "CLOUD_NAME=$(python -c 'import uuid; print(uuid.uuid4())')" >> .env
 ```
 
 Run `docker compose build` to build the containers:

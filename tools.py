@@ -28,11 +28,6 @@ def check_return_code(code):
         print(f"Command failed with code {code}", file=sys.stderr)
         sys.exit(code)
 
-def check_return_code(code):
-    if code != 0:
-        print(f"Command failed with code {code}", file=sys.stderr)
-        sys.exit(code)
-
 
 def blockchain_cmd(unknown_args):
     cwd = os.getcwd()
@@ -62,11 +57,12 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     docker_compose(args.command, unknown_args)
+    ## Create .env file for Cloud
     ## Service-client:
     ### Initialize Service Client
     # python3 service_access.py --initialize
     ### Start the Sign Service:
-    # python3 service_access.py --sign-service
+    # python3 service_access.py --oem-service
 
     ## Start BMS:
     # python3 main.py

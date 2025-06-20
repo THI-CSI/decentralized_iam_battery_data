@@ -36,6 +36,7 @@ app = FastAPI(
 )
 
 load_dotenv()
+
 initialize()
 logging.basicConfig(
     level=logging.INFO,

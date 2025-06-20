@@ -24,7 +24,7 @@ import random
 
 
 import uvicorn
-import util.sign_service as sign_service
+import util.oem_service as oem_service
 
 
 KEYS_DIR = pathlib.Path(__file__).parent / "keys"
@@ -94,7 +94,7 @@ def is_initialized():
 def main():
     parser = argparse.ArgumentParser(description="Generate keys for BMS and Service Station")
     parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs")
-    parser.add_argument("--sign-service", required=False, action='store_true', help="Starts the Sign Service")
+    parser.add_argument("--oem-service", required=False, action='store_true', help="Starts the OEM Service")
     parser.add_argument("--service-access", required=False, action='store_true', help="Starts a Service Access Flow")
     parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
     args = parser.parse_args()
@@ -104,8 +104,8 @@ def main():
 
         exit(1)
 
-    if args.sign_service:
-        uvicorn.run(sign_service.app, host="0.0.0.0", port=8123)
+    if args.oem_service:
+        uvicorn.run(oem_service.app, host="0.0.0.0", port=8123)
         exit(0)
 
     if args.verbose:
@@ -123,6 +123,7 @@ def main():
         if is_initialized():
             KEYS_DIR.rmdir()
         # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
+        # TODO: Use EU Private Key from testkeys directory
         eu_private_key_b64 = os.getenv('EU_PRIVATE_KEY')
         if not eu_private_key_b64:
             log("EU_PRIVATE_KEY environment variable not set.", level="error", override=True)

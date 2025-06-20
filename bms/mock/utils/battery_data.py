@@ -49,7 +49,7 @@ def get_battery_data():
         "partNumber" : "JxkyvRnL"
       } ],
       "supplierWebAddress" : "ftp://ftp.is.co.za/rfc/rfc1808.txt",
-      "emailAddressOfSupplier" : ".--ww.-w-w--w--ww-.-w.ww.-..-.w-.www..--w.-w..w---ww-.ww-w-ww-w---w.ww--.w-.w-.ww-..w-.-www.-w..w.--@ww.w.-w..--.-w....-ww..w.www-.w.EinpcjJtYqJLuEKKRGXf",
+      "emailAddressOfSupplier" : ".--ww.-w-w--w--ww-.-w.ww.-..-.w-.www..--w.-w..w---ww-.ww-w-ww-w---w.ww--.w-.w-.ww-..w-.-www.-w..w.--@ww.w.-w..--.-w....-ww..w.www-.w.EinpcjJtYqJLuEKKRGXf", 
       "addressOfSupplier" : {
         "addressCountry" : "Germany",
         "streetAddress" : "Street 1",
@@ -231,4 +231,11 @@ def get_battery_data():
     "thirdPartyAussurances" : "ftp://ftp.is.co.za/rfc/rfc1808.txt"
   }
 }
+    return json.dumps(data)
+
+def get_battery_data_update():
+    data = [
+      { "performance.batteryCondition.numberOfFullCycles": 6000 },
+      { "performance.batteryCondition.remainingCapacity": 70 }
+    ]
     return json.dumps(data)

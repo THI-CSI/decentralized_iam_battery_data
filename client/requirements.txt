@@ -9,5 +9,6 @@ setuptools==78.1.1
 multiformats
 jwcrypto
 base58
+fastapi
 # License?
 pyld

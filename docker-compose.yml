@@ -32,8 +32,11 @@ services:
     env_file: ./cloud/.env
     environment:
       BLOCKCHAIN_URL: "http://blockchain-nginx"
+      DOCKER_SETUP: "true"
+      TESTKEYS_DIR: "/app/testkeys/"
     volumes:
       - battery-data:/app/data
+      - ./blockchain/internal/api/web/testkeys/:/app/testkeys/
 
   cloud-streamlit-ui:
     restart: unless-stopped
