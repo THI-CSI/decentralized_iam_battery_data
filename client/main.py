@@ -90,10 +90,47 @@ def is_initialized():
         return False
     return True
 
+def initialize_entities():
+    # Connectivity Test to Cloud (Healthcheck)
+    log("[ServiceClient] Sending GET Request to Clound Endpoint to ensure connection...", override=True)
+    requests_url = os.getenv('CLOUD_URL', 'http://localhost:8000')  # Added a default for testing
+    cloud_public_key = get_cloud_public_key(requests_url)
+    for root, dirs, files in KEYS_DIR.walk(top_down=False):
+        for name in files:
+            (root / name).unlink()
+    if is_initialized():
+        KEYS_DIR.rmdir()
+    # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
+    # TODO: Use EU Private Key from testkeys directory
+    eu_private_key_b64 = os.getenv('EU_PRIVATE_KEY')
+    if not eu_private_key_b64:
+        log("EU_PRIVATE_KEY environment variable not set.", level="error", override=True)
+        sys.exit(1)
+    eu_private_key = ECC.import_key(base64.b64decode(eu_private_key_b64))
+    log(f"Successfully imported EU Private Key as ECC object.", override=True)
+
+    oem_data = setup_entity(
+        entity_name="oem",
+        controller="did:batterypass:eu",
+        controller_priv_key=eu_private_key,
+        sn="audi"
+    )
+    time.sleep(1)  # Adding a small delay
+
+    service_data = setup_entity(
+        entity_name="service",
+        controller="did:batterypass:eu",
+        controller_priv_key=eu_private_key,
+        sn="service"
+    )
+    time.sleep(1)  # Adding a small delay
+    log("Successfully generated keys and DID documents for BMS and Service Station.", override=True)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Generate keys for BMS and Service Station")
     parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs")
+    parser.add_argument("--initialize-docker", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs, if it does not exist")
     parser.add_argument("--oem-service", required=False, action='store_true', help="Starts the OEM Service")
     parser.add_argument("--service-access", required=False, action='store_true', help="Starts a Service Access Flow")
     parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
@@ -112,41 +149,14 @@ def main():
         log("[ServiceClient] Verbose mode enabled.", override=True)
         os.environ["VERBOSE"] = "true"
 
+    if args.initialize_docker:
+        if not is_initialized():
+            initialize_entities()
+        exit(0)
+
     if args.initialize:
-        # Connectivity Test to Cloud (Healthcheck)
-        log("[ServiceClient] Sending GET Request to Clound Endpoint to ensure connection...", override=True)
-        requests_url = os.getenv('CLOUD_URL', 'http://localhost:8000') # Added a default for testing
-        cloud_public_key = get_cloud_public_key(requests_url)
-        for root, dirs, files in KEYS_DIR.walk(top_down=False):
-            for name in files:
-                (root / name).unlink()
-        if is_initialized():
-            KEYS_DIR.rmdir()
-        # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
-        # TODO: Use EU Private Key from testkeys directory
-        eu_private_key_b64 = os.getenv('EU_PRIVATE_KEY')
-        if not eu_private_key_b64:
-            log("EU_PRIVATE_KEY environment variable not set.", level="error", override=True)
-            sys.exit(1)
-        eu_private_key = ECC.import_key(base64.b64decode(eu_private_key_b64))
-        log(f"Successfully imported EU Private Key as ECC object.", override=True)
-
-        oem_data = setup_entity(
-            entity_name="oem",
-            controller="did:batterypass:eu",
-            controller_priv_key=eu_private_key,
-            sn="audi"
-        )
-        time.sleep(1)  # Adding a small delay
-
-        service_data = setup_entity(
-            entity_name="service",
-            controller="did:batterypass:eu",
-            controller_priv_key=eu_private_key,
-            sn="service"
-        )
-        time.sleep(1)  # Adding a small delay
-        log("Successfully generated keys and DID documents for BMS and Service Station.", override=True)
+        initialize_entities()
+        exit(0)
 
     if args.service_access:
         log("-" * 40, override=True)

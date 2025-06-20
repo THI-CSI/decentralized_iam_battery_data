@@ -16,6 +16,13 @@ OEM_DID = os.getenv("OEM_DID", "did:batterypass:oem.sn-audi")
 BLOCKCHAIN_URL = os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")
 TESTING_SETUP = os.getenv("TESTING_SETUP", "true").lower() == "true"
 
+
+@app.get("/")
+def health(response: Response):
+    response.status_code = 200
+    return {"status": "OK"}
+
+
 @app.post("/sign/vc")
 def sign_vc_service(response: Response, request: Any = Body(None)):
     response.status_code = 400
@@ -77,7 +84,7 @@ def create_batterypass(bms_did: str, response: Response, request: Any = Body(Non
     cloud_did = request["cloudDid"]
     encrypted_data = request["encryptedData"]
 
-    # TODO 1. Decrypt Data from BMS
+    # 1. Decrypt Data from BMS
     oem_private_key = crypto.load_private_key_as_der("oem_key")
     decrypted_data = "{}"
     try:
@@ -95,11 +102,9 @@ def create_batterypass(bms_did: str, response: Response, request: Any = Body(Non
         return {"error": "Cloud DID not found" }
 
     cloud_did_document = resp.json()
-    print(json.dumps(cloud_did_document, indent=2))
 
     # 3. Encrypt Data for Cloud
     decrypted_data_string = decrypted_data.decode("utf-8")
-    print(decrypted_data_string)
     encrypted_data = crypto.encrypt_data_from_did(OEM_DID, cloud_did_document["verificationMethod"]["publicKeyMultibase"], decrypted_data_string, oem_private_key)
 
     # 4. Create Battery pass

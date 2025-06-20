@@ -225,7 +225,6 @@ async def create_item(
         return error_response(400, "Entry already exists.")
     if not determine_role(None, payload.did) == "oem":
         return error_response(403, "Access denied.")
-    print(json.loads(decrypted_payload)) # TODO: If this returns a string than the validator never checked objects
     results = validate_battery_pass_payload(json.loads(decrypted_payload))
     if not all(value == "Valid" for value in results.values()):
         return error_response(400, f"Invalid payload: {json.dumps(results)}")
