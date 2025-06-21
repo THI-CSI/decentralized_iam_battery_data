@@ -1,4 +1,15 @@
-import utils.genJSONexampleFromSchema as genJSONexampleFromSchema
+import datetime
+import random
+import re
+import string
+import sys
+from typing import Union
+
+if not  __name__ == "__main__":
+  import utils.poc.genJSONexampleFromSchema as genJSONexampleFromSchema
+  from utils.logging import log
+else:
+  from logging import log
 import json
 import os
 
@@ -235,13 +246,144 @@ def get_battery_data():
   return json.dumps(data)
 
 
+def generate_random_value(datatype: type, regex: str = None, sign: bool = False, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None):
+
+  if datatype is str:
+    if regex:
+      # Simplified regex handling for string generation
+
+      generated_chars = []
+      length_min = 5
+      length_max = 20
+
+      char_class_match = re.match(r"\[([a-zA-Z0-9\-_]+)\](\{([0-9]+)(?:,([0-9]+))?\})?", regex)
+      escape_char_match = re.match(r"\\([dws])(\{([0-9]+)(?:,([0-9]+))?\})?", regex)
+
+      char_set_from_regex = []
+
+      if char_class_match:
+        # e.g. [a-zA-Z0-9]{5,10}
+        char_class_str = char_class_match.group(1)
+        if 'a-z' in char_class_str:
+          char_set_from_regex.extend(string.ascii_lowercase)
+        if 'A-Z' in char_class_str:
+          char_set_from_regex.extend(string.ascii_uppercase)
+        if '0-9' in char_class_str:
+          char_set_from_regex.extend(string.digits)
+        # e.g. '-', '_'
+        for char in char_class_str:
+          if char not in ['a', 'A', '0', '-', 'z', 'Z', '9'] and char not in char_set_from_regex:
+            char_set_from_regex.append(char)
+
+        if char_class_match.group(3):  # Quantifier like {min,max} or {exact}
+          length_min = int(char_class_match.group(3))
+          length_max = int(char_class_match.group(4)) if char_class_match.group(4) else length_min
+
+      elif escape_char_match:
+        escape_type = escape_char_match.group(1)
+        if escape_type == 'd':  # \d (digits)
+          char_set_from_regex = list(string.digits)
+        elif escape_type == 'w':  # \w (letters, digits, underscore)
+          char_set_from_regex = list(string.ascii_letters + string.digits + '_')
+        elif escape_type == 's':  # \s (whitespace)
+          char_set_from_regex = list(string.whitespace)
+
+        if escape_char_match.group(3):  # Has quantifier
+          length_min = int(escape_char_match.group(3))
+          length_max = int(escape_char_match.group(4)) if escape_char_match.group(4) else length_min
+
+      if char_set_from_regex:
+        if not char_set_from_regex:
+          log.warning(f"Regex '{regex}' resulted in an empty character set. Using general random string.")
+          characters = string.ascii_letters + string.digits + string.punctuation
+          length = random.randint(5, 20)
+          return ''.join(random.choice(characters) for _ in range(length))
+
+        chosen_length = random.randint(length_min, length_max)
+        random_string = ''.join(random.choice(char_set_from_regex) for _ in range(chosen_length))
+        return random_string
+      else:
+        log.warning(f"Regex '{regex}' is too complex or not supported. Using general random string.")
+        characters = string.ascii_letters + string.digits + string.punctuation
+        length = random.randint(5, 20)
+        return ''.join(random.choice(characters) for _ in range(length))
+    else:
+      characters = string.ascii_letters + string.digits + string.punctuation
+      length = random.randint(5, 20)
+      random_string = ''.join(random.choice(characters) for _ in range(length))
+      return random_string
+
+  elif datatype is int:
+    _min = -sys.maxsize -1
+    _max = sys.maxsize
+
+    if min_value is not None:
+      _min = int(min_value)
+    if max_value is not None:
+      _max = int(max_value)
+
+    if sign:
+      _min = max(0, _min)
+      if _max < 0 and max_value is not None:
+        _max = sys.maxsize
+
+    return random.randint(_min, _max)
+
+  elif datatype is float:
+    _min = sys.float_info.min
+    _max = sys.float_info.max
+
+    if min_value is not None:
+      _min = float(min_value)
+    if max_value is not None:
+      _max = float(max_value)
+
+    if sign:
+      _min = max(0.0, _min)
+      if _max < 0.0 and max_value is not None:
+        _max = sys.float_info.max
+    return random.uniform(_min, _max)
+
+  elif datatype is bool:
+    return random.choice([True, False])
+
+  elif datatype is datetime.datetime:
+    end_date = datetime.datetime.now()
+    start_date = end_date - datetime.timedelta(days=365 * 10)
+    time_between_dates = end_date - start_date
+    total_seconds = int(time_between_dates.total_seconds())
+    random_seconds = random.randint(0, total_seconds)
+    random_datetime = start_date + datetime.timedelta(seconds=random_seconds)
+    return random_datetime
+
+  else:
+    return None
+
+
 def get_battery_data_update():
   # TODO
   if NEW_DATA_GEN:
     return get_battery_data()
 
   data = [
-    { "performance.batteryCondition.numberOfFullCycles": 6000 },
-    { "performance.batteryCondition.remainingCapacity": 70 }
+    { "performance.batteryCondition.numberOfFullCycles": generate_random_value(int, min_value=10, max_value=10000) },
+    { "performance.batteryCondition.remainingCapacity": generate_random_value(int, min_value=10, max_value=100) },
+    { "performance.batteryCondition.roundTripEfficiencyat50PerCentCycleLife": generate_random_value(float, min_value=1) },
   ]
   return json.dumps(data)
+
+
+if __name__ == "__main__":
+  log.info(f"Random String with Regex '[a-zA-Z0-9]{20}': {generate_random_value(str, "[a-zA-Z0-9]{20}")}")
+  log.info(f"Random int: {generate_random_value(int)}")
+  log.info(f"Random int signed: {generate_random_value(int, sign=True)}")
+  log.info(f"Random int with min_value 100: {generate_random_value(int, min_value=100)}")
+  log.info(f"Random int with max_value 100: {generate_random_value(int, max_value=100)}")
+  log.info(f"Random int in range 0-10: {generate_random_value(int, min_value=0, max_value=10)}")
+  log.info(f"Random float: {generate_random_value(float)}")
+  log.info(f"Random float signed: {generate_random_value(float, sign=True)}")
+  log.info(f"Random float with min_value 100.0: {generate_random_value(float, min_value=100.0)}")
+  log.info(f"Random float with max_value 100.0: {generate_random_value(float, max_value=100.0)}")
+  log.info(f"Random float in range 0-10: {generate_random_value(float, min_value=0, max_value=10)}")
+  log.info(f"Random bool: {generate_random_value(bool)}")
+  log.info(f"Random datetime: {generate_random_value(datetime.datetime)}")

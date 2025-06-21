@@ -3,19 +3,14 @@ import requests
 import uuid
 import json
 import time
-import base58
 import urllib.parse as urllib
-from cryptography.hazmat.primitives import serialization
-from Crypto.PublicKey import ECC
 from datetime import datetime, timedelta, timezone
 
 import utils.battery_data as battery_data_generator
-import utils.data_gen as data_gen
 import utils.crypto as crypto
-import utils.did as did_utils
+import utils.w3c as w3c_util
 import utils.util as mock_util
-
-from utils.log import log
+from utils.logging import log
 
 
 BMS_FILE_NAME = "bms_key"
@@ -53,7 +48,7 @@ if __name__ == "__main__":
     did_bms = f"did:batterypass:bms.sn-{SN}"
     log.info(f"BMS: {log.color.BOLD+log.color.UNDERLINE}{did_bms}{log.color.RESET}")
 
-    did_document = did_utils.build_did_document(did_bms, CONTROLLER_DID, public_key_multibase)
+    did_document = w3c_util.build_did_document(did_bms, CONTROLLER_DID, public_key_multibase)
     # 3. Sign DID with Client's sign service
     response = requests.post(f"{OEM_SIGN_SERVICE_URL}/sign/did", json=json.dumps({
         "did": did_document,
@@ -97,7 +92,7 @@ if __name__ == "__main__":
     # Split CLOUD_DIDs by ','
     CLOUD_DIDS_SPLIT = CLOUD_DIDS.split(',')
     for CLOUD_DID in CLOUD_DIDS_SPLIT:
-        vc_document = did_utils.create_cloud_instance_vc(
+        vc_document = w3c_util.create_cloud_instance_vc(
             CONTROLLER_DID,  # OEM DID (Controller DID)
             did_bms,  # BMS DID
             CLOUD_DID,  # Cloud DID
