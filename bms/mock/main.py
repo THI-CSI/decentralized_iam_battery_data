@@ -32,6 +32,13 @@ TESTING_SETUP = os.getenv("TESTING_SETUP", "true").lower() == "true"
 
 VCs = []
 
+def sleep_countdown(seconds):
+    spinner = "|\\-/"
+    for i in range(seconds*4, 0, -1):
+        print(f'\r[{spinner[i%len(spinner)]}] Generating new Data in {i//4} Seconds...', end=' ', flush=True)
+        time.sleep(0.25)
+    print("\r", end="")
+
 
 if __name__ == "__main__":
     # 1. Generate BMS Key Pair
@@ -156,7 +163,7 @@ if __name__ == "__main__":
                 exit(1)
 
     print('-'*32)
-    log.info(f"QR-Code: http://localhost:8000/batterypass/qr/{urllib.quote_plus(did_bms)}?url={urllib.quote_plus(f'http://localhost:8501/?did={did_bms}')}")
+    log.info(f"QR-Code: http://localhost:8000/batterypass/qr/{urllib.quote_plus(did_bms)}?url={urllib.quote_plus(f'http://localhost:8501')}")
     log.info(f"Blockchain Explorer: http://localhost:8443/dids/{urllib.quote_plus(did_bms)}")
     log.info(f"BatteryPass Data Viewer: http://localhost:8501/?did={urllib.quote_plus(did_bms)}")
     print('-'*32)
@@ -186,7 +193,7 @@ if __name__ == "__main__":
                 else:
                     log.flow(f"Data for {did['id']} sent successfully.")
 
-            time.sleep(int(float(INTERVAL_MIN) * 60))
+            sleep_countdown(int(float(INTERVAL_MIN) * 60))
 
     except KeyboardInterrupt:
         log.info("Stopping BMS Mock...")

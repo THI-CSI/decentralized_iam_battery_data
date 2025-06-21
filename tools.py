@@ -10,6 +10,7 @@ import time
 import requests
 
 DEBUG = os.getenv("DEBUG", "false") == "true"
+BMS_DATA_GENERATION_INTERVAL = os.getenv("BMS_DATA_GENERATION_INTERVAL", "1")
 
 
 CLI_COMMANDS = [
@@ -155,8 +156,6 @@ class Tmux:
         self._exec_tmux_command(["kill-pane", "-t", tmux_pane_id])
         del self.pane_map[user_pane_id]
 
-# TODO Clean Key file directories and blockchain.json
-
 
 def is_service_running(port):
     try:
@@ -167,6 +166,13 @@ def is_service_running(port):
 
 
 tmux = None
+
+def sleep_countdown(seconds):
+    spinner = "|\\-/"
+    for i in range(seconds*4, 0, -1):
+        print(f'\r[{spinner[i%len(spinner)]}] Waiting {i//4} Seconds...', end=' ')
+        time.sleep(0.25)
+    print("\r", end="")
 
 def service_monitor_on_steroids():
     log.info("Starting Tmux Utility On Steroids")
@@ -183,11 +189,11 @@ def service_monitor_on_steroids():
     # Start Docker-Compose
     log.info("Starting the Blockchain and the Cloud with Docker-Compose")
     tmux.send_command("blockchain_cloud", "docker compose up --build")
+    sleep_countdown(4)
     while not is_service_running(port=8000) and not is_service_running(port=8443):
         print("Waiting for Docker to start...")
         time.sleep(1)
         input("Press Enter to continue...")
-
     # Start OEM Service
     log.info("Initializing the Client Service")
     tmux.send_command("oem_service", "cd client")
@@ -197,7 +203,7 @@ def service_monitor_on_steroids():
     tmux.send_command("oem_service", "python3 main.py --initialize")
     log.info("Starting the OEM Service")
     tmux.send_command("oem_service", "python3 main.py --oem-service")
-    time.sleep(4)
+    sleep_countdown(4)
     while not is_service_running(port=8123):
         print("Waiting for OEM Service to start...")
         time.sleep(1)
@@ -208,12 +214,13 @@ def service_monitor_on_steroids():
         log.info(f"Starting BMS {bms}")
         tmux.send_command(bms, "cd bms/mock")
         tmux.send_command(bms, "source .venv/bin/activate")
-        tmux.send_command(bms, 'INTERVAL_MIN="0.1" python3 main.py')
+        tmux.send_command(bms, f'INTERVAL_MIN="{BMS_DATA_GENERATION_INTERVAL}" python3 main.py')
 
     #input("Press Enter to continue...")
     tmux.attach_to_tmux_session()
 
     tmux.kill_tmux_session()
+    exec_cmd(["docker", "compose", "down"])
 
 
 def signal_handler(_sig, _frame):
