@@ -3,7 +3,7 @@ import random
 import re
 import string
 import sys
-from typing import Union
+from typing import Union, Dict, List, Any
 
 if not  __name__ == "__main__":
   import utils.poc.genJSONexampleFromSchema as genJSONexampleFromSchema
@@ -15,37 +15,58 @@ import os
 
 NEW_DATA_GEN = os.getenv("NEW_DATA_GEN", "false") == "true"
 
-
 def get_battery_data():
   # TODO
   if NEW_DATA_GEN:
-    genData = genJSONexampleFromSchema.generate_fake_battery_data("../../cloud/BatteryPassDataModel/BatteryData-Root-schema.json")
+    try:
+      genData = genJSONexampleFromSchema.generate_fake_battery_data("../../cloud/BatteryPassDataModel/BatteryData-Root-schema.json")
+    except:
+      print("Error generating fake data")
     print(genData)
     return genData
+
+  data = get_battery_data_dict()
+  return json.dumps(data)
+
+
+def get_battery_data_update():
+  # TODO
+  if NEW_DATA_GEN:
+    return get_battery_data()
+
+  data = [
+    { "performance.batteryCondition.numberOfFullCycles": generate_random_value(int, min_value=10, max_value=10000) },
+    { "performance.batteryCondition.remainingCapacity": generate_random_value(int, min_value=10, max_value=100) },
+    { "performance.batteryCondition.roundTripEfficiencyat50PerCentCycleLife": generate_random_value(float, min_value=1) },
+  ]
+  return json.dumps(data)
+
+
+def get_battery_data_dict():
   data = {
     "carbonFootprint": {
       "carbonFootprintPerLifecycleStage": [
         {
           "lifecycleStage": "RawMaterialExtraction",
-          "carbonFootprint": -1.7976931348623157E308
+          "carbonFootprint": generate_random_value(float)
         }
       ],
       "carbonFootprintStudy": "telnet://192.0.2.16:80/",
-      "absoluteCarbonFootprint": -1.7976931348623157E308,
-      "batteryCarbonFootprint": -1.7976931348623157E308,
+      "absoluteCarbonFootprint": generate_random_value(float),
+      "batteryCarbonFootprint": generate_random_value(float),
       "carbonFootprintPerformanceClass": "eOMtThyhVNLWUZNRcBaQKxI"
     },
     "circularity": {
-      "renewableContent" : -2.894541E38,
+      "renewableContent": generate_random_value(float),
       "dismantlingAndRemovalInformation" : [ {
         "documentType" : "BillOfMaterial",
         "mimeType" : "eOMtThyhVNLWUZNRcBaQKxI",
         "documentURL" : "telnet://192.0.2.16:80/"
       } ],
       "recycledContent" : [ {
-        "preConsumerShare" : 30.780313,
+        "preConsumerShare" : generate_random_value(float, min_value=0.0, max_value=100.0),
         "recycledMaterial" : "Cobalt",
-        "postConsumerShare" : 26.266407
+        "postConsumerShare" : generate_random_value(float, min_value=0.0, max_value=100.0)
       } ],
       "endOfLifeInformation" : {
         "separateCollection" : "ftp://ftp.is.co.za/rfc/rfc1808.txt",
@@ -85,7 +106,7 @@ def get_battery_data():
       "productIdentifier" : "eOMtThyhVNLWUZNRcBaQKxI",
       "batteryStatus" : "Original",
       "puttingIntoService" : "2025-01-10T15:09:02.858+01:00",
-      "batteryMass" : 699.0,
+      "batteryMass" : generate_random_value(float, min_value=100.0, max_value=1500.0),
       "manufacturingDate" : "2025-01-10T15:09:02.852+01:00",
       "batteryPassportIdentifier" : "urn:bmwk:123456687678",
       "warrentyPeriod" : "--01",
@@ -122,7 +143,7 @@ def get_battery_data():
       },
       "hazardousSubstances" : [ {
         "hazardousSubstanceClass" : "AcuteToxicity",
-        "hazardousSubstanceConcentration" : -1.7976931348623157E308,
+        "hazardousSubstanceConcentration" : generate_random_value(float),
         "hazardousSubstanceImpact" : [ "JxkyvRnL" ],
         "hazardousSubstanceIdentifier" : "37-70-2",
         "hazardousSubstanceLocation" : {
@@ -133,7 +154,7 @@ def get_battery_data():
       } ],
       "batteryMaterials" : [ {
         "batteryMaterialIdentifier" : "7439-93-2",
-        "batteryMaterialMass" : 1.6111172E38,
+        "batteryMaterialMass" : generate_random_value(float, min_value=150.0, max_value=2000.0),
         "batteryMaterialName" : "Lithium",
         "batteryMaterialLocation" : {
           "componentName" : "Anode",
@@ -145,107 +166,107 @@ def get_battery_data():
     "performance": {
       "batteryTechicalProperties" : {
         "originalPowerCapability" : [ {
-          "atSoC" : 2.3393242E38,
-          "powerCapabilityAt" : -1.2896817E38
+          "atSoC" : generate_random_value(float),
+          "powerCapabilityAt" : generate_random_value(float)
         } ],
-        "ratedEnergy" : -1.2185897E38,
-        "maximumVoltage" : -2.4890157E38,
-        "expectedLifetime" : -3072,
-        "ratedMaximumPower" : -1.7976931348623157E308,
-        "capacityThresholdForExhaustion" : -1.7976931348623157E308,
+        "ratedEnergy" : generate_random_value(float),
+        "maximumVoltage" : generate_random_value(float),
+        "expectedLifetime" : generate_random_value(int, min_value=-32768, max_value=32767),
+        "ratedMaximumPower" : generate_random_value(float),
+        "capacityThresholdForExhaustion" : generate_random_value(float),
         "lifetimeReferenceTest" : "telnet://192.0.2.16:80/",
-        "temperatureRangeIdleState" : -19.539389775261977,
-        "ratedCapacity" : 2.994716E38,
-        "nominalVoltage" : -3.1849857E38,
-        "minimumVoltage" : 1.687085E38,
-        "initialSelfDischarge" : -1.7976931348623157E308,
-        "roundtripEfficiency" : 2.1913484E38,
+        "temperatureRangeIdleState" : generate_random_value(float, min_value=-20.0, max_value=60.0),
+        "ratedCapacity" : generate_random_value(float),
+        "nominalVoltage" : generate_random_value(float),
+        "minimumVoltage" : generate_random_value(float),
+        "initialSelfDischarge" : generate_random_value(float),
+        "roundtripEfficiency" : generate_random_value(float),
         "initialInternalResistance" : [ {
-          "ohmicResistance" : -1.7976931348623157E308,
+          "ohmicResistance" : generate_random_value(float),
           "batteryComponent" : "pack"
         } ],
-        "cRate" : 9.081415E37,
-        "cRateLifeCycleTest" : -3.265165E38,
-        "powerCapabilityRatio" : -1.8147613E38,
-        "expectedNumberOfCycles" : -4979411194606956234
+        "cRate" : generate_random_value(float),
+        "cRateLifeCycleTest" : generate_random_value(float),
+        "powerCapabilityRatio" : generate_random_value(float),
+        "expectedNumberOfCycles" : generate_random_value(int, min_value=-9223372036854775808, max_value=9223372036854775807),
       },
       "batteryCondition" : {
         "numberOfFullCycles" : {
-          "numberOfFullCyclesValue" : 1212721721,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "numberOfFullCyclesValue" : generate_random_value(int),
+          "lastUpdate" : get_current_datetime_formatted()
         },
-        "roundTripEfficiencyat50PerCentCycleLife" : 9.766551E37,
+        "roundTripEfficiencyat50PerCentCycleLife" : generate_random_value(float),
         "stateOfCharge" : {
-          "stateOfChargeValue" : 6.009356E36,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "stateOfChargeValue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "currentSelfDischargingRate" : {
-          "currentSelfDischargingRateEntity" : 1.2559217E38,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "currentSelfDischargingRateEntity" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "remainingEnergy" : {
-          "remainingEnergyalue" : -7.096584E37,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "remainingEnergyalue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "evolutionOfSelfDischarge" : {
-          "evolutionOfSelfDischargeEntityValue" : -2.209267E37
+          "evolutionOfSelfDischargeEntityValue" : generate_random_value(float)
         },
         "negativeEvents" : [ {
           "negativeEvent" : "eOMtThyhVNLWUZNRcBaQKxI",
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "lastUpdate" : get_current_datetime_formatted()
         } ],
         "temperatureInformation" : {
-          "timeExtremeHighTemp" : -1.7976931348623157E308,
-          "timeExtremeLowTempCharging" : -1.7976931348623157E308,
-          "timeExtremeHighTempCharging" : -1.7976931348623157E308,
-          "timeExtremeLowTemp" : -1.7976931348623157E308,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "timeExtremeHighTemp" : generate_random_value(float),
+          "timeExtremeLowTempCharging" : generate_random_value(float),
+          "timeExtremeHighTempCharging" : generate_random_value(float),
+          "timeExtremeLowTemp" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "stateOfCertifiedEnergy" : {
-          "stateOfCertifiedEnergyValue" : -2.309167E38,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "stateOfCertifiedEnergyValue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
-        "energyThroughput" : -1.7976931348623157E308,
+        "energyThroughput" : generate_random_value(float),
         "internalResistanceIncrease" : [ {
-          "internalResistanceIncreaseValue" : -1.985763E38,
+          "internalResistanceIncreaseValue" : generate_random_value(float),
           "batteryComponent" : "pack",
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "lastUpdate" : get_current_datetime_formatted()
         } ],
         "remainingPowerCapability" : [ {
           "remainingPowerCapabilityValue" : {
             "atSoC" : 3.2114295E38,
             "powerCapabilityAt" : -1.6049327E38,
-            "rPCLastUpdated" : "2025-01-31T14:06:29.437+01:00"
+            "rPCLastUpdated" : get_current_datetime_formatted()
           },
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "lastUpdate" : get_current_datetime_formatted()
         } ],
-        "roundTripEfficiencyFade" : 5.5394977E37,
-        "powerFade" : 2.7326235E38,
+        "roundTripEfficiencyFade" : generate_random_value(float),
+        "powerFade" : generate_random_value(float),
         "remainingRoundTripEnergyEfficiency" : {
-          "remainingRoundTripEnergyEfficiencyValue" : -3.0350486E37,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "remainingRoundTripEnergyEfficiencyValue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "capacityThroughput" : {
-          "capacityThroughputValue" : -1.0970223E38,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "capacityThroughputValue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "remainingCapacity" : {
-          "remainingCapacityValue" : -3.7981266E37,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "remainingCapacityValue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         },
         "capacityFade" : {
-          "capacityFadeValue" : -4.8788013E37,
-          "lastUpdate" : "2025-01-31T14:06:29.437+01:00"
+          "capacityFadeValue" : generate_random_value(float),
+          "lastUpdate" : get_current_datetime_formatted()
         }
       }
     },
     "supplyChainDueDiligence": {
       "supplyChainDueDiligenceReport" : "telnet://192.0.2.16:80/",
-      "supplyChainIndicies" : 2.1624482E38,
+      "supplyChainIndicies" : generate_random_value(float),
       "thirdPartyAussurances" : "ftp://ftp.is.co.za/rfc/rfc1808.txt"
     }
   }
-  return json.dumps(data)
+  return data
 
 
 def generate_random_value(datatype: type, regex: str = None, sign: bool = False, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None):
@@ -361,18 +382,22 @@ def generate_random_value(datatype: type, regex: str = None, sign: bool = False,
   else:
     return None
 
-
-def get_battery_data_update():
-  # TODO
-  if NEW_DATA_GEN:
-    return get_battery_data()
-
-  data = [
-    { "performance.batteryCondition.numberOfFullCycles": generate_random_value(int, min_value=10, max_value=10000) },
-    { "performance.batteryCondition.remainingCapacity": generate_random_value(int, min_value=10, max_value=100) },
-    { "performance.batteryCondition.roundTripEfficiencyat50PerCentCycleLife": generate_random_value(float, min_value=1) },
-  ]
-  return json.dumps(data)
+def get_current_datetime_formatted() -> str:
+  now_utc = datetime.datetime.now(datetime.timezone.utc)
+  now_local = now_utc.astimezone()
+  date_part = now_local.strftime("%Y-%m-%d")
+  time_part = now_local.strftime("%H:%M:%S.%f")[:-3]
+  offset = now_local.utcoffset()
+  if offset is None:
+      tz_offset_str = "+00:00"
+  else:
+      total_seconds = offset.total_seconds()
+      sign = '+' if total_seconds >= 0 else '-'
+      abs_seconds = abs(total_seconds)
+      hours = int(abs_seconds // 3600)
+      minutes = int((abs_seconds % 3600) // 60)
+      tz_offset_str = f"{sign}{hours:02}:{minutes:02}"
+  return f"{date_part}T{time_part}{tz_offset_str}"
 
 
 if __name__ == "__main__":
@@ -389,3 +414,5 @@ if __name__ == "__main__":
   log.info(f"Random float in range 0-10: {generate_random_value(float, min_value=0, max_value=10)}")
   log.info(f"Random bool: {generate_random_value(bool)}")
   log.info(f"Random datetime: {generate_random_value(datetime.datetime)}")
+
+  log.info(f"Current Datetime: {get_current_datetime_formatted()}")

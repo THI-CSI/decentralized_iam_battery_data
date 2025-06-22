@@ -11,6 +11,7 @@ import requests
 
 DEBUG = os.getenv("DEBUG", "false") == "true"
 BMS_DATA_GENERATION_INTERVAL = os.getenv("BMS_DATA_GENERATION_INTERVAL", "1")
+NEW_DATA_GEN = os.getenv("NEW_DATA_GEN", "false") == "true"
 
 
 CLI_COMMANDS = [
@@ -359,6 +360,7 @@ def project_initialization():
 
     # TODO Install dependencies for the Mock BMS Data Generator
     ## npm install json-schema-faker
+    ## npm install json-schema-faker@0.5.9
     ## npx json-schema-faker cloud/BatteryData/BatteryData-Root-schema.json
 
 

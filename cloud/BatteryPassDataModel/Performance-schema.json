@@ -378,6 +378,7 @@
         "type" : "object",
         "properties" : {
           "remainingEnergyalue" : {
+            "type" : "number",
             "x-samm-aspect-model-urn" : "urn:samm:io.BatteryPass.Performance:1.2.0#remainingEnergyalue",
             "$ref" : "#/components/schemas/UBERemainingValue"
           },

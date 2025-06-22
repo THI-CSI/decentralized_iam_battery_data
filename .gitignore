@@ -5,5 +5,6 @@ __pycache__
 keys/
 bms/mock/.hypothesis
 bms/mock/scripts/node_modules
+node_modules
 cloud/BatteryPassDataModel/.hypothesis
 cloud/.env
