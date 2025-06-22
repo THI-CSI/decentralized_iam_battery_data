@@ -6,8 +6,8 @@ import subprocess
 import signal
 import os
 import time
-
 import requests
+
 
 DEBUG = os.getenv("DEBUG", "false") == "true"
 BMS_DATA_GENERATION_INTERVAL = os.getenv("BMS_DATA_GENERATION_INTERVAL", "1")
@@ -35,7 +35,6 @@ REQUIREMENTS = [
     "docker",
     "tmux"
 ]
-
 
 class Log:
     class color:
@@ -92,7 +91,6 @@ class Tmux:
             raise
         except Exception as e:
             raise
-
 
     def _create_tmux_session(self, user_pane_id: str = "pane0"):
         try:
@@ -166,8 +164,6 @@ def is_service_running(port):
     return response.status_code == 200
 
 
-tmux = None
-
 def sleep_countdown(seconds):
     spinner = "|\\-/"
     for i in range(seconds*4, 0, -1):
@@ -175,6 +171,8 @@ def sleep_countdown(seconds):
         time.sleep(0.25)
     print("\r", end="")
 
+
+tmux = None
 def service_monitor_on_steroids():
     log.info("Starting Tmux Utility On Steroids")
     global tmux
@@ -200,7 +198,6 @@ def service_monitor_on_steroids():
     tmux.send_command("oem_service", "cd client")
     tmux.send_command("oem_service", "source .venv/bin/activate")
 
-    # TODO Do not initialize on every run
     tmux.send_command("oem_service", "python3 main.py --initialize")
     log.info("Starting the OEM Service")
     tmux.send_command("oem_service", "python3 main.py --oem-service")
@@ -249,7 +246,6 @@ def create_and_install_venv(dir):
     venv_path = os.path.join(dir, '.venv')
     requirements_path = os.path.join(dir, 'requirements.txt')
 
-
     if os.path.exists(venv_path):
         log.info(f"Virtual environment already exists at '{venv_path}'. Skipping creation.")
     else:
@@ -291,8 +287,6 @@ def create_and_install_venv(dir):
         log.warning(f"No 'requirements.txt' found at '{requirements_path}'. Skipping package installation.")
 
 
-
-
 def exec_cmd(unknown_args, dir='./'):
     cwd = os.getcwd()
     os.chdir(dir)
@@ -309,7 +303,6 @@ def client_cmd(unknown_args):
     process = subprocess.run(["python3", "main.py", *unknown_args])
     os.chdir(cwd)
     check_return_code(process.returncode)
-
 
 
 def cleanup_project():
@@ -359,7 +352,6 @@ def project_initialization():
     create_and_install_venv("bms/mock")
 
 
-
 def main():
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers(dest="command")
@@ -390,8 +382,6 @@ def main():
             log.error("Docker Compose is not installed. Please install Docker Compose and try again.")
             exit(1)
         exec_cmd(["docker", "compose", args.command, *unknown_args])
-
-
 
 
 if __name__ == "__main__":

@@ -129,14 +129,23 @@ def initialize_entities():
 
 def main():
     parser = argparse.ArgumentParser(description="Generate keys for BMS and Service Station")
-    parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs")
-    parser.add_argument("--initialize-docker", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs, if it does not exist")
+    parser.add_argument("--reinitialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs")
+    parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs, if it does not exist")
     parser.add_argument("--oem-service", required=False, action='store_true', help="Starts the OEM Service")
     parser.add_argument("--service-access", required=False, action='store_true', help="Starts a Service Access Flow")
     parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
     args = parser.parse_args()
 
-    if not is_initialized() and not args.initialize:
+
+    if args.initialize:
+        if not is_initialized():
+            print("not initialized")
+            initialize_entities()
+        else:
+            print("already initialized")
+        exit(0)
+
+    if not is_initialized() and not args.reinitialize:
         print("error: Environment not initialized. Please run with --initialize flag.")
 
         exit(1)
@@ -149,12 +158,8 @@ def main():
         log("[ServiceClient] Verbose mode enabled.", override=True)
         os.environ["VERBOSE"] = "true"
 
-    if args.initialize_docker:
-        if not is_initialized():
-            initialize_entities()
-        exit(0)
 
-    if args.initialize:
+    if args.reinitialize:
         initialize_entities()
         exit(0)
 

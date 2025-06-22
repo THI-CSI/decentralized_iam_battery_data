@@ -8,9 +8,10 @@ Run the Mock BMS:
 python3 main.py
 ```
 
-Run the Mock BMS with the new data generator (WIP):
+You can specify the interval of generating new data in minutes with the `INTERVAL_MIN` environment variable flag:
 ```shell
-NEW_DATA_GEN="true" python3 main.py
+# This will generate every 6 seconds new data (default: 1 minute)
+INTERVAL_MIN=0.1 python3 main.py
 ```
 
 
@@ -19,3 +20,4 @@ Run the Mock BMS in a docker container:
 docker build -f build/dockerfiles/bms.Dockerfile -t bms .
 docker run --rm -it --network host bms
 ```
+
