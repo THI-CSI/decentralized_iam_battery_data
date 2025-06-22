@@ -254,8 +254,8 @@ def create_and_install_venv(dir):
         log.info(f"Virtual environment already exists at '{venv_path}'. Skipping creation.")
     else:
         log.info(f"Creating virtual environment at '{venv_path}'...")
+        cwd = os.getcwd()
         try:
-            cwd = os.getcwd()
             os.chdir(dir)
 
             subprocess.run([sys.executable, '-m', 'venv', '.venv'], check=True, capture_output=True, text=True)
@@ -358,10 +358,6 @@ def project_initialization():
     create_and_install_venv("client")
     create_and_install_venv("bms/mock")
 
-    # TODO Install dependencies for the Mock BMS Data Generator
-    ## npm install json-schema-faker
-    ## npm install json-schema-faker@0.5.9
-    ## npx json-schema-faker cloud/BatteryData/BatteryData-Root-schema.json
 
 
 def main():

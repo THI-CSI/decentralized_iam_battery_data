@@ -3,36 +3,22 @@ import random
 import re
 import string
 import sys
-from typing import Union, Dict, List, Any
+from typing import Union
 
 if not  __name__ == "__main__":
-  import utils.poc.genJSONexampleFromSchema as genJSONexampleFromSchema
   from utils.logging import log
 else:
   from logging import log
 import json
-import os
 
-NEW_DATA_GEN = os.getenv("NEW_DATA_GEN", "false") == "true"
 
 def get_battery_data():
-  # TODO
-  if NEW_DATA_GEN:
-    try:
-      genData = genJSONexampleFromSchema.generate_fake_battery_data("../../cloud/BatteryPassDataModel/BatteryData-Root-schema.json")
-    except:
-      print("Error generating fake data")
-    print(genData)
-    return genData
 
   data = get_battery_data_dict()
   return json.dumps(data)
 
 
 def get_battery_data_update():
-  # TODO
-  if NEW_DATA_GEN:
-    return get_battery_data()
 
   data = [
     { "performance.batteryCondition.numberOfFullCycles": generate_random_value(int, min_value=10, max_value=10000) },
