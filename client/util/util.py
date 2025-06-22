@@ -227,7 +227,13 @@ def upload_vc_to_blockchain(vc: dict) -> bool:
     return response.status_code == 200
 
 def get_cloud_public_key(url: str):
-    response = requests.get(url)
+    response = None
+    while response is None:
+        try:
+            response = requests.get(url)
+            break
+        except:
+            pass
 
     if response.status_code == 200:
         log(f"Successfully connected to {url}", override=True)

@@ -16,6 +16,17 @@ STREAMLIT_BASE_URL = os.getenv("STREAMLIT_BASE_URL", "http://localhost:8501")
 
 st.title(":green[BatteryPass Data Viewer]")
 
+# Hide Deploy Button
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
+
 # Sidebar options to interact with the API
 st.sidebar.title("Options")
 view_data = st.sidebar.selectbox(

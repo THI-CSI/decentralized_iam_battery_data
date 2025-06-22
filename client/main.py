@@ -158,6 +158,8 @@ def main():
         initialize_entities()
         exit(0)
 
+    # TODO Fix maintanence Service
+    # - It should be possible to fetch the batterypass data from the cloud
     if args.service_access:
         log("-" * 40, override=True)
         # Generate Verifiable Credential
