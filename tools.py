@@ -216,7 +216,10 @@ def service_monitor_on_steroids():
         tmux.send_command(bms, "source .venv/bin/activate")
         tmux.send_command(bms, f'INTERVAL_MIN="{BMS_DATA_GENERATION_INTERVAL}" python3 main.py')
 
-    #input("Press Enter to continue...")
+    # Source Client for Maintenance Access
+    tmux.send_command("console", "cd client")
+    tmux.send_command("console", "source .venv/bin/activate")
+
     tmux.attach_to_tmux_session()
 
     tmux.kill_tmux_session()

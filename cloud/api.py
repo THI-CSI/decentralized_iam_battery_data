@@ -167,7 +167,6 @@ async def read_item(
     execute successfully.
     """
     document = db.search(where("did") == did)
-    print(document)
     if not document:
         return error_response(404, "Entry doesn't exist.")
     if not payload:
