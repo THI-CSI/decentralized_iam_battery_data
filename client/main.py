@@ -1,76 +1,52 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
 import sys
 import base64
 import uuid
 import pathlib
-import time
-from datetime import datetime, timedelta, timezone
-
-from crypto.crypto import load_private_key_as_der, generate_keys, encrypt_hpke, sign_vc, sign_vp, sign_did
-from Crypto.PublicKey import ECC, RSA 
-from util.util import log, ecc_public_key_to_multibase, build_did_document, create_service_access_vc, make_vp_from_vc, register_key_with_blockchain, upload_vc_to_blockchain, get_cloud_public_key
-from multiformats import multibase
-from dotenv import load_dotenv
-load_dotenv()
-
-import logging
-from pyld import jsonld
 import requests
 import os
-import random 
-
-
 import uvicorn
-import util.oem_service as oem_service
 
+from dotenv import load_dotenv
+from Crypto.PublicKey import ECC
+
+from util.logging import log, sleep_countdown
+
+import util.util as service_util
+import util.oem_service as oem_service
+import util.service_access as service_access
+import crypto.crypto as crypto
+
+
+load_dotenv()
 
 KEYS_DIR = pathlib.Path(__file__).parent / "keys"
 verbose = False
 
 
-
 def setup_entity(entity_name, controller, controller_priv_key, is_bms=False, sn=(uuid.uuid4().hex[:8])):
-    """
-    Generates keys, creates a DID, signs the DID Document, and registers it.
-
-    Args:
-        entity_name (str): The name for the entity (e.g., "bms", "service").
-        controller (str): The DID of the controller (e.g., "did:batterypass:oem").
-        controller_priv_key (ECC.EccKey): The private key of the controller.
-        is_bms (bool): Flag to indicate if the entity is a BMS.
-
-    Returns:
-        dict: Contains the entity's keys, DID, and signed DID document.
-    """
-    log(f"--- Setting up entity: {entity_name.upper()} ---", override=True)
+    log.info(f"Setting up {entity_name.upper()} entity...")
     key_name = f"{entity_name}_key"
     
-    log(f"Generating {entity_name} key pair...")
-    generate_keys(name=key_name)
-    private_key = load_private_key_as_der(key_name)
+    log.info(f"Generating {entity_name} key pair...")
+    crypto.generate_keys(name=key_name)
+    private_key = crypto.load_private_key_as_der(key_name)
     public_key = private_key.public_key()
 
-    # Convert to multibase
-    public_key_multibase = ecc_public_key_to_multibase(public_key)
-
-    print(public_key_multibase)
-
+    public_key_multibase = service_util.ecc_public_key_to_multibase(public_key)
 
     did = f"did:batterypass:{entity_name}.sn-{sn}"
-    did_doc = build_did_document(did, controller, public_key_multibase, is_bms)
-    log(json.dumps(did_doc, indent=2))
-  
+    did_doc = service_util.build_did_document(did, controller, public_key_multibase, is_bms)
+
     verification_method = f"{controller}#key-1"
-    signed_did_doc = sign_did(did_doc, controller_priv_key, verification_method)
-    log(f"\n{entity_name.upper()} Signed DID Document:")
-    log(json.dumps(signed_did_doc, indent=2))
+    signed_did_doc = crypto.sign_did(did_doc, controller_priv_key, verification_method)
+    log.info(f"{entity_name.upper()} DID document successfully signed")
+
+    log.info(f"Registering {entity_name.upper()} DID in the Blockchain...")
     
-    log(f"Registering {entity_name.upper()} DID with Blockchain...")
-    
-    register_key_with_blockchain(signed_did_doc)
+    service_util.register_key_with_blockchain(signed_did_doc)
     
     return {
         "priv_key": private_key,
@@ -79,9 +55,6 @@ def setup_entity(entity_name, controller, controller_priv_key, is_bms=False, sn=
         "did_doc": signed_did_doc
     }
 
-SERVICE_PASSWORD = os.getenv("SERVICE_PASSWORD", "asdf")
-CLOUD_PASSWORD = os.getenv("CLOUD_PASSWORD", "asdf")
-OEM_PASSWORD = os.getenv("OEM_PASSWORD", "asdf")
 
 def is_initialized():
     if not (KEYS_DIR / "oem_key.pem").is_file():
@@ -90,24 +63,45 @@ def is_initialized():
         return False
     return True
 
+
+def is_service_running(port):
+    retry_counter = 5
+    while retry_counter > 0:
+        try:
+            response = requests.get(f"http://localhost:{port}/")
+            return response.status_code == 200
+        except requests.exceptions.ConnectionError:
+            log.error(f"Service is not running closed the connection. Retrying in 1 second...")
+        except Exception as e:
+            log.error(f"Service is not running: {e}. Retrying in 1 second...")
+        retry_counter -= 1
+        sleep_countdown(1)
+        continue
+    return False
+
 def initialize_entities():
-    # Connectivity Test to Cloud (Healthcheck)
-    log("[ServiceClient] Sending GET Request to Clound Endpoint to ensure connection...", override=True)
-    requests_url = os.getenv('CLOUD_URL', 'http://localhost:8000')  # Added a default for testing
-    cloud_public_key = get_cloud_public_key(requests_url)
+    # Check connectivity to Cloud and blockchain
+    if not is_service_running(port=8000):
+        log.error("Cloud is not running. Please start the Cloud Service.")
+        exit(0)
+    if not is_service_running(port=8443):
+        log.error("Blockchain is not running. Please start the Blockchain Service.")
+        exit(0)
+
     for root, dirs, files in KEYS_DIR.walk(top_down=False):
         for name in files:
             (root / name).unlink()
     if is_initialized():
         KEYS_DIR.rmdir()
-    # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
+
     # TODO: Use EU Private Key from testkeys directory
+    # EU_PRIVATE_KEY is expected to be a Base64 encoded unencrypted DER private key
     eu_private_key_b64 = os.getenv('EU_PRIVATE_KEY')
     if not eu_private_key_b64:
-        log("EU_PRIVATE_KEY environment variable not set.", level="error", override=True)
+        log.error("EU_PRIVATE_KEY not found.")
         sys.exit(1)
     eu_private_key = ECC.import_key(base64.b64decode(eu_private_key_b64))
-    log(f"Successfully imported EU Private Key as ECC object.", override=True)
+    log.success(f"Imported EU Private Key as ECC object.")
 
     oem_data = setup_entity(
         entity_name="oem",
@@ -115,7 +109,7 @@ def initialize_entities():
         controller_priv_key=eu_private_key,
         sn="audi"
     )
-    time.sleep(1)  # Adding a small delay
+    sleep_countdown(1)
 
     service_data = setup_entity(
         entity_name="service",
@@ -123,8 +117,10 @@ def initialize_entities():
         controller_priv_key=eu_private_key,
         sn="service"
     )
-    time.sleep(1)  # Adding a small delay
-    log("Successfully generated keys and DID documents for BMS and Service Station.", override=True)
+    sleep_countdown(1)
+    log.success("Successfully initialized the Test Setup for the OEM and the Service.")
+
+
 
 
 def main():
@@ -133,20 +129,18 @@ def main():
     parser.add_argument("--initialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs, if it does not exist")
     parser.add_argument("--oem-service", required=False, action='store_true', help="Starts the OEM Service")
     parser.add_argument("--service-access", required=False, action='store_true', help="Starts a Service Access Flow")
+    parser.add_argument("--bms-did", type=str, required=False, help="Specify the BMS Did")
     parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
     args = parser.parse_args()
 
 
     if args.initialize:
         if not is_initialized():
-            print("not initialized")
             initialize_entities()
-        else:
-            print("already initialized")
         exit(0)
 
     if not is_initialized() and not args.reinitialize:
-        print("error: Environment not initialized. Please run with --initialize flag.")
+        log.error("Environment not initialized. Please run with --initialize flag.")
 
         exit(1)
 
@@ -155,7 +149,7 @@ def main():
         exit(0)
 
     if args.verbose:
-        log("[ServiceClient] Verbose mode enabled.", override=True)
+        log.info("[ServiceClient] Verbose mode enabled.")
         os.environ["VERBOSE"] = "true"
 
 
@@ -163,81 +157,12 @@ def main():
         initialize_entities()
         exit(0)
 
-    # TODO Fix maintanence Service
-    # - It should be possible to fetch the batterypass data from the cloud
     if args.service_access:
-        log("-" * 40, override=True)
-        # Generate Verifiable Credential
-        log("[ServiceClient] Generating Verifiable Credential for Service Access...", override=True)
-
-        now = datetime.now(timezone.utc)
-
-        service_access_vc = create_service_access_vc(
-            issuer_did=bms_data['did'],
-            holder_did=service_data['did'],
-            bms_did=bms_data['did'],
-            access_levels=["read", "write"],
-            valid_from=now,
-            valid_until=(now + timedelta(days=365))
-        )
-
-
-        verification_method = f"{bms_data['did']}#key-1"
-
-        log("[BMS] Signing ServiceAccess Verifiable Credential...", override=True)
-        signed_vc = sign_vc(service_access_vc, bms_data['priv_key'], verification_method)
-        log("Signed ServiceAccess Verifiable Credential:", override=True)
-        log(json.dumps(signed_vc, indent=2), override=True)
-        time.sleep(2)  # Adding a small delay
-        log("[ServiceClient] Uploading ServiceAccess Verifiable Credential to Blockchain...", override=True)
-
-        if not upload_vc_to_blockchain(signed_vc):
-            log("Failed to upload ServiceAccess Verifiable Credential to Blockchain.", level="error", override=True)
-            sys.exit(1)
-        log("ServiceAccess Verifiable Credential successfully uploaded to Blockchain.", override=True)
-
-
-        log("[ServiceClient] Generating Verifiable Presentation from signed VC...", override=True)
-        vp = make_vp_from_vc(signed_vc, holder_did=service_data['did'])
-
-        # The verification method for the VP proof must correspond to the holder's key
-        vp_verification_method = f"{service_data['did']}#key-1"
-        signed_vp = sign_vp(vp, service_data["priv_key"], vp_verification_method)
-
-        log("Signed ServiceAccess Verifiable Presentation:", override=True)
-        log(json.dumps(signed_vp, indent=2), override=True)
-        exit(0)
-
-        # Encrypt the signed VP
-        log("[ServiceClient] Encrypting ServiceAccess Verifiable Presentation...", override=True)
-
-        signed_vp_bytes = json.dumps(signed_vp).encode('utf-8')
-        enc_message = encrypt_hpke(
-            service_data['did'],
-            cloud_public_key,
-            signed_vp_bytes,
-        )
-
-
-        log("[ServiceClient] Body:")
-        log(json.dumps(enc_message, indent=2))
-
-
-        # Send the encrypted VC to the cloud
-        log("[ServiceClient] Sending encrypted ServiceAccess Verifiable Credential to Cloud...", override=True)
-
-        battery_pass_data = requests.post(f"{os.getenv('BATTERYPASS_URL', 'http://localhost:8000/battery')}/{bms_data['did']}/read",
-                                          json=enc_message,
-                                          )
-
-        # Check if the request was successful
-        if battery_pass_data.status_code == 200:
-            log("[ServiceClient] Successfully retrieved BatteryPass data from the cloud.", override=True)
-            log(battery_pass_data.json(), override=True)
-        else:
-            log(f"[ServiceClient] Failed to retrieve BatteryPass data. Status code: {battery_pass_data.status_code}", level="error", override=True)
-            sys.exit(1)
-
+        if not args.bms_did:
+            log.error("BMS DID is required for service access.")
+            exit(1)
+        bms_did = args.bms_did
+        service_access.start(bms_did)
 
     sys.exit(0)
 if __name__ == "__main__":

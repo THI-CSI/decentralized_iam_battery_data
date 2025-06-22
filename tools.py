@@ -26,7 +26,7 @@ CLEANUP_FILES = [
     "./bms/mock/utils/keys/",
     "./bms/mock/.venv/",
     "./cloud/.env",
-    "./cloud/docs/example/keys/",
+    #"./cloud/docs/example/keys/",
     "./client/keys/",
     "./client/.venv/"
 ]
@@ -38,8 +38,6 @@ REQUIREMENTS = [
 
 class Log:
     class color:
-        HEADER = '\033[95m'
-        DEBUG = '\33[90m'
         INFO = '\033[96m'
         SUCCESS = '\033[92m'
         WARNING = '\033[93m'
@@ -49,24 +47,21 @@ class Log:
         UNDERLINE = '\033[4m'
 
     def error(self, msg):
-        symbol = f"{self.color.BOLD}[{self.color.ERROR}-{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
-        print(f"{symbol} {msg}")
+        symbol = f"\r{self.color.BOLD}[{self.color.ERROR}-{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
+        print(f"{symbol} {msg}", flush=True)
 
     def warning(self, msg):
-        symbol = f"{self.color.BOLD}[{self.color.WARNING}!{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
-        print(f"{symbol} {msg}")
+        symbol = f"\r{self.color.BOLD}[{self.color.WARNING}!{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
+        print(f"{symbol} {msg}", flush=True)
 
     def success(self, msg):
-        symbol = f"{self.color.BOLD}[{self.color.SUCCESS}+{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
-        print(f"{symbol} {msg}")
+        symbol = f"\r{self.color.BOLD}[{self.color.SUCCESS}+{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
+        print(f"{symbol} {msg}", flush=True)
 
     def info(self, msg):
-        symbol = f"{self.color.BOLD}[{self.color.INFO}i{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
-        print(f"{symbol} {msg}")
+        symbol = f"\r{self.color.BOLD}[{self.color.INFO}i{self.color.RESET + self.color.BOLD}]{self.color.RESET}"
+        print(f"{symbol} {msg}", flush=True)
 
-    def debug(self, msg):
-        symbol = f"{self.color.BOLD + self.color.DEBUG}[#]{self.color.RESET}"
-        print(f"{symbol} {msg}")
 
 log = Log()
 
@@ -161,6 +156,9 @@ def is_service_running(port):
         response = requests.get(f"http://localhost:{port}/")
     except requests.exceptions.ConnectionError:
         return False
+    except Exception as e:
+        log.error(f"Error connecting to service: {e}")
+        return False
     return response.status_code == 200
 
 
@@ -170,6 +168,20 @@ def sleep_countdown(seconds):
         print(f'\r[{spinner[i%len(spinner)]}] Waiting {i//4} Seconds...', end=' ')
         time.sleep(0.25)
     print("\r", end="")
+
+
+def waiting_for_service(text, ports, retry=5):
+    for i in range(retry):
+        for port in ports:
+            if is_service_running(port):
+                print('\r', end=' '*64)
+                return True
+        print(f"\rWaiting for {text} to start... [Attempt {i}/5]", end=' ')
+        time.sleep(1)
+    log.error(f"{text} failed to start. Exiting.")
+    global tmux
+    tmux.kill_tmux_session()
+    exit(1)
 
 
 tmux = None
@@ -189,10 +201,8 @@ def service_monitor_on_steroids():
     log.info("Starting the Blockchain and the Cloud with Docker-Compose")
     tmux.send_command("blockchain_cloud", "docker compose up --build")
     sleep_countdown(4)
-    while not is_service_running(port=8000) and not is_service_running(port=8443):
-        print("Waiting for Docker to start...")
-        time.sleep(1)
-        input("Press Enter to continue...")
+    waiting_for_service("Docker-Compose", [8000, 8443])
+
     # Start OEM Service
     log.info("Initializing the Client Service")
     tmux.send_command("oem_service", "cd client")
@@ -202,10 +212,7 @@ def service_monitor_on_steroids():
     log.info("Starting the OEM Service")
     tmux.send_command("oem_service", "python3 main.py --oem-service")
     sleep_countdown(4)
-    while not is_service_running(port=8123):
-        print("Waiting for OEM Service to start...")
-        time.sleep(1)
-        input("Press Enter to continue...")
+    waiting_for_service("OEM-Service", [8123])
 
     # Start BMS
     for bms in ["bms_1", "bms_2"]:

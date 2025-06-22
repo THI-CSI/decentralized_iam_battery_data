@@ -146,7 +146,7 @@ def get_public_key(keys_dir: pathlib.Path, passphrase: str, name: str = "key") -
     public_key = private_key.public_key()
     return public_key.export_key(format="DER")
 
-def load_private_key_as_der(name: str = "key") -> bytes:
+def load_private_key_as_der(name: str = "key") -> ECC.EccKey:
     key_file = pathlib.Path(__file__).parent.parent / "keys" / f"{name}.pem"
 
     assert key_file.is_file(), f"Key file not found: {key_file}"

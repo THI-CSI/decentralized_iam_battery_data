@@ -10,7 +10,7 @@ import utils.battery_data as battery_data_generator
 import utils.crypto as crypto
 import utils.w3c as w3c_util
 import utils.util as mock_util
-from utils.logging import log
+from utils.logging import log, sleep_countdown
 
 
 BMS_FILE_NAME = "bms_key"
@@ -27,12 +27,6 @@ TESTING_SETUP = os.getenv("TESTING_SETUP", "true").lower() == "true"
 
 VCs = []
 
-def sleep_countdown(seconds):
-    spinner = "|\\-/"
-    for i in range(seconds*4, 0, -1):
-        print(f'\r[{spinner[i%len(spinner)]}] Generating new Data in {i//4} Seconds...', end=' ', flush=True)
-        time.sleep(0.25)
-    print("\r", end="")
 
 
 if __name__ == "__main__":
