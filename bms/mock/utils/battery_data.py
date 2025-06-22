@@ -19,7 +19,9 @@ NEW_DATA_GEN = os.getenv("NEW_DATA_GEN", "false") == "true"
 def get_battery_data():
   # TODO
   if NEW_DATA_GEN:
-    return json.dumps(genJSONexampleFromSchema.generate_fake_data("../../cloud/BatteryPassDataModel/BatteryData-Root-schema.json"))
+    genData = genJSONexampleFromSchema.generate_fake_battery_data("../../cloud/BatteryPassDataModel/BatteryData-Root-schema.json")
+    print(genData)
+    return genData
   data = {
     "carbonFootprint": {
       "carbonFootprintPerLifecycleStage": [
