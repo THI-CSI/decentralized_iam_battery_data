@@ -24,6 +24,7 @@ def get_battery_data_update():
     { "performance.batteryCondition.numberOfFullCycles": generate_random_value(int, min_value=10, max_value=10000) },
     { "performance.batteryCondition.remainingCapacity": generate_random_value(int, min_value=10, max_value=100) },
     { "performance.batteryCondition.roundTripEfficiencyat50PerCentCycleLife": generate_random_value(float, min_value=1) },
+    { "performance.batteryTechicalProperties.expectedNumberOfCycles": generate_random_value(int, min_value=-9223372036854775808, max_value=9223372036854775807) },
   ]
   return json.dumps(data)
 

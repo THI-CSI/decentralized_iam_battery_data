@@ -10,7 +10,7 @@ import utils.battery_data as battery_data_generator
 import utils.crypto as crypto
 import utils.w3c as w3c_util
 import utils.util as mock_util
-from utils.logging import log, sleep_countdown
+from utils.logging import log, sleep_countdown, Log
 
 
 
@@ -155,6 +155,11 @@ if __name__ == "__main__":
     log.info(f"QR-Code: http://localhost:8000/batterypass/qr/{urllib.quote_plus(did_bms)}?url={urllib.quote_plus(f'http://localhost:8501')}")
     log.info(f"Blockchain Explorer: http://localhost:8443/dids/{urllib.quote_plus(did_bms)}")
     log.info(f"BatteryPass Data Viewer: http://localhost:8501/?did={urllib.quote_plus(did_bms)}")
+    # Get the command to fetch the public battery data with the client
+    # You can use '| grep -E "roundTripEfficiencyat50PerCentCycleLife|expectedNumberOfCycles"' to get only the changing values
+
+    log.info(f"BatteryPass Public Data Client: \npython3 main.py --service-access --bms-did {did_bms}")
+    log.info(f"BatteryPass Private Data Client: \npython3 main.py --service-access --bms-did {did_bms} --private | grep -E \"numberOfFullCycles|remainingCapacity|roundTripEfficiencyat50PerCentCycleLife|expectedNumberOfCycles\"")
     print('-'*32)
 
     try:

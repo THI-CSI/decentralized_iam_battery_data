@@ -141,7 +141,7 @@ func (v *vpService) VerifyVPForServices(ctx context.Context, requestBody *models
 		return err
 	}
 
-	if vcHash, err := utils.Generate256HashHex(verified); err == nil {
+	if vcHash, err := utils.Generate256HashHex(&verified.VerifiableCredential[0]); err == nil {
 		return interpretVCState(v.chain.CheckVCRecordState(verified.VerifiableCredential[0].Id, vcHash))
 	}
 

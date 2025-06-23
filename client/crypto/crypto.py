@@ -86,6 +86,20 @@ def decrypt_hpke(private_key: ECC.EccKey, bundle: dict) -> bytes:
     return decapsulator.unseal(ciphertext)
 
 
+def multibase_to_ecc_public_key(public_key_multibase):
+    base58_string = public_key_multibase[1:]
+    decoded_bytes = base58.b58decode(base58_string)
+    multicodec_prefix = decoded_bytes[:2]
+    pubkey_bytes = decoded_bytes[2:]
+    if pubkey_bytes[0] != 0x04:
+        raise ValueError("Expected uncompressed public key to start with 0x04")
+    x = pubkey_bytes[1:33]
+    y = pubkey_bytes[33:65]
+    x_int = int.from_bytes(x, 'big')
+    y_int = int.from_bytes(y, 'big')
+    return ECC.construct(curve='P-256', point_x=x_int, point_y=y_int)
+
+
 def encrypt_hpke(did, receiver_public_key: ECC.EccKey, message: bytes) -> dict:
     eph_key = ECC.generate(curve="P-256")
     salt = os.urandom(32)
@@ -105,6 +119,20 @@ def encrypt_hpke(did, receiver_public_key: ECC.EccKey, message: bytes) -> dict:
         "did": did
     }
     return payload
+
+
+def encrypt_data_for_cloud(did: str, publicKeyMultibase: str, payload: str, private_key: ECC.EccKey):
+    public_key = multibase_to_ecc_public_key(publicKeyMultibase) # ECC Key
+    encrypted_data = encrypt_hpke(did, public_key, payload.encode('utf-8'))
+    message_to_verify = json.dumps(
+        {key: value for key, value in encrypted_data.items() if key != "signature"}, separators=(",", ":")
+    ).encode()
+    hashed_data = SHA256.new(message_to_verify)
+    signature = DSS.new(private_key, 'fips-186-3').sign(hashed_data)
+    signed_payload = attach_proof_signature(encrypted_data, signature)
+
+    return signed_payload
+
 
 def generate_keys(name: str  = "key") -> None:
     keys_dir = pathlib.Path(__file__).parent.parent / "keys"

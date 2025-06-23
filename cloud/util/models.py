@@ -89,7 +89,7 @@ class VerifiableCredential(BaseModel):
 class VerifiablePresentation(BaseModel):
     at_context: list[str] = Field(alias="@context")
     type: list[str]
-    vc: VerifiableCredential
+    vc: list[VerifiableCredential] = Field(alias="verifiableCredential")
     holder: DID
     proof: Proof
 

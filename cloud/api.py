@@ -180,7 +180,7 @@ async def read_item(
         return error_response(400, str(e))
     if determine_role(document[0], payload.did) == "bms":
         return retrieve_data(scope="bms", did=did, doc=document[0], private_key=private_key)
-    if vp and verify_vp(vp) == "read":
+    if vp and verify_vp(json.loads(decrypted_payload)) == "read":
         return retrieve_data(scope="legitimate_interest", did=did, doc=document[0], private_key=private_key)
     return error_response(400, "Invalid request.")
 

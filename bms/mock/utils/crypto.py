@@ -71,21 +71,14 @@ def ecc_public_key_to_multibase(ecc_key):
     return multibase
 
 def multibase_to_ecc_public_key(public_key_multibase):
-    base58_string = public_key_multibase[1:]  # Remove 'z'
-
+    base58_string = public_key_multibase[1:]
     decoded_bytes = base58.b58decode(base58_string)
-
-    # Remove 2-byte multicodec prefix
     multicodec_prefix = decoded_bytes[:2]
-
-    pubkey_bytes = decoded_bytes[2:]  # This is 65 bytes, expected uncompressed key format
-
+    pubkey_bytes = decoded_bytes[2:]
     if pubkey_bytes[0] != 0x04:
         raise ValueError("Expected uncompressed public key to start with 0x04")
-
     x = pubkey_bytes[1:33]
     y = pubkey_bytes[33:65]
-
     x_int = int.from_bytes(x, 'big')
     y_int = int.from_bytes(y, 'big')
     return ECC.construct(curve='P-256', point_x=x_int, point_y=y_int)

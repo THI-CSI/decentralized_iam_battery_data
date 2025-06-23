@@ -170,14 +170,14 @@ def sleep_countdown(seconds):
     print("\r", end="")
 
 
-def waiting_for_service(text, ports, retry=5):
+def waiting_for_service(text, ports, retry=5, seconds=1):
     for i in range(retry):
         for port in ports:
             if is_service_running(port):
                 print('\r', end=' '*64)
                 return True
-        print(f"\rWaiting for {text} to start... [Attempt {i}/5]", end=' ')
-        time.sleep(1)
+        print(f"\rWaiting for {text} to start... [Attempt {i}/{retry}]", end=' ')
+        time.sleep(seconds)
     log.error(f"{text} failed to start. Exiting.")
     global tmux
     tmux.kill_tmux_session()
@@ -201,7 +201,7 @@ def service_monitor_on_steroids():
     log.info("Starting the Blockchain and the Cloud with Docker-Compose")
     tmux.send_command("blockchain_cloud", "docker compose up --build")
     sleep_countdown(4)
-    waiting_for_service("Docker-Compose", [8000, 8443])
+    waiting_for_service("Docker-Compose", [8000, 8443], retry=10, seconds=2)
 
     # Start OEM Service
     log.info("Initializing the Client Service")

@@ -222,7 +222,7 @@ def register_key_with_blockchain(payload: dict = None) -> bool:
 def upload_vc_to_blockchain(vc: dict) -> bool:
     response = requests.post(f"{os.getenv('BLOCKCHAIN_URL', 'http://localhost:8443')}/api/v1/vcs/create/service", headers={'Content-type': 'application/json'}, json=vc)
     if response.status_code != 200:
-        log.error(response.text)
+        log.error(f"{response.status_code}: {response.text}")
         return False
     return True
 

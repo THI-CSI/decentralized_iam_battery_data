@@ -1,4 +1,4 @@
-from util.logging import log
+from util.logging import log, sleep_countdown
 import util.util as service_util
 import crypto.crypto as crypto
 from Crypto.PublicKey import ECC
@@ -32,15 +32,15 @@ def retrieve_cloud_data():
     return cloud_url, cloud_public_key
 
 
-def read_bms_data(bms_did: str, enc_message: bytes or None, cloud_url: str):
-    battery_pass_data = requests.post(f"{cloud_url}/batterypass/read/{bms_did}", json=enc_message)
+def fetch_bms_data(bms_did: str, enc_message: bytes or None, cloud_url: str):
+    response = requests.post(f"{cloud_url}/batterypass/read/{bms_did}", json=enc_message)
     # Check if the request was successful
-    if battery_pass_data.status_code != 200:
-        log.error(f"[ServiceClient] Failed to retrieve BatteryPass data. Status code: {battery_pass_data.status_code}")
-        log.debug(battery_pass_data.text)
+    if response.status_code != 200:
+        log.error(f"[ServiceClient] Failed to retrieve BatteryPass data. Status code: {response.status_code}")
+        log.debug(response.text)
         sys.exit(1)
     log.info("[ServiceClient] Successfully retrieved BatteryPass data from the cloud.")
-    return battery_pass_data.json()
+    return response.json()
 
 
 def load_bms_private_key_as_der(name: str = "key") -> ECC.EccKey:
@@ -57,7 +57,7 @@ def start(bms_did: str, service_did: str, private_data: bool = False):
 
     if not private_data:
         log.info("[ServiceClient] Requesting Public Data from Cloud...")
-        print(json.dumps(read_bms_data(bms_did, None, cloud_url), indent=2))
+        print(json.dumps(fetch_bms_data(bms_did, None, cloud_url), indent=2))
         exit(0)
 
     # Generate Verifiable Credential
@@ -83,14 +83,13 @@ def start(bms_did: str, service_did: str, private_data: bool = False):
     signed_vc = crypto.sign_vc(service_access_vc, load_bms_private_key_as_der(bms_sn), verification_method)
     log.debug("Signed ServiceAccess Verifiable Credential:")
     log.debug(json.dumps(signed_vc, indent=2))
-    time.sleep(2)
     log.info("[ServiceClient] Uploading ServiceAccess Verifiable Credential to Blockchain...")
 
     if not service_util.upload_vc_to_blockchain(signed_vc):
         log.error("Failed to upload ServiceAccess Verifiable Credential to Blockchain.")
         exit(1)
     log.success("ServiceAccess Verifiable Credential successfully uploaded to Blockchain.")
-
+    sleep_countdown(2)
 
     log.info("[ServiceClient] Generating Verifiable Presentation from signed VC...")
     vp = service_util.make_vp_from_vc(signed_vc, holder_did=service_did)
@@ -107,11 +106,12 @@ def start(bms_did: str, service_did: str, private_data: bool = False):
     # Encrypt the signed VP
     log.info("[ServiceClient] Encrypting ServiceAccess Verifiable Presentation...")
 
-    signed_vp_bytes = json.dumps(signed_vp).encode('utf-8')
-    enc_message = crypto.encrypt_hpke(
+    signed_vp_bytes = json.dumps(signed_vp)
+    enc_message = crypto.encrypt_data_for_cloud(
         service_did,
         cloud_public_key,
         signed_vp_bytes,
+        service_priv_key
     )
 
     log.debug("[ServiceClient] Body:")
@@ -119,7 +119,6 @@ def start(bms_did: str, service_did: str, private_data: bool = False):
 
     # Send the encrypted VC to the cloud
     log.info("[ServiceClient] Sending encrypted ServiceAccess Verifiable Credential to Cloud...")
-    battery_pass_data = json.dumps(read_bms_data(bms_did, enc_message, cloud_url), indent=2)
-
-    log.debug("[ServiceClient] BatteryPass Data:")
-    log.debug(battery_pass_data)
+    bms_private_data = fetch_bms_data(bms_did, enc_message, cloud_url)
+    battery_pass_data = json.dumps(bms_private_data, indent=2)
+    print(battery_pass_data)

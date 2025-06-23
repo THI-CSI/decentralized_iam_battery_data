@@ -175,6 +175,8 @@ def verify_vp(vp_json_object) -> str | None:
     """
     validator = jws.JWS()
     try:
+        # validator.deserialize(vp_json_object.proof.jws)
+        # did = vp_json_object.proof.verificationMethod.split("#")[0]
         validator.deserialize(vp_json_object["proof"]["jws"])
         did = vp_json_object["proof"]["verificationMethod"].split("#")[0]
     except KeyError:
@@ -187,15 +189,16 @@ def verify_vp(vp_json_object) -> str | None:
 
     # Then we send the Data to the Blockchain.
     response = requests.post(
-        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify",
-        json=vp_json_object
+        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vps/verify/service",
+        # json=vp_json_object.model_dump(mode='json', by_alias=True)
+        json = vp_json_object
     )
     if not response.ok:
         return None
 
     try:
-        return "read" if (
-                "read" in next(vp_json_object["verifiableCredential"])["credentialSubject"]["accessLevel"]
-        ) else None
+        if "read" in vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]:
+            return "read"
+        return None
     except (KeyError, StopIteration):
         return None
