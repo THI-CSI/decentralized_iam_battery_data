@@ -8,3 +8,4 @@ bms/mock/scripts/node_modules
 node_modules
 cloud/BatteryPassDataModel/.hypothesis
 cloud/.env
+managed_containers.json

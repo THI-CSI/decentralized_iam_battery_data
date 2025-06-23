@@ -11,14 +11,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-FROM node:23 AS req
-
-WORKDIR /app
-
-RUN addgroup --system app && adduser --system --ingroup app app
-
-RUN npm install json-schema-faker
-RUN npx json-schema-faker cloud/BatteryData/BatteryData-Root-schema.json
 
 FROM python:3.12-slim AS final
 
