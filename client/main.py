@@ -23,7 +23,6 @@ import crypto.crypto as crypto
 load_dotenv()
 
 KEYS_DIR = pathlib.Path(__file__).parent / "keys"
-verbose = False
 
 
 def setup_entity(entity_name, controller, controller_priv_key, is_bms=False, sn=(uuid.uuid4().hex[:8])):
@@ -121,8 +120,6 @@ def initialize_entities():
     log.success("Successfully initialized the Test Setup for the OEM and the Service.")
 
 
-
-
 def main():
     parser = argparse.ArgumentParser(description="Generate keys for BMS and Service Station")
     parser.add_argument("--reinitialize", required=False, action='store_true', help="Initial Test Environment Setup of the EU, OEM and Service DIDs")
@@ -130,7 +127,7 @@ def main():
     parser.add_argument("--oem-service", required=False, action='store_true', help="Starts the OEM Service")
     parser.add_argument("--service-access", required=False, action='store_true', help="Starts a Service Access Flow")
     parser.add_argument("--bms-did", type=str, required=False, help="Specify the BMS Did")
-    parser.add_argument("--verbose", required=False, action='store_true', help="Enable verbose output")
+    parser.add_argument("--private", required=False, action='store_true', help="Returns private data of a BMS")
     args = parser.parse_args()
 
 
@@ -148,11 +145,6 @@ def main():
         uvicorn.run(oem_service.app, host="0.0.0.0", port=8123)
         exit(0)
 
-    if args.verbose:
-        log.info("[ServiceClient] Verbose mode enabled.")
-        os.environ["VERBOSE"] = "true"
-
-
     if args.reinitialize:
         initialize_entities()
         exit(0)
@@ -162,7 +154,7 @@ def main():
             log.error("BMS DID is required for service access.")
             exit(1)
         bms_did = args.bms_did
-        service_access.start(bms_did)
+        service_access.start(bms_did, "did:batterypass:service.sn-service", args.private)
 
     sys.exit(0)
 if __name__ == "__main__":

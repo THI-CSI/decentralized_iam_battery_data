@@ -8,6 +8,7 @@ import base58
 from Crypto.PublicKey import ECC
 from multiformats import multibase
 
+from util.logging import log
 
 VERBOSE = os.getenv("VERBOSE", "false").lower() == "true"
 
@@ -41,7 +42,7 @@ def ecc_public_key_to_multibase(ecc_key):
 
     return multibase
 
-def log(message, level="info", override=False):
+def old_log(message, level="info", override=False):
     if VERBOSE or override:
         print(f"[{level.upper()}] {message}")
 
@@ -217,14 +218,13 @@ def register_key_with_blockchain(payload: dict = None) -> bool:
     response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/createormodify", headers={'Content-type': 'application/json'}, json=payload)
     return response.status_code == 200
 
-def register_key_with_blockchain(payload: dict = None) -> bool:
-    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/createormodify", headers={'Content-type': 'application/json'}, json=payload)
-    return response.status_code == 200
 
 def upload_vc_to_blockchain(vc: dict) -> bool:
-    print(f"Uploading VC to Blockchain: {json.dumps(vc, indent=2)}")
-    response = requests.post(f"{os.getenv('BLOCKCHAIN_URL', 'http://localhost:8443')}/api/v1/vcs/create", headers={'Content-type': 'application/json'}, json=vc)
-    return response.status_code == 200
+    response = requests.post(f"{os.getenv('BLOCKCHAIN_URL', 'http://localhost:8443')}/api/v1/vcs/create/service", headers={'Content-type': 'application/json'}, json=vc)
+    if response.status_code != 200:
+        log.error(response.text)
+        return False
+    return True
 
 def get_cloud_public_key(url: str):
     response = None
@@ -236,11 +236,11 @@ def get_cloud_public_key(url: str):
             pass
 
     if response.status_code == 200:
-        log(f"Successfully connected to {url}", override=True)
+        log.info(f"Successfully connected to {url}")
 
         # This is a multibase base58btc encoded string of a DER key
         public_key_multibase = response.json().get("publicKeyMultibase", None)
-        log(f"Cloud Public Key (Multibase - base58btc): {public_key_multibase}", override=True)
+        log.info(f"Cloud Public Key (Multibase - base58btc): {public_key_multibase}")
 
         # Decode the multibase string to get the raw DER bytes
         der_key = multibase.decode(public_key_multibase)
@@ -248,8 +248,8 @@ def get_cloud_public_key(url: str):
         # Now, import the DER-formatted key (which is in bytes)
         cloud_public_key = ECC.import_key(der_key)
 
-        log(f"Successfully imported Cloud Public Key as ECC object.", override=True)
+        log.info(f"Successfully imported Cloud Public Key as ECC object.")
         return cloud_public_key
     else:
-        log(f"Failed to connect to {url}. Status code: {response.status_code}", level="error", override=True)
+        log.error(f"Failed to connect to {url}. Status code: {response.status_code}")
         sys.exit(1)

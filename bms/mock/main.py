@@ -13,27 +13,27 @@ import utils.util as mock_util
 from utils.logging import log, sleep_countdown
 
 
-BMS_FILE_NAME = "bms_key"
 
 BLOCKCHAIN_URL = os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")
 OEM_SIGN_SERVICE_URL = os.getenv("OEM_SIGN_SERVICE_URL", "http://localhost:8123")
 
 # Environment Variables
 CONTROLLER_DID = os.getenv("CONTROLLER_DID", "did:batterypass:oem.sn-audi")
-SN = os.getenv("SN", (uuid.uuid4().hex[:8]))
 CLOUD_DIDS = os.getenv("CLOUD_DIDS", "did:batterypass:cloud.sn-central")
 INTERVAL_MIN = os.getenv("INTERVAL_MIN", "1")
 TESTING_SETUP = os.getenv("TESTING_SETUP", "true").lower() == "true"
 
 VCs = []
 
+SN = os.getenv("SN", (uuid.uuid4().hex[:8]))
+BMS_FILE_NAME = f"bms_{SN}"
 
 
 if __name__ == "__main__":
     # 1. Generate BMS Key Pair
 
     crypto.generate_keys(name=BMS_FILE_NAME)
-    private_key = crypto.load_private_key(f"{BMS_FILE_NAME}.der")
+    private_key = crypto.load_private_key_as_der(BMS_FILE_NAME)
     public_key = private_key.public_key()
 
     public_key_multibase = crypto.ecc_public_key_to_multibase(public_key)

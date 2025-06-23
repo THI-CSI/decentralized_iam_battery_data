@@ -93,9 +93,8 @@ def multibase_to_ecc_public_key(public_key_multibase):
 def generate_keys(name: str = "key") -> None:
     keys_dir = pathlib.Path(__file__).parent / "keys"
     keys_dir.mkdir(exist_ok=True)
-    if not (keys_dir / f"{name}.der").is_file():
+    if not (keys_dir / f"{name}.pem").is_file():
         key = ECC.generate(curve="P-256")
-        export_private_key(key, keys_dir, f"{name}.der")
         export_pem(key, keys_dir, f"{name}.pem")
 
 def export_pem(key: ECC.EccKey, keys_dir: pathlib.Path, name: str = "key.pem") -> None:
@@ -106,19 +105,16 @@ def export_pem(key: ECC.EccKey, keys_dir: pathlib.Path, name: str = "key.pem") -
     key_file_path.chmod(0o600)
 
 
-def export_private_key(key: ECC.EccKey, keys_dir: pathlib.Path, name: str = "key.der") -> None:
-    private_key_der = key.export_key(format="DER")
-    key_file_path = keys_dir / name
-    with open(key_file_path, "wb") as f:
-        f.write(private_key_der)
-    key_file_path.chmod(0o600)
+def load_private_key_as_der(name: str = "key") -> ECC.EccKey:
+    key_file = pathlib.Path(__file__).parent / "keys" / f"{name}.pem"
 
-def load_private_key(name: str = "bms_key.der") -> ECC.EccKey:
-    key_file = pathlib.Path(__file__).parent / "keys" / f"{name}"
-    assert key_file.is_file()
-    with open(key_file, "rb") as f:
-        return ECC.import_key(f.read())
-    
+    assert key_file.is_file(), f"Key file not found: {key_file}"
+    key = None
+    with open(key_file, "rt") as f:
+        key = ECC.import_key(f.read())
+
+    return key
+
 def encrypt_hpke(did, receiver_public_key: ECC.EccKey, message: bytes) -> dict:
     eph_key = ECC.generate(curve="P-256")
     salt = os.urandom(32)

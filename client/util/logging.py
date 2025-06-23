@@ -1,4 +1,7 @@
 import time
+import os
+
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 
 class Log:
@@ -34,8 +37,9 @@ class Log:
         print(f"{symbol} {msg}")
 
     def debug(self, msg):
-        symbol = f"\r{self.color.BOLD + self.color.DEBUG}[#]{self.color.RESET}"
-        print(f"{symbol} {msg}")
+        if DEBUG:
+            symbol = f"\r{self.color.BOLD + self.color.DEBUG}[#]{self.color.RESET}"
+            print(f"{symbol} {msg}")
 
 
 log = Log()
