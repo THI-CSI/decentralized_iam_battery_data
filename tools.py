@@ -295,14 +295,14 @@ def create_and_install_venv(dir):
         log.warning(f"No 'requirements.txt' found at '{requirements_path}'. Skipping package installation.")
 
 
-def exec_cmd(unknown_args, dir='./'):
+def exec_cmd(unknown_args, dir='./', ignore_return_code=False):
     cwd = os.getcwd()
     os.chdir(dir)
     process = subprocess.run(unknown_args, capture_output=True, text=DEBUG)
+    if DEBUG: print(process.stdout)
+    if not ignore_return_code: check_return_code(process.returncode)
     os.chdir(cwd)
-    check_return_code(process.returncode)
     os.chdir(cwd)
-    check_return_code(process.returncode)
 
 
 def client_cmd(unknown_args):
@@ -327,6 +327,11 @@ def cleanup_project():
                 log.warning(f"Path does not exist: {path}")
         except Exception as e:
             log.error(f"Error deleting {path}: {e}")
+
+    exec_cmd(["docker", "compose", "down", "-v"], ignore_return_code=True)
+    log.success("Shutdown Docker Compose and removed volumes successfully.")
+
+    log.success("Project cleaned up successfully.")
 
 
 def is_installed(cmd_util, manual = False):
@@ -355,6 +360,13 @@ def project_initialization():
         log.info("Creating .env file for Cloud")
         with open('./cloud/.env', 'w') as file: file.write('PASSPHRASE=bad-password')
 
+    if not os.path.exists("./cloud/data/db.json"):
+        log.info("Creating the cloud db.json file")
+        exec_cmd(["mkdir", "data"], dir='./cloud')
+        exec_cmd(["touch", "db.json"], dir='./cloud/data')
+
+    log.info("Building the Docker Images for Cloud and Blockchain...")
+    exec_cmd(["docker", "compose", "build"])
 
     create_and_install_venv("client")
     create_and_install_venv("bms/mock")
