@@ -12,7 +12,7 @@ Eine Mehrfachauflistung ist möglich.
     [*Arbeitspaket*], [*Relevante Anforderungen*],
   ),
   [Project Management], [/],
-  [Requirements Management], [Erstellung von Requirements, Zusätzlich: Rollen- und Berechtigungskonzept nach EU-Regulation, Inhalte des Batteriepasses, DID/VCs-Vorstellung],
+  [Requirements Management], [Erstellung von Requirements aus Standards und Richtlinien, Zusätzlich: Rollen- und Berechtigungskonzept nach EU-Regulation, Inhalte des Batteriepasses, DID/VCs-Vorstellung], Projektbericht,
   [Infrastructure], [z.B RQ-06, RQ-07],
   [IAM-Blockchain], [RQ-01, RQ-02, RQ-05],
   [BMS], [RQ-01, RQ-04, RQ-08],
