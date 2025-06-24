@@ -26,6 +26,7 @@ CLEANUP_FILES = [
     "./bms/mock/utils/keys/",
     "./bms/mock/.venv/",
     "./cloud/.env",
+    "./cloud/data/",
     #"./cloud/docs/example/keys/",
     "./client/keys/",
     "./client/.venv/"

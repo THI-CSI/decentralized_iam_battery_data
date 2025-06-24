@@ -91,6 +91,10 @@ def determine_role(doc: Document | None, sender_did: str) -> str | None:
 
 
 def initialize():
+    # Create the 'cloud/data' directory for the 'db.json' file
+    keys_dir = pathlib.Path(__file__).parent / "data"
+    keys_dir.mkdir(exist_ok=True)
+
     keys_dir = pathlib.Path(__file__).parent / "keys"
     keys_dir.mkdir(exist_ok=True)
     password = os.getenv("PASSPHRASE", "secret")
