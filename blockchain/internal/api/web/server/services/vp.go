@@ -63,7 +63,7 @@ func (v *vpService) VerifyVPForCloud(ctx context.Context, requestBody *models.Vp
 		return err
 	}
 
-	if vcHash, err := utils.Generate256HashHex(verified); err == nil {
+	if vcHash, err := utils.Generate256HashHex(&verified.VerifiableCredential[0]); err == nil {
 		return interpretVCState(v.chain.CheckVCRecordState(verified.VerifiableCredential[0].Id, vcHash))
 	}
 
@@ -102,7 +102,7 @@ func (v *vpService) VerifyVPForBms(ctx context.Context, requestBody *models.VpBm
 		return err
 	}
 
-	if vcHash, err := utils.Generate256HashHex(verified); err == nil {
+	if vcHash, err := utils.Generate256HashHex(&verified.VerifiableCredential[0]); err == nil {
 		return interpretVCState(v.chain.CheckVCRecordState(verified.VerifiableCredential[0].Id, vcHash))
 	}
 
