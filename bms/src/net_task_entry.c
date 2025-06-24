@@ -1,6 +1,6 @@
+#include <net_task_entry.h>
 #include "usr_app.h"
 #include "net_task.h"
-#include "net_task_skeleton.h"
 #include "common_utils.h"
 
 /* @Matthias */
