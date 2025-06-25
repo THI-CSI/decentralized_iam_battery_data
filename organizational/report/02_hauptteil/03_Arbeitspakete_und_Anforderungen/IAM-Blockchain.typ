@@ -130,3 +130,4 @@ frontend in typescript aus inline Kommentaren generiert.
   geprüft, und auch zuverlässig angelegt landen allerdings im falschen Block.
 
 - Das JSONschema für den VC welcher den access von services steuert hat doppelte issuance & expiration dates.
+
