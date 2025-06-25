@@ -1,0 +1,7 @@
+requests==2.32.4
+base58==2.1.1
+pycryptodome==3.23.0
+jwcrypto==1.5.6
+hypothesis==6.135.13
+hypothesis-jsonschema==0.23.1
+jsonref==1.1.0

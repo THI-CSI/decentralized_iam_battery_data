@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "json-schema-faker": "^0.5.9"
+  }
+}

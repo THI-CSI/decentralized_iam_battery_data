@@ -21,7 +21,12 @@ The API is written in Python and can be run with Docker Compose.
 
 ### Initialization
 
-Create a `.env` file containing `PASSPHRASE` and, if wanted, `BLOCKCHAIN_URL` to specify the blockchain endpoint.
+Create a `.env` file containing the following variables:
+
+- `PASSPHRASE` as the password for the private key file
+- `BLOCKCHAIN_URL` as the URL of the blockchain
+- `CLOUD_NAME` as the name of the cloud, e.g. 'central'
+- `EU_PRIVATE_KEY` as the path to the test EU private key
 
 ```shell
 echo "PASSPHRASE=$(python -c 'import uuid; print(uuid.uuid4())')" > .env

@@ -1,11 +1,17 @@
+import os
 from pathlib import Path
 import json
 import re
 from jsonschema import validate, Draft4Validator, ValidationError
 
 # Define relevant paths
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 SCHEMA_DIR = PROJECT_ROOT / 'cloud' / 'BatteryPassDataModel'
+
+DOCKER_SETUP = os.getenv("DOCKER_SETUP", "false") == "true"
+if DOCKER_SETUP:
+    SCHEMA_DIR = Path(__file__).resolve().parent.parent / 'BatteryPassDataModel'
 
 # ------------------------------- Shared ------------------------------- #
 def load_schema(submodel: str) -> dict:
@@ -14,7 +20,7 @@ def load_schema(submodel: str) -> dict:
     path = SCHEMA_DIR / f"{submodel}-schema.json"
     if not path.exists():
         raise FileNotFoundError(f"Schema not found for {submodel}")
-    with path.open("r", encoding="utf-16") as f:
+    with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 # ------------------------------- Full Payload Validation ------------------------------- #

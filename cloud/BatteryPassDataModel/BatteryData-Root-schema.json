@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Root Schema",
+  "type": "object",
+  "properties": {
+    "carbonFootprint": {
+      "$ref": "CarbonFootprint-schema.json#"
+    },
+    "circularity": {
+      "$ref": "Circularity-schema.json#"
+    },
+    "generalProductInformation": {
+      "$ref": "GeneralProductInformation-schema.json#"
+    },
+    "labels": {
+      "$ref": "Labels-schema.json#"
+    },
+    "materialComposition": {
+      "$ref": "MaterialComposition-schema.json#"
+    },
+    "performance": {
+      "$ref": "Performance-schema.json#"
+    },
+    "supplyChainDueDiligence": {
+      "$ref": "SupplyChainDueDiligence-schema.json#"
+    }
+  },
+  "required": [
+    "carbonFootprint",
+    "circularity",
+    "generalProductInformation",
+    "labels",
+    "materialComposition",
+    "performance",
+    "supplyChainDueDiligence"
+  ],
+  "additionalProperties": false
+}

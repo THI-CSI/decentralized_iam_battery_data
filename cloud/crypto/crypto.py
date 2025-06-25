@@ -6,6 +6,8 @@ import json
 from jwcrypto import jws, jwk
 import os
 import requests
+#from test.cloudutil import ecc_public_key_to_multibase, build_did_document, sign_did, register_key_with_blockchain, export_pem
+import cloudutil.cloudutil as cloudutil
 
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -14,8 +16,6 @@ from Crypto.Protocol.DH import key_agreement
 from Crypto.Protocol.KDF import HKDF
 from Crypto.Signature import DSS
 from Crypto.PublicKey import ECC
-from typing import Dict, Any
-from Crypto.Hash import SHA3_256
 from multiformats import multibase
 from tinydb.table import Document
 
@@ -90,15 +90,36 @@ def determine_role(doc: Document | None, sender_did: str) -> str | None:
     return "oem" if controller == "did:batterypass:eu" else None
 
 
-def generate_keys(password: str) -> None:
-    # TODO: Generate key pair once and register with blockchain
+def initialize():
     keys_dir = pathlib.Path(__file__).parent / "keys"
     keys_dir.mkdir(exist_ok=True)
+    password = os.getenv("PASSPHRASE", "secret")
+    print(keys_dir)
     if not (keys_dir / "key.pem").is_file():
-        key = ECC.generate(curve="P-256")
-        export_private_key(key, password, keys_dir / "key.pem")
-        logging.info(f"Generated {keys_dir / "key.pem"}")
-        register_key(key.public_key())
+        private_key = generate_keys(password, keys_dir)
+        public_key = private_key.public_key()
+        public_key_multibase = cloudutil.ecc_public_key_to_multibase(public_key)
+
+        cloud_name = os.getenv("CLOUD_NAME", "central")
+        did = f"did:batterypass:cloud.sn-{cloud_name}"
+        controller = "did:batterypass:eu"
+        did_doc = cloudutil.build_did_document(did, controller, public_key_multibase)
+
+        verification_method = f"{controller}#key-1"
+
+        controller_priv_key_path = pathlib.Path(os.getenv("TESTKEYS_DIR", "../blockchain/internal/api/web/testkeys/")+'ec_private_key.pem')
+        with open(controller_priv_key_path, "r") as f:
+            controller_priv_key = ECC.import_key(f.read())
+        signed_did_doc = cloudutil.sign_did(did_doc, controller_priv_key, verification_method)
+
+        cloudutil.register_key_with_blockchain(signed_did_doc)
+
+
+def generate_keys(password: str, keys_dir: pathlib.Path):
+    key = ECC.generate(curve="P-256")
+    cloudutil.export_private_key(key, password, keys_dir, f"key.der")
+    cloudutil.export_pem(key, keys_dir, f"key.pem")
+    return key
 
 
 def export_private_key(key: ECC.EccKey, passphrase: str, key_path: pathlib.Path) -> None:
@@ -117,11 +138,11 @@ def load_private_key(passphrase: str) -> ECC.EccKey:
     pem_file = pathlib.Path(__file__).parent / "keys" / "key.pem"
     assert pem_file.is_file()
     with open(pem_file, "r") as f:
-        return ECC.import_key(f.read(), passphrase=passphrase)
+        return ECC.import_key(f.read())
 
 
 def register_key(public_key: ECC.EccKey):
-    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids", json={
+    response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/createormodify", json={
         "publicKey": {
             "type": "Multikey",
             "publicKeyMultibase": multibase.encode(public_key.export_key(format="DER"), "base58btc"),
@@ -147,57 +168,37 @@ def retrieve_public_key(did: str) -> ECC.EccKey:
         raise ValueError("Public key revoked.")
     return ECC.import_key(multibase.decode(response.json()["verificationMethod"]["publicKeyMultibase"]))
 
-def verify_vp(vp_json_object: json, private_key: ECC.EccKey) -> str|None:
+
+def verify_vp(vp_json_object) -> str | None:
     """
     This function takes a Verifiable Presentation dictionary and sends it to the Blockchain for verification.
     """
-
     validator = jws.JWS()
-    validator.deserialize(vp_json_object["proof"]["jws"])
-    key = jwk.JWK.from_pem(private_key.export_key(format="PEM").encode())
-    validator.verify(key)
-
-    if "proof" not in vp_json_object or "jws" not in vp_json_object["proof"]:
+    try:
+        # validator.deserialize(vp_json_object.proof.jws)
+        # did = vp_json_object.proof.verificationMethod.split("#")[0]
+        validator.deserialize(vp_json_object["proof"]["jws"])
+        did = vp_json_object["proof"]["verificationMethod"].split("#")[0]
+    except KeyError:
         return None
-
+    key = jwk.JWK.from_pem(retrieve_public_key(did).export_key(format="PEM").encode())
+    try:
+        validator.verify(key)
+    except jws.InvalidJWSSignature:
+        return None
 
     # Then we send the Data to the Blockchain.
     response = requests.post(
-        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vc/verify", json=vp_json_object)
-    
-    
-def verify_vc(vc_json_object: json) -> bool:
-    """
-    This function takes a Verifiable Credential dictionary, extracts the URI, issuer id, and holder id, and
-    creates a 256-bit SHA-3 hash of the whole VC. The Data is then send to the blockchain to be verified.
-    """
+        f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/vps/verify/service",
+        # json=vp_json_object.model_dump(mode='json', by_alias=True)
+        json = vp_json_object
+    )
+    if not response.ok:
+        return None
 
-    # Extract the uri, issuer and holder
-    uri, issuer, holder = extract_vc_info(vc_json_object)
-
-    # To generate the Hash, we must first serialize the Object
-    serialized_vc = json.dumps(vc_json_object, separators=(',', ':'), sort_keys=True).encode('utf-8')
-
-    # Create the SHA3-256bit Hash
-    vc_hash = SHA3_256.new(serialized_vc)
-
-    # devbod: TODO: Should we use hexdigest()?
-    # vc_digest = vc_hash.hexdigest()
-
-    # Now we need to send the Data to the Blockchain
-    # First we create the Datastructures we send
-    data = {
-        "uri": uri,
-        "issuer": issuer,
-        "holder": holder,
-        "hash": vc_hash
-    }
-
-    # Then we send the Data to the Blockchain
-    response = requests.post(BLOCKCHAIN_URL, json=data)
-
-    # If the response is 200, the VC is valid.
-    if response.ok:
-        return vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]
-    else:
+    try:
+        if "read" in vp_json_object["verifiableCredential"][0]["credentialSubject"]["accessLevel"]:
+            return "read"
+        return None
+    except (KeyError, StopIteration):
         return None

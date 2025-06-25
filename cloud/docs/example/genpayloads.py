@@ -9,6 +9,9 @@ from functools import lru_cache
 from urllib.parse import quote
 from pathlib import Path
 from os import urandom, getenv
+
+import requests
+from multiformats import multibase
 from dotenv import load_dotenv
 from Crypto.Protocol.DH import key_agreement
 from Crypto.PublicKey import ECC
@@ -28,8 +31,7 @@ oem_key: ECC.EccKey
 
 @lru_cache()
 def load_cloud_public_key() -> ECC.EccKey:
-    with open(cloud_path / "crypto" / "keys" / "key.pem", 'rb') as f:
-        return ECC.import_key(f.read(), passphrase=getenv("PASSPHRASE")).public_key()
+    return ECC.import_key(multibase.decode(requests.get("http://localhost:8000/").json()["publicKeyMultibase"]))
 
 
 def gen_payload(path: Path, sign_key: ECC.EccKey, sender_did: str, b: bytes, query: str = None) -> None:

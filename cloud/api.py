@@ -20,11 +20,11 @@ from qrcode.image.styles.colormasks import SolidFillColorMask
 from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
 from tinydb import TinyDB, where
 
-from crypto.crypto import load_private_key, generate_keys, encrypt_hpke, determine_role, \
-    decrypt_hpke, verify_vc
+from crypto.crypto import initialize, load_private_key, generate_keys, encrypt_hpke, determine_role, \
+    decrypt_hpke, verify_vp
 from dotenv import load_dotenv
 from util.models import EncryptedPayload, SuccessfulResponse, DID, \
-    BadRequestResponse, ForbiddenResponse, NotFoundResponse, VerifiablePresentation, get_encrypted_payload
+    BadRequestResponse, ForbiddenResponse, NotFoundResponse, VerifiablePresentation
 from util.middleware import verify_request, retrieve_data
 from util.validators import validate_battery_pass_payload
 
@@ -36,7 +36,8 @@ app = FastAPI(
 )
 
 load_dotenv()
-generate_keys(os.getenv("PASSPHRASE", "secret"))
+
+initialize()
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -125,8 +126,6 @@ def read_root():
     """
     Handles the root endpoint of the API and provides a response indicating
     the operational status of the API.
-
-    :return: A dictionary containing a message indicating that the API is working
     """
     return {"ok": "API is running.", "publicKeyMultibase": pub_key_multibase}
 
@@ -142,29 +141,22 @@ async def list_dids(db: TinyDB = Depends(get_db)):
     return [entry["did"] for entry in entries if "did" in entry]
 
 
-@app.get("/batterypass/{did}",
-         summary="Get a battery pass entry by DID",
-         tags=["Battery Pass"],
-         responses={
-             200: {"model": dict, "content": {"application/json": {"example": batterypass_json}}},
-             400: {"model": BadRequestResponse},
-             404: {"model": NotFoundResponse},
-         },
-         description="A detailed description can be found "
-                     "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
-                     "/blob/main/cloud/docs/api.md#get-batterypassdid)**."
-         )
+@app.post("/batterypass/read/{did}",
+          summary="Get a battery pass entry by DID",
+          tags=["Battery Pass"],
+          responses={
+              200: {"model": dict, "content": {"application/json": {"example": batterypass_json}}},
+              400: {"model": BadRequestResponse},
+              404: {"model": NotFoundResponse},
+          },
+          description="A detailed description can be found "
+                      "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                      "/blob/main/cloud/docs/api.md#get-batterypassreaddid)**. "
+                      "If body is omitted, read public data."
+          )
 async def read_item(
         did: DID,
-        payload: str = Query(
-            default=None,
-            description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
-                        "/blob/main/cloud/docs/api.md#request-body) as a serialized string.\n\n"
-                        "The payload inside the ciphertext can contain a 128-byte random number "
-                        "**or** a [Verifiable Presentation](https://www.w3.org/TR/vc-data-model-2.0/) granting access."
-        ),
-        public: bool = Query(default=True, description="Whether to retrieve only public battery pass data.\n\n"
-                                                       "If set to `false`, `payload` must be provided."),
+        payload: EncryptedPayload = None,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
@@ -173,18 +165,13 @@ async def read_item(
     This endpoint fetches information from the TinyDB database corresponding
     to the given DID. The DID must be formatted correctly for the query to
     execute successfully.
-
-    :return: A list of query results from the database that matches the specified DID.
     """
     document = db.search(where("did") == did)
     if not document:
         return error_response(404, "Entry doesn't exist.")
-    if public:
-        return retrieve_data(scope="public", did=did, doc=document[0], private_key=private_key)
     if not payload:
-        return error_response(400, "Payload must be provided.")
+        return retrieve_data(scope="public", did=did, doc=document[0], private_key=private_key)
     try:
-        payload: EncryptedPayload = EncryptedPayload.model_validate_json(payload) if payload else None
         decrypted_payload = verify_request(payload, private_key)
         vp: VerifiablePresentation = is_vp(decrypted_payload)
         if not vp and len(decrypted_payload) != 128:
@@ -193,12 +180,12 @@ async def read_item(
         return error_response(400, str(e))
     if determine_role(document[0], payload.did) == "bms":
         return retrieve_data(scope="bms", did=did, doc=document[0], private_key=private_key)
-    if vp and verify_vc(vp):
+    if vp and verify_vp(json.loads(decrypted_payload)) == "read":
         return retrieve_data(scope="legitimate_interest", did=did, doc=document[0], private_key=private_key)
     return error_response(400, "Invalid request.")
 
 
-@app.put("/batterypass/{did}",
+@app.put("/batterypass/create/{did}",
          summary="Create a new battery pass entry for a DID",
          tags=["Battery Pass"],
          responses={
@@ -213,7 +200,7 @@ async def read_item(
          },
          description="A detailed description can be found "
                      "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
-                     "/blob/main/cloud/docs/api.md#put-batterypassdid)**.")
+                     "/blob/main/cloud/docs/api.md#put-batterypasscreatedid)**.")
 async def create_item(
         payload: EncryptedPayload,
         did: DID,
@@ -227,8 +214,6 @@ async def create_item(
     DID in the database. The item payload undergoes verification using the
     provided private key. If an entry for the DID already exists within the
     database, an HTTPException with status code 400 is raised.
-
-    :return: Success message indicating the entry was added successfully.
     """
     try:
         decrypted_payload = verify_request(payload, private_key)
@@ -249,7 +234,7 @@ async def create_item(
     return {"ok": f"Entry for {did} added successfully."}
 
 
-@app.post("/batterypass/{did}",
+@app.post("/batterypass/update/{did}",
           summary="Update a battery pass entry by DID",
           tags=["Battery Pass"],
           responses={
@@ -265,7 +250,7 @@ async def create_item(
           },
           description="A detailed description can be found "
                       "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
-                      "/blob/main/cloud/docs/api.md#post-batterypassdid)**.")
+                      "/blob/main/cloud/docs/api.md#post-batterypassupdatedid)**.")
 async def update_item(
         payload: EncryptedPayload,
         did: DID,
@@ -279,8 +264,6 @@ async def update_item(
     Decodes the encrypted data provided in the request payload using the specified private key. Fetches the document
     associated with the given DID from the database, decrypts it, and applies the updates from the payload. The updated
     data is re-encrypted and stored back in the database.
-
-    :return: A dictionary confirming a successful update for the specified DID.
     """
     try:
         decrypted_payload = json.loads(verify_request(payload, private_key))
@@ -307,40 +290,33 @@ async def update_item(
     return {"ok": f"Entry for {did} updated successfully."}
 
 
-@app.delete("/batterypass/{did}",
-            summary="Delete a battery pass entry by DID",
-            tags=["Battery Pass"],
-            responses={
-                200: {"model": SuccessfulResponse,
-                      "content": {
-                          "application/json": {
-                              "example": {"ok": "Entry for did:batterypass:bms.sn-987654321 deleted successfully."}
-                          }
-                      }},
-                400: {"model": BadRequestResponse},
-                403: {"model": ForbiddenResponse},
-                404: {"model": NotFoundResponse},
-            },
-            description="A detailed description can be found "
-                        "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
-                        "/blob/main/cloud/docs/api.md#delete-batterypassdid)**.")
+@app.post("/batterypass/delete/{did}",
+          summary="Delete a battery pass entry by DID",
+          tags=["Battery Pass"],
+          responses={
+              200: {"model": SuccessfulResponse,
+                    "content": {
+                        "application/json": {
+                            "example": {"ok": "Entry for did:batterypass:bms.sn-987654321 deleted successfully."}
+                        }
+                    }},
+              400: {"model": BadRequestResponse},
+              403: {"model": ForbiddenResponse},
+              404: {"model": NotFoundResponse},
+          },
+          description="A detailed description can be found "
+                      "**[here](https://github.com/THI-CSI/decentralized_iam_battery_data"
+                      "/blob/main/cloud/docs/api.md#delete-batterypassdeletedid)**.")
 async def delete_item(
         did: DID,
-        payload: str = Query(
-            description="An [encrypted JSON payload](https://github.com/THI-CSI/decentralized_iam_battery_data"
-                        "/blob/main/cloud/docs/api.md#request-body) as a serialized string.\n\n"
-                        "The payload inside the ciphertext must contain a 128-byte random number."
-        ),
+        payload: EncryptedPayload,
         db: TinyDB = Depends(get_db),
         private_key: ECC.EccKey = Depends(get_private_key),
 ):
     """
     For a given DID, delete the entry from the database.
-
-    :return: None
     """
     try:
-        payload = EncryptedPayload.model_validate_json(payload)
         verify_request(payload, private_key)
     except ValueError as e:
         return error_response(400, str(e))
@@ -362,7 +338,7 @@ async def delete_item(
     return {"ok": f"Entry for {did} deleted successfully."}
 
 
-@app.get("/batterypass/{did}/qr",
+@app.get("/batterypass/qr/{did}",
          summary="Get a QR code for a battery pass entry by DID",
          tags=["Battery Pass"],
          responses={

@@ -16,6 +16,17 @@ STREAMLIT_BASE_URL = os.getenv("STREAMLIT_BASE_URL", "http://localhost:8501")
 
 st.title(":green[BatteryPass Data Viewer]")
 
+# Hide Deploy Button
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
+
 # Sidebar options to interact with the API
 st.sidebar.title("Options")
 view_data = st.sidebar.selectbox(
@@ -84,7 +95,7 @@ def list_all_dids():
 def fetch_did_data(did):
     url = f"{API_BASE_URL}/batterypass/{did}"
     try:
-        response = requests.get(url)
+        response = requests.post(f"{API_BASE_URL}/batterypass/read/{did}")
         if response.status_code == 200:
             return response.json()
         else:

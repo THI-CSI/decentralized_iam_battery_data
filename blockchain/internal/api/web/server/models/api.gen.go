@@ -593,7 +593,7 @@ type ServerInterface interface {
 	// (POST /api/v1/vcs/create/cloud)
 	CreateVcRecordCloud(ctx echo.Context) error
 	// Create a VC Record for a Services
-	// (POST /api/v1/vcs/create/services)
+	// (POST /api/v1/vcs/create/service)
 	CreateVcRecordServices(ctx echo.Context) error
 	// Revoke a VC Record
 	// (POST /api/v1/vcs/revoke)
@@ -608,7 +608,7 @@ type ServerInterface interface {
 	// (POST /api/v1/vps/verify/cloud)
 	VerifyVpCloud(ctx echo.Context) error
 	// Verify a VP Record for Services
-	// (POST /api/v1/vps/verify/services)
+	// (POST /api/v1/vps/verify/service)
 	VerifyVpServices(ctx echo.Context) error
 }
 
@@ -827,11 +827,11 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/api/v1/vcs", wrapper.GetAllVcRecords)
 	router.POST(baseURL+"/api/v1/vcs/create/bms", wrapper.CreateVcRecordBms)
 	router.POST(baseURL+"/api/v1/vcs/create/cloud", wrapper.CreateVcRecordCloud)
-	router.POST(baseURL+"/api/v1/vcs/create/services", wrapper.CreateVcRecordServices)
+	router.POST(baseURL+"/api/v1/vcs/create/service", wrapper.CreateVcRecordServices)
 	router.POST(baseURL+"/api/v1/vcs/revoke", wrapper.RevokeVcRecord)
 	router.GET(baseURL+"/api/v1/vcs/:vcUri", wrapper.GetVcRecordById)
 	router.POST(baseURL+"/api/v1/vps/verify/bms", wrapper.VerifyVpBms)
 	router.POST(baseURL+"/api/v1/vps/verify/cloud", wrapper.VerifyVpCloud)
-	router.POST(baseURL+"/api/v1/vps/verify/services", wrapper.VerifyVpServices)
+	router.POST(baseURL+"/api/v1/vps/verify/service", wrapper.VerifyVpServices)
 
 }
