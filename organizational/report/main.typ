@@ -17,7 +17,7 @@
   doc,
 )
 
-#include "01_einleitung/main.typ"
+
 
 #include "02_hauptteil/wrapper.typ"
 

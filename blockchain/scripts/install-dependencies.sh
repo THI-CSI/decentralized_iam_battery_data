@@ -10,7 +10,6 @@ python3 -m venv $VENV
 $PIP install --upgrade pip
 
 # Go installs
-go install github.com/swaggo/swag/cmd/swag@latest
 go get github.com/multiformats/go-multibase@latest
 go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
 go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
@@ -18,7 +17,7 @@ go get github.com/labstack/echo/v4
 go get github.com/labstack/echo/v4/middleware@v4.13.4
 go get github.com/oapi-codegen/runtime
 go get github.com/xeipuuv/gojsonschema
-
+go install go101.org/golds@latest
 
 # NPM installs
 npm install --save-dev quicktype@23.2.4 # flag makes sure its in the projects devDependencies not dependencies
@@ -35,3 +34,4 @@ npm install --save-dev prettier
 # PIP installs
 $PIP install json-schema-for-humans
 $PIP install cryptography base58
+$PIP install jwcrypto

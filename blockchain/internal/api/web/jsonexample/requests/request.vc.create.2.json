@@ -1,0 +1,33 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "http://localhost:8443/docs/vc.serviceAccess.schema.html"
+  ],
+  "id": "urn:uuid:a1fd774e-5300-4171-b778-e53cedb64823",
+  "type": [
+    "VerifiableCredential",
+    "ServiceAccess"
+  ],
+  "issuer": "did:batterypass:bms.sn-544b51e7",
+  "holder": "did:batterypass:service.sn-service1",
+  "issuanceDate": "2025-06-17T16:17:43Z",
+  "expirationDate": "2026-06-17T16:17:43Z",
+  "credentialSubject": {
+    "id": "did:batterypass:service.sn-service1",
+    "type": "ServiceAccess",
+    "bmsDid": "did:batterypass:bms.sn-544b51e7",
+    "accessLevel": [
+      "read",
+      "write"
+    ],
+    "validFrom": "2025-06-17T16:17:43Z",
+    "validUntil": "2026-06-17T16:17:43Z"
+  },
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-06-17T16:17:43Z",
+    "verificationMethod": "did:batterypass:bms.sn-544b51e7#key-1",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJAY29udGV4dCI6IFsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCAiaHR0cDovL2xvY2FsaG9zdDo4NDQzL2RvY3MvdmMuc2VydmljZUFjY2Vzcy5zY2hlbWEuaHRtbCJdLCAiaWQiOiAidXJuOnV1aWQ6YTFmZDc3NGUtNTMwMC00MTcxLWI3NzgtZTUzY2VkYjY0ODIzIiwgInR5cGUiOiBbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwgIlNlcnZpY2VBY2Nlc3MiXSwgImlzc3VlciI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgImhvbGRlciI6ICJkaWQ6YmF0dGVyeXBhc3M6c2VydmljZS5zbi1zZXJ2aWNlMSIsICJpc3N1YW5jZURhdGUiOiAiMjAyNS0wNi0xN1QxNjoxNzo0M1oiLCAiZXhwaXJhdGlvbkRhdGUiOiAiMjAyNi0wNi0xN1QxNjoxNzo0M1oiLCAiY3JlZGVudGlhbFN1YmplY3QiOiB7ImlkIjogImRpZDpiYXR0ZXJ5cGFzczpzZXJ2aWNlLnNuLXNlcnZpY2UxIiwgInR5cGUiOiAiU2VydmljZUFjY2VzcyIsICJibXNEaWQiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi01NDRiNTFlNyIsICJhY2Nlc3NMZXZlbCI6IFsicmVhZCIsICJ3cml0ZSJdLCAidmFsaWRGcm9tIjogIjIwMjUtMDYtMTdUMTY6MTc6NDNaIiwgInZhbGlkVW50aWwiOiAiMjAyNi0wNi0xN1QxNjoxNzo0M1oifSwgInByb29mIjogeyJ0eXBlIjogIkVjZHNhU2VjcDI1NnIxU2lnbmF0dXJlMjAxOSIsICJjcmVhdGVkIjogIjIwMjUtMDYtMTdUMTY6MTc6NDNaIiwgInZlcmlmaWNhdGlvbk1ldGhvZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3I2tleS0xIiwgInByb29mUHVycG9zZSI6ICJhdXRoZW50aWNhdGlvbiIsICJqd3MiOiAiIn19.dRN5eT2z_RGjJOT4Mq29vMOXLH5LBFfrcHUwwjf_dh_vassHwccT-kTwSlecGgKhd0GIOVQvHVPR88zYnqzpcQ"
+  }
+}

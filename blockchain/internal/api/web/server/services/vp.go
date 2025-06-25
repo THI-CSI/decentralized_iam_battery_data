@@ -16,7 +16,9 @@ import (
 
 // VPService defines the interface for creating and returning vcs of the blockchain
 type VPService interface {
-	VerifyVP(ctx context.Context, verify *models.VerifyVpJSONRequestBody) error
+	VerifyVPForCloud(ctx context.Context, verify *models.VerifyVpCloudJSONRequestBody) error
+	VerifyVPForServices(ctx context.Context, verify *models.VerifyVpServicesJSONRequestBody) error
+	VerifyVPForBms(ctx context.Context, verify *models.VerifyVpBmsJSONRequestBody) error
 }
 
 // vcService is a concrete implementation of the VCService interface.
@@ -29,14 +31,12 @@ func NewVPService(chain *core.Blockchain) VPService {
 	return &vpService{chain: chain}
 }
 
-// VerifyVP verifies that the received VP contains valid DIDs and a valid VC
-func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) error {
-	// Check signature of VP
+func (v *vpService) VerifyVPForCloud(ctx context.Context, requestBody *models.VpCloudSchema) error {
 	verifiedBytes, err := utils.VerifyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
 	if err != nil {
 		return err
 	}
-	var verified models.VpSchema
+	var verified models.VpCloudSchema
 	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
 		return err
 	}
@@ -54,34 +54,98 @@ func (v *vpService) VerifyVP(ctx context.Context, requestBody *models.VpSchema) 
 		return errors.New("signed data differs from the payload")
 	}
 
-	if err := checkVPSemantics(requestBody); err != nil {
+	if err := checkVPSemanticsForCloud(requestBody); err != nil {
 		return err
 	}
 
 	// Check VC Hash
-	errr := utils.CheckVCSemantics(&verified.VerifiableCredential[0])
-	if errr == nil {
-		if vcBMS, err := verified.VerifiableCredential[0].AsVcBmsProducedSchema(); err == nil {
-			if vcHash, err := utils.Generate256HashHex(vcBMS); err == nil {
-				return interpretVCState(v.chain.CheckVCRecordState(vcBMS.Id, vcHash))
-			} else {
-				return err
-			}
-		} else if vcService, err := verified.VerifiableCredential[0].AsVcServiceAccessSchema(); err == nil {
-			if vcHash, err := utils.Generate256HashHex(vcService); err == nil {
-				return interpretVCState(v.chain.CheckVCRecordState(vcService.Id, vcHash))
-			} else {
-				return err
-			}
-		} else if vcCloud, err := verified.VerifiableCredential[0].AsVcCloudInstanceSchema(); err == nil {
-			if vcHash, err := utils.Generate256HashHex(vcCloud); err == nil {
-				return interpretVCState(v.chain.CheckVCRecordState(vcCloud.Id, vcHash))
-			} else {
-				return err
-			}
-		}
+	if err := utils.VerifyRequestCreateCloud(&verified.VerifiableCredential[0]); err != nil {
+		return err
 	}
-	return errr
+
+	if vcHash, err := utils.Generate256HashHex(&verified.VerifiableCredential[0]); err == nil {
+		return interpretVCState(v.chain.CheckVCRecordState(verified.VerifiableCredential[0].Id, vcHash))
+	}
+
+	return nil
+}
+
+func (v *vpService) VerifyVPForBms(ctx context.Context, requestBody *models.VpBmsSchema) error {
+	verifiedBytes, err := utils.VerifyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+	var verified models.VpBmsSchema
+	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+		return err
+	}
+	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+	canon1, err := canonicaljson.Marshal(verified)
+	if err != nil {
+		return err
+	}
+	canon2, err := canonicaljson.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(canon1, canon2) {
+		fmt.Println("Canonical diff:", cmp.Diff(canon1, canon2))
+		return errors.New("signed data differs from the payload")
+	}
+
+	if err := checkVPSemanticsForBms(requestBody); err != nil {
+		return err
+	}
+
+	// Check VC Hash
+	if err := utils.VerifyRequestCreateBms(&verified.VerifiableCredential[0]); err != nil {
+		return err
+	}
+
+	if vcHash, err := utils.Generate256HashHex(&verified.VerifiableCredential[0]); err == nil {
+		return interpretVCState(v.chain.CheckVCRecordState(verified.VerifiableCredential[0].Id, vcHash))
+	}
+
+	return nil
+}
+
+func (v *vpService) VerifyVPForServices(ctx context.Context, requestBody *models.VpServiceSchema) error {
+	verifiedBytes, err := utils.VerifyJWS(v.chain, requestBody.Proof.Jws, requestBody.Proof.VerificationMethod)
+	if err != nil {
+		return err
+	}
+	var verified models.VpServiceSchema
+	if err := json.Unmarshal(verifiedBytes, &verified); err != nil {
+		return err
+	}
+	requestBody.Proof.Jws = "" // Because this will default to its zero value when unmarshalling verified
+	canon1, err := canonicaljson.Marshal(verified)
+	if err != nil {
+		return err
+	}
+	canon2, err := canonicaljson.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(canon1, canon2) {
+		fmt.Println("Canonical diff:", cmp.Diff(canon1, canon2))
+		return errors.New("signed data differs from the payload")
+	}
+
+	if err := checkVPSemanticsForServices(requestBody); err != nil {
+		return err
+	}
+
+	// Check VC Hash
+	if err := utils.VerifyRequestCreateServices(&verified.VerifiableCredential[0]); err != nil {
+		return err
+	}
+
+	if vcHash, err := utils.Generate256HashHex(&verified.VerifiableCredential[0]); err == nil {
+		return interpretVCState(v.chain.CheckVCRecordState(verified.VerifiableCredential[0].Id, vcHash))
+	}
+
+	return nil
 }
 
 func interpretVCState(state core.VCState) error {
@@ -97,31 +161,29 @@ func interpretVCState(state core.VCState) error {
 	return errors.New("vc not on the blockchain")
 }
 
-func checkVPSemantics(requestBody *models.VpSchema) error {
-	verifieableCredential := requestBody.VerifiableCredential[0]
+func checkVPSemanticsForCloud(requestBody *models.VpCloudSchema) error {
 	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
 	verificationMethodDID := parts[0]
-	if vcBms, err := verifieableCredential.AsVcBmsProducedSchema(); err == nil {
-
-		if vcBms.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
-			return nil
-		}
-		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcBms.Holder, requestBody.Holder, verificationMethodDID)
-
-	} else if vcService, err := verifieableCredential.AsVcServiceAccessSchema(); err == nil {
-
-		if vcService.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
-			return nil
-		}
-		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcService.Holder, requestBody.Holder, verificationMethodDID)
-
-	} else if vcCloud, err := verifieableCredential.AsVcCloudInstanceSchema(); err == nil {
-
-		if vcCloud.Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
-			return nil
-		}
-		return fmt.Errorf("The following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", vcCloud.Holder, requestBody.Holder, verificationMethodDID)
-
+	if requestBody.VerifiableCredential[0].Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
+		return nil
 	}
-	return errors.New("VC Unrecognized or invalid VC type in request payload")
+	return fmt.Errorf("the following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", requestBody.VerifiableCredential[0].Holder, requestBody.Holder, verificationMethodDID)
+}
+
+func checkVPSemanticsForServices(requestBody *models.VpServiceSchema) error {
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+	if requestBody.VerifiableCredential[0].Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
+		return nil
+	}
+	return fmt.Errorf("the following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", requestBody.VerifiableCredential[0].Holder, requestBody.Holder, verificationMethodDID)
+}
+
+func checkVPSemanticsForBms(requestBody *models.VpBmsSchema) error {
+	parts := strings.SplitN(requestBody.Proof.VerificationMethod, "#", 2)
+	verificationMethodDID := parts[0]
+	if requestBody.VerifiableCredential[0].Holder == verificationMethodDID && verificationMethodDID == requestBody.Holder {
+		return nil
+	}
+	return fmt.Errorf("the following 3 dids have to match: VC holder: '%s'; VP holder: '%s'; VP proof verification method: '%s'", requestBody.VerifiableCredential[0].Holder, requestBody.Holder, verificationMethodDID)
 }

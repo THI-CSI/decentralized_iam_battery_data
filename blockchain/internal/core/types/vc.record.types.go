@@ -23,8 +23,8 @@ func (r *VCRecord) Marshal() ([]byte, error) {
 // Minimal record of a Verifiable Credential containing only its ID, a hash of the VC, a
 // timestamp, and expiration date.
 type VCRecord struct {
-	ExpirationDate *time.Time `json:"expirationDate,omitempty"`
-	ID             string     `json:"id"`
-	Timestamp      time.Time  `json:"timestamp"`
-	VcHash         string     `json:"vcHash"`
+	ExpirationDate time.Time `json:"expirationDate"`
+	ID             string    `json:"id"`
+	Timestamp      time.Time `json:"timestamp"`
+	VcHash         string    `json:"vcHash"`
 }

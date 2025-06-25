@@ -2,9 +2,15 @@ import uuid
 import requests
 import json
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 import base58
 from Crypto.PublicKey import ECC
+from multiformats import multibase
+
+from util.logging import log
+
+VERBOSE = os.getenv("VERBOSE", "false").lower() == "true"
 
 MULTICODEC_PREFIXES = {
     'p256': b'\x12\x00',
@@ -36,6 +42,11 @@ def ecc_public_key_to_multibase(ecc_key):
 
     return multibase
 
+def old_log(message, level="info", override=False):
+    if VERBOSE or override:
+        print(f"[{level.upper()}] {message}")
+
+
 def _format_datetime(dt: datetime) -> str:
     """Formats a datetime object to ISO 8601 UTC format (YYYY-MM-DDTHH:MM:SSZ)."""
     # Ensure datetime is timezone-aware (assuming UTC if not) before formatting.
@@ -53,30 +64,75 @@ def create_service_access_vc(
     valid_until: datetime,
     proof: dict = None
 ) -> dict:
+    return create_vc(
+        type="serviceAccess",
+        issuer_did=issuer_did,
+        holder_did=holder_did,
+        subject=bms_did,
+        access_levels=access_levels,
+        valid_from=valid_from,
+        valid_until=valid_until,
+        proof=proof
+    )
+
+def create_cloud_instance_vc(
+    issuer_did: str,
+    holder_did: str,
+    cloud_did: str,
+    valid_from: datetime,
+    valid_until: datetime,
+    proof: dict = None
+) -> dict:
+    return create_vc(
+        type="cloudInstance",
+        issuer_did=issuer_did,
+        holder_did=holder_did,
+        subject=cloud_did,
+        access_levels=None,
+        valid_from=valid_from,
+        valid_until=valid_until,
+        proof=proof
+    )
+
+def create_vc(
+    type: str,
+    issuer_did: str,
+    holder_did: str,
+    subject: str,
+    access_levels: list,
+    valid_from: datetime,
+    valid_until: datetime,
+    proof: dict = None
+) -> dict:
     issuance_date = _format_datetime(valid_from)
     expiration_date = _format_datetime(valid_until)
    
     vc_id = f"urn:uuid:{uuid.uuid4()}"
     credential_subject_id = holder_did
 
+    captialized_type = "ServiceAccess" if type == "serviceAccess" else "CloudInstance"
+    if type not in ["serviceAccess", "cloudInstance"]:
+        raise ValueError(f"Unsupported VC type: {type}. Supported types are 'serviceAccess' and 'CloudInstance'.")
+    
     vc = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
-            "http://localhost:8443/docs/vc.serviceAccess.schema.html"
+            f"http://localhost:8443/docs/vc.{type}.schema.html"
         ],
         "id": vc_id,
-        "type": ["VerifiableCredential", "ServiceAccess"],
+        "type": ["VerifiableCredential", captialized_type],
         "issuer": issuer_did,
         "holder": holder_did,
         "issuanceDate": issuance_date,
         "expirationDate": expiration_date,
         "credentialSubject": {
             "id": credential_subject_id,
-            "type": "ServiceAccess",
-            "bmsDid": bms_did,
-            "accessLevel": access_levels,
-            "validFrom": issuance_date,
-            "validUntil": expiration_date
+            "type": captialized_type,
+            ("bmsDid" if type == "serviceAccess" else "cloudDid"): subject,
+            **({"timestamp": issuance_date} if type == "cloudInstance" else {}),
+            **({"validFrom": issuance_date} if type == "serviceAccess" else {}),
+            **({"validUntil": expiration_date} if type == "serviceAccess" else {}),
+            **({"accessLevel": access_levels} if type == "serviceAccess" else {})
         },
         "proof": proof or {
             "type": "EcdsaSecp256r1Signature2019",
@@ -86,7 +142,6 @@ def create_service_access_vc(
             "jws": ""  # Placeholder, replace with actual signature
         }
     }
-
     return vc
 
 def make_vp_from_vc(vc: dict, holder_did: str, proof: dict = None) -> dict:
@@ -163,8 +218,38 @@ def register_key_with_blockchain(payload: dict = None) -> bool:
     response = requests.post(f"{os.getenv("BLOCKCHAIN_URL", "http://localhost:8443")}/api/v1/dids/createormodify", headers={'Content-type': 'application/json'}, json=payload)
     return response.status_code == 200
 
-def upload_vc_to_blockchain(vc: dict) -> bool:
-    print(f"Uploading VC to Blockchain: {json.dumps(vc, indent=2)}")
-    response = requests.post(f"{os.getenv('BLOCKCHAIN_URL', 'http://localhost:8443')}/api/v1/vcs/create", headers={'Content-type': 'application/json'}, json=vc)
-    return response.status_code == 200
 
+def upload_vc_to_blockchain(vc: dict) -> bool:
+    response = requests.post(f"{os.getenv('BLOCKCHAIN_URL', 'http://localhost:8443')}/api/v1/vcs/create/service", headers={'Content-type': 'application/json'}, json=vc)
+    if response.status_code != 200:
+        log.error(f"{response.status_code}: {response.text}")
+        return False
+    return True
+
+def get_cloud_public_key(url: str):
+    response = None
+    while response is None:
+        try:
+            response = requests.get(url)
+            break
+        except:
+            pass
+
+    if response.status_code == 200:
+        log.info(f"Successfully connected to {url}")
+
+        # This is a multibase base58btc encoded string of a DER key
+        public_key_multibase = response.json().get("publicKeyMultibase", None)
+        log.info(f"Cloud Public Key (Multibase - base58btc): {public_key_multibase}")
+
+        # Decode the multibase string to get the raw DER bytes
+        der_key = multibase.decode(public_key_multibase)
+
+        # Now, import the DER-formatted key (which is in bytes)
+        cloud_public_key = ECC.import_key(der_key)
+
+        log.info(f"Successfully imported Cloud Public Key as ECC object.")
+        return cloud_public_key
+    else:
+        log.error(f"Failed to connect to {url}. Status code: {response.status_code}")
+        sys.exit(1)

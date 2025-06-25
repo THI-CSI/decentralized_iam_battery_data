@@ -1,22 +1,10 @@
 == Überblick und Zusammenhang der Arbeitspakete
+Im Rahmen des Projekts „Decentralized Identity & Access Management für Batteriedaten“ wurde ein System entwickelt, das die dezentrale und sichere Verwaltung von Batteriedaten ermöglichen soll – insbesondere mit Blick auf kommende Anforderungen durch den digitalen Batteriepass gemäß EU-Verordnung.
+Die Arbeit wurde in sechs funktionale Arbeitspakete (WPs) unterteilt, die eng miteinander verzahnt sind und durch klar definierte Teamzuweisungen bearbeitet wurden.
+Das Arbeitspaket Requirements (bearbeitet durch Paulina, Fatma und Timo) bildete die konzeptionelle Grundlage. Ziel war es, aus relevanten Dokumenten wie den W3C-Spezifikationen zu Decentralized Identifiers (DID), Verifiable Credentials (VC) sowie zum BatteryPass konkrete Anforderungen zu extrahieren. Diese wurden priorisiert, in GitHub-Issues überführt und durch ein initiales Rollenkonzept ergänzt. Die Gruppe erarbeitete zudem eine Struktur für die Dokumentation der Anforderungen und koordinierte sich regelmäßig mit den Organisationseinheiten, um eine inhaltliche Kohärenz zwischen Konzeption und Implementierung sicherzustellen. Timo übernahm zusätzlich die Verantwortung für das Projektmanagement, koordinierte Aufgaben über alle Arbeitspakete hinweg, sorgte für die Einhaltung von Zeitplänen, unterstützte bei der Sprint-Organisation und diente als Schnittstelle zwischen den Teams und der Projektleitung.
+Das Team Infrastructure (Berkan und Pascal) übernahm die Einrichtung der technischen Projektstruktur. Dazu gehörten unter anderem die Konfiguration von GitHub-Repositories, Teams, Branching-Modellen, das Aufsetzen des Kanban-Boards sowie die Einbindung von Containerlösungen für die technische Umgebung. Zusätzlich wurden Richtlinien aus dem ADP-Framework übernommen und angepasst. Darüber hinaus war das Infrastructure-Team für die Erstellung des Templates des Abschlussberichts verantwortlich, um eine einheitliche und übersichtliche Dokumentation sicherzustellen. 
+Im Arbeitspaket IAM-Blockchain (Jonas, Till, Felix) wurde der Blockchain-Kern entwickelt. Dieser umfasst die Speicherung von Daten, die Block- und Transaktionsstruktur sowie erste Konzepte zu Konsensmechanismen und Peer-to-Peer-Kommunikation. Die API erlaubt unter anderem das Erstellen und Verwalten von DIDs, das Setzen von Zugriffsrechten und das Verwalten von VC-Records zur Verifikation. Ergänzt wurde dieses Arbeitspaket durch die Entwicklung eines webbasierten Block Explorers, der die Sichtbarkeit und Nachvollziehbarkeit der Blockchain-Daten gewährleistet.
+Das BMS-Team (Matthias, Florian und Patrick) entwickelte eine Mock-BMS-Komponente zur Simulation der Datenerfassung, -verschlüsselung und -übertragung. Ergänzend dazu wurde auch mit realer Hardware gearbeitet, um die Kommunikation zwischen BMS, Cloud und Blockchain unter realitätsnahen Bedingungen zu testen. Dabei lag ein besonderer Fokus auf sicherheitsrelevanten Aspekten wie dem Schutz kryptografischer Schlüssel und der Integrität der Datenübertragung. Das BMS bildet damit die primäre Datenquelle des Gesamtsystems und stellt die Schnittstelle zwischen physikalischer Batterieumgebung und digitaler Dateninfrastruktur dar. Dieses Arbeitspaket war technisch eng mit den WPs Cloud und Blockchain abgestimmt.
+Im Arbeitspaket Cloud (Deniz, Valentin und Ensar) wurde ein Cloud-Backend mit zugehöriger REST-API entwickelt. Diese empfängt die verschlüsselten Daten des BMS, entschlüsselt sie mithilfe eines privaten Schlüssels und validiert sie mithilfe von JSON-Schemas aus dem offiziellen BatteryPassDataModel. Die Cloud-Komponente übernimmt in der Systemarchitektur die Rolle der EU-/OEM-Seite und kontrolliert Zugriffsrechte auf die Daten mithilfe von Verifiable Presentations (VPs). Eine eigene dezentrale Identität (DID) dient zur Authentifizierung. Darauf aufbauend wurde eine Benutzeroberfläche zur Erstellung und Pflege des digitalen Batteriepasses umgesetzt. Die Schnittstellen zu BMS und Blockchain wurden dokumentiert, inklusive API-Spezifikation, Datenfluss, Datenformaten, Authentifizierung und Fehlerbehandlung.
+Die einzelnen Arbeitspakete sind stark miteinander verknüpft. Insbesondere der Austausch von Daten zwischen BMS, Blockchain und Cloud erforderte eine enge Abstimmung und klare Schnittstellendefinitionen. Das Projektteam arbeitete iterativ nach Scrum-Prinzipien mit wöchentlichen Abstimmungen und kontinuierlicher Dokumentation im GitHub-Issue-Tracker.
 
-(_noch überarbeten_)
-#table(
-  columns: 2,
-  [*Team*], [*Beschreibung*],
-  [Requirements Management], [
-    Extraktion und Priorisierung der Projektanforderungen aus Dokumentationen, inklusive strukturierter Erstellung von Issues.
-  ],
-  [Infrastruktur], [
-    Verwaltung und Konfiguration der technischen und organisatorischen Infrastruktur, inklusive GitHub-Einstellungen und Koordination.
-  ],
-  [IAM-Blockchain], [
-    Entwicklung eines Blockchain-Kerns durch Datenstrukturierung, Block- und Transaktionsaufbau sowie Definition von Konsens- und Netzwerkansätzen.
-  ],
-  [BMS], [
-    Sichere Erfassung, Verschlüsselung und Kommunikation von Batteriedaten zwischen dem Battery-Management-System und der Blockchain, inklusive Hardware-Simulation.
-  ],
-  [Cloud], [
-    API- und Datenbank-Design zur Aufnahme und Entschlüsselung von Batteriedaten, inklusive Erstellung einer Battery-Pass-Schnittstelle und Integration von BMS- und Cloud-Diensten.
-  ],
-)

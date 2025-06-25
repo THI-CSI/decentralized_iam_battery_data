@@ -1,92 +1,27 @@
 # BMS (Battery Management System)
 
-A firmware project for managing and monitoring battery systems.
+## Mock BMS
+### Usage
 
-## Project Setup Instructions
-
-Follow these steps to set up your development environment for this project:
-
-### Option 1
-
-> [!Note] 
-> If you're using Windows, we recommend utilizing WSL.
-
-### 1. Install Visual Studio Code
-
-Download and install Visual Studio Code from the official website:
-
-[https://code.visualstudio.com/](https://code.visualstudio.com/)
-
-### 2. Install e²studio
-
-Download and install e²studio from the official website:
-
-[https://www.renesas.com/en/software-tool/e-studio](https://www.renesas.com/en/software-tool/e-studio)
-
-> [!NOTE]
-> You need e²studio to get the Smart Configurator.
-
-### 3. Install ARM Cross Compiler Toolchain
-
-Install the ARM GCC cross compiler toolchain. You can do this by installing the appropriate package for your platform:
-
-- **Windows without WSL (recommended):** [Arm GNU Toolchain Downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
-- **Linux (Ubuntu):**  
-```bash
-sudo apt install gcc-arm-none-eabi
+Run the Mock BMS:
+```shell
+python3 main.py
 ```
 
-### 4. Install SEGGER J-Link
-
-Download and install the SEGGER J-Link software and drivers: 
-
-https://www.segger.com/downloads/jlink
-
-### 5. Clone the GitHub Repository
-
-Open a terminal or command prompt and run:
-```bash
-git clone --recurse-submodules https://github.com/THI-CSI/decentralized_iam_battery_data.git
+You can specify the interval of generating new data in minutes with the `INTERVAL_MIN` environment variable flag:
+```shell
+# This will generate every 6 seconds new data (default: 1 minute)
+INTERVAL_MIN=0.1 python3 main.py
 ```
 
-Additionally, update the `CC` and `OBJCOPY` variables in the `Makefile` to point to your installed ARM toolchain executable.
 
-### 6. Open the Repository in VS Code
-
-- Launch Visual Studio Code, then:
-
-- Select `File` > `Open Folder`
-
-- Browse to the cloned repository and open it
-
-### 7. Additional Extensions
-
-When you open the project in VS Code for the first time, you'll be prompted to install recommended extensions — go ahead and install all of them.
-
-> [!NOTE]
-> If you missed the prompt, you can still install them manually by opening the Extensions view and searching: `@recommended`
-
-### 8. Install RA Device Support Files
-
-- In your system's command prompt or start menu search bar:
-Search for `> Renesas Support Files Manager`
-
-- Launch it
-
-- Under **Device Family**, select **RA**
-
-- Install all support files for the RA family
-
-### 9. Prepare and build the project
-
-- Use Smart Configurator to generate the project files from the configuration.xml.
-
-- To compile the project, run the following command in the project root:
-```bash
-make clean 
-make 
+Run the Mock BMS in a docker container:
+```shell
+docker build -f build/dockerfiles/bms.Dockerfile -t bms .
+docker run --rm -it --network host bms
 ```
 
+<<<<<<< HEAD
 ---
 
 ### Option 2
@@ -199,3 +134,5 @@ Then, to start a server listener (e.g using Netcat):
 ```powershell
 ncat -l 192.168.1.100 12345
 ```
+=======
+>>>>>>> daed205cd23857cd4700c0c653e0c6a9ff10c9d1
