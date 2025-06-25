@@ -27,7 +27,14 @@ You can also reinitialize the keys with the `--reinitialize` flag:
 python3 main.py --reinitialize
 ```
 
-To execute the service access flow, you can use the `--service-access` flag:
+To execute the service access flow, you can use the `--service-access` flag.
+
+To get the private batterypass data of a BMS, you can use the `--private` flag:
 ```shell
-python3 main.py --service-access
+python3 main.py --service-access --bms-did <bms-did> --private | grep -E "numberOfFullCycles|remainingCapacity|roundTripEfficiencyat50PerCentCycleLife|expectedNumberOfCycles"
+```
+
+To get the public data of the batterypass, you can just use  the `--service-access` and `--bms-did <bms-did>` flag without the `--private` flag:
+```shell
+python3 main.py --service-access --bms-did <bms-did> | grep -E "roundTripEfficiencyat50PerCentCycleLife|expectedNumberOfCycles"
 ```
