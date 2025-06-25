@@ -838,11 +838,11 @@
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDNS_REQUEST_ATTEMPTS" value="2"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_PRIORITY" value="configMAX_PRIORITIES - 2"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_STACK_SIZE_WORDS" value="configMINIMAL_STACK_SIZE * 5"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS" value="15000 / portTICK_PERIOD_MS"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP.1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_REGISTER_HOSTNAME" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_REGISTER_HOSTNAME.1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_USES_UNICAST" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_USES_UNICAST.1"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_REGISTER_HOSTNAME" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_REGISTER_HOSTNAME.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_USES_UNICAST" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDHCP_USES_UNICAST.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP_HOOK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP_HOOK.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigMAXIMUM_DISCOVER_TX_PERIOD" value="120000 / portTICK_PERIOD_MS"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigARP_CACHE_ENTRIES" value="6"/>
@@ -859,7 +859,7 @@
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigNETWORK_MTU" value="1500"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS.1"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigREPLY_TO_INCOMING_PINGS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigREPLY_TO_INCOMING_PINGS.1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_OUTGOING_PINGS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_OUTGOING_PINGS.0"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_OUTGOING_PINGS" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_OUTGOING_PINGS.1"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_SELECT_FUNCTION" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSUPPORT_SELECT_FUNCTION.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigFILTER_OUT_NON_ETHERNET_II_FRAMES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigFILTER_OUT_NON_ETHERNET_II_FRAMES.1"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES.0"/>
