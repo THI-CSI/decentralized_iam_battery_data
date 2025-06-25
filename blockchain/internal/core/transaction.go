@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
+	"os"
 	"time"
 )
 
@@ -30,69 +30,152 @@ const (
 	VCPending
 )
 
+// TrustanchorPath is the relative path from tools.py to the trustanchor.json file.
+// The trustanchor.json file contains the EU DID Document.
+const TrustanchorPath = "internal/core/trustanchor.json"
+
 // PendingTransactions is a slice of transactions that make up the next block
 var PendingTransactions []json.RawMessage
 
-// CreateTrustAnchor Creates the EU DID transaction as trust anchor
-// At the moment this is a Hardcoded DID Document for development
-func CreateTrustAnchor() {
+// CreateTrustAnchor loads the EU DID transaction as a trust anchor from a file
+func CreateTrustAnchor() error {
 	PendingTransactions = nil
-	now := time.Now().UTC().Format(time.RFC3339)
 
-	rawJSON := fmt.Sprintf(`{
-  "id": "did:batterypass.eu",
-  "publicKey": {
-    "id": "did:batterypass.eu#root-key",
-    "type": "JsonWebKey2020",
-    "controller": "did:batterypass.eu",
-    "publicKeyMultibase": "z6MkjYi2M3kqXFJ7o1DnzULsoZxiDsUeHcBQkNxnKUhP4YhY"
-  },
-  "timestamp": "%s",
-  "revoked": false
-}`, now)
-	PendingTransactions = append(PendingTransactions, json.RawMessage(rawJSON))
+	// Read the DID document from a file
+	data, err := os.ReadFile(TrustanchorPath)
+	if err != nil {
+		return fmt.Errorf(`failed to read trustanchor.json: %w`, err)
+	}
+
+	// Unmarshal using the generated function
+	did, err := core.UnmarshalDid(data)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal DID document: %w", err)
+	}
+
+	// Update the timestamp field
+	did.Timestamp = time.Now().UTC().Truncate(time.Second)
+
+	// Marshal using the generated method
+	modifiedData, err := did.Marshal()
+	if err != nil {
+		return fmt.Errorf("failed to marshal DID document: %w", err)
+	}
+	PendingTransactions = append(PendingTransactions, modifiedData)
+	return nil
 }
 
+// AppendDid Checks a given did and adds it or calls ModifyDid
 func (chain *Blockchain) AppendDid(did *core.Did) error {
-	didState := chain.VerifyDID(did.ID)
+	didState := chain.CheckDIDState(did.ID)
 	if didState == DidPending {
-		return errors.New("DID is on the list of pending transactions and will be added to the blockchain soon")
+		return errors.New("did is on the list of pending transactions and will be added to the blockchain soon")
 	}
 	if didState == DidRevoked {
-		return errors.New("DID is already revoked")
+		return errors.New("did is already revoked")
 	}
 	if didState == DidValid && !did.Revoked {
-		return errors.New("DID already exists")
-	}
+		if err := chain.ModifyDid(did); err != nil {
+			return err
+		}
+		return nil
+	} else {
+		did.Timestamp = time.Now().UTC().Truncate(time.Second)
+		rawJson, err := did.Marshal()
+		if err != nil {
+			return err
+		}
 
+		PendingTransactions = append(PendingTransactions, rawJson)
+
+		return nil
+	}
+}
+
+// ModifyDid Checks that the identifier hasn't been manipulated and appends the modified DID doc
+func (chain *Blockchain) ModifyDid(did *core.Did) error {
+	didOld, _ := chain.FindDID(did.ID)
+	if didOld.VerificationMethod.Controller != did.VerificationMethod.Controller {
+		return errors.New("the Controller of an did can't be modified")
+	}
 	did.Timestamp = time.Now()
 	rawJson, err := did.Marshal()
 	if err != nil {
 		return err
 	}
-
 	PendingTransactions = append(PendingTransactions, rawJson)
-
 	return nil
 }
 
-func (chain *Blockchain) AppendVcRecords(vcRecords *core.VCRecord) error {
-	vcState := chain.VerifyVCRecord(vcRecords.ID, vcRecords.VcHash)
-	if vcState == VCPending {
-		return errors.New("VC Record is on the list of pending transactions and will be added to the blockchain soon")
+// RevokeDid revokes a given did if it's saved in the blockchain and not yet revoked
+func (chain *Blockchain) RevokeDid(did string) error {
+	didState := chain.CheckDIDState(did)
+	if didState == DidPending {
+		return errors.New("did is on the list of pending transactions try again later")
 	}
-	if vcState != VCAbsent {
-		return errors.New(fmt.Sprintf("VC Record is already present: '%s'", vcRecords.ID))
+	if didState == DidRevoked {
+		return errors.New("did is already revoked")
 	}
-
-	vcRecords.Timestamp = time.Now()
-	rawJson, err := vcRecords.Marshal()
+	if didState == DidAbsent {
+		return errors.New("did does not exist")
+	}
+	didDoc, err := chain.FindDID(did)
 	if err != nil {
 		return err
 	}
-
+	didDoc.Revoked = true
+	rawJson, err := didDoc.Marshal()
+	if err != nil {
+		return err
+	}
 	PendingTransactions = append(PendingTransactions, rawJson)
+	return nil
+}
 
+func (chain *Blockchain) RevokeVcRecord(vcUri string) error {
+	vcRecord, err := chain.FindVCRecord(vcUri)
+	if err != nil {
+		return err
+	}
+	vcHash := vcRecord.VcHash
+	vcRecordState := chain.CheckVCRecordState(vcUri, vcHash)
+	if vcRecordState == VCPending {
+		return errors.New("vc record is on the list of pending transactions try again later")
+	}
+	if vcRecordState == VCExpired {
+		return errors.New("vc is already expired")
+	}
+	if vcRecordState == VCAbsent {
+		return errors.New("vc does not exist")
+	}
+
+	now := time.Now().Truncate(time.Second)
+	vcRecord.ExpirationDate = now
+	vcRecord.Timestamp = now
+	rawJson, err := vcRecord.Marshal()
+	if err != nil {
+		return err
+	}
+	PendingTransactions = append(PendingTransactions, rawJson)
+	return nil
+}
+
+// AppendVcRecord Checks a given vc record and adds it
+func (chain *Blockchain) AppendVcRecord(vcRecord *core.VCRecord) error {
+	vcState := chain.CheckVCRecordState(vcRecord.ID, vcRecord.VcHash)
+	if vcState == VCPending {
+		return errors.New("vc Record is on the list of pending transactions and will be added to the blockchain soon")
+	}
+	if vcState != VCAbsent {
+		return errors.New(fmt.Sprintf("vc Record is already present: '%s'", vcRecord.ID))
+	}
+
+	vcRecord.Timestamp = time.Now().Truncate(time.Second)
+	rawJson, err := vcRecord.Marshal()
+	if err != nil {
+		return err
+	}
+	PendingTransactions = append(PendingTransactions, rawJson)
 	return nil
 }
 
@@ -140,9 +223,4 @@ func BuildMerkleRoot(txs []json.RawMessage) string {
 
 	// Root hash is the only hash left
 	return hashes[0]
-}
-
-func GenerateDid() string {
-	id := uuid.New()
-	return fmt.Sprintf("did:batterypass:%s", id.String())
 }

@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "response.dids",
+  "type": "array",
+  "description": "An array holding all DIDs in the blockchain",
+  "minItems": 1,
+  "items": { "$ref": "./response.did.schema.json" }
+}

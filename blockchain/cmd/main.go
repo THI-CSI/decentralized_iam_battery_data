@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// main is the entry point of the application, initializing the CLI and processing the blockchain.
 func main() {
 	var chain core.Blockchain
 

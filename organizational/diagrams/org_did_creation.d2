@@ -1,0 +1,5 @@
+shape: sequence_diagram
+
+Organisation->Organisation: Generate DID and DID Document
+Organisation->Blockchain: Write DID Document as transaction
+Blockchain->Organisation: Confirm transaction

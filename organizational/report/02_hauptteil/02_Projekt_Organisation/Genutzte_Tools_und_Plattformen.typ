@@ -9,3 +9,4 @@ Für das dezentrale Identitätsmanagement wurde eine eigene Blockchain-Komponent
 BatteryPass-Schemas aus dem offiziellen GitHub-Repository wurden verwendet, um einheitliche Datenstrukturen gemäß den regulatorischen Anforderungen zu gewährleisten. Diese stehen unter einer Creative-Commons-Lizenz und wurden als JSON-Schemas eingebunden.
 Die Kommunikation zwischen den Komponenten (BMS, Cloud, Blockchain) erfolgt standardisiert über HTTP, unter Berücksichtigung von Authentifizierungsmechanismen, Fehlerbehandlung und JSON-Datenformaten.
 Abschließend kamen containerisierte Lösungen zum Einsatz, um eine saubere Trennung der Umgebungen sowie eine einfache Reproduzierbarkeit des Setups sicherzustellen.
+

@@ -1,0 +1,11 @@
+{
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2025-08-01T09:00:00Z",
+    "verificationMethod": "did:batterypass:bms.sn-544b51e7#key-1",
+    "challenge": "c82f7883-42a1-4b78-9c2e-d8d5321af9f8",
+    "proofPurpose": "authentication",
+    "jws": "eyJhbGciOiJFUzI1NiJ9.eyJwcm9vZiI6IHsidHlwZSI6ICJFY2RzYVNlY3AyNTZyMVNpZ25hdHVyZTIwMTkiLCAiY3JlYXRlZCI6ICIyMDI1LTA4LTAxVDA5OjAwOjAwWiIsICJ2ZXJpZmljYXRpb25NZXRob2QiOiAiZGlkOmJhdHRlcnlwYXNzOmJtcy5zbi01NDRiNTFlNyNrZXktMSIsICJjaGFsbGVuZ2UiOiAiYzgyZjc4ODMtNDJhMS00Yjc4LTljMmUtZDhkNTMyMWFmOWY4IiwgInByb29mUHVycG9zZSI6ICJhdXRoZW50aWNhdGlvbiIsICJqd3MiOiAiIn0sICJwYXlsb2FkIjogInVybjp1dWlkOjk4MmM0M2VlLTNkMTYtNDE5YS1hMmY0LTVjNjE3MTBmNDI4YyJ9.JqKZNnm6r3TUUS2dzF561pum9RXlVzQvNa77k_4mdTYx3T6mmFqAp5n3iyQBCMcYx1Gpa_uu7-fUcDVv3YAx6A"
+  },
+  "payload": "urn:uuid:982c43ee-3d16-419a-a2f4-5c61710f428c"
+}

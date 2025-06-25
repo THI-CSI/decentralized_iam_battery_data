@@ -83,8 +83,8 @@ func (chain *Blockchain) AppendBlock(block Block) {
 	}
 }
 
-// VerifyDID Verify that the blockchain contains the DID and the revocation flag is false
-func (chain *Blockchain) VerifyDID(did string) DidState {
+// CheckDIDState Verify that the blockchain contains the DID and the revocation flag is false
+func (chain *Blockchain) CheckDIDState(did string) DidState {
 	for _, tx := range PendingTransactions {
 		didPending, _ := core.UnmarshalDid(tx)
 		if didPending.ID == did {
@@ -113,8 +113,8 @@ func (chain *Blockchain) VerifyDID(did string) DidState {
 	return DidAbsent
 }
 
-// VerifyVCRecord Verify that the blockchain contains a VCRecord which is still valid
-func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
+// CheckVCRecordState Verify that the blockchain contains a VCRecord which is still valid
+func (chain *Blockchain) CheckVCRecordState(uri string, vcHash string) VCState {
 	for _, tx := range PendingTransactions {
 		vcPending, _ := core.UnmarshalVCRecord(tx)
 		if vcPending.ID == uri {
@@ -144,6 +144,7 @@ func (chain *Blockchain) VerifyVCRecord(uri string, vcHash string) VCState {
 	return VCAbsent
 }
 
+// FindDID returns a did document by its identifier from the blockchain.
 func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 	var didResponse core.Did
 	for i := len(*chain) - 1; i >= 0; i-- {
@@ -151,7 +152,6 @@ func (chain *Blockchain) FindDID(did string) (*core.Did, error) {
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &didResponse)
 			if err != nil {
-				// TODO Check if the way of unmarshal only DIDs works as expected
 				continue
 			}
 			if didResponse.ID == did {
@@ -169,7 +169,6 @@ func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
 		for _, transaction := range block.Transactions {
 			err := json.Unmarshal(transaction, &vcRecordResponse)
 			if err != nil {
-				// TODO Check if the way of unmarshal only VCs works as expected
 				continue
 			}
 			if vcRecordResponse.ID == urn {
@@ -178,6 +177,21 @@ func (chain *Blockchain) FindVCRecord(urn string) (*core.VCRecord, error) {
 		}
 	}
 	return nil, errors.New("VC record not found")
+}
+
+func (chain *Blockchain) GetPublicKey(didKeyFragment string) (string, error) {
+	parts := strings.Split(didKeyFragment, "#")
+	didDoc, err := chain.FindDID(parts[0])
+	if err != nil {
+		return "", err
+	}
+	if didDoc.Revoked {
+		return "", fmt.Errorf("%s is revoked", didDoc.ID)
+	}
+	if didDoc.VerificationMethod.ID != didKeyFragment {
+		return "", err
+	}
+	return didDoc.VerificationMethod.PublicKeyMultibase, nil
 }
 
 // Consensus Basic consensus mechanism, which checks, if enough transactions are pending

@@ -1,2 +1,15 @@
 .idea/
 *.pdf
+__pycache__
+node_modules
+
+.venv
+keys/
+managed_containers.json
+
+bms/mock/.hypothesis
+bms/mock/scripts/node_modules
+
+cloud/BatteryPassDataModel/.hypothesis
+cloud/.env
+cloud/data

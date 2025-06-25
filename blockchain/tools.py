@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import subprocess
+import signal
 
 DOCKER_COMMANDS = [
     "up",
@@ -22,19 +23,29 @@ DELETE_FOLDER = [
     ".venv",
     "node_modules",
     "./docs/schema",
-    "./docs/go.md",
-    "./docs/swagger",
+    "./docs/sourcecode",
+    "./docs/openapi.html",
     "package.json",
     "package-lock.json",
     "schema_doc.css",
     "schema_doc.min.js",
+    "package.json",
+    "./internal/api/web/openapi.bundled.yamlopenapitools.json",
 ]
 
 SCHEMA_DIR = "./internal/jsonschema"
 QUICKTYPE = "./node_modules/.bin/quicktype"
+REDOCLY = "./node_modules/.bin/redocly"
+TYPEDOC = "./node_modules/.bin/typedoc"
 SCHEMA_RESOLVER = "./node_modules/.bin/json-schema-resolver"
 DOCS = "./docs"
-TYPES = "./internal/core/types"
+CORETYPES = "./internal/core/types"
+APITYPES = "./internal/api/types"
+
+
+def signal_handler(_sig, _frame):
+    print("received interrupt signal")
+    sys.exit(1)
 
 
 def check_return_code(code):
@@ -44,12 +55,8 @@ def check_return_code(code):
 
 
 def blockchain_cmd(unknown_args):
-    try:
-        process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
-        check_return_code(process.returncode)
-    except KeyboardInterrupt:
-        print(f"[{sys.argv[0]}]", "Interrupt received. Stopping application!")
-        sys.exit(0)
+    process = subprocess.run(["go", "run", "./cmd/main.go", *unknown_args])
+    check_return_code(process.returncode)
 
 
 def docker_compose_dev(command: str, unknown_args):
@@ -107,6 +114,8 @@ def main():
 
     args, unknown_args = parser.parse_known_args()
 
+    signal.signal(signal.SIGINT, signal_handler)
+
     if args.command == "run":
         if args.blockchain_parser == "h" or args.blockchain_parser == "help":
             blockchain_cmd(["-h"])
@@ -134,22 +143,28 @@ def main():
 
     elif args.command == "docs":
         run_command(["mkdir", "-p", DOCS])
-        if args.type in ("swagger", "all"):
-            run_command(
-                [
-                    "swag",
-                    "init",
-                    "-g",
-                    "./internal/api/web/web.go",
-                    "-o",
-                    f"{DOCS}/swagger/",
-                ]
-            )
-        if args.type in ("go", "all"):
-            run_command(["bash", "./scripts/generate-docs.sh"])
-        if args.type in ("did-vc", "all"):
-            run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
-            run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
+        run_command(
+            [
+                REDOCLY,
+                "build-docs",
+                "./internal/api/web/openapi.yaml",
+                "--output",
+                f"{DOCS}/openapi.html",
+            ]
+        )
+        run_command(["gomarkdoc", "./...", "-o", DOCS + "/sourcecode/go/md/go.md"])
+        run_command([
+            "golds",
+            "-nouses",
+            "-only-list-exporteds",
+            "-gen",
+            f"-dir={DOCS}/sourcecode/go/html",
+            "./..."
+        ])
+        run_command([TYPEDOC, "--options", "typedoc.md.json"])
+        run_command([TYPEDOC, "--options", "typedoc.html.json"])
+        run_command(["bash", "./scripts/generate-did-vc-docs-md.sh"])
+        run_command(["bash", "./scripts/generate-did-vc-docs-html.sh"])
 
     elif args.command == "clean":
         for folder in DELETE_FOLDER:
@@ -165,6 +180,7 @@ def main():
 
     elif args.command == "generate":
         if os.path.exists("./node_modules"):
+            run_command(["bash", "./scripts/generate-api-go.sh"])
             run_command(
                 [
                     QUICKTYPE,
@@ -176,7 +192,7 @@ def main():
                     "--package",
                     "core",
                     "-o",
-                    TYPES + "/did.types.go",
+                    CORETYPES + "/did.types.go",
                 ]
             )
             run_command(
@@ -190,7 +206,7 @@ def main():
                     "--package",
                     "core",
                     "-o",
-                    TYPES + "/vc.record.types.go",
+                    CORETYPES + "/vc.record.types.go",
                 ]
             )
         else:
@@ -199,6 +215,10 @@ def main():
             )
 
     elif args.command == "dev":
+        if os.path.exists("./blockchain.json/"):
+            run_command(["rm", "-rf", "./blockchain.json/"])
+        if not os.path.exists("./blockchain.json"):
+            blockchain_cmd(["-genesis"])
         docker_compose_dev(args.docker_command, unknown_args)
 
     else:

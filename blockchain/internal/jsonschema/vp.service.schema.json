@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vp.service",
+  "title": "Battery-Ecosystem Verifiable Presentation",
+  "description": "Schema for verifying presentations of VCs with holder proof.",
+  "type": "object",
+  "required": [
+    "@context",
+    "type",
+    "verifiableCredential",
+    "holder",
+    "proof"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "enum": [
+          "https://www.w3.org/2018/credentials/v1",
+          "http://localhost:8443/docs/vp.schema.html"
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "description": "Defines the JSON-LD context, providing meaning to terms used in the credential."
+    },
+    "type": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "contains": {
+        "const": "VerifiablePresentation"
+      }
+    },
+    "verifiableCredential": {
+      "type": "array",
+      "items": {
+        "$ref": "vc.service.schema.json"
+      }
+    },
+    "holder": { "$ref": "common.defs.schema.json#/definitions/DID" },
+    "proof": {
+      "allOf": [
+        { "$ref": "common.defs.schema.json#/definitions/Proof" },
+        {
+          "required": ["challenge"]
+        }
+      ]
+    }
+  }
+}
