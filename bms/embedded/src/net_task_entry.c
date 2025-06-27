@@ -1,14 +1,14 @@
 #include <net_task_entry.h>
 #include "cJSON.h"
+#include "portable.h"
 #include "usr_app.h"
 #include "net_task.h"
 #include "common_utils.h"
-#include "cJson.h"
-
+#include <string.h>
 /* @Matthias */
 // Flash VCs (BMS - Cloud)
 __attribute__((section(".data_flash")))
-const char vc_cloud_1[] = "{  \"@context\": [    \"https://www.w3.org/2018/credentials/v1\",    \"http://localhost:8443/docs/vc.bmsProduction.schema.html\"  ],  \"id\": \"urn:uuid:982c43ee-3d16-419a-a2f4-5c61710f428c\",  \"type\": [    \"VerifiableCredential\",    \"BMSProduction\"  ],  \"issuer\": \"did:batterypass:bms.sn-544b51e7\",  \"holder\": \"did:batterypass:oem.sn-audi\",  \"issuanceDate\": \"2025-06-10T12:01:00Z\",  \"expirationDate\": \"2026-06-10T12:01:00Z\",  \"credentialSubject\": {    \"id\": \"did:batterypass:oem.sn-audi\",    \"type\": \"BMSProduction\",    \"bmsDid\": \"did:batterypass:bms.sn-544b51e7\",    \"timestamp\": \"2025-06-10T12:01:00Z\",    \"lotNumber\": \"LOT-775533\"  },  \"proof\": {    \"type\": \"EcdsaSecp256r1Signature2019\",    \"created\": \"2025-06-10T12:01:03Z\",    \"verificationMethod\": \"did:batterypass:bms.sn-544b51e7#key-1\",    \"proofPurpose\": \"authentication\",    \"jws\": \"eyJhbGciOiJFUzI1NiJ9.eyJAY29udGV4dCI6IFsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCAiaHR0cDovL2xvY2FsaG9zdDo4NDQzL2RvY3MvdmMuYm1zUHJvZHVjdGlvbi5zY2hlbWEuaHRtbCJdLCAiaWQiOiAidXJuOnV1aWQ6OTgyYzQzZWUtM2QxNi00MTlhLWEyZjQtNWM2MTcxMGY0MjhjIiwgInR5cGUiOiBbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwgIkJNU1Byb2R1Y3Rpb24iXSwgImlzc3VlciI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgImhvbGRlciI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAiaXNzdWFuY2VEYXRlIjogIjIwMjUtMDYtMTBUMTI6MDE6MDBaIiwgImV4cGlyYXRpb25EYXRlIjogIjIwMjYtMDYtMTBUMTI6MDE6MDBaIiwgImNyZWRlbnRpYWxTdWJqZWN0IjogeyJpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6b2VtLnNuLWF1ZGkiLCAidHlwZSI6ICJCTVNQcm9kdWN0aW9uIiwgImJtc0RpZCI6ICJkaWQ6YmF0dGVyeXBhc3M6Ym1zLnNuLTU0NGI1MWU3IiwgInRpbWVzdGFtcCI6ICIyMDI1LTA2LTEwVDEyOjAxOjAwWiIsICJsb3ROdW1iZXIiOiAiTE9ULTc3NTUzMyJ9LCAicHJvb2YiOiB7InR5cGUiOiAiRWNkc2FTZWNwMjU2cjFTaWduYXR1cmUyMDE5IiwgImNyZWF0ZWQiOiAiMjAyNS0wNi0xMFQxMjowMTowM1oiLCAidmVyaWZpY2F0aW9uTWV0aG9kIjogImRpZDpiYXR0ZXJ5cGFzczpibXMuc24tNTQ0YjUxZTcja2V5LTEiLCAicHJvb2ZQdXJwb3NlIjogImF1dGhlbnRpY2F0aW9uIiwgImp3cyI6ICIifX0.FGuVZ-NqZ6VfHc-FSfqLzwkNAyFl8ncWkQ5-z0NvuUf5aIMAwS67pE1bpBqmlUAx3cb7Xwn1KzM0BMtQxowioQ\"  }}";
+const char vc_cloud_1[] = "{  \"@context\": [    \"https://www.w3.org/2018/credentials/v1\",    \"http://localhost:8443/docs/vp.schema.html\"  ],  \"type\": [    \"VerifiablePresentation\"  ],  \"verifiableCredential\": [    {      \"@context\": [        \"https://www.w3.org/2018/credentials/v1\",        \"http://localhost:8443/docs/vc.serviceAccess.schema.html\"      ],      \"id\": \"urn:uuid:a1fd774e-5300-4171-b778-e53cedb64823\",      \"type\": [        \"VerifiableCredential\",        \"CloudInstance\"      ],      \"issuer\": \"did:batterypass:bms.sn-544b51e7\",      \"holder\": \"did:batterypass:cloud.sn-central\",      \"issuanceDate\": \"2025-06-17T16:17:43Z\",      \"expirationDate\": \"2026-06-17T16:17:43Z\",      \"credentialSubject\": {        \"id\": \"did:batterypass:cloud.sn-cloud1\",        \"type\": \"CloudInstance\",        \"cloudDid\": \"did:batterypass:cloud.sn-cloud1\",        \"timestamp\": \"2026-06-17T16:17:43Z\"      },      \"proof\": {        \"type\": \"EcdsaSecp256r1Signature2019\",        \"created\": \"2025-06-17T16:17:43Z\",        \"verificationMethod\": \"did:batterypass:bms.sn-544b51e7#key-1\",        \"proofPurpose\": \"authentication\",        \"jws\": \"\"      }    }  ],  \"holder\": \"did:batterypass:cloud.sn-cloud1\",  \"proof\": {    \"type\": \"EcdsaSecp256r1Signature2019\",    \"created\": \"2025-08-01T09:00:00Z\",    \"verificationMethod\": \"did:batterypass:cloud.sn-cloud1#key-1\",    \"challenge\": \"c82f7883-42a1-4b78-9c2e-d8d5321af9f8\",    \"proofPurpose\": \"authentication\",    \"jws\": \"\"  }}";
 __attribute__((section(".data_flash")))
 const int number_of_vcs = 1;
 
@@ -33,8 +33,10 @@ void net_task_entry(void *pvParameters)
     FSP_PARAMETER_NOT_USED (pvParameters);
     BaseType_t status = pdFALSE;
     TickType_t Semphr_wait_ticks = pdMS_TO_TICKS(500);
-	const cJSON* parsed_vc_cloud_1 = cJSON_Parse(vc_cloud_1);
-    // FreeRTOS IP Initialization: This init initializes the IP stack
+	const cJSON* parsed_cloud_1 = cJSON_ParseWithLength(vc_cloud_1, strlen(vc_cloud_1));
+	const cJSON* parsed_vc_cloud_1 = cJSON_GetObjectItemCaseSensitive(parsed_cloud_1, "verifiableCredential");
+
+	// FreeRTOS IP Initialization: This init initializes the IP stack
     status = FreeRTOS_IPInit(ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress);
     if(pdFALSE == status)
     {
@@ -47,7 +49,7 @@ void net_task_entry(void *pvParameters)
 			{
 				sending_and_receiving_functionality(parsed_vc_cloud_1);
 			}
-			sending_and_receiving_functionality(parsed_vc_cloud_1);
+			//sending_and_receiving_functionality(parsed_vc_cloud_1);
 			for (;;)
 			{
 				xSemaphoreTake(crypto_net_sem, portMAX_DELAY); // waits ~ 50 days
@@ -62,16 +64,27 @@ void net_task_entry(void *pvParameters)
 				}
 				for (uint8_t i = 0; i < number_of_vcs; i++)
 				{
-					sending_and_receiving_functionality();
+					sending_and_receiving_functionality(parsed_vc_cloud_1);
 				}
 			}
 		}
 	}
 }
 
-void sending_and_receiving_functionality(const cJSON* vc)
+int sending_and_receiving_functionality(const cJSON* vc)
 {
-    //char endpoint_dns[MAX_ENDPOINT_DNS_SIZE] = {RESET_VALUE};
+    // Holder is DID Document
+	const cJSON* holder = cJSON_GetObjectItemCaseSensitive(vc, "holder");
+    if (!(cJSON_IsString(holder) && (holder->valuestring != NULL)))
+    {
+		return 1;
+	} 
+	char* pcBufferToReceive = (char*) pvPortCalloc(1, BUFFER_LENGTH);
+	char* http_request = pvPortMalloc(200);
+	sprintf(http_request, "GET /api/v1/dids/%s HTTP/1.1\r\nHost: localhost:8443\r\nUser-Agent: BMS\r\nAccept: */*", holder->valuestring);
+	int status = vTCPSend(BLOCKCHAIN_ENDPOINT, 8443, http_request, strlen(http_request), pcBufferToReceive);
+
+
 	char endpoint_dns[] = "test-server.lan";
     const char ack = 'A';
     int endpoint_reachable = RESET_VALUE; // 1 = reachable; 0 = not reachable
@@ -79,14 +92,18 @@ void sending_and_receiving_functionality(const cJSON* vc)
     do {
         endpoint_dns_length = xMessageBufferReceive(crypto_net_message_buffer, (void *)endpoint_dns, MAX_ENDPOINT_DNS_SIZE, pdMS_TO_TICKS(500));
     } while (endpoint_dns_length == 0);
+
+
+
+
 	char gp_remote_ip_address[] = "255.255.255.255";
 
-    dnsQuerryFunc("test-server.lan", gp_remote_ip_address);
+    dnsQuerryFunc(holder->valuestring, gp_remote_ip_address);
     for (int i = 0; i < 4; i++) {
-        if (!vSendPing(gp_remote_ip_address)) { endpoint_reachable = 1; }
+        if (!vSendPing(pcBufferToReceive)) { endpoint_reachable = 1; }
         vTaskDelay(100);
     }
-	endpoint_reachable = vTCPSend("10.89.0.2", 8000, "GET /batterypass/ HTTP/1.1\r\nHost: 10.89.0.2:8000\r\nUser-Agent: BMS/8.14.1\r\nAccept: */*\r\n\r\n", 79);
+	endpoint_reachable = vTCPSend("10.89.0.2", 8000, "GET /batterypass/ HTTP/1.1\r\nHost: 10.89.0.2:8000\r\nUser-Agent: BMS/8.14.1\r\nAccept: */*\r\n\r\n", 79, pcBufferToReceive);
     if (endpoint_reachable)
     {
     	xMessageBufferSend(net_crypto_message_buffer, (void *)&ack, ACK_LENGTH, pdMS_TO_TICKS(1000));
@@ -99,6 +116,8 @@ void sending_and_receiving_functionality(const cJSON* vc)
         // dynamic battery data message to cloud endpoint 
 		/* @Matthias */
     }
+	vPortFree(pcBufferToReceive);
+	return 0;
 }
 
 /*******************************************************************************************************************//**
@@ -107,10 +126,11 @@ void sending_and_receiving_functionality(const cJSON* vc)
  * @param[in]  pcPort Destination Port
  * @param[in]  pcBufferToTransmit to send
  * @param[in]  xTotalLengthToSend buffer length to send
+ * @param[out] pcBufferToReceive to receive
  * @retval     Status
  **********************************************************************************************************************/
 
-int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend ) 
+int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend, char* pcBufferToReceive) 
 {
     struct freertos_sockaddr xRemoteAddress;
     BaseType_t xAlreadyTransmitted = 0, xBytesSent = 0;
@@ -193,7 +213,7 @@ int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit,
     /* Wait for the socket to disconnect gracefully (indicated by FreeRTOS_recv()
     returning a -pdFREERTOS_ERRNO_EINVAL error) before closing the socket. */
 	int len = 1;
-    while( (len = FreeRTOS_recv( xSocket, pcBufferToTransmit, 500, 0 )) >= 0 )
+    while( (len = FreeRTOS_recv( xSocket, pcBufferToReceive, 500, 0 )) >= 0 )
     {
         /* Wait for shutdown to complete.  If a receive block time is used then
         this delay will not be necessary as FreeRTOS_recv() will place the RTOS task
@@ -204,7 +224,7 @@ int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit,
         loop forever. */
 
     }
-  	APP_PRINT("Response: %s\n", pcBufferToTransmit);
+  	APP_PRINT("Response: %s\n", pcBufferToReceive);
 	/* Initiate graceful shutdown. */
     FreeRTOS_shutdown( xSocket, FREERTOS_SHUT_RDWR );
     /* The socket has shut down and is safe to close. */

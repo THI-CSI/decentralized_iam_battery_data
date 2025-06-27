@@ -22,3 +22,4 @@ ra
 ra_gen
 script
 ra_cfg
+memory_regions.ld

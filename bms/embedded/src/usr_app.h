@@ -29,7 +29,7 @@
 #define IP_LINK_DOWN (0x02)
 #define IP_LINK_UP (0x00)
 
-int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend); 
+int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend, char*); 
 uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                              uint16_t usSourcePort,
                                              uint32_t ulDestinationAddress,
