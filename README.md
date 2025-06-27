@@ -16,7 +16,14 @@ The project is divided into several services.
 We have attempted to run the entire project centrally via the `tools.py` script. 
 Currently, the script has only been tested on Linux.
 
-Requirements to start the project are: `python3`, `tmux`, `docker compose`
+Requirements to start the project with the deployment script are: `python3`, `tmux`, `docker compose`
+
+You also have to install the python package `requests`:
+```shell
+python3 -m venv .venv
+source .venv/bin/activate
+pip install requests
+```
 
 To start the project, execute the following command:
 ```shell
