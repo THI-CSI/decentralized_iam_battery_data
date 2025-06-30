@@ -173,12 +173,13 @@ sudo sysctl -w net.ipv4.ip_forward=1
 sudo iptables -A FORWARD -i <internal> -o <external> -j ACCEPT
 sudo iptables -A FORWARD -i <external> -o <internal> -m state --state RELATED,ESTABLISHED -j ACCEPT 
 
-> [!CAUTION]
-> If you want to access the container you need to start the docker-compose files from the cloud and blockchain with podman-compose as root. The external interface is going to be podman0.
 
 # If you want to access the internet you need to masquerade the IP from the BMS for routing purposes
 sudo iptables -t nat -A POSTROUTING -o <external> -j MASQUERADE
 ```
+
+> [!CAUTION]
+> If you want to access the container you need to start the docker-compose files from the cloud and blockchain with podman-compose as root. The external interface is going to be podman0.
 
 ### Windows
 
