@@ -1,16 +1,20 @@
 #include <net_task_entry.h>
 #include "cJSON.h"
+#include "core_json.h"
 #include "portable.h"
 #include "usr_app.h"
 #include "net_task.h"
 #include "common_utils.h"
+#include <stddef.h>
 #include <string.h>
-/* @Matthias */
-// Flash VCs (BMS - Cloud)
-__attribute__((section(".data_flash")))
-const char vc_cloud_1[] = "{  \"@context\": [    \"https://www.w3.org/2018/credentials/v1\",    \"http://localhost:8443/docs/vp.schema.html\"  ],  \"type\": [    \"VerifiablePresentation\"  ],  \"verifiableCredential\": [    {      \"@context\": [        \"https://www.w3.org/2018/credentials/v1\",        \"http://localhost:8443/docs/vc.serviceAccess.schema.html\"      ],      \"id\": \"urn:uuid:a1fd774e-5300-4171-b778-e53cedb64823\",      \"type\": [        \"VerifiableCredential\",        \"CloudInstance\"      ],      \"issuer\": \"did:batterypass:bms.sn-544b51e7\",      \"holder\": \"did:batterypass:cloud.sn-central\",      \"issuanceDate\": \"2025-06-17T16:17:43Z\",      \"expirationDate\": \"2026-06-17T16:17:43Z\",      \"credentialSubject\": {        \"id\": \"did:batterypass:cloud.sn-cloud1\",        \"type\": \"CloudInstance\",        \"cloudDid\": \"did:batterypass:cloud.sn-cloud1\",        \"timestamp\": \"2026-06-17T16:17:43Z\"      },      \"proof\": {        \"type\": \"EcdsaSecp256r1Signature2019\",        \"created\": \"2025-06-17T16:17:43Z\",        \"verificationMethod\": \"did:batterypass:bms.sn-544b51e7#key-1\",        \"proofPurpose\": \"authentication\",        \"jws\": \"\"      }    }  ],  \"holder\": \"did:batterypass:cloud.sn-cloud1\",  \"proof\": {    \"type\": \"EcdsaSecp256r1Signature2019\",    \"created\": \"2025-08-01T09:00:00Z\",    \"verificationMethod\": \"did:batterypass:cloud.sn-cloud1#key-1\",    \"challenge\": \"c82f7883-42a1-4b78-9c2e-d8d5321af9f8\",    \"proofPurpose\": \"authentication\",    \"jws\": \"\"  }}";
+
+const char vc_cloud_1[] = "{\"@context\":[\"https://www.w3.org/2018/credentials/v1\",\"http://localhost:8443/docs/vc.serviceAccess.schema.html\"],\"id\":\"urn:uuid:a1fd774e-5300-4171-b778-e53cedb64823\",\"type\":[\"VerifiableCredential\",\"CloudInstance\"],\"issuer\":\"did:batterypass:bms.sn-544b51e7\",\"holder\":\"did:batterypass:cloud.sn-central\",\"issuanceDate\":\"2025-06-17T16:17:43Z\",\"expirationDate\":\"2026-06-17T16:17:43Z\",\"credentialSubject\":{\"id\":\"did:batterypass:cloud.sn-cloud1\",\"type\":\"CloudInstance\",\"cloudDid\":\"did:batterypass:cloud.sn-cloud1\",\"timestamp\":\"2026-06-17T16:17:43Z\"},\"proof\":{\"type\":\"EcdsaSecp256r1Signature2019\",\"created\":\"2025-06-17T16:17:43Z\",\"verificationMethod\":\"did:batterypass:bms.sn-544b51e7#key-1\",\"proofPurpose\":\"authentication\",\"jws\":\"\"}}";
+const char* vcs[] = {vc_cloud_1};
+
+
 __attribute__((section(".data_flash")))
 const int number_of_vcs = 1;
+
 
 /**
 *	Static IP config, since no DHCP is being used
@@ -33,8 +37,7 @@ void net_task_entry(void *pvParameters)
     FSP_PARAMETER_NOT_USED (pvParameters);
     BaseType_t status = pdFALSE;
     TickType_t Semphr_wait_ticks = pdMS_TO_TICKS(500);
-	const cJSON* parsed_cloud_1 = cJSON_ParseWithLength(vc_cloud_1, strlen(vc_cloud_1));
-	const cJSON* parsed_vc_cloud_1 = cJSON_GetObjectItemCaseSensitive(parsed_cloud_1, "verifiableCredential");
+	JSONStatus_t result;
 
 	// FreeRTOS IP Initialization: This init initializes the IP stack
     status = FreeRTOS_IPInit(ucIPAddress, ucNetMask, ucGatewayAddress, ucDNSServerAddress, ucMACAddress);
@@ -43,67 +46,73 @@ void net_task_entry(void *pvParameters)
         APP_ERR_PRINT("FreeRTOS_IPInit Failed");
         APP_ERR_TRAP(status);
     }
-	while (1) {
-		if (SUCCESS == isNetworkUp()) {
-			for (uint8_t i = 0; i < number_of_vcs; i++)
+	while (!(SUCCESS == isNetworkUp()));
+	sending_and_receiving_functionality();
+
+	while (1)
+	{
+		//xSemaphoreTake(crypto_net_sem, portMAX_DELAY); // waits ~ 50 days
+
+		for (uint8_t i = 0; i < number_of_vcs; i++)
+		{
+			char did_document[1024] = {RESET_VALUE};
+			size_t did_document_length = RESET_VALUE;
+			size_t vc_length = strlen( vcs[i] ); 
+			int result = JSON_Validate(vcs[i], vc_length);
+			char * did_request_pointer;
+			size_t did_length;
+			if( result == JSONSuccess )
 			{
-				sending_and_receiving_functionality(parsed_vc_cloud_1);
+				result = JSON_Search( vcs[i], vc_length, "holder", 6,
+								&did_request_pointer, &did_length );
+			} else {
+				continue;
 			}
-			//sending_and_receiving_functionality(parsed_vc_cloud_1);
-			for (;;)
-			{
-				xSemaphoreTake(crypto_net_sem, portMAX_DELAY); // waits ~ 50 days
-				for (uint8_t i = 0; i < number_of_vcs; i++)
-				{
-					char did_document[1024] = {RESET_VALUE};
-					size_t did_document_length = RESET_VALUE;
-					// Request DID-Documents for VCs
-					/* @Matthias */
-					vTaskDelay(pdMS_TO_TICKS(2000));
-					xMessageBufferSend(net_crypto_message_buffer, (void *)did_document, did_document_length, pdMS_TO_TICKS(1000));
-				}
-				for (uint8_t i = 0; i < number_of_vcs; i++)
-				{
-					sending_and_receiving_functionality(parsed_vc_cloud_1);
-				}
+			char* did_request = pvPortCalloc(did_length + 1, 1);
+			memcpy(did_request, did_request_pointer, did_length);
+			did_request[did_length] = '\0';
+			char response[1000];
+			memset(response, 0, 1000);
+			char* http_request = pvPortMalloc(300);
+			sprintf(http_request, "GET /api/v1/dids/%s HTTP/1.1\r\nHost: localhost:8443\r\nUser-Agent: BMS\r\nAccept: */*\r\n\r\n", did_request);
+			int len_request = strlen(http_request);
+			int status = 0;
+			// Get all endpoints via the did request from the VC
+			status = vTCPSendWithRetries(BLOCKCHAIN_ENDPOINT, 8080, http_request, len_request, response, NETWORK_RETRIES);
+			if (status) {
+				continue;
 			}
+			char* did_pointer = strstr(response, "\r\n\r\n");
+			did_pointer += 4;
+			
+			vTaskDelay(pdMS_TO_TICKS(2000));
+			xMessageBufferSend(net_crypto_message_buffer, (void *)did_pointer, strlen(did_pointer), pdMS_TO_TICKS(1000));
 		}
+		for (uint8_t i = 0; i < number_of_vcs; i++)
+		{
+			sending_and_receiving_functionality();
+		}
+
 	}
+		
+	
 }
 
-int sending_and_receiving_functionality(const cJSON* vc)
+int sending_and_receiving_functionality()
 {
-    // Holder is DID Document
-	const cJSON* holder = cJSON_GetObjectItemCaseSensitive(vc, "holder");
-    if (!(cJSON_IsString(holder) && (holder->valuestring != NULL)))
-    {
-		return 1;
-	} 
-	char* pcBufferToReceive = (char*) pvPortCalloc(1, BUFFER_LENGTH);
-	char* http_request = pvPortMalloc(200);
-	sprintf(http_request, "GET /api/v1/dids/%s HTTP/1.1\r\nHost: localhost:8443\r\nUser-Agent: BMS\r\nAccept: */*", holder->valuestring);
-	int status = vTCPSend(BLOCKCHAIN_ENDPOINT, 8443, http_request, strlen(http_request), pcBufferToReceive);
-
-
-	char endpoint_dns[] = "test-server.lan";
+    char gp_remote_ip_address[MAX_IPV4_SIZE] = {RESET_VALUE};
+    char endpoint_dns[MAX_ENDPOINT_DNS_SIZE] = {RESET_VALUE};
     const char ack = 'A';
     int endpoint_reachable = RESET_VALUE; // 1 = reachable; 0 = not reachable
     size_t endpoint_dns_length = RESET_VALUE;
     do {
         endpoint_dns_length = xMessageBufferReceive(crypto_net_message_buffer, (void *)endpoint_dns, MAX_ENDPOINT_DNS_SIZE, pdMS_TO_TICKS(500));
     } while (endpoint_dns_length == 0);
-
-
-
-
-	char gp_remote_ip_address[] = "255.255.255.255";
-
-    dnsQuerryFunc(holder->valuestring, gp_remote_ip_address);
+    dnsQuerryFunc(endpoint_dns, gp_remote_ip_address);
     for (int i = 0; i < 4; i++) {
-        if (!vSendPing(pcBufferToReceive)) { endpoint_reachable = 1; }
+        if (!vSendPing(gp_remote_ip_address)) { endpoint_reachable = 1; }
         vTaskDelay(100);
     }
-	endpoint_reachable = vTCPSend("10.89.0.2", 8000, "GET /batterypass/ HTTP/1.1\r\nHost: 10.89.0.2:8000\r\nUser-Agent: BMS/8.14.1\r\nAccept: */*\r\n\r\n", 79, pcBufferToReceive);
     if (endpoint_reachable)
     {
     	xMessageBufferSend(net_crypto_message_buffer, (void *)&ack, ACK_LENGTH, pdMS_TO_TICKS(1000));
@@ -116,8 +125,6 @@ int sending_and_receiving_functionality(const cJSON* vc)
         // dynamic battery data message to cloud endpoint 
 		/* @Matthias */
     }
-	vPortFree(pcBufferToReceive);
-	return 0;
 }
 
 /*******************************************************************************************************************//**
@@ -144,7 +151,7 @@ int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit,
 /* Connect to the remote socket.  The socket has not previously been bound to
     a local port number so will get automatically bound to a local port inside
     the FreeRTOS_connect() function. */
-
+	
     if( FreeRTOS_connect( xSocket, &xRemoteAddress, sizeof( xRemoteAddress ) ) == 0 )
     {
         /* Keep sending until the entire buffer has been sent. */
@@ -210,18 +217,11 @@ int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit,
         }
     }
 
-    /* Wait for the socket to disconnect gracefully (indicated by FreeRTOS_recv()
-    returning a -pdFREERTOS_ERRNO_EINVAL error) before closing the socket. */
 	int len = 1;
-    while( (len = FreeRTOS_recv( xSocket, pcBufferToReceive, 500, 0 )) >= 0 )
+    while( (len = FreeRTOS_recv( xSocket, pcBufferToReceive, 1000, 0 )) > 0 )
     {
-        /* Wait for shutdown to complete.  If a receive block time is used then
-        this delay will not be necessary as FreeRTOS_recv() will place the RTOS task
-        into the Blocked state anyway. */
 
 		vTaskDelay(1000);
-        /* Note - real applications should implement a timeout here, not just
-        loop forever. */
 
     }
   	APP_PRINT("Response: %s\n", pcBufferToReceive);
@@ -229,9 +229,29 @@ int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit,
     FreeRTOS_shutdown( xSocket, FREERTOS_SHUT_RDWR );
     /* The socket has shut down and is safe to close. */
     FreeRTOS_closesocket( xSocket );
-    return 0;
+    return xBytesSent;
 }
 
+/*******************************************************************************************************************//**
+ * @brief      Sends Raw TCP data with Retries
+ * @param[in]  pcIPAddress Destination IP Address
+ * @param[in]  pcPort Destination Port
+ * @param[in]  pcBufferToTransmit to send
+ * @param[in]  xTotalLengthToSend buffer length to send
+ * @param[out] pcBufferToReceive to receive
+ * @param[in]  retries how often should the TCP be retried
+ * @retval     Status
+ **********************************************************************************************************************/
+int vTCPSendWithRetries(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend, char* pcBufferToReceive, int retries) 
+{
+	for (int i = 0; i < retries; i++) {
+		int status = vTCPSend(pcIPAddress, pcPort, pcBufferToTransmit, xTotalLengthToSend, pcBufferToReceive); 
+		if (status != 0) {
+			return 0;
+		}
+	}
+	return 1;
+}
 /*******************************************************************************************************************//**
 * @brief      Send ICMP Ping request  based on the user input IP Address.
 * @param[in]  IP address to Ping
@@ -350,16 +370,4 @@ void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifie
 {
     (void)  usIdentifier;
 	return;
-    // switch( eStatus )
-    // {
-    //     /* A valid ping reply has been received */
-    //     case eSuccess    :
-    //         ping_data.received++;
-    //         break;
-    //         /* A reply was received but it was not valid. */
-    //     case eInvalidData :
-    //     default:
-    //         ping_data.lost++;
-    //         break;
-    // }
 }

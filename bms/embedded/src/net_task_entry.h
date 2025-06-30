@@ -7,7 +7,8 @@ extern const int number_of_vcs;
 #define MAX_ENDPOINT_DNS_SIZE 100
 #define DID_LENGTH 29
 #define ACK_LENGTH 1
-#define BUFFER_LENGTH 500
+#define BUFFER_LENGTH 2000
+
 
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_IP_Private.h"
@@ -17,10 +18,14 @@ extern const int number_of_vcs;
 #include <stdint.h>
 #include <string.h>
 #include "cJSON.h"
+#include "core_json.h"
 
 
-int sending_and_receiving_functionality(const cJSON* vc);
+
+int sending_and_receiving_functionality( );
 void print_ipconfig();
+
+
 
 #endif // NET_TASK_ENTRY_H
 

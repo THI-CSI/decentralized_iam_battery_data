@@ -16,7 +16,8 @@
 
 #define USR_PING_COUNT (100)
 
-#define BLOCKCHAIN_ENDPOINT "10.89.1.141"
+#define BLOCKCHAIN_ENDPOINT "10.89.0.3"
+#define NETWORK_RETRIES 20
 
 #define SUCCESS (0)
 #define PRINT_UP_MSG_DISABLE (0x01)
@@ -30,6 +31,8 @@
 #define IP_LINK_UP (0x00)
 
 int vTCPSend(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend, char*); 
+int vTCPSendWithRetries(const char* pcIPAddress, uint16_t pcPort, char *pcBufferToTransmit, const size_t xTotalLengthToSend, char* pcBufferToReceive, int retries);
+
 uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
                                              uint16_t usSourcePort,
                                              uint32_t ulDestinationAddress,
