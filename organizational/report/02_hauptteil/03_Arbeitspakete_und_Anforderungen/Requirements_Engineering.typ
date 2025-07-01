@@ -11,6 +11,7 @@ Im Rahmen dieser Aufteilung entstanden zusätzliche, themenspezifische Aufgaben,
 === DIDs & Verifiable Credentials (Fatma)
 Im Bereich DIDs & Verifiable Credentials lag der Fokus auf der detaillierten Analyse der W3C und VC Data Models.
 Im weiteren Projektverlauf wurde eine Einführung zu dezentralen Identitäten (DIDs) und verifizierbaren Nachweisen (VCs) gehalten, um das konzeptionelle Verständnis im Gesamtteam zu stärken. Aufbauend darauf erfolgte eine begleitende Unterstützung der Umsetzung durch die regelmäßige Überprüfung technischer Artefakte, darunter beispielsweise DID-Dokumente und exemplarische Verifiable Credentials.
+
 === Batteriepass (Paulina)
 Batteriepass:
 Im Bereich des Batteriepasses lag der Fokus auf der detaillierten Analyse der EU-Batterieverordnung sowie der DIN DKE SPEC 99100. Aus diesen sollten dem Rahmen des Projekts entsprechend Anforderungen, die den Batteriepass betreffen, herausgearbeitet werden.
@@ -25,10 +26,13 @@ Zudem stand Richtung Ende der Projektphase auch der Abschlussbericht des Batteri
 == Ergebnisse
 Resultat war eine gepflegte Anforderungsliste mit klarer Priorisierung. Die Anforderungen wurden in GitHub strukturiert abgelegt und laufend aktualisiert. Besonderer Wert wurde auf die Nachvollziehbarkeit der Quellen gelegt, um Entwicklern bei Bedarf die Möglichkeit zur genaueren Recherche zu ermöglichen. Zudem wurde innerhalb des Requirements-Teams eine Status-Tabelle gepflegt, in der der Fortschritt der einzelnen Anforderungen, die zuständigen Gruppen oder Personen sowie etwaige Abhängigkeiten oder offene Fragen dokumentiert wurden. Diese diente bei Bedarf den Teams als Orientierung. Auch bei der Erstellung der inhaltlichen Struktur der Abschlusspräsentation und des Projektberichts war das Team beteiligt, sowie bei Abschnitten, die nicht konkret einem Arbeitspaket zuzuordnen waren. Außerdem fielen bei den verschiedenen Teilgebieten noch zusätzlich weitere Ergebnisse an:
 === DIDs & Verifiable Credentials (Fatma)
-•	Ableitung und Integration neuer Anforderungen aus den W3C und VC Data Models
-•	Einführung zu DIDs und VCs für das gesamte Projektteam
-•	Erstellung und Review technischer Artefakte (z. B. Beispiel-DID-Dokumente, VC-Datenstrukturen)
-•	Entwicklung einer eigenen DID-Methodenspezifikation zur praktischen Umsetzung
+•	Ableitung und Integration neuer Anforderungen aus den W3C-Spezifikationen zu Decentralized Identifiers (DID) und Verifiable Credentials (VC), insbesondere im Hinblick auf PRJ_CSI_REQ_008, PRJ_CSI_REQ_011 und PRJ_CSI_REQ_014AnforderungsbeschreibungDID_Anforderungen_Proje….
+•	Einführung in DIDs und VCs für das gesamte Projektteam zur Etablierung eines einheitlichen technischen Verständnisses im Kontext von Self-Sovereign Identity (SSI).
+•	Erstellung und Review technischer Artefakte, u. a. Beispiel-DID-Dokumente und VC-Datenstrukturen gemäß W3C-Modell.
+•	Entwicklung einer eigenen DID-Methodenspezifikation, welche im Projekt-Repository unter
+main/organizational/requirements/did-method-spec.md dokumentiert ist.
+Die Spezifikation definiert den Methodennamen, die ID-Generierung, das Format des DID-Dokuments (inkl. Schlüssel, Authentifizierung, Service-Endpunkte) sowie grundlegende Regeln für Erzeugung, Auflösung und Aktualisierung.
+
 === Batteriepass (Paulina)
 •	Ableitung und Integration neuer Anforderungen aus der EU-Verordnung und DIN DKE SPEC 99100
 •	Einführung eines einheitlichen Templates zur strukturierten Dokumentation von Anforderungen
@@ -81,8 +85,8 @@ Darüber hinaus zählte auch die Dokumentation organisatorischer Inhalte zu den 
 
 == Probleme & Lösungen
 === DIDs & Verifiable Credentials (Fatma)
-Ein zentrales Problem war die hohe Komplexität einiger Standards, insbesondere des W3C VC Data Models. Eine vollständige Umsetzung hätte den Rahmen des Projekts gesprengt. Daher wurden nur die relevanten Kernfunktionen übernommen, um einen sinnvollen Kompromiss zwischen Realismus und Machbarkeit zu finden.
-Darüber hinaus veränderten sich einige Anforderungen im Laufe der Umsetzung. Durch die laufende Abstimmung mit den Entwicklerteams und die kontinuierliche Pflege der GitHub-Issues konnte jedoch flexibel darauf reagiert werden.
+Ein zentrales Problem stellte die hohe Komplexität einiger Standards dar, insbesondere des W3C VC Data Models. Eine vollständige Umsetzung hätte den zeitlichen und organisatorischen Rahmen des Projekts gesprengt. Daher wurden gezielt nur die für den Projektkontext relevanten Kernfunktionen übernommen, um einen sinnvollen Kompromiss zwischen Realitätsnähe und Umsetzbarkeit zu finden.
+Zudem änderten sich im Verlauf der Umsetzung einzelne Anforderungen. Durch die kontinuierliche Abstimmung mit den Entwicklerteams sowie die aktive Pflege der GitHub-Issues konnte flexibel und koordiniert darauf reagiert werden.
 === Batteriepass (Paulina)
 Das detaillierte Durcharbeiten der relevanten Standards erwies sich als sehr arbeits- und zeitintensiv, sodass neue Anforderungen nur schrittweise und mit gewisser Verzögerung in den Entwicklungsprozess einfließen konnten. Eine z.B. architekturrelevante Anforderung wurde zum Beispiel erst zu einem späteren Zeitpunkt erkennbar, konnte jedoch dank klarer Abstimmung und konstruktiver Kommunikation im Team schnell und zielführend berücksichtigt werden. Gute Kommunikation war demnach bei den meisten Schwierigkeiten die beste und entscheidende Lösung.
 Eine andere Schwierigkeit bestand darin, einzuordnen, welche Requirements mit integriert werden sollen und welche eventuell für unser Projekt zu vernachlässigen sind. Die Lösung war auch hier Kommunikation in der Sitzung, wenn sich nach persönlichem Ermessen noch zusätzlich versichert werden wollte.
