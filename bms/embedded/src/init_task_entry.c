@@ -6,7 +6,7 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/ecp.h"
 #include "mbedtls/base64.h"
-
+#include "usr_app.h"
 // Platform context structure
 mbedtls_platform_context ctx_mbedtls = {RESET_VALUE};
 
@@ -89,7 +89,7 @@ void send_and_generate_signing_key_pair()
         unsigned char sign_pub_key_der_base64[sign_pub_key_der_base64_size];
         mbedtls_base64_encode(sign_pub_key_der_base64, sign_pub_key_der_base64_size, &sign_pub_key_der_base64_bytes_written,
                               sign_pub_key_der, sign_pub_key_der_length);
-        ethernet_send_init("http://oem-endpoint", strlen("http://oem-endpoint"), sign_pub_key_der_base64, sign_pub_key_der_base64_bytes_written);
+        ethernet_send_init(BLOCKCHAIN_ENDPOINT, strlen(BLOCKCHAIN_ENDPOINT), sign_pub_key_der_base64, sign_pub_key_der_base64_bytes_written);
 
         // Free memory
         vPortFree(sign_pub_key_der);

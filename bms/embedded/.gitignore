@@ -18,3 +18,8 @@ buildinfo.json
 compile_commands.json
 CMakeLists.txt
 docs
+ra
+ra_gen
+script
+ra_cfg
+memory_regions.ld
