@@ -110,6 +110,8 @@ int sending_and_receiving_functionality()
     } while (endpoint_dns_length == 0);
     dnsQuerryFunc(endpoint_dns, gp_remote_ip_address);
     for (int i = 0; i < 4; i++) {
+		dnsQuerryFunc(endpoint_dns, gp_remote_ip_address);
+
         if (!vSendPing(gp_remote_ip_address)) { endpoint_reachable = 1; }
         vTaskDelay(100);
     }
@@ -121,9 +123,23 @@ int sending_and_receiving_functionality()
         do {
             xReceivedBytes = xMessageBufferReceive(crypto_net_message_buffer, (void *)cReceivedString, sizeof(cReceivedString), pdMS_TO_TICKS(1000));
         } while (xReceivedBytes == 0);
-		// Logic to send signing public key to OEM client or
-        // dynamic battery data message to cloud endpoint 
-		/* @Matthias */
+		char http_request[1000];
+		int json_length = strlen(cReceivedString);
+		int result = JSON_Validate(cReceivedString, json_length);
+		char * did_request_pointer;
+		size_t did_length;
+		if( result == JSONSuccess )
+		{
+			result = JSON_Search( cReceivedString, json_length, "did", 6,
+							&did_request_pointer, &did_length );
+		} else {
+			return 1;
+		}	
+		char* did = pvPortCalloc(json_length, sizeof(char));
+		memcpy(did, did_request_pointer, did_length);	
+		sprintf(http_request, "POST /batterypass/%s HTTP/1.1\r\nHost: localhost:8000\r\nUser-Agent: BMS\r\nAccept: */*\r\n\r\n%s", did, cReceivedString); 
+		int status = vTCPSendWithRetries(gp_remote_ip_address, 8000, http_request, strlen(http_request), NULL, NETWORK_RETRIES);
+		vPortFree(did);
     }
 }
 
