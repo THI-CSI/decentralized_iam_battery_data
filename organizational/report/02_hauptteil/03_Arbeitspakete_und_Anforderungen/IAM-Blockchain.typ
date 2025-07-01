@@ -25,13 +25,13 @@ Das Storage Module ist das kleinste Modul unserer Implementierung und hat die al
 
 
 ==== API Module
-Das API Module bietet verschiedene Schnittstellen zur Interaktion mit der Blockchain bereitstellen. Hierbei haben wir diese in weitere Untermodule kategorisiert.
+Das API Module bietet verschiedene Schnittstellen zur Interaktion mit der Blockchain. Hierbei haben wir diese in weitere Untermodule kategorisiert.
 
 
 Das CLI Modul, kurz für Command Line Interface oder Kommandozeilenschnittstelle, ermöglicht es, die verschiedenen Funktionen der Blockchain über Kommandozeilenbefehle auszuführen und zu testen. Dies erwies sich als äußerst nützlich während der Entwicklungsphase. 
 Es gibt zum beispielsweise ein Argument, um eine neue Blockchain JSON Datei mit dem Genesis Block zu generieren, welcher die EU DID als Transaktion beinhaltet.
 
-Außerdem bieten wir nach außen hin eine Web API bereit, welche dazu genutzt wird, damit andere Komponenten innerhalb des Projekts mit der Blockchain kommunizieren können. Es ermöglicht beispielsweise dem Battery Management System (BMS) oder der Cloud, DIDs und VCs anzulegen oder zu revoken, aber auch mit einer DID ein DID Dokument abzufragen. Außerdem bietet die API Endpunkte an um einzelne Blöcke oder Transaktionen aus der Blockchain abzufragen, welche für eine Frontends genutzt werden können. 
+Außerdem stellen wir nach außen hin eine Web API bereit, damit andere Komponenten innerhalb des Projekts mit der Blockchain kommunizieren können. Es ermöglicht beispielsweise dem Battery Management System (BMS) oder der Cloud, DIDs und VCs anzulegen oder zu revoken, aber auch mit einer DID ein DID Dokument abzufragen. Außerdem bietet die API Endpunkte an um einzelne Blöcke oder Transaktionen aus der Blockchain abzufragen, welche für Frontends genutzt werden können. 
 In der API sind alle GET-Endpunkte öffentlich zugänglich. Jedoch müssen alle POST-Endpunkte, die zum erstellen, verändern oder wiederrufen von DIDs und VCs genutzt werden, eine gültige JSON Web Signature (JWS) zur Authentifizierung mitliefern, um sich damit bei der Blockchain zu authentifizieren.
 
 ==== Web UI
@@ -45,13 +45,13 @@ Für die Infrastruktur unseres Projekts haben wir ein Docker-Bundle erstellt. Di
 Zusätzlich haben wir ein Utility-Skript implementiert, das die Entwicklung erheblich vereinfacht hat. Dieses Skript ist auch für andere Teams nützlich, da es einen einfachen Weg bietet, die Blockchain zu starten, Dokumentationen zu generieren oder die Anbindung ihrer Komponenten an die Blockchain zu testen. Dadurch werden komplexe und potenziell missverständliche Anleitungen in README-Dateien vermieden. Wir haben uns bewusst gegen die Verwendung eines Makefiles entschieden, da die Komplexität der benötigten Utilities zu hoch war. Das Skript stellt unter anderem Befehle wie `cleanup`, `install` und `docs` bereit und fungiert zudem als Wrapper zur Steuerung des erwähnten Docker-Bundles.
 
 === Ergebnisse
-Bei der implementierung des blockchain cores war das finale Design der VC Records und DIDs,
-welche auf der blockchain gespeichert werden, nicht klar. Daher haben wir hier auf einen JSON-
-first approach gesetzt. JSONschemas definieren die Datenstruktur, welche die basis für die
+Bei der Implementierung des Blockchain cores war das finale Design der VC Records und DIDs,
+welche auf der Blockchain gespeichert werden, nicht klar. Daher haben wir hier auf einen JSON-
+first approach gesetzt. JSONschemas definieren die Datenstruktur, welche die Basis für die
 Generierung von Datentypen bildet.
 
 Die API hatten wir zunächst primitiv auf unseren core gesetzt und mussten viele Datentypen und
-Services selbst definieren. Als es in Richtung integration ging, ergaben sich viele Änderungen am
+Services selbst definieren. Als es in Richtung Integration ging, ergaben sich viele Änderungen am
 konkrete Aufbau von DIDs, VCs, VC Records und VPs, sowie von den konkreten Requests. Das
 hat uns veranlasst auch hier wieder auf Flexibilität zu setzen und den kompletten Webserver neu
 zu schreiben. Der Schema-Ansatz erlaubt es uns außerdem mit Bibliotheksfunktionen rigoros
@@ -59,8 +59,8 @@ inputs/outputs der API zu validieren.
 
 Nun werden alle Datenstrukturen, sowie POST Request bodies & Response bodies durch
 JSONschemas definiert. Die API wird in einer großen openapi.yaml definiert, welche genannte
-Schemas referenziert. Aus dieser yaml Datei werden wiederum Datentypen und handler interfaces
-für das backend, sowie große Teile des frontends generiert.
+Schemas referenziert. Aus dieser yaml Datei werden wiederum Datentypen und Handler interfaces
+für das Backend, sowie große Teile des Frontends generiert.
 
 Außerdem wird aus der openapi definition docs generiert.
 
@@ -68,13 +68,14 @@ Die Sourcecode-Dokumentation wurde sowohl für das Backend in golang als auch f�
 frontend in typescript aus inline Kommentaren generiert.
 
 === Probleme & Lösungen
+
 - JWS Signature, die passende Key Generierung und w3c konforme Formate waren schwierig
-  umzusetzen
+  umzusetzen.
 
 - Generell bietet JWS wenig tooling. Einige web tools schaffen Abhilfe aber für effizientes
-  testen waren immer python scripts notwendig
+  testen waren immer python scripts notwendig.
 
-- Die Agile Arbeitsweise hatte zur folge, dass wir gezwungenermaßen immer wieder Änderungen
+- Die Agile Arbeitsweise hatte zur Folge, dass wir gezwungenermaßen immer wieder Änderungen
   an grundlegenden Datenstrukturen und Designentscheidungen vornehmen mussten. Dies
   haben wir mittels dem im Ergebnis beschriebenen JSON-first approach und code Generierung
   gelöst.
@@ -84,18 +85,18 @@ frontend in typescript aus inline Kommentaren generiert.
   sowie ein ausgereifter Konsens Mechanismus.
 
 - Die Suche nach einzelnen Transactions ist ineffizient, da schlichtweg die Chain vom neuesten
-  Block ab durchsucht wird. Eine art Smart-Contract Schicht, welche zu jeder zeit alle aktiven
+  Block ab durchsucht wird. Eine Art Smart-Contract Schicht, welche zu jeder zeit alle aktiven
   VCs und DIDs zum Abruf bereit hält währe sinnvoll.
 
 - Wird eine DID revoked, sollten auch alle DIDs revoked werden, die von ihr erzeugt wurden. Das
   passiert derzeit noch nicht.
 
-- Es wird beim Anlegen einer neuen did nicht geprüft ob das publicKeyMultibase format korrekt
+- Es wird beim Anlegen einer neuen Did nicht geprüft ob das publicKeyMultibase format korrekt
   ist. Sondern nur ob der Request korrekt signiert wurde und ob die controller did vom richtigen
-  typ ist. Wenn im Folgenden dann versucht wird eine Signatur mit diesem key zu prüfen wird ein
-  Fehler geworfen
+  typ ist. Wenn im Folgenden dann versucht wird eine Signatur mit diesem Key zu prüfen wird ein
+  Fehler geworfen.
 
-- Werden zu schnell nacheinander Requests gestellt kann dies aktuell zu bugs führen bei denen
+- Werden zu schnell nacheinander Requests gestellt kann dies aktuell zu Bugs führen bei denen
   der Transaction Threshold pro block überschritten wird. Die Transaktionen werden korrekt
   geprüft, und auch zuverlässig angelegt landen allerdings im falschen Block.
 
