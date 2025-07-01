@@ -8,9 +8,7 @@
 #include <stddef.h>
 #include <string.h>
 
-const char vc_cloud_1[] = "{\"@context\":[\"https://www.w3.org/2018/credentials/v1\",\"http://localhost:8443/docs/vc.serviceAccess.schema.html\"],\"id\":\"urn:uuid:a1fd774e-5300-4171-b778-e53cedb64823\",\"type\":[\"VerifiableCredential\",\"CloudInstance\"],\"issuer\":\"did:batterypass:bms.sn-544b51e7\",\"holder\":\"did:batterypass:cloud.sn-central\",\"issuanceDate\":\"2025-06-17T16:17:43Z\",\"expirationDate\":\"2026-06-17T16:17:43Z\",\"credentialSubject\":{\"id\":\"did:batterypass:cloud.sn-cloud1\",\"type\":\"CloudInstance\",\"cloudDid\":\"did:batterypass:cloud.sn-cloud1\",\"timestamp\":\"2026-06-17T16:17:43Z\"},\"proof\":{\"type\":\"EcdsaSecp256r1Signature2019\",\"created\":\"2025-06-17T16:17:43Z\",\"verificationMethod\":\"did:batterypass:bms.sn-544b51e7#key-1\",\"proofPurpose\":\"authentication\",\"jws\":\"\"}}";
-const char* vcs[] = {vc_cloud_1};
-
+const char* vcs[] = VC_LIST;
 
 __attribute__((section(".data_flash")))
 const int number_of_vcs = 1;

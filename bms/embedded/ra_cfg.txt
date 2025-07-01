@@ -80,12 +80,12 @@ FSP Configuration
     PLL Src: XTAL
     PLL Div /3
     PLL Mul x25.0
-    PLL2 Disabled
+    PLL2 Src: XTAL
     PLL2 Div /2
     PLL2 Mul x20.0
     Clock Src: PLL
     CLKOUT Disabled
-    UCLK Disabled
+    UCLK Src: PLL2
     U60CK Disabled
     OCTASPICLK Disabled
     CANFDCLK Disabled
@@ -864,6 +864,28 @@ FSP Configuration
     Reference Clock: Default
     Automatic Phy LSI Initialization: Enabled
     
+  Module "USB PCDC (r_usb_pcdc)"
+    Bulk In Pipe: USB PIPE4
+    Bulk Out Pipe: USB PIPE5
+    Interrupt In Pipe: USB PIPE6
+    
+  Module "USB (r_usb_basic)"
+    Parameter Checking: Default (BSP)
+    PLL Frequency: 24MHz
+    CPU Bus Access Wait Cycles: 9 cycles
+    Battery Charging: Enabled
+    Power IC Shutdown Polarity: Active High
+    Dedicated Charging Port (DCP) Mode: Disabled
+    Notifications for SET_INTERFACE/SET_FEATURE/CLEAR_FEATURE: Enabled
+    Double Buffering: Enabled
+    Continuous Transfer Mode: Disabled
+    LDO Regulator: Not Supported
+    DMA/DTC Support: DMA Disabled
+    DMA/DTC Source Address: DMA Disabled
+    DMA/DTC Destination Address: DMA Disabled
+    USB Compliance Test mode: Disabled
+    USB TPL table name: NULL
+    
   FreeRTOS
     General: Custom FreeRTOSConfig.h: 
     General: Use Preemption: Enabled
@@ -1043,6 +1065,36 @@ FSP Configuration
     Memory Allocation: Static
     Allocate Secure Context: Enable
     
+  Thread "USB Thread"
+    Symbol: usb_thread
+    Name: USB Thread
+    Stack size (bytes): 1024
+    Priority: 1
+    Thread Context: NULL
+    Memory Allocation: Static
+    Allocate Secure Context: Enable
+    
+    Instance "g_pcdc0 USB PCDC (r_usb_pcdc)"
+      Name: g_pcdc0
+      
+      Instance "g_basic0 USB (r_usb_basic)"
+        Name: g_basic0
+        USB Mode: Peri mode
+        USB Speed: Full Speed
+        USB Module Number: USB_IP0 Port
+        USB Device Class: Peripheral Communications Device Class
+        USB Descriptor: g_usb_descriptor
+        USB Compliance Callback: NULL
+        USBFS Interrupt Priority: Priority 12
+        USBFS Resume Priority: Priority 12
+        USBFS D0FIFO Interrupt Priority: Priority 12
+        USBFS D1FIFO Interrupt Priority: Priority 12
+        USBHS Interrupt Priority: Priority 10
+        USBHS D0FIFO Interrupt Priority: Not Supported
+        USBHS D1FIFO Interrupt Priority: Not Supported
+        USB Callback: NULL
+        USB Callback Context: NULL
+        
   Object "bms_cloud_sem Binary Semaphore"
     Symbol: bms_cloud_sem
     Memory Allocation: Static
