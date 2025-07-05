@@ -89,13 +89,15 @@ Zudem gab es Schwierigkeiten im Deployment-Prozess durch die Docker-Netzwerkkonf
 === Annahmen & Limitierungen
 
 Das verwendete Kryptoverfahren ist zum jetzigen Standpunkt nicht gegen Replay-Angriffe geschützt. 
-Dies muss in der Zukunft angegangen werden, beispielsweise mit einem Challenge-Response-Verfahren. #h(1fr) _Valentin_ #linebreak() #v(1pt)
+Dies muss in der Zukunft angegangen werden, beispielsweise mit einem Challenge-Response-Verfahren. #h(1fr) _Valentin_
+
 Des weiteren ist derzeit nur vorgesehen, dass eine Cloud-Instanz gestartet und gemanagt wird. 
 Außerdem existiert kein Mechanismus um sicherzustellen, dass die Batteriedaten erhalten bleiben, 
 falls der Cloud-Anbieter die Infrastruktur nicht mehr erhalten kann, zum Beispiel in einem Insolvenzfall. 
 Die Cloud ist zudem abhängig vom BatteryPassDataModel, inklusive der enthaltenen Rechtschreibfehler innerhalb der Schemadefinition.
 Diese müssen in der Zukunft beim öffentlichen GitHub-Repository ausgebessert werden. 
-Außerdem sollte TinyDB zukünftig durch eine robuste und skalierbare Datenbanklösung wie beispielsweise MongoDB abgelöst werden. #h(1fr) _Deniz_ #linebreak() #v(1pt)
+Außerdem sollte TinyDB zukünftig durch eine robuste und skalierbare Datenbanklösung wie beispielsweise MongoDB abgelöst werden. #h(1fr) _Deniz_
+
 Eventuell wäre es auch interessant,  sich eine
 dezentrale Speicherung der Batteriepassdaten selbst anzuschauen. Bei dieser muss jedoch überlegt werden, wie private Daten gespeichert werden sollen.
 Ein weiterer Aspekt, welcher ausgebaut werden sollte, ist die visuelle Oberfläche. In ihr lassen sich zum jetzigen Standpunkt nur öffentliche Daten anzeigen.
