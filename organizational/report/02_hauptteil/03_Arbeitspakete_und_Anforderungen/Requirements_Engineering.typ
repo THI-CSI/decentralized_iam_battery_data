@@ -41,14 +41,15 @@ Die Spezifikation definiert den Methodennamen, die ID-Generierung, das Format de
 Die Nomenklatur sowie das Format der Requirements wurden mit dessen Anleitung einheitlich definiert und projektweit verwendet. Die Anforderungen wurden mit nachfolgendem Schema angelegt, um die Position in der Hierarchieebene kenntlich zu machen:	
 Form:   PRJ_CSI_REQ_0XX.XX.XX – Short Description
 Beispiel:   PRJ_CSI_REQ_006.01.01 - Create asymmetrical key pair
--	Ausarbeitung eines Rechte- und Rollenkonzepts zur Regelung des Datenzugriffs nach EU-Verordnung und DIN DKE SPEC 99100
-Es beschreibt, welche Akteure auf welche Datenarten im Batteriepass zugreifen dürfen. Folgende Rollen wurden herausgearbeitet (die jeweiligen Rechte sind in der Übersicht unter organizational/requirements/rights_and_roles.md auf GitHub zu finden):
+-	Ausarbeitung eines Rechte- und Rollenkonzepts zur Regelung des Datenzugriffs nach EU-Verordnung und DIN DKE SPEC 99100, insbesondere im Hinblick auf PRJ_CSI_REQ_015 und PRJ_CSI_REQ_016
+Es beschreibt, welche Akteure auf welche Datenarten im Batteriepass zugreifen dürfen. 
+Folgende Rollen wurden herausgearbeitet (für die Rechte siehe Projekt-Repository: main/organizational/requirements/rights_and_roles.md):
 
 #table(
   columns: (auto, auto),
   align: left,
   table.header(
-   [ *Zugriffsebene*], [*Beispielhafte Zugriffsberechtigte / Inhalte*],
+   [ *Rolle/Zugriffsebene*], [*Beispielhafte Zugriffsberechtigte / Inhalte*],
   ),
   [Publicly Accessible Information],[Allgemeinheit, Hersteller, Entwickler, Händler],
   [Legitimate Interest and Commission],[Fahrzeughersteller (OEMs), Werkstätten, Aufsichtsbehörden],
@@ -56,22 +57,26 @@ Es beschreibt, welche Akteure auf welche Datenarten im Batteriepass zugreifen d�
   [Legitimate Interest],[OEMs, Fahrzeughalter:innen, Recycler – batteriebezogene Informationen]
 )
 
--	Übersichtstabelle mit allen Batteriepass-Attributen, Datentypen, Zugriffsrechten und der Klassifikation
-Zur Unterstützung der Entwicklerteams wurde eine umfassende Attributübersicht erarbeitet, in der alle im Batteriepass vorgesehenen Datenfelder dokumentiert wurden, inklusive ihrer Datentypen, ihrer Klassifikation (statisch/dynamisch) und ihrer Sichtbarkeit (öffentlich oder eingeschränkt). Diese Übersicht diente als zentrale Orientierung für die Arbeit mit Beispieldaten. Im Folgenden ein Ausschnitt zur Veranschaulichung (Vollständig auf GitHub unter: organizational/requirements/datatypes_attributes.md ):
+-	Übersichtstabelle mit allen Batteriepass-Attributen, Datentypen, Zugriffsrechten und der Klassifikation, insbesondere im Hinblick auf PRJ_CSI_REQ_018
+Zur Unterstützung der Entwicklerteams wurde eine umfassende Attributübersicht erarbeitet, in der alle im Batteriepass vorgesehenen Datenfelder dokumentiert wurden, inklusive ihrer Datentypen, ihrer Klassifikation (statisch/dynamisch) und ihrer Sichtbarkeit (öffentlich oder eingeschränkt). 
+Diese Übersicht diente als zentrale Orientierung für die Arbeit mit Beispieldaten. Im Folgenden ein Ausschnitt zur Veranschaulichung (Vollständig siehe Projekt-Repository: main/organizational/requirements/datatypes_attributes.md):
 
-#figure(table(
-  columns: (auto, auto, auto, auto),
-  align: left,
-  table.header(
-    [*Clause*], [*Data attribute*], [*Data access*], [*Data type [Unit]*],
+#figure(
+  caption: "Statische Datenattribute gemäß Verordnung XYZ",
+  table(
+    columns: (auto, auto, auto, auto, auto),
+    align: left,
+    table.header(
+      [*Clause*], [*Data attribute*], [*Data access*], [*Data type [Unit]*], [*Status*],
     ),
-  [6.5.2], [Battery chemistry], [Public], [String],
-  [6.5.3], [Critical raw materials], [Public], [String],
-  [6.5.4], [Materials used in cathode, anode and electrolyte], [People with a legitimate interest and Commission], [String],
-  [6.5.5], [Hazardous substances], [Public], [String],
-  [6.5.6], [Impact of substances on environment, human health, safety and people], [Public], [String],
-))
-Bei jeder der in der Tabelle aufgeführten Zeilen handelt es sich um statische Attribute.
+    [6.5.2], [Battery chemistry], [Public], [String], [static],
+    [6.5.3], [Critical raw materials], [Public], [String], [static],
+    [6.5.4], [Materials used in cathode, anode and electrolyte], [People with a legitimate interest and Commission], [String], [static],
+    [6.5.5], [Hazardous substances], [Public], [String], [static],
+    [6.5.6], [Impact of substances on environment, human health, safety and people], [Public], [String], [static],
+  )
+)
+
 
 -	Erstellung und Veröffentlichung von Protokollen zu ersten organisatorischen Sitzungen
 Darüber hinaus zählte auch die Dokumentation organisatorischer Inhalte zu den Aufgaben. In der frühen Projektphase wurden hierfür Sitzungsprotokolle erstellt, systematisch aufbereitet und auf GitHub veröffentlicht, um die interne Abstimmung nachvollziehbar festzuhalten.
