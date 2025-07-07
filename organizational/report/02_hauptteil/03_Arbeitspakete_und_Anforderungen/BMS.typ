@@ -44,6 +44,30 @@ Der Timestamp wird im aktuellen Projekt-Setup noch nicht berücksichtigt, könnt
 
 Die kryptografischen Funktionen wurden mit mbedTLS implementiert, das die PSA-Crypto-API unterstützt. Über das FSP-Package und den HAL-Treiber rm_psa_crypto kann die Secure Crypto Engine (SCE) der MCU direkt angesprochen werden. Dadurch lassen sich die meisten kryptografischen Operationen hardwarebeschleunigt und sicher im isolierten Speicher der SCE ausführen.
 
+
+Die Netzwerkkommunikation des Renesas-Mikrocontrollers erfolgt über eine physische Ethernet-Verbindung zu einem Laptop, welcher die Infrastruktur der Cloud- und Blockchain-Endpunkte simuliert. Nach der Initialisierung des IP-Stacks wird der Mikrocontroller befähigt, Netzwerkkommunikation über das statisch konfigurierte IPv4-Netzwerk durchzuführen. Die Netzwerkkonfiguration umfasst die IP-Adresse 192.168.0.52, ein Gateway unter 192.168.0.3 sowie die Verwendung eines lokalen DNS-Servers (dnsmasq) auf 192.168.0.2, welcher für die Namensauflösung der Cloud-Endpunkte verantwortlich ist. Alle IP-Adressen sind statisch vergeben. 
+
+Jeden Monat beginnt der Mikrocontroller mit dem Sammeln der DIDs der Cloud-Endpunkte aus der Blockchain. Jede Batteriedaten-Nachricht wird vor dem Versand mit den entsprechenden kryptografischen Schlüsseln verschlüsselt. Die Verschlüsselung und der Nachrichtenversand werden über zwei getrennte FreeRTOS-Tasks koordiniert:
+- net_task: Verantwortlich für das Netzwerkhandling und die Kommunikation mit der IP-Schicht.
+- message_creation_task: Zuständig für die Verschlüsselung und Erstellung der Nachrichten unter Verwendung der jeweils zugeordneten Schlüssel.
+
+Zwischen diesen beiden Tasks erfolgt der Datenaustausch über einen MessageBuffer, welcher verschlüsselte Nachrichten vom message_creation_task entgegennimmt und sie an den net_task weiterleitet. Der Versand an die Endpunkte erfolgt über eine FreeRTOS-Queue, wodurch eine deterministische und task-sichere Weitergabe der verschlüsselten Nachrichten gewährleistet wird.
+
+Zur Simulation der Endpunkte wurde bewusst auf ein Podman-Netzwerk statt Docker zurückgegriffen. Dies erlaubt eine feinere Steuerung der Firewall-Einstellungen, insbesondere in Kombination mit iptables und aktiviertem IPv4-Forwarding. Durch diese Konfiguration ist es möglich, eingehende Pakete vom Mikrocontroller über das Ethernet-Interface in das Podman-Netzwerk weiterzuleiten. Die Firewall-Regeln wurden so definiert, dass:
+
+- der Mikrocontroller ausgehende Verbindungen in das Podman-Netzwerk initiieren darf,
+- jedoch nur bestehende Verbindungen aus dem Podman-Netzwerk Antworten an den Mikrocontroller senden dürfen.
+
+Als Betriebssystem für den Mikrocontroller kommt FreeRTOS zum Einsatz, da alternative RTOS-Optionen wie Zephyr für das verwendete Renesas-Modell keine Unterstützung für Ethernet-Kommunikation bieten. Die gesamte Firmware ist dokumentiert mittels Doxygen, um eine nachvollziehbare und wartbare Codebasis zu gewährleisten.
+
+Für die Entwicklung der Firmware kommt eine bewährte und plattformübergreifend einsetzbare Toolchain zum Einsatz. Der Compiler ist arm-none-eabi-gcc, ein etablierter Cross-Compiler für ARM-Architekturen. Dieser wurde gewählt, da er eine breite Unterstützung für verschiedene ARM-basierten Mikrocontroller bietet und die Portabilität zwischen unterschiedlichen Zielsystemen erleichtert.
+
+Das Buildsystem basiert auf klassischen Makefile-Strukturen. Diese wurden manuell konfiguriert, da sie für die Anforderungen des Projekts eine einfache, transparente und gleichzeitig performante Möglichkeit zur Verwaltung des Kompilierungsprozesses darstellen. Komplexere Buildsysteme wie CMake wurden bewusst vermieden, um volle Kontrolle über den Buildprozess zu behalten und zusätzliche Abhängigkeiten zu vermeiden.
+
+Für das Debugging kommt der plattformübergreifende SEGGER J-Link Debug-Probe zum Einsatz, welcher eine zuverlässige JTAG/SWD-Kommunikation mit dem Mikrocontroller ermöglicht. Durch die breite Unterstützung in IDEs wie SEGGER Embedded Studio sowie über GDB ist ein effizienter und stabiler Debug-Workflow gewährleistet.
+
+Das Flashing der Firmware erfolgt über den Renesas Flash Programmer, das offizielle Tool von Renesas. Es bietet eine robuste und zuverlässige Möglichkeit zur Programmierung des Mikrocontrollers über serielle oder JTAG-Schnittstellen und lässt sich gut in bestehende Entwicklungsumgebungen integrieren.
+
 === Probleme & Lösungen
 (z. B. Teamkoordination, Ressourcenplanung)
 
