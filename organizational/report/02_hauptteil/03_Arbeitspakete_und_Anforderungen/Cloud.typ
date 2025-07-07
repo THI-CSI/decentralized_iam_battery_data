@@ -3,7 +3,7 @@
 === Übergeordnetes Ziel & Aufgaben <cloud_uebergeordnetes_ziel_und_aufgaben>
 
 In der Cloud sollen Batteriepassdaten in einer verschlüsselten Form gespeichert werden. 
-Die Zugriffskontrolle auf die Daten erfordert die Verwendung von DID-Dokumenten und Verifiable Credentials bzw. Verifiable Presentations. 
+Die Zugriffskontrolle auf die Daten erfordert die Verwendung von @DID\-Dokumenten und @VC:long:pl bzw. @VP:long:pl. 
 Dafür wurde entschieden, dass der Zugriff über eine API erfolgt, welche in Python geschrieben ist. 
 Zu den Hauptaufgaben gehören also die Entwicklung der Schnittstelle und die Konzeption einer Datenbank für die Batteriepassdaten. 
 Dazu gehören auch kryptografische Überlegungen sowie eine Dokumentation für die Anwendung. 
@@ -50,22 +50,22 @@ Die Zugriffsrechte für die jeweiligen Attribute ist nach der DIN DKE SPEC 99100
 ==== Batteriepass-UI <cloud_ui>
 
 Die Oberfläche wurde mit Streamlit, einer Python-Bibliothek für einfache Datenvisualisierung, erstellt. 
-In der Oberfläche lassen sich öffentliche Batteriepassdaten zu einer bestimmten DID und eine Liste aller verfügbaren DIDs anzeigen. 
+In der Oberfläche lassen sich öffentliche Batteriepassdaten zu einer bestimmten @DID und eine Liste aller verfügbaren @DID:pl anzeigen. 
 Die öffentlichen Batteriepassdaten werden über die API abgefragt und in einer tabellarischen Ansicht dargestellt. 
-Außerdem wird ein QR-Code erzeugt, welcher einen Link zu der Batteriepass-UI-Seite einer bestimmten DID enthält. 
+Außerdem wird ein QR-Code erzeugt, welcher einen Link zu der Batteriepass-UI-Seite einer bestimmten @DID enthält. 
 Es lassen sich bisher keine nicht-öffentlichen Daten anzeigen.
 
 ==== Kryptografische Überlegungen <cloud_cloudcrypto>
 
 Die Datenübertragung vom BMS an die Cloud muss in ihrer Vertraulichkeit und Integrität geschützt sein. 
-Initial sollte dafür das "Hybrid Public Key Encryption (HPKE)"-Verfahren genutzt werden. 
+Initial sollte dafür das "@HPKE"-Verfahren genutzt werden. 
 Dies war jedoch wegen Hardwarelimitationen seitens des BMS nicht möglich. Deshalb wird für den tatsächlichen Austausch eine JSON-Payload verwendet, 
 die aus `ciphertext`, `eph_pub`, `aad`, `salt`, `did` und `signature` besteht. 
 Mithilfe des öffentlichen Ephemeralschlüssels kann in Kombination mit dem privaten Schlüssel der Cloud die Nachricht entschlüsselt werden. 
-Der öffentliche Cloud-Schlüssel würde in einem realen Kontext durch einen OEM oder die EU signiert und an die IAM-Blockchain veröffentlicht werden. 
-Die im Payload enthaltene `did` ist die DID des Senders und wird verwendet, um den öffentlichen Schlüssel des Senders von der IAM-Blockchain abzufragen. 
+Der öffentliche Cloud-Schlüssel würde in einem realen Kontext durch einen @OEM oder die EU signiert und an die IAM-Blockchain veröffentlicht werden. 
+Die im Payload enthaltene `did` ist die @DID des Senders und wird verwendet, um den öffentlichen Schlüssel des Senders von der IAM-Blockchain abzufragen. 
 Mit diesem kann die Signatur überprüft und sichergestellt werden, dass der Absender im Besitz des privaten Schlüssels ist. 
-Eine weitere Anforderung war die Verwendung von Verifiable Presentations. Diese werden bei einer Leseabfrage überprüft und mit der IAM-Blockchain abgeglichen. 
+Eine weitere Anforderung war die Verwendung von @VP:long:pl. Diese werden bei einer Leseabfrage überprüft und mit der IAM-Blockchain abgeglichen. 
 Das Projektteam hat sich gemeinsam dazu entschieden NIST-P-256-Schlüssel zu verwenden. Diese werden auch verwendet, um die Batteriepassdaten verschlüsselt zu sichern.
 
 ==== Dokumentation <cloud_docs>
@@ -76,7 +76,7 @@ und kann unter `http://example.instance.cloud/docs` abgerufen werden.
 
 === Ergebnisse <cloud_ergebnisse>
 
-In der Cloud-Datenbank können mehrere Batteriepässe für DIDs erstellt und verwaltet werden. Die Löschung funktioniert ebenso
+In der Cloud-Datenbank können mehrere Batteriepässe für @DID:pl erstellt und verwaltet werden. Die Löschung funktioniert ebenso
 und ermöglicht das vollständige Ausleben einer Batterie.
 Das Cloud-System ist über Docker-Compose startbar und funktioniert den Anforderungen entsprechend.
 

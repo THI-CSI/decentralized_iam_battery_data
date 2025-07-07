@@ -1,5 +1,5 @@
-#import "@preview/glossy:0.4.0": *
-#import "@preview/linguify:0.4.0": *
+#import "@preview/glossy:0.8.0": *
+#import "@preview/linguify:0.4.2": *
 
 #show: init-glossary.with(yaml("./glossary.yaml"))
 #let longline() = line(length: 100%, stroke: 1pt)
@@ -63,6 +63,8 @@
   show heading.where(level: 1): set text(18pt)
   show heading.where(level: 2): set text(14pt)
   show heading.where(level: 3): set text(12pt)
+  show heading.where(level: 4): set text(10pt)
+  show heading.where(level: 5): set text(8pt)
 
   set heading(numbering: "1.")
   show outline.entry.where(level: 1): it => {
@@ -77,7 +79,6 @@
     theme: custom-gls-theme,
   )
 
-  pagebreak()
   set page(numbering: "1")
   counter(page).update(1)
   set align(left)
@@ -85,13 +86,12 @@
 
 
   show ref: it => {
-
+    
     let el = it.element
-    if it.element.func() == heading {
-      link(el.location(), [Abschnitt #numbering(
-        el.numbering,
-        ..counter(heading).at(el.location())
-      ) (#el.body)])
+    if el != none and el.func() == heading {
+      let counter = counter(heading).at(el.location())
+      let loc = numbering(el.numbering,..counter)
+      link(el.location(), [Abschnitt #loc (#el.body)])
     } else {
       it
     }

@@ -1,4 +1,4 @@
-== Authorentabelle <authorentabelle>
+== Autorentabelle <autorentabelle>
 
 
 #align(center, table(
@@ -11,23 +11,29 @@
   ),
   [Paulina Mair], [ 
     @projektbeschreibung #linebreak()
+    @requirements_engineering - Teil "Battery Pass" #linebreak()
   ],
   [Fatma Aladağ], [ 
     @genutzte_tools_und_plattformen #linebreak()
     @ueberblick_und_zusammenhang_der_arbeitspakete  #linebreak()
-    @requirements_engineering #linebreak()
+    @requirements_engineering - Teil "@DID:pl & @VC:long:pl" #linebreak()
   ],
   [Berkan Erkasap], [ 
     @systemarchitektur #linebreak()
     @arbeitspaket_infrastructure #linebreak()
+    @infrastructure_ergebnisse #linebreak()
+    @infrastructure_oem_service #linebreak()
   ],
   [Timo Weese], [ 
-    Teilw. @problembeschreibung #linebreak()
+    Teilweise @problembeschreibung #linebreak()
     @arbeitspaket_project_management #linebreak()
     @fazit_und_ausblick #linebreak()
   ],
   [Pascal Esser], [ 
-    @arbeitspaket_infrastructure #linebreak()
+    @infrastructure_uebergeordnetes_ziel_und_aufgaben #linebreak()
+    @infrastructure_teilaufgaben #linebreak()
+    @infrastructure_probleme_und_loesungen #linebreak()
+    @infrastructure_annahmen_und_limitierungen #linebreak()
   ],
   [Felix Wallner], [ 
     @arbeitspaket_iam_blockchain #linebreak()
@@ -64,4 +70,4 @@
     @cloud_docs #linebreak()
   ]
 ))
-#align(center, [Wenn lediglich das Oberkapitel angegeben ist, so hat der Author an jedem Unterkapitel mitgewirkt.#linebreak()Wenn statt einem Klarnamen ein Nutzername angegeben ist, so hat der Author der Veröffentlichung nicht zugestimmt.])
+#align(center, [Wenn lediglich das Oberkapitel angegeben ist, so hat der Author an jedem Unterkapitel zu gleichen Teilen mitgewirkt.#linebreak()Wenn statt einem Klarnamen ein Nutzername angegeben ist, so hat der Author der Veröffentlichung nicht zugestimmt.])

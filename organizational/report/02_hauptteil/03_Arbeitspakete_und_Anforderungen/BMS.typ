@@ -4,7 +4,7 @@
 #pagebreak()
 == BMS <arbeitspaket_bms>
 === Übergeordnetes Ziel & Aufgaben <bms_uebergeordnetes_ziel_und_aufgaben>
-Ziel dieses Arbeitspakets war die Entwicklung einer Firmware für ein Batterie-Management-System (BMS).
+Ziel dieses Arbeitspakets war die Entwicklung einer Firmware für ein @BMS:both.
 
 === Aufgabenverteilung <bms_aufgabenverteilung>
 Während Matthias und Florian die Firmware auf realer Hardware mit einem Renesas-Mikrocontroller entwickelten und testeten, erstellte Patrick ein ergänzendes Mock-BMS in Python, das als Simulationsumgebung für das System diente. 
@@ -14,12 +14,12 @@ Matthias war hauptsächlich für die Netzwerkanbindung des Systems verantwortlic
 #pagebreak()
 === Ergebnisse <bms_ergebnisse>
 
-Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initialisiert. Dazu zählen unter anderem das Einrichten der Tasks, die Konfiguration des Schedulers sowie das Anlegen der benötigten Inter-Task-Kommunikationsobjekte (ITC). Das folgende Sequenzdiagramm veranschaulicht vereinfacht die Programmlogik und den grundlegenden Ablauf der Firmware – beispielsweise unter Verwendung von Mechanismen wie dem Deferred Interrupt Handling.
+Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initialisiert. Dazu zählen unter anderem das Einrichten der Tasks, die Konfiguration des Schedulers sowie das Anlegen der benötigten Objekte der @ITC. Das folgende Sequenzdiagramm veranschaulicht vereinfacht die Programmlogik und den grundlegenden Ablauf der Firmware – beispielsweise unter Verwendung von Mechanismen wie dem Deferred Interrupt Handling.
 #customFigure(
   image("../../assets/program_flow.png", width: 100%),
   caption: "Program flow BMS",
 ) <ProgramFlowBMS>
-Mit Ausnahme der Funktionalität zur Signierung von Service-VCs und deren Schreiben auf die Blockchain ist der übrige Ablauf bereits vollständig auf der Hardware implementiert.
+Mit Ausnahme der Funktionalität zur Signierung von Service-@VC:pl und deren Schreiben auf die Blockchain ist der übrige Ablauf bereits vollständig auf der Hardware implementiert.
 #pagebreak()
 Wie bereits in Abschnitt 3.5.2 beschrieben, war ich zudem für die Konzeption und Entwicklung eines Verfahrens zur Nachrichtenerstellung verantwortlich. Dieses Verfahren kommt im dargestellten Programmablauf an der mit ① markierten Stelle zum Einsatz: Nachdem im Rahmen einer Simulation einmalig die dynamischen Batteriedaten abgefragt wurden, wird für jedes empfangene DID_doc (Cloud-Endpunkt) eine individuelle Nachricht mit den dynamischen Batteriedaten erzeugt und anschließend versendet.
 
@@ -42,7 +42,7 @@ Die generierten Nachrichten (siehe Struktur @MessageLayout) können anschließen
 ) <MessageLayout>
 Der Timestamp wird im aktuellen Projekt-Setup noch nicht berücksichtigt, könnte aber zukünftig als Replay-Schutz eingesetzt werden.
 
-Die kryptografischen Funktionen wurden mit mbedTLS implementiert, das die PSA-Crypto-API unterstützt. Über das FSP-Package und den HAL-Treiber rm_psa_crypto kann die Secure Crypto Engine (SCE) der MCU direkt angesprochen werden. Dadurch lassen sich die meisten kryptografischen Operationen hardwarebeschleunigt und sicher im isolierten Speicher der SCE ausführen.
+Die kryptografischen Funktionen wurden mit mbedTLS implementiert, das die PSA-Crypto-API unterstützt. Über das FSP-Package und den HAL-Treiber rm_psa_crypto kann die @SCE der MCU direkt angesprochen werden. Dadurch lassen sich die meisten kryptografischen Operationen hardwarebeschleunigt und sicher im isolierten Speicher der @SCE ausführen.
 
 
 Die Netzwerkkommunikation des Renesas-Mikrocontrollers erfolgt über eine physische Ethernet-Verbindung zu einem Laptop, welcher die Infrastruktur der Cloud- und Blockchain-Endpunkte simuliert. Nach der Initialisierung des IP-Stacks wird der Mikrocontroller befähigt, Netzwerkkommunikation über das statisch konfigurierte IPv4-Netzwerk durchzuführen. Die Netzwerkkonfiguration umfasst die IP-Adresse 192.168.0.52, ein Gateway unter 192.168.0.3 sowie die Verwendung eines lokalen DNS-Servers (dnsmasq) auf 192.168.0.2, welcher für die Namensauflösung der Cloud-Endpunkte verantwortlich ist. Alle IP-Adressen sind statisch vergeben. 
