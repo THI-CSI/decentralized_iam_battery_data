@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/report
     paths:
       - organizational/diagrams/**
       - organizational/report/**
@@ -44,7 +45,7 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "action: update d2 diagrams"
-            git push git@github.com:THI-CSI/decentralized_iam_battery_data.git HEAD:main
+            git push git@github.com:THI-CSI/decentralized_iam_battery_data.git HEAD:${GITHUB_REF_NAME}
           fi
 
       - name: Install Typst
@@ -54,12 +55,21 @@ jobs:
         run: |
           typst compile "organizational/report/main.typ" "organizational/report/assets/report.pdf"
 
-      - name: Upload PDF as release
+      # Conditionally either upload as release or as artifact based on branch name
+      - name: Upload PDF as Release (main branch)
+        if: github.ref_name == 'main'
         uses: softprops/action-gh-release@v2
-        with: 
+        with:
           name: "Latest Report Version"
           tag_name: "latest"
           make_latest: true
           files: organizational/report/assets/report.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload PDF as Artifact (feat/report branch)
+        if: github.ref_name == 'feat/report'
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-pdf
+          path: organizational/report/assets/report.pdf
