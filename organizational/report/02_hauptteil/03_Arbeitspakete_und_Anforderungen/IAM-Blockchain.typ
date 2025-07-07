@@ -1,6 +1,6 @@
-== IAM-Blockchain
+== IAM-Blockchain <arbeitspaket_iam_blockchain>
 
-=== Übergeordnetes Ziel & Aufgaben
+=== Übergeordnetes Ziel & Aufgaben <iam_blockchain_uebergeordnetes_ziel_und_aufgaben>
 Wir mussten ein dezentrales Identity Access Management System nach dem W3C Did, VC und
 VP Standards entwickeln.
 
@@ -67,7 +67,7 @@ Außerdem wird aus der openapi definition docs generiert.
 Die Sourcecode-Dokumentation wurde sowohl für das Backend in golang als auch für das
 frontend in typescript aus inline Kommentaren generiert.
 
-=== Probleme & Lösungen
+=== Probleme & Lösungen <iam_blockchain_probleme_und_loesungen>
 
 - JWS Signature, die passende Key Generierung und w3c konforme Formate waren schwierig
   umzusetzen.
@@ -80,7 +80,7 @@ frontend in typescript aus inline Kommentaren generiert.
   haben wir mittels dem im Ergebnis beschriebenen JSON-first approach und code Generierung
   gelöst.
 
-=== Annahmen & Limitierungen
+=== Annahmen & Limitierungen <iam_blockchain_annahmen_und_limitierungen>
 - Aktuell können nicht mehrere Instanzen der Blockchain laufen. Es fehlt ein peer2peer module,
   sowie ein ausgereifter Konsens Mechanismus.
 

@@ -97,4 +97,6 @@
     [= Literaturverzeichnis]
     bibliography("ref.bib", title: none, style: "ieee")
   }
+  pagebreak()
+  include "appendix.typ"
 }

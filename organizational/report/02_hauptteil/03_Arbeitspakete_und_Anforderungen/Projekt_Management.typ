@@ -1,4 +1,4 @@
-== Project Management
+== Project Management <arbeitspaket_project_management>
 
 === Übergeordnetes Ziel & Aufgaben
 Das übergeordnete Ziel im Bereich des Projektmanagements bestand darin, eine funktionierende organisatorische Struktur für das Projektteam zu schaffen, um eine effektive Zusammenarbeit zu ermöglichen. Zu Beginn herrschte eine unstrukturierte Ausgangslage ohne definierte Rollen, Verantwortlichkeiten oder klar etablierte Prozesse. Daraus ergab sich die Notwendigkeit, ein gemeinsames Verständnis für Arbeitsweise und Kommunikation zu entwickeln. Neben der reinen Organisation der Projektarbeit war es auch Ziel, eine gleichmäßige Sichtbarkeit und Anerkennung für alle Teammitglieder zu erreichen, sodass individuelle Leistungen fair in die Bewertung einflossen und potenzielle Alleingänge oder isolierte Arbeitsweisen vermieden wurden. 

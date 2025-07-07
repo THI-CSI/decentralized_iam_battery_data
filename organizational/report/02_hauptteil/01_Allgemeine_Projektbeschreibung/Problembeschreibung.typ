@@ -1,4 +1,4 @@
-== Problembeschreibung
+== Problembeschreibung <problembeschreibung>
 
 Die Bearbeitung des Projekts stellte das Team vor mehrere Herausforderungen, die sich sowohl aus der organisatorischen als auch aus der inhaltlichen Ausgangslage ergaben. Zu Beginn der Projektphase bestand kein vordefiniertes Team, was bedeutete, dass sich die Gruppenmitglieder zunächst selbstständig finden und ihre Zusammenarbeit aufbauen mussten. Dies betraf nicht nur die Rollenverteilung und Abstimmung der individuellen Stärken, sondern auch grundlegende Fragen der Kommunikation, Zeitplanung und Arbeitsweise.
 Zudem handelte es sich bei dem Projektthema um ein völlig neues Fachgebiet für die Teammitglieder. Begriffe wie „dezentrale Identitäten“ oder der „Battery Passport“ waren zu Projektbeginn kaum bekannt, was eine intensive Einarbeitung in komplexe Inhalte notwendig machte. Die technische und regulatorische Tiefe des Themas, insbesondere im Kontext zukünftiger EU-Vorgaben, stellte daher eine zusätzliche Hürde dar.

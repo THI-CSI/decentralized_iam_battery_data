@@ -1,9 +1,9 @@
-== Requirements Engineering
-=== Übergeordnetes Ziel & Aufgaben
+== Requirements Engineering <requirements_engineering>
+=== Übergeordnetes Ziel & Aufgaben <requirements_engineering_uebergeordnetes_ziel_und_aufgaben>
 Das zentrale Ziel des Arbeitspakets „Requirements Engineering“ bestand darin, die funktionalen und nicht-funktionalen Anforderungen für ein System zur dezentralen Identitäts- und Zugriffsverwaltung im Batteriedatenkontext zu erheben, zu strukturieren und für die technische Umsetzung bereitzustellen. Im Fokus standen dabei Anforderungen an den digitalen Batteriepass, an dezentrale Identifikatoren (DIDs) und auch an verifiable Credentials (VCs). 
 Als Grundlage dienten die regulatorischen Vorgaben der EU-Batterieverordnung, die DIN DKE SPEC 99100 sowie die technischen Standards des W3C-Datenmodells für dezentrale Identifikatoren (DIDs) und verifiable Credentials (VCs). Ziel war es, auf dieser Basis eine verständliche, nachvollziehbare und praxisorientierte Anforderungssystematik zu entwickeln.
 
-=== Teilaufgaben
+=== Teilaufgaben <requirements_engineering_teilaufgaben>
 Zu Beginn des Arbeitspakets wurden die zentralen Projektvorgaben und Rahmenbedingungen analysiert. Auf dieser Grundlage konnten erste Anforderungen formuliert und in GitHub in Form von GitHub-Issues als einzelne Requirements integriert werden, um sie dem Entwicklungsteam frühzeitig bereitzustellen.
 Im weiteren Verlauf wurden die Anforderungen mit GitHub-Markern in die Kategorien Must, Should und Can eingeteilt. Diese Priorisierung diente dazu, den Fokus gezielt auf die wichtigsten Ziele zu lenken und eine strukturierte Umsetzung zu ermöglichen. 
 Diese Vorgehensweise ermöglichte eine transparente Nachverfolgbarkeit der Anforderungen bis hin zur späteren technischen Umsetzung. Die Identifikation neuer, noch nicht konkret definierter Anforderungen erfolgte thematisch aufgeteilt: Eine Person bearbeitete den Bereich der dezentralen Identitäten (DIDs) und verifiable Credentials (VCs), die andere den Batteriepass.
@@ -23,7 +23,7 @@ Ein weiterer Bestandteil war die Entwicklung eines Templates zur strukturierten 
 Darüber hinaus zählte auch die Dokumentation organisatorischer Inhalte zu den Aufgaben.
 Zudem stand Richtung Ende der Projektphase auch der Abschlussbericht des Batterieprojekts an, bei dem auch einige allgemeine Inhalte erstellt wurden (siehe Autorentabelle).
 
-=== Ergebnisse
+=== Ergebnisse <requirements_engineering_ergebnisse>
 Resultat war eine gepflegte Anforderungsliste mit klarer Priorisierung. Die Anforderungen wurden in GitHub strukturiert abgelegt und laufend aktualisiert. Besonderer Wert wurde auf die Nachvollziehbarkeit der Quellen gelegt, um Entwicklern bei Bedarf die Möglichkeit zur genaueren Recherche zu ermöglichen. Zudem wurde innerhalb des Requirements-Teams eine Status-Tabelle gepflegt, in der der Fortschritt der einzelnen Anforderungen, die zuständigen Gruppen oder Personen sowie etwaige Abhängigkeiten oder offene Fragen dokumentiert wurden. Diese diente bei Bedarf den Teams als Orientierung. Auch bei der Erstellung der inhaltlichen Struktur der Abschlusspräsentation und des Projektberichts war das Team beteiligt, sowie bei Abschnitten, die nicht konkret einem Arbeitspaket zuzuordnen waren. Außerdem fielen bei den verschiedenen Teilgebieten noch zusätzlich weitere Ergebnisse an:
 ==== DIDs & Verifiable Credentials (Fatma)
 •	Ableitung und Integration neuer Anforderungen aus den W3C-Spezifikationen zu Decentralized Identifiers (DID) und Verifiable Credentials (VC), insbesondere im Hinblick auf PRJ_CSI_REQ_008, PRJ_CSI_REQ_011 und PRJ_CSI_REQ_014AnforderungsbeschreibungDID_Anforderungen_Proje….
@@ -83,7 +83,7 @@ Zur Unterstützung der Entwicklerteams wurde eine umfassende Attributübersicht 
 Darüber hinaus zählte auch die Dokumentation organisatorischer Inhalte zu den Aufgaben. In der frühen Projektphase wurden hierfür Sitzungsprotokolle erstellt, systematisch aufbereitet und auf GitHub veröffentlicht, um die interne Abstimmung nachvollziehbar festzuhalten.
 
 
-=== Probleme & Lösungen
+=== Probleme & Lösungen <requirements_engineering_probleme_und_loesungen>
 ==== DIDs & Verifiable Credentials (Fatma)
 Ein zentrales Problem stellte die hohe Komplexität einiger Standards dar, insbesondere des W3C VC Data Models. Eine vollständige Umsetzung hätte den zeitlichen und organisatorischen Rahmen des Projekts gesprengt. Daher wurden gezielt nur die für den Projektkontext relevanten Kernfunktionen übernommen, um einen sinnvollen Kompromiss zwischen Realitätsnähe und Umsetzbarkeit zu finden.
 Zudem änderten sich im Verlauf der Umsetzung einzelne Anforderungen. Durch die kontinuierliche Abstimmung mit den Entwicklerteams sowie die aktive Pflege der GitHub-Issues konnte flexibel und koordiniert darauf reagiert werden.
@@ -91,7 +91,7 @@ Zudem änderten sich im Verlauf der Umsetzung einzelne Anforderungen. Durch die 
 Das detaillierte Durcharbeiten der relevanten Standards erwies sich als sehr arbeits- und zeitintensiv, sodass neue Anforderungen nur schrittweise und mit gewisser Verzögerung in den Entwicklungsprozess einfließen konnten. Eine z.B. architekturrelevante Anforderung wurde zum Beispiel erst zu einem späteren Zeitpunkt erkennbar, konnte jedoch dank klarer Abstimmung und konstruktiver Kommunikation im Team schnell und zielführend berücksichtigt werden. Gute Kommunikation war demnach bei den meisten Schwierigkeiten die beste und entscheidende Lösung.
 Eine andere Schwierigkeit bestand darin, einzuordnen, welche Requirements mit integriert werden sollen und welche eventuell für unser Projekt zu vernachlässigen sind. Die Lösung war auch hier Kommunikation in der Sitzung, wenn sich nach persönlichem Ermessen noch zusätzlich versichert werden wollte.
 
-=== Annahmen & Limitierungen
+=== Annahmen & Limitierungen <requirements_engineering_annahmen_und_limitierungen>
 ==== DIDs & Verifiable Credentials (Fatma)
 Einige internationale Standards mussten bewusst reduziert umgesetzt werden, da ihre vollständige Anwendung zu aufwendig gewesen wäre. Stattdessen wurde der Fokus auf die projektrelevanten und technisch umsetzbaren Bestandteile gelegt.
 Gleichzeitig wurde eine eigene DID-Methodenspezifikation entwickelt. Diese ermöglichte es, dezentrale Identitäten in einem kontrollierten Rahmen praktisch umzusetzen und in die eigens entwickelte Blockchain-Komponente zu integrieren.

@@ -18,7 +18,6 @@
 )
 
 
-
 #include "02_hauptteil/wrapper.typ"
 
 #include "03_schluss/main.typ"

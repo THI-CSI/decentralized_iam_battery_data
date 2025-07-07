@@ -1,4 +1,4 @@
-== Genutzte Tools & Plattformen
+== Genutzte Tools & Plattformen <genutzte_tools_und_plattformen>
 
 Zur Umsetzung des Projekts wurden verschiedene Werkzeuge und Plattformen eingesetzt, die sowohl die technische Implementierung als auch die organisatorische Zusammenarbeit ermöglichten und unterstützten.
 Die zentrale Plattform für Projektmanagement und Quellcodeverwaltung war GitHub. Hier wurden sämtliche Anforderungen in Form von Issues dokumentiert, strukturierte Pull-Requests erstellt und ein gemeinsames Kanban-Board gepflegt. Für eine einheitliche Vorgehensweise kamen standardisierte Templates für Issues und Pull Requests zum Einsatz.
