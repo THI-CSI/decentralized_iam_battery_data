@@ -16,7 +16,7 @@ Matthias war hauptsächlich für die Netzwerkanbindung des Systems verantwortlic
 
 Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initialisiert. Dazu zählen unter anderem das Einrichten der Tasks, die Konfiguration des Schedulers sowie das Anlegen der benötigten Inter-Task-Kommunikationsobjekte (ITC). Das folgende Sequenzdiagramm veranschaulicht vereinfacht die Programmlogik und den grundlegenden Ablauf der Firmware – beispielsweise unter Verwendung von Mechanismen wie dem Deferred Interrupt Handling.
 #customFigure(
-  image("./program_flow.png", width: 100%),
+  image("../../assets/program_flow.png", width: 100%),
   caption: "Program flow BMS",
 ) <ProgramFlowBMS>
 Mit Ausnahme der Funktionalität zur Signierung von Service-VCs und deren Schreiben auf die Blockchain ist der übrige Ablauf bereits vollständig auf der Hardware implementiert.
@@ -37,7 +37,7 @@ Der Prozess zur Erstellung einer solchen Nachricht umfasst folgende Schritte:
 
 Die generierten Nachrichten (siehe Struktur @MessageLayout) können anschließend über einen ungesicherten, verbindungslosen Kanal an die Cloud-Endpunkte übertragen werden, ohne dass dabei die Vertraulichkeit, Integrität oder Authentizität der Batteriedaten gefährdet wird.
 #customFigure(
-  image("./message_layout.png", width: 100%),
+  image("../../assets/message_layout.png", width: 100%),
   caption: "Message Layout",
 ) <MessageLayout>
 Der Timestamp wird im aktuellen Projekt-Setup noch nicht berücksichtigt, könnte aber zukünftig als Replay-Schutz eingesetzt werden.
