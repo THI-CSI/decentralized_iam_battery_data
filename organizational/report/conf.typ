@@ -82,7 +82,20 @@
   counter(page).update(1)
   set align(left)
   set par(justify: true)
-  
+
+
+  show ref: it => {
+
+    let el = it.element
+    if it.element.func() == heading {
+      link(el.location(), [Abschnitt #numbering(
+        el.numbering,
+        ..counter(heading).at(el.location())
+      ) (#el.body)])
+    } else {
+      it
+    }
+  }
   doc
   pagebreak()
   [= Abbildungsverzeichnis]

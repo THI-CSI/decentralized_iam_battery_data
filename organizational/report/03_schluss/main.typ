@@ -1,4 +1,4 @@
-= Fazit & Ausblick
+= Fazit & Ausblick <fazit_und_ausblick>
 == Zielerreichung & Projekterfolg
 Das Projekt kann insgesamt als erfolgreich bewertet werden. Sämtliche Muss-Anforderungen, die im Rahmen des Requirements Engineering definiert wurden, konnten vollständig erfüllt werden. Darüber hinaus wurde auch ein Großteil der darüber hinausgehenden Anforderungen umgesetzt. Auf dieser Grundlage wurde eine funktionale, prototypische und integrierte Lösung entwickelt, die die dezentrale Vergabe von Berechtigungen für Batteriedaten ermöglicht. Die technische Umsetzung basiert auf Blockchain-Technologie und adressiert damit gezielt das zentrale Problem der vertrauenswürdigen, nachvollziehbaren und verteilten Zugriffssteuerung. Die Zielsetzung des Projekts wurde somit inhaltlich erreicht und die entwickelte Lösung stellt einen tragfähigen Vorschlag dar, wie eine zukünftige Infrastruktur zur Verwaltung solcher Berechtigungen aussehen könnte.
 

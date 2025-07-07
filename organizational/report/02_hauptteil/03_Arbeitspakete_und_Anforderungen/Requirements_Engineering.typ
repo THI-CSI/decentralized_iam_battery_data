@@ -1,3 +1,5 @@
+#import "../../conf.typ": customFigure
+
 == Requirements Engineering <requirements_engineering>
 === Übergeordnetes Ziel & Aufgaben <requirements_engineering_uebergeordnetes_ziel_und_aufgaben>
 Das zentrale Ziel des Arbeitspakets „Requirements Engineering“ bestand darin, die funktionalen und nicht-funktionalen Anforderungen für ein System zur dezentralen Identitäts- und Zugriffsverwaltung im Batteriedatenkontext zu erheben, zu strukturieren und für die technische Umsetzung bereitzustellen. Im Fokus standen dabei Anforderungen an den digitalen Batteriepass, an dezentrale Identifikatoren (DIDs) und auch an verifiable Credentials (VCs). 
@@ -43,41 +45,33 @@ Beispiel:   PRJ_CSI_REQ_006.01.01 - Create asymmetrical key pair
 Es beschreibt, welche Akteure auf welche Datenarten im Batteriepass zugreifen dürfen. Folgende Rollen wurden herausgearbeitet (die jeweiligen Rechte sind in der Übersicht unter organizational/requirements/rights_and_roles.md auf GitHub zu finden):
 
 #table(
-  columns: 2,
+  columns: (auto, auto),
   align: left,
-  [
-    **Zugriffsebene**, **Beispielhafte Zugriffsberechtigte / Inhalte**,
-
-    *Publicly Accessible Information*, 
-    z. B. Allgemeinheit, Hersteller, Entwickler, Händler,
-
-    *Legitimate Interest and Commission*, 
-    z. B. Fahrzeughersteller (OEMs), Werkstätten, Aufsichtsbehörden,
-
-    *Notified Bodies, Market Surveillance and Commission*, 
-    Behörden (z. B. Ergebnisse von Prüfberichten zur Einhaltung der Verordnung),
-
-    *Legitimate Interest*, 
-    z. B. OEMs, Fahrzeughalter:innen, Recycler – batteriebezogene Informationen,
-  ]
+  table.header(
+   [ *Zugriffsebene*], [*Beispielhafte Zugriffsberechtigte / Inhalte*],
+  ),
+  [Publicly Accessible Information],[Allgemeinheit, Hersteller, Entwickler, Händler],
+  [Legitimate Interest and Commission],[Fahrzeughersteller (OEMs), Werkstätten, Aufsichtsbehörden],
+  [Notified Bodies, Market Surveillance and Commission], [Behörden (Ergebnisse von Prüfberichten zur Einhaltung der Verordnung)],
+  [Legitimate Interest],[OEMs, Fahrzeughalter:innen, Recycler – batteriebezogene Informationen]
 )
 
 •	Übersichtstabelle mit allen Batteriepass-Attributen, Datentypen, Zugriffsrechten und der Klassifikation
 Zur Unterstützung der Entwicklerteams wurde eine umfassende Attributübersicht erarbeitet, in der alle im Batteriepass vorgesehenen Datenfelder dokumentiert wurden, inklusive ihrer Datentypen, ihrer Klassifikation (statisch/dynamisch) und ihrer Sichtbarkeit (öffentlich oder eingeschränkt). Diese Übersicht diente als zentrale Orientierung für die Arbeit mit Beispieldaten. Im Folgenden ein Ausschnitt zur Veranschaulichung (Vollständig auf GitHub unter: organizational/requirements/datatypes_attributes.md ):
 
-#table(
-  columns: 5,
+#figure(table(
+  columns: (auto, auto, auto, auto),
   align: left,
-  [
-    **Clause**, **Data attribute**, **Data access**, **Data type [Unit]**, **Static/Dynamic**,
-
-    6.5.2, Battery chemistry, Public, String, S,
-    6.5.3, Critical raw materials, Public, String, S,
-    6.5.4, Materials used in cathode, anode, and electrolyte, Persons with a legitimate interest and Commission, String, S,
-    6.5.5, Hazardous substances, Public, String, S,
-    6.5.6, Impact of substances on environment, human health, safety, persons, Public, String, S,
-  ]
-)
+  table.header(
+    [*Clause*], [*Data attribute*], [*Data access*], [*Data type [Unit]*],
+    ),
+  [6.5.2], [Battery chemistry], [Public], [String],
+  [6.5.3], [Critical raw materials], [Public], [String],
+  [6.5.4], [Materials used in cathode, anode and electrolyte], [People with a legitimate interest and Commission], [String],
+  [6.5.5], [Hazardous substances], [Public], [String],
+  [6.5.6], [Impact of substances on environment, human health, safety and people], [Public], [String],
+))
+Bei jeder der in der Tabelle aufgeführten Zeilen handelt es sich um statische Attribute.
 
 •	Erstellung und Veröffentlichung von Protokollen zu ersten organisatorischen Sitzungen
 Darüber hinaus zählte auch die Dokumentation organisatorischer Inhalte zu den Aufgaben. In der frühen Projektphase wurden hierfür Sitzungsprotokolle erstellt, systematisch aufbereitet und auf GitHub veröffentlicht, um die interne Abstimmung nachvollziehbar festzuhalten.
