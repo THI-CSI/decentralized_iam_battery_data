@@ -2,17 +2,17 @@
 #import "../../conf.typ": customFigure, longline
 
 #pagebreak()
-== BMS
-=== Übergeordnetes Ziel & Aufgaben
+== BMS <arbeitspaket_bms>
+=== Übergeordnetes Ziel & Aufgaben <bms_uebergeordnetes_ziel_und_aufgaben>
 Ziel dieses Arbeitspakets war die Entwicklung einer Firmware für ein Batterie-Management-System (BMS).
 
-=== Aufgabenverteilung
+=== Aufgabenverteilung <bms_aufgabenverteilung>
 Während Matthias und Florian die Firmware auf realer Hardware mit einem Renesas-Mikrocontroller entwickelten und testeten, erstellte Patrick ein ergänzendes Mock-BMS in Python, das als Simulationsumgebung für das System diente. 
 Die Firmware-Entwicklung erfolgte arbeitsteilig: Matthias und Florian übernahmen jeweils unterschiedliche technische Schwerpunkte. Florian war insbesondere für die interne Architektur der Firmware verantwortlich. Er konzipierte und implementierte ein Verfahren zur Erstellung von Nachrichten. Dieses Verfahren ermöglicht die sichere Übertragung dynamischer Batteriedaten über einen unverschlüsselten, verbindungslosen Kanal – wie er im Projektsetup zwischen dem BMS und den Cloud-Endpunkten verwendet wird – unter Gewährleistung von Vertraulichkeit, Integrität und Authentizität. Darüber hinaus war er maßgeblich an der Gestaltung und Strukturierung des Programmablaufs sowie der Programmlogik beteiligt, beispielsweise im Bereich der Inter-Task-Kommunikation.
 Matthias war hauptsächlich für die Netzwerkanbindung des Systems verantwortlich, sodass das BMS nach außen kommunizieren und so unter anderem die zuvor generierten Nachrichten mit den Battriedaten an die Cloud-Endpunkte senden kann.
 
 #pagebreak()
-=== Ergebnisse - Florian
+=== Ergebnisse <bms_ergebnisse>
 
 Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initialisiert. Dazu zählen unter anderem das Einrichten der Tasks, die Konfiguration des Schedulers sowie das Anlegen der benötigten Inter-Task-Kommunikationsobjekte (ITC). Das folgende Sequenzdiagramm veranschaulicht vereinfacht die Programmlogik und den grundlegenden Ablauf der Firmware – beispielsweise unter Verwendung von Mechanismen wie dem Deferred Interrupt Handling.
 #customFigure(
