@@ -62,7 +62,7 @@ Zur Unterstützung der Entwicklerteams wurde eine umfassende Attributübersicht 
 Diese Übersicht diente als zentrale Orientierung für die Arbeit mit Beispieldaten. Im Folgenden ein Ausschnitt zur Veranschaulichung (Vollständig siehe Projekt-Repository: main/organizational/requirements/datatypes_attributes.md):
 
 #figure(
-  caption: "Statische Datenattribute gemäß Verordnung XYZ",
+  caption: "Datenattribute gemäß DIN DKE SPEC 99100",
   table(
     columns: (auto, auto, auto, auto, auto),
     align: left,
