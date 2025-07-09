@@ -34,7 +34,7 @@ Das Infrastruktur-Team richtete das GitHub-Repository so ein, dass es eine klare
 - Entwicklung und Integration einer GitHub Action
 
 ==== Erfolgreiche Bereitstellung eines einheitlichen Typst-Dokumentationstemplates
-Wir haben uns für die nutzung von Typst als Textsatzprogram entschieden, da wir von der einfachen Nutzbarkeit und den schnellen Kompilierzeiten überzeugt waren. 
+Wir haben uns für die Nutzung von Typst als Textsatzprogram entschieden, da wir von der einfachen Nutzbarkeit und den schnellen Kompilierzeiten überzeugt waren. 
 
 Als Ergebnis zeigen wir den vorliegenden Projektabschlussbericht vor.
 
