@@ -15,15 +15,12 @@ Im Bereich @DID:pl & @VP:long:pl lag der Fokus auf der detaillierten Analyse der
 Im weiteren Projektverlauf wurde eine Einführung zu dezentralen Identitäten (@DID:pl) und verifizierbaren Nachweisen (@VC:pl) gehalten, um das konzeptionelle Verständnis im Gesamtteam zu stärken. Aufbauend darauf erfolgte eine begleitende Unterstützung der Umsetzung durch die regelmäßige Überprüfung technischer Artefakte, darunter beispielsweise @DID\-Dokumente und exemplarische @VP:long:pl.
 
 ==== Batteriepass
-Batteriepass:
 Im Bereich des Batteriepasses lag der Fokus auf der detaillierten Analyse der EU-Batterieverordnung sowie der DIN DKE SPEC 99100. Aus diesen sollten dem Rahmen des Projekts entsprechend Anforderungen, die den Batteriepass betreffen, herausgearbeitet werden.
 Eine weitere Teilaufgabe bestand darin, auf Basis der analysierten Quellen ein Rollen- und Rechtesystem abzuleiten, das als Grundlage für die spätere Umsetzung der Zugriffsregelungen gemäß EU-Verordnung dienen sollte.
 Ein weiterer Aspekt bestand in der Konzeption einer Attributübersicht zur Unterstützung der Entwicklerteams. Darin sollten alle im Batteriepass vorgesehenen Datenfelder systematisch dokumentiert werden – einschließlich Datentyp, Klassifikation (statisch oder dynamisch) sowie Sichtbarkeit (öffentlich oder eingeschränkt). Die Übersicht war als zentrale Orientierungshilfe für den Umgang mit Beispieldaten vorgesehen.
 
-Sonstiges:
 Ein weiterer Bestandteil war die Entwicklung eines Templates zur strukturierten und einheitlichen Erstellung von Anforderungen. 
 Darüber hinaus zählte auch die Dokumentation organisatorischer Inhalte zu den Aufgaben.
-Zudem stand Richtung Ende der Projektphase auch der Abschlussbericht des Batterieprojekts an, bei dem auch einige allgemeine Inhalte erstellt wurden (siehe Autorentabelle).
 
 === Ergebnisse <requirements_engineering_ergebnisse>
 Resultat war eine gepflegte Anforderungsliste mit klarer Priorisierung. Die Anforderungen wurden in GitHub strukturiert abgelegt und laufend aktualisiert. Besonderer Wert wurde auf die Nachvollziehbarkeit der Quellen gelegt, um Entwicklern bei Bedarf die Möglichkeit zur genaueren Recherche zu ermöglichen. Zudem wurde innerhalb des Requirements-Teams eine Status-Tabelle gepflegt, in der der Fortschritt der einzelnen Anforderungen, die zuständigen Gruppen oder Personen sowie etwaige Abhängigkeiten oder offene Fragen dokumentiert wurden. Diese diente bei Bedarf den Teams als Orientierung. Auch bei der Erstellung der inhaltlichen Struktur der Abschlusspräsentation und des Projektberichts war das Team beteiligt, sowie bei Abschnitten, die nicht konkret einem Arbeitspaket zuzuordnen waren. Außerdem fielen bei den verschiedenen Teilgebieten noch zusätzlich weitere Ergebnisse an:
@@ -37,7 +34,7 @@ Die Spezifikation definiert den Methodennamen, die ID-Generierung, das Format de
 
 ==== Batteriepass
 -	Ableitung und Integration neuer Anforderungen aus der EU-Verordnung und DIN DKE SPEC 99100
--	Einführung eines einheitlichen Templates zur strukturierten Dokumentation von Anforderungen
+-	Einführung eines einheitlichen Templates (in Kooperation) zur strukturierten Dokumentation von Anforderungen
 Die Nomenklatur sowie das Format der Requirements wurden mit dessen Anleitung einheitlich definiert und projektweit verwendet. Die Anforderungen wurden mit nachfolgendem Schema angelegt, um die Position in der Hierarchieebene kenntlich zu machen:	
 Form:   PRJ_CSI_REQ_0XX.XX.XX – Short Description
 Beispiel:   PRJ_CSI_REQ_006.01.01 - Create asymmetrical key pair
