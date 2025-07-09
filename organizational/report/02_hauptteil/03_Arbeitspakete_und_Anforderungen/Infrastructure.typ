@@ -22,7 +22,7 @@ Zusätzlich wurde vom Infrastruktur-Team ein zentrales Dokumentationstemplate in
 
 Wesentliche Ergebnisse waren:
 
-==== Einrichtung und Konfiguration des zentralen GitHub-Repositories
+==== Erfolgreiche Einrichtung und Konfiguration des zentralen GitHub-Repositories
 
 Das Infrastruktur-Team richtete das GitHub-Repository so ein, dass es eine klare Struktur für die Zusammenarbeit bot. Dazu gehörten:
 - Anlegen von Projekt-Teams mit differenzierten Rechten (#emph("Maintainers") und einzelne #emph("Developer ") Teams)
@@ -31,18 +31,12 @@ Das Infrastruktur-Team richtete das GitHub-Repository so ein, dass es eine klare
 - Entwicklung eines @ADP, um die Arbeitsweise zu standardisieren und die Qualität der Issues, Commits und Pull Requests zu verbessern (siehe #emph("Github Contribution Guidelines"))
   - Branching-Modell, das parallele Entwicklungen in verschiedenen Feature-Branches ermöglicht
 - Erstellung eines Kanban-Boards zur Organisation und Verfolgung von Aufgaben
+- Entwicklung und Integration einer GitHub Action
 
-==== Bereitstellung eines einheitlichen Typst-Dokumentationstemplates
+==== Erfolgreiche Bereitstellung eines einheitlichen Typst-Dokumentationstemplates
 Wir haben uns für die nutzung von Typst als Textsatzprogram entschieden, da wir von der einfachen Nutzbarkeit und den schnellen Kompilierzeiten überzeugt waren. 
 
 Als Ergebnis zeigen wir den vorliegenden Projektabschlussbericht vor.
-
-==== Entwicklung und Integration einer GitHub Action
-
-Die GitHub Action wurde entwickelt, um die Erstellung von Diagrammen und die Generierung der Projektdokumentation zu automatisieren. Sie besteht aus zwei Hauptschritten:
-1. Automatisches Rendern von `.d2`-Dateien als @SVG:pl, um Diagramme in einheitlicher Form zu erzeugen.
-2. Generierung der Projektdokumentation aus dem Typst-Quelltext.
-3. Release der generierten Projektdokumentation auf GitHub
 
 === Probleme & Lösungen <infrastructure_probleme_und_loesungen>
 In Bezug auf die Teamkoordination verlief die Zusammenarbeit im Infrastruktur-Team insgesamt sehr gut. Da wir bereits in früheren Projekten zusammengearbeitet hatten, bestand von Anfang an eine gute Kommunikationsbasis und ein gemeinsames Verständnis für Arbeitsweisen und Verantwortlichkeiten. Wir standen während des gesamten Projektzeitraums in regelmäßigem Kontakt, wodurch wir sehr individuell und spontan Absprachen treffen konnten. Aufgabenverteilungen oder kurzfristige Änderungen konnten so unkompliziert abgestimmt werden.
