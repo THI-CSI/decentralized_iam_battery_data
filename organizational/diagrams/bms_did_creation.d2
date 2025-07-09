@@ -1,5 +1,12 @@
 shape: sequence_diagram
 
-BMS->BMS: Generate DID and DID Document
-BMS->Blockchain: Write DID Document as transaction
-Blockchain->BMS: Confirm transaction
+BMS -> BMS: Generate DID and DID Document
+BMS -> OEM-Sign-Service: Send Signrequest for DID-Document
+OEM-Sign-Service -> BMS: Return Signed Document
+BMS -> Blockchain: Write DID Document as transaction
+Blockchain -> BMS: Confirm transaction
+BMS -> BMS: Create Cloud-Instance VC
+BMS -> OEM-Sign-Service: Send Signrequest for VC
+OEM-Sign-Service -> BMS: Return Signed VC
+BMS -> Blockchain: Write VC Document as transaction
+Blockchain -> BMS: Confirm transaction

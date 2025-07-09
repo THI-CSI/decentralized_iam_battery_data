@@ -1,4 +1,72 @@
-test:
-  short: "Test"
-  long: "Test"
-  description: "Test"
+BMS:
+  short: "BMS"
+  plural: "BMSes"
+  long: "Battery Management System"
+  description: "Ein elektronisches System, das die Batterie überwacht und steuert."
+
+VC:
+  short: "VC"
+  plural: "VCs"
+  long: "Verifiable Credential"
+  description: "Ein digitales Zertifikat, das die Identität und Eigenschaften eines Subjekts verifiziert."
+
+DID:
+  short: "DID"
+  plural: "DIDs"
+  long: "Decentralized Identifier"
+  longplural: "Decentralized Identifiers"
+  description: "Ein Identifikator, der auf dezentralen Netzwerken basiert und die Identität eines Subjekts eindeutig definiert."
+
+VP:
+  short: "VP"
+  plural: "VPs"
+  long: "Verifiable Presentation"
+  longplural: "Verifiable Presentations"
+  description: "Eine digitale Präsentation, die eine oder mehrere Verifiable Credentials enthält und deren Gültigkeit überprüft."
+
+SSI:
+  short: "SSI"
+  long: "Self-Sovereign Identity"
+  description: "Ein Konzept, bei dem Individuen die Kontrolle über ihre eigenen Identitätsdaten haben und diese selbst verwalten können."
+
+OEM:
+  short: "OEM"
+  long: "Original Equipment Manufacturer"
+  description: "Ein Unternehmen, das Produkte herstellt, die von anderen Unternehmen unter deren Marke verkauft werden."
+
+JWS:
+  short: "JWS"
+  long: "JSON Web Signature"
+  description: "Ein Standard für die Signierung von JSON-Daten, um deren Integrität und Authentizität zu gewährleisten."
+
+ADP:
+  short: "ADP"
+  long: "Artifact Development Plan"
+  description: "Ein Plan, der die Entwicklung und Implementierung von Artefakten in einem Projekt beschreibt."
+
+ITC:
+  short: "ITC"
+  long: "Inter-Task Communication"
+  description: "Objekte, die den Austausch von Informationen zwischen verschiedenen Aufgaben oder Prozessen ermöglichen."
+
+SCE:
+  short: "SCE"
+  long: "Secure Crypto Engine"
+  description: "Eine Hardware- oder Softwarekomponente, die kryptografische Operationen sicher ausführt und schützt."
+
+HPKE:
+  short: "HPKE"
+  long: "Hybrid Public Key Encryption"
+  description: "Ein kryptografisches Verfahren, das asymmetrische und symmetrische Verschlüsselung kombiniert, um sichere Kommunikation zu ermöglichen."
+
+EU:
+  short: "EU"
+  long: "Europäische Union"
+  description: "Die EU dient als primärer Vertrauensanker für digitale Identitäten (DIDs) und Zertifikate in Europa."
+
+SVG:
+  short: "SVG"
+  plural: "SVGs"
+  long: "Scalable Vector Graphics"
+  longplural: "Scalable Vector Graphics"
+  description: "Ein XML-basiertes Vektorbildformat, das für die Darstellung von zweidimensionalen Grafiken verwendet wird."
