@@ -11,8 +11,10 @@
   [Paulina M.], [ 
     @projektbeschreibung #linebreak()
     @projektkontext #linebreak()
+    Teilweise @problembeschreibung #linebreak()
     @projektziel #linebreak()
     @requirements_engineering - Teil "Battery Pass" #linebreak()
+    Teilweise @lessons_learned #linebreak()
   ],
   [Fatma A.], [ 
     @genutzte_tools_und_plattformen #linebreak()
@@ -26,6 +28,7 @@
   ],
   [Timo W.], [ 
     Teilweise @problembeschreibung #linebreak()
+    Teilweise @projektziel #linebreak()
     @arbeitspaket_project_management #linebreak()
     @fazit_und_ausblick #linebreak()
   ],
