@@ -7,12 +7,12 @@
 Ziel dieses Arbeitspakets war die Entwicklung einer Firmware für ein @BMS:both.
 
 === Aufgabenverteilung <bms_aufgabenverteilung>
-Während Matthias und Florian die Firmware auf realer Hardware mit einem Renesas-Mikrocontroller entwickelten und testeten, erstellte Patrick ein ergänzendes Mock-BMS in Python, das als Simulationsumgebung für das System diente. 
+Während Matthias und Florian die Firmware auf realer Hardware mit einem Renesas-Mikrocontroller entwickelten und testeten, erstellte Patrick ein ergänzendes Mock-BMS in Python, das als Simulationsumgebung für das System diente.
 Die Firmware-Entwicklung erfolgte arbeitsteilig: Matthias und Florian übernahmen jeweils unterschiedliche technische Schwerpunkte. Florian war insbesondere für die interne Architektur der Firmware verantwortlich. Er konzipierte und implementierte ein Verfahren zur Erstellung von Nachrichten. Dieses Verfahren ermöglicht die sichere Übertragung dynamischer Batteriedaten über einen unverschlüsselten, verbindungslosen Kanal – wie er im Projektsetup zwischen dem BMS und den Cloud-Endpunkten verwendet wird – unter Gewährleistung von Vertraulichkeit, Integrität und Authentizität. Darüber hinaus war er maßgeblich an der Gestaltung und Strukturierung des Programmablaufs sowie der Programmlogik beteiligt, beispielsweise im Bereich der Inter-Task-Kommunikation.
 Matthias war hauptsächlich für die Netzwerkanbindung des Systems verantwortlich, sodass das BMS nach außen kommunizieren und so unter anderem die zuvor generierten Nachrichten mit den Battriedaten an die Cloud-Endpunkte senden kann.
 
 #pagebreak()
-=== Ergebnisse <bms_ergebnisse>
+=== BMS Ergebnisse <bms_ergebnisse>
 
 Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initialisiert. Dazu zählen unter anderem das Einrichten der Tasks, die Konfiguration des Schedulers sowie das Anlegen der benötigten Objekte der @ITC. Das folgende Sequenzdiagramm veranschaulicht vereinfacht die Programmlogik und den grundlegenden Ablauf der Firmware – beispielsweise unter Verwendung von Mechanismen wie dem Deferred Interrupt Handling.
 #customFigure(
@@ -45,7 +45,7 @@ Der Timestamp wird im aktuellen Projekt-Setup noch nicht berücksichtigt, könnt
 Die kryptografischen Funktionen wurden mit mbedTLS implementiert, das die PSA-Crypto-API unterstützt. Über das FSP-Package und den HAL-Treiber rm_psa_crypto kann die @SCE der MCU direkt angesprochen werden. Dadurch lassen sich die meisten kryptografischen Operationen hardwarebeschleunigt und sicher im isolierten Speicher der @SCE ausführen.
 
 
-Die Netzwerkkommunikation des Renesas-Mikrocontrollers erfolgt über eine physische Ethernet-Verbindung zu einem Laptop, welcher die Infrastruktur der Cloud- und Blockchain-Endpunkte simuliert. Nach der Initialisierung des IP-Stacks wird der Mikrocontroller befähigt, Netzwerkkommunikation über das statisch konfigurierte IPv4-Netzwerk durchzuführen. Die Netzwerkkonfiguration umfasst die IP-Adresse 192.168.0.52, ein Gateway unter 192.168.0.3 sowie die Verwendung eines lokalen DNS-Servers (dnsmasq) auf 192.168.0.2, welcher für die Namensauflösung der Cloud-Endpunkte verantwortlich ist. Alle IP-Adressen sind statisch vergeben. 
+Die Netzwerkkommunikation des Renesas-Mikrocontrollers erfolgt über eine physische Ethernet-Verbindung zu einem Laptop, welcher die Infrastruktur der Cloud- und Blockchain-Endpunkte simuliert. Nach der Initialisierung des IP-Stacks wird der Mikrocontroller befähigt, Netzwerkkommunikation über das statisch konfigurierte IPv4-Netzwerk durchzuführen. Die Netzwerkkonfiguration umfasst die IP-Adresse 192.168.0.52, ein Gateway unter 192.168.0.3 sowie die Verwendung eines lokalen DNS-Servers (dnsmasq) auf 192.168.0.2, welcher für die Namensauflösung der Cloud-Endpunkte verantwortlich ist. Alle IP-Adressen sind statisch vergeben.
 
 Jeden Monat beginnt der Mikrocontroller mit dem Sammeln der DIDs der Cloud-Endpunkte aus der Blockchain. Jede Batteriedaten-Nachricht wird vor dem Versand mit den entsprechenden kryptografischen Schlüsseln verschlüsselt. Die Verschlüsselung und der Nachrichtenversand werden über zwei getrennte FreeRTOS-Tasks koordiniert:
 - net_task: Verantwortlich für das Netzwerkhandling und die Kommunikation mit der IP-Schicht.
@@ -74,3 +74,39 @@ Das Flashing der Firmware erfolgt über den Renesas Flash Programmer, das offizi
 === Annahmen & Limitierungen
 (z. B. Zeitrahmen, verfügbare Ressourcen)
 
+=== mockBMS Teilaufgaben <mockbms_teilaufgaben>
+Das mockBMS dient als simuliertes Battery Management System (BMS), welches innerhalb eines Gesamtsystems für die Generierung, Signatur und verschlüsselte Bereitstellung der Batteriedaten verantwortlich ist. Diese simulierte Alternative entstand aus der Notwendigkeit einer hardwareunabhängigen Lösung. Vorteile sind die vereinfachte Entwicklung, da hier auf hardwarenahe Programmierung verzichtet werden kann, und das flexiblere Testen & Ausführen, da keine weitere Hardware benötigt wird. Die Kernaufgaben vom BMS und dem mockBMS unterscheiden sich jedoch nicht, sodass letztlich beide Systeme aus Sicht der anderen Systeme jeweils als unterschiedliche BMS Systeme erkannt werden.
+Die Programmierung des mockBMS wurde mittels Python und entsprechenden Bibliotheken umgesetzt.
+
+Das mockBMS bildet einen vollständigen technischen Ablauf ab: von der Identitätserstellung über die Interaktion mit einem externen OEM-Signaturdienst bis hin zur zyklischen Übertragung verschlüsselter Zustandsdaten an autorisierte Cloud-Dienste.
+
+==== Initialisierung & Identitätserzeugung <mockbms_identitaet>
+Beim Start erzeugt das mockBMS ein ECC-Schlüsselpaar (mittels NIST-P-256) und speichert dieses lokal. Der öffentliche Schlüssel wird in einem multibase-codierten String umgewandelt und in ein W3C-konformes DID-Dokument eingebettet. Dieses Dokument wird nicht lokal signiert, sondern an einen externen OEM-Signaturservice übergeben, der eine JWS-Signatur erstellt. Nach Erhalt der Signatur registriert das mockBMS die DID über die IAM-Blockchain mittels eines API-Endpunkts.
+
+==== CloudInstance Credentials & Zugriffsauthorisierung <mockbms_vc>
+Im Anschluss erzeugt das mockBMS für jede konfigurierte Cloud-DID ein CloudInstance-Verifiable Credential. Diese werden durch den OEM-Signaturdienst signiert – ebenfalls via API. Die signierten VCs werden dann über die Blockchain-API registriert. Die Credentials dienen der Zugriffsauthorisierung auf die jeweiligen Cloud-Services. Sie bestätigen, dass durch den OEM das BMS zur Kommunikation mit einer genannten Cloud berechtigt ist.
+
+#customFigure(
+  image("../../assets/batterydata.png", width: 50%),
+  caption: "Beispielausschnitt der generierten BatterieDaten",
+) <mockBMSBatteryData>
+
+==== Erzeugung, Verschlüsselung und Signatur der Batterie-Daten <mockbms_datengenerierung>
+Das mockBMS nutzt zur Generierung von Batteriepassdaten ein strukturiertes Datenmodell (@mockBMSBatteryData). Diese umfassen Zustandswerte (z. B. Restkapazität, Ladezyklen), technische Eigenschaften (z.B. maximale Spannung) sowie Umweltkennzahlen (CO₂ Fußabdruck). Der initiale Datensatz wird serialisiert und für jede Cloud mit deren öffentlichem Schlüssel verschlüsselt. Für den initialen Batteriepass erfolgt die Verschlüsselung mit dem OEM-Key. Für darauffolgende Updates wird jeweils der Public Key der Cloud verwendet. Die resultierende Payload enthält zusätzlich eine Signatur, welche mit dem privaten BMS-Schlüssel erzeugt wird. (Datenstruktur siehe @MessageLayout)
+
+==== Kommunikation mit externen Systemen <mockbms_kommunikation>
+Die Interaktion mit anderen Systemen erfolgt über klar definierte REST-Endpunkte. Für die Erstellung eines BatteryPass-Dokuments wird geprüft, ob bereits ein Eintrag in der jeweiligen Cloud existiert. Falls nicht, erfolgt die Erstellung über den SignaturService des OEMs. Wenn bereits ein BatteryPass vorliegt, werden neue Daten direkt an den entsprechenden Cloud-Endpunkt gesendet. Die jeweiligen Service-Endpunkte und Schlüssel werden zuvor über die IAM-Blockchain ausgelesen.
+
+==== Automatisierte Datenaktualisierung <mockbms_update>
+Das mockBMS wechselt nach der Initialisierung in einen kontinuierlichen Update-Modus. In einem einstellbaren Intervall werden neue Zustandsdaten erzeugt, verschlüsselt und verschickt. Dabei bleibt der Ablauf identisch zur initialen Übertragung, jedoch erfolgt die Kommunikation ausschließlich mit dem Cloud-Service – nicht mehr über den OEM. Die Payload wird für jede Cloud-Instanz erneut individuell verschlüsselt und signiert.
+
+=== mockBMS Ergebnisse <mockbms_ergebnisse>
+Das mockBMS implementiert einen vollständigen, realitätsnahen Datenfluss eines Battery Management Systems. Es erzeugt, verschlüsselt und überträgt strukturierte Daten und nutzt dabei eine vollständig dezentrale Identitätsinfrastruktur. Die Interaktion mit OEM-Signaturdiensten, der IAM-Blockchain sowie Cloud-Instanzen wurde erfolgreich integriert. Das System ermöglicht umfassende Integrationstests auch ohne echte Hardware und ist flexibel anpassbar durch Umgebungsvariablen.
+
+=== mockBMS Probleme & Lösungen
+Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der vorherigen Planung des Gesamtsystems (zu dem Zeitpunkt: bestehend aus Cloud, BMS und Blockchain) noch gar nicht enthalten war. Es stellte sich erst recht spät heraus, dass zusätzlich eine Vertrauensinstanz exisitieren muss, welche die DIDs und VCs vom BMS verifiziert. Denn das BMS hat nicht Berechtigung sich als vertrauenswürdige Entität auszugeben.
+
+=== mockBMS Annahmen & Limitierungen
+Alle Konfigurationen (z. B. Intervallzeit, Cloud-DIDs, Endpunkte) erfolgen ausschließlich über Umgebungsvariablen. Eine dynamische Neuregistrierung zur Laufzeit ist nicht vorgesehen.
+Der private Schlüssel des mockBMS wird nicht gesichert abgespeichert.
+Es wird angenommen, dass alle genutzten Public Keys und DIDs valide sind und korrekt in der IAM-Blockchain registriert wurden. Prüfungen der Gültigkeit von DIDs oder VCs vor jedem Upload erfolgen derzeit nicht.
