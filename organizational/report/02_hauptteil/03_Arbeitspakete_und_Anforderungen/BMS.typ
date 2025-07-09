@@ -68,11 +68,26 @@ Für das Debugging kommt der plattformübergreifende SEGGER J-Link Debug-Probe z
 
 Das Flashing der Firmware erfolgt über den Renesas Flash Programmer, das offizielle Tool von Renesas. Es bietet eine robuste und zuverlässige Möglichkeit zur Programmierung des Mikrocontrollers über serielle oder JTAG-Schnittstellen und lässt sich gut in bestehende Entwicklungsumgebungen integrieren.
 
-=== Probleme & Lösungen
-(z. B. Teamkoordination, Ressourcenplanung)
 
-=== Annahmen & Limitierungen
-(z. B. Zeitrahmen, verfügbare Ressourcen)
+=== Herausforderungen & Lösungsansätze
+
+- Die Umsetzung eines hardware-nahen Setups stellte anfangs eine Herausforderung dar, konnte letztlich jedoch erfolgreich realisiert werden.
+
+- Der Projektumfang erwies sich als sehr groß, insbesondere unter Berücksichtigung bewährter Sicherheitsprinzipien wie z. B. der Einsatz von Secure Zones.
+
+- Für eine funktionierende Integration wären zahlreiche zusätzliche Services erforderlich gewesen (z. B. ein dedizierter Service-Client zur Verarbeitung von OEM-Signaturen).
+
+- Bei der USB-Verbindung traten vereinzelt technische Probleme auf.
+
+=== Annahmen & Einschränkungen
+
+- Aktuell ist ausschließlich eine Netzwerkverbindung über Ethernet vorgesehen, um die Entwicklung zu vereinfachen.
+
+- Die Batteriedaten auf dem Board werden derzeit zufällig generiert.
+
+- Der Mikrocontroller erhält die DIDs über Ethernet aus der Blockchain (bereitgestellt als Podman-Container), verschlüsselt die zufälligen Batteriedaten mithilfe des Schlüssels und sendet diese ebenfalls über Ethernet in die Cloud.
+
+- Aufgrund des begrenzten Zeitrahmens konnten nicht alle Komponenten vollständig umgesetzt werden, etwa der vollständige Workflow zwischen Service und BMS.
 
 === mockBMS Teilaufgaben <mockbms_teilaufgaben>
 Das mockBMS dient als simuliertes Battery Management System (BMS), welches innerhalb eines Gesamtsystems für die Generierung, Signatur und verschlüsselte Bereitstellung der Batteriedaten verantwortlich ist. Diese simulierte Alternative entstand aus der Notwendigkeit einer hardwareunabhängigen Lösung. Vorteile sind die vereinfachte Entwicklung, da hier auf hardwarenahe Programmierung verzichtet werden kann, und das flexiblere Testen & Ausführen, da keine weitere Hardware benötigt wird. Die Kernaufgaben vom BMS und dem mockBMS unterscheiden sich jedoch nicht, sodass letztlich beide Systeme aus Sicht der anderen Systeme jeweils als unterschiedliche BMS Systeme erkannt werden.
