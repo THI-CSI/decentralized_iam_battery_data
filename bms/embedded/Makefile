@@ -7,7 +7,7 @@ SRC_DIRS = ra ra_cfg ra_gen src
 SRC = $(shell find $(SRC_DIRS) -name '*.c')
 OBJ=$(SRC:.c=.o)
 # If you want to add modules you need to install the Renesas Smart Configurator, which is included in e2studio
-RASC_EXE_PATH=/home/m4tse/renesas/ra/sc_v2025-04_fsp_v5.9.0/eclipse/rasc
+RASC_EXE_PATH=
 
 D_FILES=$(SRC:.c=.d)
 INCLUDES = \

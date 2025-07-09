@@ -21,7 +21,6 @@ docker build -f build/dockerfiles/bms.Dockerfile -t bms .
 docker run --rm -it --network host bms
 ```
 
-<<<<<<< HEAD
 ---
 
 ### Option 2
@@ -134,5 +133,3 @@ Then, to start a server listener (e.g using Netcat):
 ```powershell
 ncat -l 192.168.1.100 12345
 ```
-=======
->>>>>>> daed205cd23857cd4700c0c653e0c6a9ff10c9d1
