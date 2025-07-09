@@ -127,7 +127,7 @@ Das Mock-@BMS implementiert einen vollständigen, realitätsnahen Datenfluss ein
 ==== Mock-@BMS Probleme & Lösungen <mockbms_probleme_und_loesungen>
 Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der vorherigen Planung des Gesamtsystems (zu dem Zeitpunkt: bestehend aus Cloud, @BMS und Blockchain) noch gar nicht enthalten war. Es stellte sich erst recht spät heraus, dass zusätzlich eine Vertrauensinstanz exisitieren muss, welche die DIDs und VCs vom @BMS verifiziert. Denn das @BMS hat nicht die Berechtigung sich als vertrauenswürdige Entität auszugeben.
 
-=== mockBMS Annahmen & Limitierungen <mockbms_annahmen_und_limitierungen>
+=== Mock-@BMS Annahmen & Limitierungen <mockbms_annahmen_und_limitierungen>
 Alle Konfigurationen (z. B. Intervallzeit, Cloud-DIDs, Endpunkte) erfolgen ausschließlich über Umgebungsvariablen. Eine dynamische Neuregistrierung zur Laufzeit ist nicht vorgesehen.
 Der private Schlüssel des Mock-@BMS wird nicht verschlüsselt abgespeichert.
 Es wird angenommen, dass alle genutzten Public Keys und DIDs valide sind und korrekt in der IAM-Blockchain registriert wurden. Prüfungen der Gültigkeit von DIDs oder VCs vor jedem Upload erfolgen derzeit nicht.
