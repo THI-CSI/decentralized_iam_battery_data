@@ -49,9 +49,21 @@
     @bms_ergebnisse #linebreak()
   ],
   [Matthias Maier], [
-
+    @bms_ergebnisse #linebreak()
+    @bms_herausforderungen_und_loesungsansaetze #linebreak()
+    @bms_annahmen_und_einschraenkungen #linebreak()
   ],
-  [pal1222 (at) thi (punkt) de], [],
+  [pal1222 (at) thi (punkt) de], [
+    @mockbms_teilaufgaben #linebreak()
+    @mockbms_identitaet #linebreak()
+    @mockbms_vc #linebreak()
+    @mockbms_datengenerierung #linebreak()
+    @mockbms_kommunikation #linebreak()
+    @mockbms_update #linebreak()
+    @mockbms_ergebnisse #linebreak()
+    @mockbms_probleme_und_loesungen #linebreak()
+    @mockbms_annahmen_und_limitierungen #linebreak()
+  ],
   [Deniz Volkan], [ 
     @cloud_uebergeordnetes_ziel_und_aufgaben #linebreak()
     @cloud_api #linebreak()

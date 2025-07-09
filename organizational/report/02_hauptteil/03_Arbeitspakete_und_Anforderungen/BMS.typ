@@ -69,7 +69,7 @@ Für das Debugging kommt der plattformübergreifende SEGGER J-Link Debug-Probe z
 Das Flashing der Firmware erfolgt über den Renesas Flash Programmer, das offizielle Tool von Renesas. Es bietet eine robuste und zuverlässige Möglichkeit zur Programmierung des Mikrocontrollers über serielle oder JTAG-Schnittstellen und lässt sich gut in bestehende Entwicklungsumgebungen integrieren.
 
 
-=== Herausforderungen & Lösungsansätze
+=== Herausforderungen & Lösungsansätze <bms_herausforderungen_und_loesungsansaetze>
 
 - Die Umsetzung eines hardware-nahen Setups stellte anfangs eine Herausforderung dar, konnte letztlich jedoch erfolgreich realisiert werden.
 
@@ -79,7 +79,7 @@ Das Flashing der Firmware erfolgt über den Renesas Flash Programmer, das offizi
 
 - Bei der USB-Verbindung traten vereinzelt technische Probleme auf.
 
-=== Annahmen & Einschränkungen
+=== Annahmen & Einschränkungen <bms_annahmen_und_einschraenkungen>
 
 - Aktuell ist ausschließlich eine Netzwerkverbindung über Ethernet vorgesehen, um die Entwicklung zu vereinfachen.
 
@@ -118,10 +118,10 @@ Das mockBMS wechselt nach der Initialisierung in einen kontinuierlichen Update-M
 === mockBMS Ergebnisse <mockbms_ergebnisse>
 Das mockBMS implementiert einen vollständigen, realitätsnahen Datenfluss eines Battery Management Systems. Es erzeugt, verschlüsselt und überträgt strukturierte Daten und nutzt dabei eine vollständig dezentrale Identitätsinfrastruktur. Die Interaktion mit OEM-Signaturdiensten, der IAM-Blockchain sowie Cloud-Instanzen wurde erfolgreich integriert. Das System ermöglicht umfassende Integrationstests auch ohne echte Hardware und ist flexibel anpassbar durch Umgebungsvariablen.
 
-=== mockBMS Probleme & Lösungen
+=== mockBMS Probleme & Lösungen <mockbms_probleme_und_loesungen>
 Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der vorherigen Planung des Gesamtsystems (zu dem Zeitpunkt: bestehend aus Cloud, BMS und Blockchain) noch gar nicht enthalten war. Es stellte sich erst recht spät heraus, dass zusätzlich eine Vertrauensinstanz exisitieren muss, welche die DIDs und VCs vom BMS verifiziert. Denn das BMS hat nicht die Berechtigung sich als vertrauenswürdige Entität auszugeben.
 
-=== mockBMS Annahmen & Limitierungen
+=== mockBMS Annahmen & Limitierungen <mockbms_annahmen_und_limitierungen>
 Alle Konfigurationen (z. B. Intervallzeit, Cloud-DIDs, Endpunkte) erfolgen ausschließlich über Umgebungsvariablen. Eine dynamische Neuregistrierung zur Laufzeit ist nicht vorgesehen.
 Der private Schlüssel des mockBMS wird nicht verschlüsselt abgespeichert.
 Es wird angenommen, dass alle genutzten Public Keys und DIDs valide sind und korrekt in der IAM-Blockchain registriert wurden. Prüfungen der Gültigkeit von DIDs oder VCs vor jedem Upload erfolgen derzeit nicht.
