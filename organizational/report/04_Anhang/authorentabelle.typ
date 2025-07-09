@@ -46,10 +46,12 @@
   ],
   [Florian Mülken], [
     @bms_aufgabenverteilung #linebreak()
-    @bms_ergebnisse #linebreak()
+    @bms_programmablauf_und_-logik #linebreak()
+    @bms_nachrichtengenerierung #linebreak()
   ],
   [Matthias Maier], [
-    @bms_ergebnisse #linebreak()
+    @bms_networking #linebreak()
+    @werkzeuge_und_methoden_zur_firmwareentwicklung #linebreak()
     @bms_herausforderungen_und_loesungsansaetze #linebreak()
     @bms_annahmen_und_einschraenkungen #linebreak()
   ],

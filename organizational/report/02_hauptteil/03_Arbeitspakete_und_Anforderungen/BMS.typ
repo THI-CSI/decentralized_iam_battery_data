@@ -12,7 +12,7 @@ Die Firmware-Entwicklung erfolgte arbeitsteilig: Matthias und Florian übernahme
 Matthias war hauptsächlich für die Netzwerkanbindung des Systems verantwortlich, sodass das BMS nach außen kommunizieren und so unter anderem die zuvor generierten Nachrichten mit den Battriedaten an die Cloud-Endpunkte senden kann.
 
 #pagebreak()
-=== BMS Ergebnisse <bms_ergebnisse>
+=== Programmablauf und -logik <bms_programmablauf_und_-logik>
 
 Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initialisiert. Dazu zählen unter anderem das Einrichten der Tasks, die Konfiguration des Schedulers sowie das Anlegen der benötigten Objekte der @ITC. Das folgende Sequenzdiagramm veranschaulicht vereinfacht die Programmlogik und den grundlegenden Ablauf der Firmware – beispielsweise unter Verwendung von Mechanismen wie dem Deferred Interrupt Handling.
 #customFigure(
@@ -21,6 +21,8 @@ Nach dem Flashen der Firmware wird in der main-Funktion zunächst das RTOS initi
 ) <ProgramFlowBMS>
 Mit Ausnahme der Funktionalität zur Signierung von Service-@VC:pl und deren Schreiben auf die Blockchain ist der übrige Ablauf bereits vollständig auf der Hardware implementiert.
 #pagebreak()
+
+=== Nachrichtengenerierung <bms_nachrichtengenerierung>
 Wie bereits in Abschnitt 3.5.2 beschrieben, war ich zudem für die Konzeption und Entwicklung eines Verfahrens zur Nachrichtenerstellung verantwortlich. Dieses Verfahren kommt im dargestellten Programmablauf an der mit ① markierten Stelle zum Einsatz: Nachdem im Rahmen einer Simulation einmalig die dynamischen Batteriedaten abgefragt wurden, wird für jedes empfangene DID_doc (Cloud-Endpunkt) eine individuelle Nachricht mit den dynamischen Batteriedaten erzeugt und anschließend versendet.
 
 Der Prozess zur Erstellung einer solchen Nachricht umfasst folgende Schritte:
@@ -44,6 +46,7 @@ Der Timestamp wird im aktuellen Projekt-Setup noch nicht berücksichtigt, könnt
 
 Die kryptografischen Funktionen wurden mit mbedTLS implementiert, das die PSA-Crypto-API unterstützt. Über das FSP-Package und den HAL-Treiber rm_psa_crypto kann die @SCE der MCU direkt angesprochen werden. Dadurch lassen sich die meisten kryptografischen Operationen hardwarebeschleunigt und sicher im isolierten Speicher der @SCE ausführen.
 
+=== Networking <bms_networking>
 
 Die Netzwerkkommunikation des Renesas-Mikrocontrollers erfolgt über eine physische Ethernet-Verbindung zu einem Laptop, welcher die Infrastruktur der Cloud- und Blockchain-Endpunkte simuliert. Nach der Initialisierung des IP-Stacks wird der Mikrocontroller befähigt, Netzwerkkommunikation über das statisch konfigurierte IPv4-Netzwerk durchzuführen. Die Netzwerkkonfiguration umfasst die IP-Adresse 192.168.0.52, ein Gateway unter 192.168.0.3 sowie die Verwendung eines lokalen DNS-Servers (dnsmasq) auf 192.168.0.2, welcher für die Namensauflösung der Cloud-Endpunkte verantwortlich ist. Alle IP-Adressen sind statisch vergeben.
 
@@ -57,6 +60,8 @@ Zur Simulation der Endpunkte wurde bewusst auf ein Podman-Netzwerk statt Docker 
 
 - der Mikrocontroller ausgehende Verbindungen in das Podman-Netzwerk initiieren darf,
 - jedoch nur bestehende Verbindungen aus dem Podman-Netzwerk Antworten an den Mikrocontroller senden dürfen.
+
+=== Werkzeuge und Methoden zur Firmwareentwicklung <werkzeuge_und_methoden_zur_firmwareentwicklung>
 
 Als Betriebssystem für den Mikrocontroller kommt FreeRTOS zum Einsatz, da alternative RTOS-Optionen wie Zephyr für das verwendete Renesas-Modell keine Unterstützung für Ethernet-Kommunikation bieten. Die gesamte Firmware ist dokumentiert mittels Doxygen, um eine nachvollziehbare und wartbare Codebasis zu gewährleisten.
 
@@ -125,4 +130,3 @@ Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der 
 Alle Konfigurationen (z. B. Intervallzeit, Cloud-DIDs, Endpunkte) erfolgen ausschließlich über Umgebungsvariablen. Eine dynamische Neuregistrierung zur Laufzeit ist nicht vorgesehen.
 Der private Schlüssel des mockBMS wird nicht verschlüsselt abgespeichert.
 Es wird angenommen, dass alle genutzten Public Keys und DIDs valide sind und korrekt in der IAM-Blockchain registriert wurden. Prüfungen der Gültigkeit von DIDs oder VCs vor jedem Upload erfolgen derzeit nicht.
-Dazu kommt, dass hier ein gutes und vollständiges Error-Handling fehlt. Bei einem Fehler wird das System stattdessen terminiert.
