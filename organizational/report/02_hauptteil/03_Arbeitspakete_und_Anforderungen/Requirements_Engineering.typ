@@ -31,8 +31,7 @@ Resultat war eine gepflegte Anforderungsliste mit klarer Priorisierung. Die Anfo
 -	Ableitung und Integration neuer Anforderungen aus den W3C-Spezifikationen zu @DID:both und @VC:both:pl, insbesondere im Hinblick auf PRJ_CSI_REQ_008, PRJ_CSI_REQ_011 und PRJ_CSI_REQ_014AnforderungsbeschreibungDID_Anforderungen_Proje….
 -	Einführung in @DID:pl und @VC:pl für das gesamte Projektteam zur Etablierung eines einheitlichen technischen Verständnisses im Kontext von @SSI:pl.
 -	Erstellung und Review technischer Artefakte, u. a. Beispiel-@DID\-Dokumente und @VC\-Datenstrukturen gemäß W3C-Modell.
--	Entwicklung einer eigenen  @DID\-Methodenspezifikation, welche im Projekt-Repository unter
-main/organizational/requirements/did-method-spec.md dokumentiert ist.
+-	Entwicklung einer eigenen  @DID\-Methodenspezifikation, welche im Projekt-Repository unter main/organizational/requirements/did-method-spec.md dokumentiert ist.
 Die Spezifikation definiert den Methodennamen, die ID-Generierung, das Format des @DID\-Dokuments (inkl. Schlüssel, Authentifizierung, Service-Endpunkte) sowie grundlegende Regeln für Erzeugung, Auflösung und Aktualisierung.
 
 ==== Batteriepass

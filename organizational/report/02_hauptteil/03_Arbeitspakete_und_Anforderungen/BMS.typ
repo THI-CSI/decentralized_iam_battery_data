@@ -131,3 +131,4 @@ Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der 
 Alle Konfigurationen (z. B. Intervallzeit, Cloud-DIDs, Endpunkte) erfolgen ausschließlich über Umgebungsvariablen. Eine dynamische Neuregistrierung zur Laufzeit ist nicht vorgesehen.
 Der private Schlüssel des Mock-@BMS wird nicht verschlüsselt abgespeichert.
 Es wird angenommen, dass alle genutzten Public Keys und DIDs valide sind und korrekt in der IAM-Blockchain registriert wurden. Prüfungen der Gültigkeit von DIDs oder VCs vor jedem Upload erfolgen derzeit nicht.
+Dazu kommt, dass hier ein gutes und vollständiges Error-Handling fehlt. Bei einem Fehler wird das System stattdessen terminiert.
