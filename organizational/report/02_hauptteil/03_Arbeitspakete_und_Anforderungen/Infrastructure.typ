@@ -12,7 +12,7 @@ Ein weiterer wichtiger Aspekt war die Ausarbeitung der Contribution Guidelines. 
 
 Zur weiteren Standardisierung der Zusammenarbeit wurden Templates für Issues und Pull Requests erstellt. Diese Vorlagen helfen dabei, wichtige Informationen strukturiert zu erfassen und unterstützen die Kommunikation im Team, indem sie klare Erwartungen an die Inhalte und den Ablauf von Änderungen formulieren.
 
-Ein wesentlicher technischer Beitrag des Infrastruktur-Teams war zudem die Entwicklung und Integration einer GitHub Action, die sich aus zwei Teilen zusammensetzt und über die Datei .github/workflows/build-d2-and-typst.yaml eingebunden ist. Ziel dieser Action war es, bestimmte Aufgaben wie die Erstellung von Diagrammen und die Generierung der Dokumentation zu automatisieren und dadurch den Arbeitsprozess zu vereinfachen und zu standardisieren.
+Ein wesentlicher technischer Beitrag des Infrastruktur-Teams war zudem die Entwicklung und Integration einer GitHub Action, die sich aus zwei Teilen zusammensetzt und über die Datei `.github/workflows/build-d2-and-typst.yaml` eingebunden ist. Ziel dieser Action war es, bestimmte Aufgaben wie die Erstellung von Diagrammen und die Generierung der Dokumentation zu automatisieren und dadurch den Arbeitsprozess zu vereinfachen und zu standardisieren.
 
 Die Action besteht aus zwei Hauptschritten: Zunächst werden `.d2`-Dateien automatisch gerendert, um die Diagramme für das Projekt in einheitlicher Form zu erzeugen. Anschließend wird aus dem Typst-Quelltext die Projektdokumentation gebaut. Anstatt diese Artefakte manuell zu erzeugen oder als statische Dateien zu pflegen, stellt die GitHub Action sicher, dass stets eine aktuelle und konsistente Version auf Basis des tatsächlichen Repository-Inhalts verfügbar ist.
 
