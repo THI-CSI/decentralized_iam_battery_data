@@ -104,9 +104,9 @@ Das mockBMS wechselt nach der Initialisierung in einen kontinuierlichen Update-M
 Das mockBMS implementiert einen vollständigen, realitätsnahen Datenfluss eines Battery Management Systems. Es erzeugt, verschlüsselt und überträgt strukturierte Daten und nutzt dabei eine vollständig dezentrale Identitätsinfrastruktur. Die Interaktion mit OEM-Signaturdiensten, der IAM-Blockchain sowie Cloud-Instanzen wurde erfolgreich integriert. Das System ermöglicht umfassende Integrationstests auch ohne echte Hardware und ist flexibel anpassbar durch Umgebungsvariablen.
 
 === mockBMS Probleme & Lösungen
-Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der vorherigen Planung des Gesamtsystems (zu dem Zeitpunkt: bestehend aus Cloud, BMS und Blockchain) noch gar nicht enthalten war. Es stellte sich erst recht spät heraus, dass zusätzlich eine Vertrauensinstanz exisitieren muss, welche die DIDs und VCs vom BMS verifiziert. Denn das BMS hat nicht Berechtigung sich als vertrauenswürdige Entität auszugeben.
+Ein zentrales Thema war gegen Ende des Projekts der OEM-Service, welcher in der vorherigen Planung des Gesamtsystems (zu dem Zeitpunkt: bestehend aus Cloud, BMS und Blockchain) noch gar nicht enthalten war. Es stellte sich erst recht spät heraus, dass zusätzlich eine Vertrauensinstanz exisitieren muss, welche die DIDs und VCs vom BMS verifiziert. Denn das BMS hat nicht die Berechtigung sich als vertrauenswürdige Entität auszugeben.
 
 === mockBMS Annahmen & Limitierungen
 Alle Konfigurationen (z. B. Intervallzeit, Cloud-DIDs, Endpunkte) erfolgen ausschließlich über Umgebungsvariablen. Eine dynamische Neuregistrierung zur Laufzeit ist nicht vorgesehen.
-Der private Schlüssel des mockBMS wird nicht gesichert abgespeichert.
+Der private Schlüssel des mockBMS wird nicht verschlüsselt abgespeichert.
 Es wird angenommen, dass alle genutzten Public Keys und DIDs valide sind und korrekt in der IAM-Blockchain registriert wurden. Prüfungen der Gültigkeit von DIDs oder VCs vor jedem Upload erfolgen derzeit nicht.
