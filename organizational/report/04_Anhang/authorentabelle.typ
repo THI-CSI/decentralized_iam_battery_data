@@ -55,11 +55,6 @@
   ],
   [pal1222 (at) thi (punkt) de], [
     @mockbms_teilaufgaben #linebreak()
-    @mockbms_identitaet #linebreak()
-    @mockbms_vc #linebreak()
-    @mockbms_datengenerierung #linebreak()
-    @mockbms_kommunikation #linebreak()
-    @mockbms_update #linebreak()
     @mockbms_ergebnisse #linebreak()
     @mockbms_probleme_und_loesungen #linebreak()
     @mockbms_annahmen_und_limitierungen #linebreak()
