@@ -11,4 +11,7 @@
 
 #endif /* ipconfigBYTE_ORDER */
 
+//#define ipconfigSUPPORT_OUTGOING_PINGS 1
+
+
 #endif /* BMS_FREERTOS_DNS_GLOBALS */

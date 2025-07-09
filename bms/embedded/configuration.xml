@@ -12,7 +12,7 @@
     <option key="#FSPVersion#" value="5.9.0"/>
     <option key="#ConfigurationFragments#" value="Renesas##BSP##Board##ra6m5_ek##"/>
     <option key="#SELECTED_TOOLCHAIN#" value="gcc-arm-embedded"/>
-    <option key="#ToolchainVersion#" value="14.2.1.arm-14-52"/>
+    <option key="#ToolchainVersion#" value=""/>
   </generalSettings>
   <raBspConfiguration>
     <config id="config.bsp.ra6m5.R7FA6M5BH3CFC">
@@ -96,8 +96,8 @@
       <property id="config.bsp.fsp.mcu.sci_lin.max_baud" value="6250000"/>
     </config>
     <config id="config.bsp.ra">
-      <property id="config.bsp.common.main" value="0x6000"/>
-      <property id="config.bsp.common.heap" value="0x6000"/>
+      <property id="config.bsp.common.main" value="0x9000"/>
+      <property id="config.bsp.common.heap" value="0x9000"/>
       <property id="config.bsp.common.vcc" value="3300"/>
       <property id="config.bsp.common.checking" value="config.bsp.common.checking.disabled"/>
       <property id="config.bsp.common.assert" value="config.bsp.common.assert.none"/>
@@ -122,13 +122,13 @@
     <node id="board.clock.pll.div" option="board.clock.pll.div.3"/>
     <node id="board.clock.pll.mul" option="board.clock.pll.mul.250"/>
     <node id="board.clock.pll.display" option="board.clock.pll.display.value"/>
-    <node id="board.clock.pll2.source" option="board.clock.pll2.source.disabled"/>
+    <node id="board.clock.pll2.source" option="board.clock.pll2.source.xtal"/>
     <node id="board.clock.pll2.div" option="board.clock.pll2.div.2"/>
     <node id="board.clock.pll2.mul" option="board.clock.pll2.mul.200"/>
     <node id="board.clock.pll2.display" option="board.clock.pll2.display.value"/>
     <node id="board.clock.clock.source" option="board.clock.clock.source.pll"/>
     <node id="board.clock.clkout.source" option="board.clock.clkout.source.disabled"/>
-    <node id="board.clock.uclk.source" option="board.clock.uclk.source.disabled"/>
+    <node id="board.clock.uclk.source" option="board.clock.uclk.source.pll2"/>
     <node id="board.clock.u60ck.source" option="board.clock.u60ck.source.disabled"/>
     <node id="board.clock.octaspiclk.source" option="board.clock.octaspiclk.source.disabled"/>
     <node id="board.clock.canfdclk.source" option="board.clock.canfdclk.source.disabled"/>
@@ -243,10 +243,37 @@
       <description>Secure Cryptography Engine on RA6 Mode(SCE9)</description>
       <originalPack>Renesas.RA.5.9.0.pack</originalPack>
     </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether_phy" variant="" vendor="Renesas" version="5.9.0">
+      <description>Ethernet PHY</description>
+      <originalPack>Renesas.RA.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_ether" variant="" vendor="Renesas" version="5.9.0">
+      <description>Ethernet</description>
+      <originalPack>Renesas.RA.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Middleware" condition="" group="all" subgroup="rm_freertos_plus_tcp" variant="" vendor="Renesas" version="5.9.0">
+      <description>r_ether to FreeRTOS+TCP Wrapper</description>
+      <originalPack>Renesas.RA.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Libraries" condition="" group="FreeRTOS" subgroup="BufferAllocation2" variant="" vendor="AWS" version="4.2.2+fsp.5.9.0">
+      <description>FreeRTOS - Buffer Allocation 2</description>
+      <originalPack>Amazon.FreeRTOS-Plus-TCP.4.2.2+fsp.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="Libraries" condition="" group="FreeRTOS_Plus" subgroup="FreeRTOS_Plus_TCP" variant="" vendor="AWS" version="4.2.2+fsp.5.9.0">
+      <description>FreeRTOS+TCP</description>
+      <originalPack>Amazon.FreeRTOS-Plus-TCP.4.2.2+fsp.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_basic" variant="" vendor="Renesas" version="5.9.0">
+      <description>USB Basic</description>
+      <originalPack>Renesas.RA.5.9.0.pack</originalPack>
+    </component>
+    <component apiversion="" class="HAL Drivers" condition="" group="all" subgroup="r_usb_pcdc" variant="" vendor="Renesas" version="5.9.0">
+      <description>USB Peripheral Communications Device Class</description>
+      <originalPack>Renesas.RA.5.9.0.pack</originalPack>
+    </component>
   </raComponentSelection>
   <raElcConfiguration/>
   <raIcuConfiguration/>
-  <raLinkMapConfiguration/>
   <raModuleConfiguration>
     <module id="module.driver.ioport_on_ioport.0">
       <property id="module.driver.ioport.name" value="g_ioport"/>
@@ -295,6 +322,62 @@
     <module id="module.driver.sce9_key_injection.1495400356">
       <property id="module.driver.sce9_key_injection.name" value="g_sce9_key_install"/>
     </module>
+    <module id="module.aws.freertosplus.freertosplus_tcp.1033983300"/>
+    <module id="module.driver.freertos_plus_tcp_on_ether.337018265"/>
+    <module id="module.freertos.bufferallocation2.1869394874"/>
+    <module id="module.driver.ether_on_ether.240453245">
+      <property id="module.driver.ether.name" value="g_ether0"/>
+      <property id="module.driver.ether.channel" value="module.driver.ether.channel.0"/>
+      <property id="module.driver.ether.mac_address" value="00:11:22:33:44:55"/>
+      <property id="module.driver.ether.zerocopy" value="module.driver.ether.zerocopy.0"/>
+      <property id="module.driver.ether.flow_control" value="module.driver.ether.flow_control.0"/>
+      <property id="module.driver.ether.multicast" value="module.driver.ether.multicast.1"/>
+      <property id="module.driver.ether.promiscuous" value="module.driver.ether.promiscuous.0"/>
+      <property id="module.driver.ether.broadcast_filter" value="0"/>
+      <property id="module.driver.ether.num_tx_descriptors" value="1"/>
+      <property id="module.driver.ether.num_rx_descriptors" value="1"/>
+      <property id="module.driver.ether.allocate_rx_buffer" value="module.driver.ether.allocate_rx_buffer.1"/>
+      <property id="module.driver.ether.ether_buffer_size" value="1514"/>
+      <property id="module.driver.ether.padding" value="module.driver.ether.padding.0"/>
+      <property id="module.driver.ether.padding_offset" value="0"/>
+      <property id="module.driver.ether.eesr_event_mask" value="module.driver.ether.eesr_event_mask.rfof,module.driver.ether.eesr_event_mask.rde,module.driver.ether.eesr_event_mask.fr,module.driver.ether.eesr_event_mask.tfuf,module.driver.ether.eesr_event_mask.tde,module.driver.ether.eesr_event_mask.tc"/>
+      <property id="module.driver.ether.ecsr_event_mask" value=""/>
+      <property id="module.driver.ether.interrupt_priority" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.ether.p_callback" value="NULL"/>
+    </module>
+    <module id="module.driver.ether_phy_on_ether_phy.1048244189">
+      <property id="module.driver.ether_phy.name" value="g_ether_phy0"/>
+      <property id="module.driver.ether_phy.channel" value="module.driver.ether_phy.channel.0"/>
+      <property id="module.driver.ether_phy.phy_lsi_address" value="0"/>
+      <property id="module.driver.ether_phy.phy_reset_wait_time" value="0x00020000"/>
+      <property id="module.driver.ether_phy.mii_type" value="module.driver.mii_type.rmii"/>
+      <property id="module.driver.ether_phy.phy_lsi_type" value="module.driver.ether_phy.phy_lsi_type.kit_component"/>
+      <property id="module.driver.ether_phy.target_init" value="NULL"/>
+      <property id="module.driver.ether_phy.target_link_partner_ability_get" value="NULL"/>
+      <property id="module.driver.ether_phy.mii_bit_access_wait_time" value="8"/>
+      <property id="module.driver.ether_phy.flow_control" value="module.driver.ether_phy.flow_control.0"/>
+    </module>
+    <module id="module.driver.pcdc_on_usb.613250553">
+      <property id="module.driver.pcdc.name" value="g_pcdc0"/>
+    </module>
+    <module id="module.driver.basic_on_usb.2129660346">
+      <property id="module.driver.basic.name" value="g_basic0"/>
+      <property id="module.driver.usb_basic.usb_mode" value="module.driver.usb_basic.usb_mode.host"/>
+      <property id="module.driver.usb_basic.usb_speed" value="module.driver.usb_basic.usb_speed.fs"/>
+      <property id="module.driver.usb_basic.usb_modulenumber" value="module.driver.usb_basic.usb_modulenumber.0"/>
+      <property id="module.driver.usb_basic.usb_classtype" value="module.driver.usb_basic.usb_classtype.pcdc"/>
+      <property id="module.driver.usb_basic.p_usb_reg" value="g_usb_descriptor"/>
+      <property id="module.driver.usb_basic.complience_cb" value="NULL"/>
+      <property id="module.driver.usb_basic.ipl" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.usb_basic.ipl_r" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.usb_basic.ipl_d0" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.usb_basic.ipl_d1" value="board.icu.common.irq.priority12"/>
+      <property id="module.driver.usb_basic.hsipl" value="board.icu.common.irq.priority10"/>
+      <property id="module.driver.usb_basic.hsipl_d0" value="_disabled"/>
+      <property id="module.driver.usb_basic.hsipl_d1" value="_disabled"/>
+      <property id="module.driver.usb_basic.rtos_callback" value="NULL"/>
+      <property id="module.driver.usb_basic.other_context" value="NULL"/>
+    </module>
     <object id="rtos.awsfreertos.object.binary_semaphore.1900834505">
       <property id="rtos.awsfreertos.object.binary_semaphore.symbol" value="bms_cloud_sem"/>
       <property id="rtos.awsfreertos.object.binary_semaphore.allocation" value="rtos.awsfreertos.object.binary_semaphore.allocation.static"/>
@@ -306,7 +389,7 @@
     </object>
     <object id="rtos.awsfreertos.object.message_buffer.770338983">
       <property id="rtos.awsfreertos.object.message_buffer.symbol" value="crypto_net_message_buffer"/>
-      <property id="rtos.awsfreertos.object.message_buffer.size_bytes" value="512"/>
+      <property id="rtos.awsfreertos.object.message_buffer.size_bytes" value="1024"/>
       <property id="rtos.awsfreertos.object.message_buffer.allocation" value="rtos.awsfreertos.object.message_buffer.allocation.static"/>
     </object>
     <object id="rtos.awsfreertos.object.binary_semaphore.432543665">
@@ -330,6 +413,14 @@
           </stack>
         </stack>
       </stack>
+      <stack module="module.aws.freertosplus.freertosplus_tcp.1033983300">
+        <stack module="module.driver.freertos_plus_tcp_on_ether.337018265" requires="module.aws.freertosplus.freertosplus_tcp.requires.freertosplus_tcp_driver">
+          <stack module="module.driver.ether_on_ether.240453245" requires="module.driver.freertos_plus_tcp_on_ether.requires.ether">
+            <stack module="module.driver.ether_phy_on_ether_phy.1048244189" requires="module.driver.ether.requires.ether_phy"/>
+          </stack>
+          <stack module="module.freertos.bufferallocation2.1869394874" requires="module.driver.freertos_plus_tcp_on_ether.requires.bufferallocation2"/>
+        </stack>
+      </stack>
     </context>
     <context id="rtos.awsfreertos.thread.2140051007">
       <property id="_symbol" value="bms_cloud_transaction"/>
@@ -341,13 +432,34 @@
       <property id="rtos.awsfreertos.thread.secure_context" value="rtos.awsfreertos.thread.secure_context.enable"/>
     </context>
     <context id="rtos.awsfreertos.thread.897971200">
-      <property id="_symbol" value="init_thread"/>
+      <property id="_symbol" value="init_task"/>
       <property id="rtos.awsfreertos.thread.name" value="CustomInit"/>
       <property id="rtos.awsfreertos.thread.stack" value="0x4000"/>
       <property id="rtos.awsfreertos.thread.priority" value="2"/>
       <property id="rtos.awsfreertos.thread.context" value="NULL"/>
       <property id="rtos.awsfreertos.thread.allocation" value="rtos.awsfreertos.thread.allocation.static"/>
       <property id="rtos.awsfreertos.thread.secure_context" value="rtos.awsfreertos.thread.secure_context.enable"/>
+    </context>
+    <context id="rtos.awsfreertos.thread.1964398778">
+      <property id="_symbol" value="net_task"/>
+      <property id="rtos.awsfreertos.thread.name" value="NetTask"/>
+      <property id="rtos.awsfreertos.thread.stack" value="0x2000"/>
+      <property id="rtos.awsfreertos.thread.priority" value="1"/>
+      <property id="rtos.awsfreertos.thread.context" value="NULL"/>
+      <property id="rtos.awsfreertos.thread.allocation" value="rtos.awsfreertos.thread.allocation.static"/>
+      <property id="rtos.awsfreertos.thread.secure_context" value="rtos.awsfreertos.thread.secure_context.enable"/>
+    </context>
+    <context id="rtos.awsfreertos.thread.349777020">
+      <property id="_symbol" value="usb_thread"/>
+      <property id="rtos.awsfreertos.thread.name" value="USB Thread"/>
+      <property id="rtos.awsfreertos.thread.stack" value="1024"/>
+      <property id="rtos.awsfreertos.thread.priority" value="1"/>
+      <property id="rtos.awsfreertos.thread.context" value="NULL"/>
+      <property id="rtos.awsfreertos.thread.allocation" value="rtos.awsfreertos.thread.allocation.static"/>
+      <property id="rtos.awsfreertos.thread.secure_context" value="rtos.awsfreertos.thread.secure_context.enable"/>
+      <stack module="module.driver.pcdc_on_usb.613250553">
+        <stack module="module.driver.basic_on_usb.2129660346" requires="module.driver.basic_on_usb.requires.basic"/>
+      </stack>
     </context>
     <config id="config.driver.flash_hp">
       <property id="config.driver.flash_hp.param_checking_enable" value="config.flash_hp.param_checking_enable.bsp"/>
@@ -356,6 +468,23 @@
     </config>
     <config id="config.middleware.rm_littlefs_flash">
       <property id="config.middleware.rm_littlefs_flash.param_checking_enable" value="config.middleware.rm_littlefs_flash.param_checking_enable.bsp"/>
+    </config>
+    <config id="config.driver.usb_basic">
+      <property id="config.driver.usb_basic.param_checking_enable" value="config.driver.usb_basic.param_checking_enable.bsp"/>
+      <property id="config.driver.usb_basic.pll_clock_frequency" value="config.driver.usb_basic.pll_clock_frequency.24mhz"/>
+      <property id="config.driver.usb_basic.buswait" value="config.driver.usb_basic.buswait.7"/>
+      <property id="config.driver.usb_basic.bc_function" value="config.driver.usb_basic.bc_function.enable"/>
+      <property id="config.driver.usb_basic.power_source" value="config.driver.usb_basic.power_source.high"/>
+      <property id="config.driver.usb_basic.dcp_function" value="config.driver.usb_basic.dcp_function.disable"/>
+      <property id="config.driver.usb_basic.request" value="config.driver.usb_basic.request.enable"/>
+      <property id="config.driver.usb_basic.dblb" value="config.driver.usb_basic.dblb.enable"/>
+      <property id="config.driver.usb_basic.cntmd" value="config.driver.usb_basic.cntmd.disable"/>
+      <property id="config.driver.usb_basic.ldo_regulator" value="config.driver.usb_basic.ldo_regulator.disable"/>
+      <property id="config.driver.usb_basic.dma" value="config.driver.usb_basic.dma.disable"/>
+      <property id="config.driver.usb_basic.source_address" value="config.driver.usb_basic.source_address.none"/>
+      <property id="config.driver.usb_basic.dest_address" value="config.driver.usb_basic.dest_address.none"/>
+      <property id="config.driver.usb_basic.compliance_mode" value="config.driver.usb_basic.compliance_mode.disable"/>
+      <property id="config.driver.usb_basic.tpl_table" value="NULL"/>
     </config>
     <config id="config.arm.mbed.littlefs">
       <property id="config.arm.mbed.littlefs.custom_lfs_util" value=""/>
@@ -369,6 +498,12 @@
       <property id="config.arm.mbed.littlefs.yes_trace" value="config.arm.mbed.littlefs.yes_trace.disabled"/>
       <property id="config.arm.mbed.littlefs.no_intrinsics" value="config.arm.mbed.littlefs.no_intrinsics.enabled"/>
       <property id="config.arm.mbed.littlefs.instance_name" value="g_rm_littlefs0"/>
+    </config>
+    <config id="config.driver.ether">
+      <property id="config.driver.ether.param_checking_enable" value="config.driver.ether.param_checking_enable.bsp"/>
+      <property id="config.driver.ether.link_present" value="config.driver.ether.link_present.0"/>
+      <property id="config.driver.ether.use_linksta" value="config.driver.ether.use_linksta.0"/>
+      <property id="config.driver.ether.interrupt_event_backword_compatibility" value="config.driver.ether.interrupt_event_backword_compatibility.disabled"/>
     </config>
     <config id="config.driver.psa_crypto">
       <property id="config.driver.psa_crypto.mbedtls_entropy_hardware_alt" value="config.driver.psa_crypto.mbedtls_entropy_hardware_alt.enabled"/>
@@ -667,6 +802,22 @@
       <property id="config.driver.psa_crypto.mbedtls_ecdh_variant_everest_enabled" value="config.driver.psa_crypto.mbedtls_ecdh_variant_everest_enabled.disabled"/>
       <property id="config.driver.psa_crypto.mbedtls_psa_crypto_config" value="config.driver.psa_crypto.mbedtls_psa_crypto_config.disabled"/>
     </config>
+    <config id="config.driver.ether_phy">
+      <property id="config.driver.ether_phy.param_checking_enable" value="config.driver.ether_phy.param_checking_enable.bsp"/>
+      <property id="config.driver.ether_phy.target_ksz8091rnb" value="config.driver.ether_phy.target_ksz8091rnb.disabled"/>
+      <property id="config.driver.ether_phy.target_ksz8041" value="config.driver.ether_phy.target_ksz8041.disabled"/>
+      <property id="config.driver.ether_phy.target_dp83620" value="config.driver.ether_phy.target_dp83620.disabled"/>
+      <property id="config.driver.ether_phy.target_ics1894" value="config.driver.ether_phy.target_ics1894.disabled"/>
+      <property id="config.driver.ether_phy.use_custom_phy_lsi" value="config.driver.ether_phy.use_custom_phy_lsi.disabled"/>
+      <property id="config.driver.ether_phy.use_reference_clock" value="config.driver.ether_phy.use_reference_clock.default"/>
+      <property id="config.driver.ether_phy.init_phy_lsi_automatic" value="config.driver.ether_phy.init_phy_lsi_automatic.enabled"/>
+    </config>
+    <config id="config.driver.usb_pcdc">
+      <property id="config.driver.usb_pcdc.bulk_in" value="config.driver.usb_pcdc.bulk_in.pipe4"/>
+      <property id="config.driver.usb_pcdc.bulk_out" value="config.driver.usb_pcdc.bulk_out.pipe5"/>
+      <property id="config.driver.usb_pcdc.int_in" value="config.driver.usb_pcdc.int_in.pipe6"/>
+    </config>
+    <config id="config.driver.usb_pcdc_class"/>
     <config id="config.driver.ioport">
       <property id="config.driver.ioport.checking" value="config.driver.ioport.checking.system"/>
     </config>
@@ -705,7 +856,7 @@
       <property id="config.awsfreertos.thread.configheap_clear_memory_on_free" value="config.awsfreertos.thread.configheap_clear_memory_on_free.disabled"/>
       <property id="config.awsfreertos.thread.configsupport_static_allocation" value="config.awsfreertos.thread.configsupport_static_allocation.enabled"/>
       <property id="config.awsfreertos.thread.configsupport_dynamic_allocation" value="config.awsfreertos.thread.configsupport_dynamic_allocation.enabled"/>
-      <property id="config.awsfreertos.thread.configtotal_heap_size" value="0x5000"/>
+      <property id="config.awsfreertos.thread.configtotal_heap_size" value="0x9000"/>
       <property id="config.awsfreertos.thread.configapplication_allocated_heap" value="config.awsfreertos.thread.configapplication_allocated_heap.disabled"/>
       <property id="config.awsfreertos.thread.configgenerate_run_time_stats" value="config.awsfreertos.thread.configgenerate_run_time_stats.disabled"/>
       <property id="config.awsfreertos.thread.configuse_timers" value="config.awsfreertos.thread.configuse_timers.enabled"/>
@@ -738,10 +889,6 @@
       <property id="config.awsfreertos.thread.debug_logging_name" value="Log Name"/>
       <property id="config.awsfreertos.thread.logging_level" value="config.awsfreertos.thread.logging_level.log_none"/>
     </config>
-    <config id="config.driver.rtc">
-      <property id="config.driver.rtc.param_checking_enable" value="config.driver.rtc.param_checking_enable.bsp"/>
-      <property id="config.driver.rtc.open_set_source_clock" value="config.driver.rtc.open_set_source_clock.enabled"/>
-    </config>
     <config id="config.aws.freertosplus.freertosplus_tcp">
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_DEBUG_PRINTF" value="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_DEBUG_PRINTF.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIPv4_BACKWARD_COMPATIBLE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigIPv4_BACKWARD_COMPATIBLE.1"/>
@@ -749,12 +896,12 @@
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_PRINTF" value="config.aws.freertosplus.freertosplus_tcp.ipconfigHAS_PRINTF.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigBYTE_ORDER" value="config.aws.freertosplus.freertosplus_tcp.ipconfigBYTE_ORDER.pdFREERTOS_LITTLE_ENDIAN"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM" value="config.aws.freertosplus.freertosplus_tcp.ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM.1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME" value="2000"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME" value="2000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME" value="10000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME" value="10000"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS_CACHE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DNS_CACHE.1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDNS_REQUEST_ATTEMPTS" value="5"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_PRIORITY" value="configMAX_PRIORITIES - 1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_STACK_SIZE_WORDS" value="configMINIMAL_STACK_SIZE * 10"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigDNS_REQUEST_ATTEMPTS" value="2"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_PRIORITY" value="configMAX_PRIORITIES - 2"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigIP_TASK_STACK_SIZE_WORDS" value="configMINIMAL_STACK_SIZE * 5"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_NETWORK_EVENT_HOOK.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS" value="15000 / portTICK_PERIOD_MS"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_DHCP.0"/>
@@ -766,7 +913,7 @@
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigMAX_ARP_RETRANSMISSIONS" value="5"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigMAX_ARP_AGE" value="150"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigINCLUDE_FULL_INET_ADDR" value="config.aws.freertosplus.freertosplus_tcp.ipconfigINCLUDE_FULL_INET_ADDR.1"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS" value="16"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS" value="10"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigEVENT_QUEUE_LENGTH" value="ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND" value="config.aws.freertosplus.freertosplus_tcp.ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUDP_TIME_TO_LIVE" value="128"/>
@@ -782,8 +929,8 @@
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigPACKET_FILLER_SIZE" value="2"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_WIN_SEG_COUNT" value="240"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_RX_BUFFER_LENGTH" value="3000"/>
-      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_TX_BUFFER_LENGTH" value="3000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_RX_BUFFER_LENGTH" value="5000"/>
+      <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_TX_BUFFER_LENGTH" value="5000"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_KEEP_ALIVE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_KEEP_ALIVE.1"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigTCP_KEEP_ALIVE_INTERVAL" value="120"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCKET_HAS_USER_SEMAPHORE" value="config.aws.freertosplus.freertosplus_tcp.ipconfigSOCKET_HAS_USER_SEMAPHORE.0"/>
@@ -792,6 +939,10 @@
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_TX_DRIVER" value="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_TX_DRIVER.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_RX_DRIVER" value="config.aws.freertosplus.freertosplus_tcp.ipconfigZERO_COPY_RX_DRIVER.0"/>
       <property id="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_LINKED_RX_MESSAGES" value="config.aws.freertosplus.freertosplus_tcp.ipconfigUSE_LINKED_RX_MESSAGES.0"/>
+    </config>
+    <config id="config.driver.rtc">
+      <property id="config.driver.rtc.param_checking_enable" value="config.driver.rtc.param_checking_enable.bsp"/>
+      <property id="config.driver.rtc.open_set_source_clock" value="config.driver.rtc.open_set_source_clock.enabled"/>
     </config>
   </raModuleConfiguration>
   <raPinConfiguration>
