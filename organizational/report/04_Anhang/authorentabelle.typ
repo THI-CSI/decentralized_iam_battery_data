@@ -34,7 +34,7 @@
   ],
   [Pascal E.], [ 
     Projektbericht-Template #linebreak()
-    @infrastructure_uebergeordnetes_ziel_und_aufgaben #linebreak()
+    @arbeitspaket_infrastructure #linebreak()
   ],
   [Felix W.], [ 
     @arbeitspaket_iam_blockchain #linebreak()
