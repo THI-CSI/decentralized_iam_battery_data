@@ -55,11 +55,6 @@
   ],
   [pal1222 (at) thi (punkt) de], [
     @mockbms #linebreak()
-  
-    @mockbms_teilaufgaben #linebreak()
-    @mockbms_ergebnisse #linebreak()
-    @mockbms_probleme_und_loesungen #linebreak()
-    @mockbms_annahmen_und_limitierungen #linebreak()
   ],
   [Deniz V.], [ 
     @cloud_uebergeordnetes_ziel_und_aufgaben #linebreak()
@@ -80,4 +75,4 @@
     @cloud_docs #linebreak()
   ]
 ))
-#align(center, [Wenn lediglich das Oberkapitel angegeben ist, so hat der Author an jedem Unterkapitel zu gleichen Teilen mitgewirkt.#linebreak()Wenn statt einem Klarnamen ein Nutzername angegeben ist, so hat der Author der Veröffentlichung nicht zugestimmt.])
+#align(center, text(8pt,[Wenn lediglich das Oberkapitel angegeben ist, so hat der Author an jedem Unterkapitel zu gleichen Teilen mitgewirkt.#linebreak()Wenn statt einem Klarnamen ein Nutzername angegeben ist, so hat der Author der Veröffentlichung nicht zugestimmt.]))
