@@ -45,16 +45,19 @@ Beispiel:   PRJ_CSI_REQ_006.01.01 - Create asymmetrical key pair
 Es beschreibt, welche Akteure auf welche Datenarten im Batteriepass zugreifen dürfen. 
 Folgende Rollen wurden herausgearbeitet (für die Rechte siehe Projekt-Repository: main/organizational/requirements/rights_and_roles.md):
 
-#table(
-  columns: (auto, auto),
-  align: left,
-  table.header(
-   [ *Rolle/Zugriffsebene*], [*Beispielhafte Zugriffsberechtigte / Inhalte*],
-  ),
-  [Publicly Accessible Information],[Allgemeinheit, Hersteller, Entwickler, Händler],
-  [Legitimate Interest and Commission],[Fahrzeughersteller (OEMs), Werkstätten, Aufsichtsbehörden],
-  [Notified Bodies, Market Surveillance and Commission], [Behörden (Ergebnisse von Prüfberichten zur Einhaltung der Verordnung)],
-  [Legitimate Interest],[OEMs, Fahrzeughalter:innen, Recycler – batteriebezogene Informationen]
+
+#figure(
+  table(
+    columns: (auto, auto),
+    align: left,
+    table.header(
+    [ *Rolle/Zugriffsebene*], [*Beispielhafte Zugriffsberechtigte / Inhalte*],
+    ),
+    [Publicly Accessible Information],[Allgemeinheit, Hersteller, Entwickler, Händler],
+    [Legitimate Interest and Commission],[Fahrzeughersteller (OEMs), Werkstätten, Aufsichtsbehörden],
+    [Notified Bodies, Market Surveillance and Commission], [Behörden (Ergebnisse von Prüfberichten zur Einhaltung der Verordnung)],
+    [Legitimate Interest],[OEMs, Fahrzeughalter:innen, Recycler – batteriebezogene Informationen]
+  )
 )
 
 -	Übersichtstabelle mit allen Batteriepass-Attributen, Datentypen, Zugriffsrechten und der Klassifikation, insbesondere im Hinblick auf PRJ_CSI_REQ_018

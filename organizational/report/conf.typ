@@ -12,7 +12,7 @@
       pagebreak()
       [
         *#title* \
-        Das Glossar enthält eine List aller Abkürzungen und ihrer Bedeutungen.
+        Das Glossar enthält eine Liste aller Abkürzungen und ihrer Beschreibungen.
         \
         \
         #body
@@ -24,7 +24,7 @@
       width: 100%,
       table(
         columns: (0.5fr, 1fr), stroke: 0.5pt,
-        table.header([*Abkürzung*], [*Bedeutung*]),
+        table.header([*Abkürzung*], [*Beschreibung*]),
         ..body
       ),
     )
@@ -91,7 +91,11 @@
     if el != none and el.func() == heading {
       let counter = counter(heading).at(el.location())
       let loc = numbering(el.numbering,..counter)
-      link(el.location(), [Abschnitt #loc (#el.body)])
+      if el.supplement == [Appendix] {
+        link(el.location(), [Anhang #loc])
+      } else {
+        link(el.location(), [Abschnitt #loc (#el.body)])
+      }
     } else {
       it
     }

@@ -1,4 +1,3 @@
-#pagebreak()
 #import "../../conf.typ": customFigure
 
 == Cloud <arbeitspaket_cloud>
@@ -60,9 +59,9 @@ Es lassen sich bisher keine nicht-öffentlichen Daten anzeigen.
 
 ==== Kryptografische Überlegungen <cloud_cloudcrypto>
 
-Die Datenübertragung vom BMS an die Cloud muss in ihrer Vertraulichkeit und Integrität geschützt sein. 
+Die Datenübertragung vom @BMS an die Cloud muss in ihrer Vertraulichkeit und Integrität geschützt sein. 
 Initial sollte dafür das "@HPKE"-Verfahren genutzt werden. 
-Dies war jedoch wegen Hardwarelimitationen seitens des BMS nicht möglich. Deshalb wird für den tatsächlichen Austausch eine JSON-Payload verwendet, 
+Dies war jedoch wegen Hardwarelimitationen seitens des @BMS nicht möglich. Deshalb wird für den tatsächlichen Austausch eine JSON-Payload verwendet, 
 die aus `ciphertext`, `eph_pub`, `aad`, `salt`, `did` und `signature` besteht. 
 Mithilfe des öffentlichen Ephemeralschlüssels kann in Kombination mit dem privaten Schlüssel der Cloud die Nachricht entschlüsselt werden. 
 Der öffentliche Cloud-Schlüssel würde in einem realen Kontext durch einen @OEM oder die EU signiert und an die IAM-Blockchain veröffentlicht werden. 
@@ -93,8 +92,8 @@ Außerdem wird für einen Link zu den aufgerufenen Daten dynamisch ein QR-Code e
 
 === Probleme & Lösungen <cloud_probleme_und_loesungen>
 
-Hardwarelimitationen des BMS haben dazu geführt, dass die Implementierung der kryptografischen Funktionen erschwert wurden. HPKE konnte beispielsweise nicht  verwendet werden. 
-Als Lösung musste gemeinsam mit dem BMS-Team ein Schema definiert werden.
+Hardwarelimitationen des @BMS haben dazu geführt, dass die Implementierung der kryptografischen Funktionen erschwert wurden. HPKE konnte beispielsweise nicht  verwendet werden. 
+Als Lösung musste gemeinsam mit dem @BMS\-Team ein Schema definiert werden.
 Zudem gab es Schwierigkeiten im Deployment-Prozess durch die Docker-Netzwerkkonfiguration, welche jedoch gelöst werden konnten.
 
 Die Anforderungen für den QR-Code waren nicht klar definiert, weshalb nicht ersichtlich war, welchen Zweck er haben und welche Daten man mit ihm abrufen können soll.

@@ -1,6 +1,5 @@
 == Autorentabelle <autorentabelle>
 
-
 #align(center, table(
   align: left, 
   columns: (
@@ -9,72 +8,73 @@
   table.header(
     [*Autor*], [*Kapitel*]
   ),
-  [Paulina Mair], [ 
+  [Paulina M.], [ 
     @projektbeschreibung #linebreak()
+    @projektkontext #linebreak()
+    @projektziel #linebreak()
     @requirements_engineering - Teil "Battery Pass" #linebreak()
   ],
-  [Fatma Aladağ], [ 
+  [Fatma A.], [ 
     @genutzte_tools_und_plattformen #linebreak()
     @ueberblick_und_zusammenhang_der_arbeitspakete  #linebreak()
     @requirements_engineering - Teil "@DID:pl & @VC:long:pl" #linebreak()
   ],
-  [Berkan Erkasap], [ 
+  [Berkan E.], [ 
+    Projektbericht-Template #linebreak()
     @systemarchitektur #linebreak()
     @arbeitspaket_infrastructure #linebreak()
-    @infrastructure_ergebnisse #linebreak()
-    @infrastructure_oem_service #linebreak()
   ],
-  [Timo Weese], [ 
+  [Timo W.], [ 
     Teilweise @problembeschreibung #linebreak()
     @arbeitspaket_project_management #linebreak()
     @fazit_und_ausblick #linebreak()
   ],
-  [Pascal Esser], [ 
+  [Pascal E.], [ 
+    Projektbericht-Template #linebreak()
     @infrastructure_uebergeordnetes_ziel_und_aufgaben #linebreak()
-    @infrastructure_teilaufgaben #linebreak()
-    @infrastructure_probleme_und_loesungen #linebreak()
-    @infrastructure_annahmen_und_limitierungen #linebreak()
   ],
-  [Felix Wallner], [ 
+  [Felix W.], [ 
     @arbeitspaket_iam_blockchain #linebreak()
   ],
-  [Jonas Ampferl], [ 
+  [Jonas A.], [ 
     @arbeitspaket_iam_blockchain #linebreak()
   ],
-  [Till Hoffmann], [ 
+  [Till H.], [ 
     @arbeitspaket_iam_blockchain #linebreak()
   ],
-  [Florian Mülken], [
+  [Florian M.], [
     @bms_aufgabenverteilung #linebreak()
-    @bms_programmablauf_und_-logik #linebreak()
+    @bms_programmablauf_und_logik #linebreak()
     @bms_nachrichtengenerierung #linebreak()
   ],
-  [Matthias Maier], [
+  [Matthias M.], [
     @bms_networking #linebreak()
-    @werkzeuge_und_methoden_zur_firmwareentwicklung #linebreak()
+    @bms_werkzeuge_und_methoden_zur_firmwareentwicklung #linebreak()
     @bms_herausforderungen_und_loesungsansaetze #linebreak()
-    @bms_annahmen_und_einschraenkungen #linebreak()
+    @bms_annahmen_und_einschraenkungen #linebreak()    
   ],
   [pal1222 (at) thi (punkt) de], [
+    @mockbms #linebreak()
+  
     @mockbms_teilaufgaben #linebreak()
     @mockbms_ergebnisse #linebreak()
     @mockbms_probleme_und_loesungen #linebreak()
     @mockbms_annahmen_und_limitierungen #linebreak()
   ],
-  [Deniz Volkan], [ 
+  [Deniz V.], [ 
     @cloud_uebergeordnetes_ziel_und_aufgaben #linebreak()
     @cloud_api #linebreak()
     @cloud_ergebnisse #linebreak()
     @cloud_annahmen_und_limitierungen #linebreak()
   ],
-  [Valentin Härter], [
+  [Valentin H.], [
     @cloud_api #linebreak()
     @cloud_cloudcrypto #linebreak()
     @cloud_ergebnisse #linebreak()
     @cloud_probleme_und_loesungen #linebreak()
     @cloud_annahmen_und_limitierungen #linebreak()
   ],
-  [Ensar Özen], [
+  [Ensar Ö.], [
     @cloud_clouddb #linebreak()
     @cloud_ui #linebreak()
     @cloud_docs #linebreak()

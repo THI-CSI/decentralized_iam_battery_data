@@ -13,8 +13,8 @@ VC:
 DID:
   short: "DID"
   plural: "DIDs"
-  long: "Dezentralized Identifier"
-  longplural: "Dezentralized Identifiers"
+  long: "Decentralized Identifier"
+  longplural: "Decentralized Identifiers"
   description: "Ein Identifikator, der auf dezentralen Netzwerken basiert und die Identität eines Subjekts eindeutig definiert."
 
 VP:
@@ -58,3 +58,15 @@ HPKE:
   short: "HPKE"
   long: "Hybrid Public Key Encryption"
   description: "Ein kryptografisches Verfahren, das asymmetrische und symmetrische Verschlüsselung kombiniert, um sichere Kommunikation zu ermöglichen."
+
+EU:
+  short: "EU"
+  long: "Europäische Union"
+  description: "Die EU dient als primärer Vertrauensanker für digitale Identitäten (DIDs) und Zertifikate in Europa."
+
+SVG:
+  short: "SVG"
+  plural: "SVGs"
+  long: "Scalable Vector Graphics"
+  longplural: "Scalable Vector Graphics"
+  description: "Ein XML-basiertes Vektorbildformat, das für die Darstellung von zweidimensionalen Grafiken verwendet wird."
