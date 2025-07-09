@@ -61,6 +61,7 @@
   [Valentin Härter], [
     @cloud_api #linebreak()
     @cloud_cloudcrypto #linebreak()
+    @cloud_ergebnisse #linebreak()
     @cloud_probleme_und_loesungen #linebreak()
     @cloud_annahmen_und_limitierungen #linebreak()
   ],

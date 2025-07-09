@@ -1,3 +1,6 @@
+#pagebreak()
+#import "../../conf.typ": customFigure
+
 == Cloud <arbeitspaket_cloud>
 
 === Übergeordnetes Ziel & Aufgaben <cloud_uebergeordnetes_ziel_und_aufgaben>
@@ -79,12 +82,23 @@ und kann unter `http://example.instance.cloud/docs` abgerufen werden.
 In der Cloud-Datenbank können mehrere Batteriepässe für @DID:pl erstellt und verwaltet werden. Die Löschung funktioniert ebenso
 und ermöglicht das vollständige Ausleben einer Batterie.
 Das Cloud-System ist über Docker-Compose startbar und funktioniert den Anforderungen entsprechend.
+Mit der Streamlit-Cloud-UI lassen sich, so wie in @cloud_ui_figure zu sehen, öffentliche Batteriepassdaten einsehen.
+Sie macht es möglich, für jede verfügbare @DID verschiedene Kategorien zu Informationen über die jeweilige Batterie einzusehen. 
+Außerdem wird für einen Link zu den aufgerufenen Daten dynamisch ein QR-Code erzeugt.
+
+#customFigure(
+  image("../../assets/cloud_ui.png", width: 70%),
+  caption: "Cloud UI",
+) <cloud_ui_figure>
 
 === Probleme & Lösungen <cloud_probleme_und_loesungen>
 
 Hardwarelimitationen des BMS haben dazu geführt, dass die Implementierung der kryptografischen Funktionen erschwert wurden. HPKE konnte beispielsweise nicht  verwendet werden. 
 Als Lösung musste gemeinsam mit dem BMS-Team ein Schema definiert werden.
 Zudem gab es Schwierigkeiten im Deployment-Prozess durch die Docker-Netzwerkkonfiguration, welche jedoch gelöst werden konnten.
+
+Die Anforderungen für den QR-Code waren nicht klar definiert, weshalb nicht ersichtlich war, welchen Zweck er haben und welche Daten man mit ihm abrufen können soll.
+Das Cloud-Team hat sich mit dem gesamten Projektteam darauf geeinigt, ausschließlich öffentliche Daten abrufbar zu machen.
 
 === Annahmen & Limitierungen <cloud_annahmen_und_limitierungen>
 
@@ -98,7 +112,13 @@ Die Cloud ist zudem abhängig vom BatteryPassDataModel, inklusive der enthaltene
 Diese müssen in der Zukunft beim öffentlichen GitHub-Repository ausgebessert werden. 
 Außerdem sollte TinyDB zukünftig durch eine robuste und skalierbare Datenbanklösung wie beispielsweise MongoDB abgelöst werden
 
-Eventuell wäre es auch interessant,  sich eine
-dezentrale Speicherung der Batteriepassdaten selbst anzuschauen. Bei dieser muss jedoch überlegt werden, wie private Daten gespeichert werden sollen.
+Eventuell wäre es auch interessant, sich eine dezentrale Speicherung der Batteriepassdaten selbst anzuschauen. 
+Bei dieser muss jedoch überlegt werden, wie private Daten gespeichert werden sollen.
 Ein weiterer Aspekt, welcher ausgebaut werden sollte, ist die visuelle Oberfläche. In ihr lassen sich zum jetzigen Standpunkt nur öffentliche Daten anzeigen.
 Eine Unterstützung für das Hochladen von VPs und der Betrachtung von nicht-öffentlichen Daten wäre denkbar und nicht zu komplex.
+
+Im Rahmen des Projekts wurde das Zugriffskonzept nicht ausschließlich mit VPs geregelt, da es initial geplant war, dass ein BMS ohne ihre Verwendung dynamische Daten 
+aktualisieren kann. Derzeit können Batteriepassdaten über ein VP oder über einen signierten Payload eines BMSes gelesen werden. Das Schreiben funktioniert 
+nur über solch einen signierten Payload. Die Rollen werden teils über die Kontrolle eines privaten Schlüssels festgelegt. Wenn auf diesen privaten Schlüssel illegitim
+zugegriffen werden kann, hätte ein Angreifer Kontrolle über alle Batteriepassdaten und könnte den Eintrag löschen.
+Es wäre also sinnvoll, das Schreiben sowie das Lesen exklusiv über VPs handzuhaben. Dann wäre der Prozess resilienter gegenüber gesetzlichen Veränderungen und neuen Normen.
